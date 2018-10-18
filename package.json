@@ -3,16 +3,18 @@
     "version": "0.0.1",
     "description": "Automation development system javascript companion library",
     "main": "lib/index.js",
+    "esnext": "src/index.js",
     "repository": "https://shelmberger@intern.quinscape.de/bitbucket/scm/xcd/automaton-js.git",
     "author": "Quinscape GmbH",
     "license": "-",
     "private": true,
     "peerDependencies": {
-        "react": "^16.5.2",
         "create-react-class": "^15.6.3",
-        "mobx": "^5.5.0"
+        "domainql-form": "^0.0.8",
+        "mobx": "^5.5.0",
+        "react": "^16.5.2",
+        "reactstrap": "^6.5.0"
     },
-
     "devDependencies": {
         "babel-cli": "^6.26.0",
         "babel-core": "^6.26.3",
@@ -31,12 +33,14 @@
         "react-dom": "^16.5.2",
         "sinon": "^5.0.10"
     },
-
     "scripts": {
         "prepublish": "cross-env NODE_ENV=production babel src --out-dir lib",
         "watch": "cross-env NODE_ENV=development babel -s -w src --out-dir lib",
         "test": "cross-env BABEL_ENV=test mocha -r babel-register -r test/setup.js -R spec test/",
         "build-docs": "babel-node tooling/build-ref.js"
+    },
+    "dependencies": {
+        "classnames": "^2.2.6",
+        "prop-types": "^15.6.2"
     }
-
 }

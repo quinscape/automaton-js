@@ -1,59 +1,72 @@
 import React from "react";
-import QueryDeclaration from "./QueryDeclaration";
-import FormConfigProvider from "domainql-form/lib/";
+import {
+    get,
+    keys,
+    set
+} from "mobx";
 
+import QueryDeclaration from "./QueryDeclaration";
+import FormConfigProvider from "domainql-form/lib/FormConfigProvider";
+import InputSchema from "domainql-form/lib/InputSchema";
+import Authentication from "./auth";
+import { configuration } from "./configuration";
 
 const MODULE_REGEX = /\.\/(.*?)\/(components\/(.*?)|.*?)\.js/;
 
-const processes = [];
+const NOT_IMPLEMENTED = { "_" : "NOT_IMPLEMENTED" };
 
 const secret = Symbol("ProcessSecret");
 
-export const ScopeContext = React.createContext({
-    scope: {
-        scope: null,
-        userScope: null,
-        applicationScope : null,
-        process: null,
-        auth: null
-    }
+export const AutomatonEnv = React.createContext({
+    "_" : "default context"
 });
 
 function inject(scope, injections)
 {
-    for (let name in scope)
+    //console.log("INJECTIONS", injections);
+
+    const scopeKeys = keys(scope);
+
+    for (let i = 0; i < scopeKeys.length; i++)
     {
-        if (scope.hasOwnProperty(name))
+        const name = scopeKeys[i];
+
+        const prop = get(scope, name);
+        if (prop instanceof QueryDeclaration)
         {
-            const prop = scope[name];
-            if (prop instanceof QueryDeclaration)
+            const result = injections[prop.query];
+            if (result === undefined)
             {
-                const result = injections[prop.query];
-                if (result === undefined)
-                {
-                    throw new Error("Could not find query for prop '" + name + "'");
-                }
-                scope[name] = result;
+                throw new Error("Could not find query for prop '" + name + "'");
             }
+
+            //console.log("set", name, "to", result);
+
+            set( scope, name, result);
         }
     }
-
 }
 
-export function renderProcess(initial, ctx)
+function ProcessEntry(process)
 {
-    const {
-        _injections: injections,
-        authentication,
-        contextPath,
-        csrfToken,
-        schema
-    } = initial;
+    this.process = process;
+    this.initProcess = null;
+    this.ScopeClass = null;
+}
 
-    let process;
-    let ScopeClass, initProcess, processAccess;
+/**
+ * Loads the process scope, initProcess and components from the given initial data and webpack require context
+ *
+ * @param initial   initial data
+ * @param ctx       webpack require context
+ * 
+ * @return {{process: *, initProcess: *, ScopeClass: *}}    infrastructural process objects
+ */
+function loadProcesses(initial, ctx)
+{
     const keys = ctx.keys();
-    const components = {};
+
+    const processes = {  };
 
     for (let i = 0; i < keys.length; i++)
     {
@@ -73,77 +86,207 @@ export function renderProcess(initial, ctx)
         const processName = m[1];
         const componentName = m[3];
 
-        if (i === 0)
+        let entry = processes[processName];
+        if (!entry)
         {
-            process = new Process(processName, components);
-            processAccess = process[secret];
-            processes.push(process);
+            entry = new ProcessEntry(
+                new Process(processName)
+            );
+            processes[processName] = entry;
         }
 
         const module = ctx(moduleName);
         if (componentName)
         {
             //console.log("process", process);
-            components[componentName] = module.default;
+            entry.process[secret].components[componentName] = module.default;
         }
         else
         {
-            ScopeClass = module.default;
-            initProcess = module.initProcess;
+            const { default: ScopeClass, initProcess } = module;
 
             if (!initProcess)
             {
                 throw new Error("No initProcess defined in " + moduleName);
             }
 
+            entry.ScopeClass = ScopeClass;
+            entry.initProcess = initProcess;
         }
     }
+    return processes;
+}
 
-    const scope = new ScopeClass();
+function getLayout(process, currentState)
+{
+    const { layout } = process;
 
-    inject(scope, injections);
-
-    const states = initProcess(process, scope);
-    processAccess.initialized = true;
-    processAccess.startState = states.startState;
-    processAccess.states = states;
-    
-    let Component = components[states.startState];
-
-    if (!Component)
+    if (layout)
     {
-        throw new Error("No component '" + states.startState + "' in process '" + process.name)
+        if (currentState !== undefined && layout.prototype.isReactComponent)
+        {
+            const component = layout[currentState];
+            if (component)
+            {
+                return component;
+            }
+        }
+        return layout;
+    }
+    return configuration().layout;
+}
+
+function setCurrentState(process, currentState)
+{
+    // directly access secret process data
+    const data = process[secret];
+
+    if (!data.states[currentState])
+    {
+        throw new Error("Could not find state '" + currentState + "' in Process '" + process.name + "'");
+    }
+    data.currentState = currentState;
+}
+
+function renderViewState(currentState, process)
+{
+    // directly access secret process data
+    const data = process[secret];
+
+    setCurrentState(process, currentState);
+
+    const ViewComponent = data.components[currentState];
+
+    if (!ViewComponent)
+    {
+        throw new Error("No component '" + currentState + "' in process '" + process.name)
     }
 
+    const inputSchema = new InputSchema(initialData.schema);
+
     const env = {
-        scope,
-        applicationScope: { "_": "notImplemented" },
-        userScope: { "_": "notImplemented" },
-        authentication,
-        csrfToken,
-        contextPath
+        process,
+        contextPath: initialData.contextPath,
+        state: currentState,
+        scope: data.scope,
+        applicationScope: NOT_IMPLEMENTED,
+        userScope: NOT_IMPLEMENTED,
+        auth: authentication,
+        initialData
     };
 
+    const Layout = getLayout(process, currentState);
+
+    //console.log("LAYOUT", Layout);
+
     return (
-        <ScopeContext.Provider value={ env }>
-            <Component
-                env={ env }
-            />
-        </ScopeContext.Provider>
+        <AutomatonEnv.Provider
+            value={ env }
+        >
+            <FormConfigProvider
+                schema={ inputSchema }
+            >
+                <Layout
+                    env={ env }
+                >
+                    <ViewComponent
+                        env={ env }
+                    />
+                </Layout>
+            </FormConfigProvider>
+        </AutomatonEnv.Provider>
     )
 }
 
-export class Process
+let initialData, authentication;
+
+
+export function renderProcess(initial, ctx, processName = initial.processName)
 {
-    constructor(name, components)
+    initialData = initial;
+
+    console.log("RENDER", processName);
+
+    const {
+        injections,
+    } = initial;
+
+    authentication = new Authentication(initialData.authentication);
+
+    const processes = loadProcesses(initial, ctx);
+
+    //console.log("PROCESSES", processes);
+    
+    const processEntry = processes[processName];
+
+    if (!processEntry)
+    {
+        throw new Error("Could not find process '" + processName + "'");
+    }
+
+    //console.log("PROCESS-ENTRY", processEntry);
+
+    const { process, initProcess, ScopeClass } = processEntry;
+
+    // directly access secret process data
+    const data = process[secret];
+
+    let scope;
+    if (ScopeClass)
+    {
+        scope = new ScopeClass();
+        inject(scope, injections);
+    }
+    else
+    {
+        scope = null;
+    }
+
+    const stateData = initProcess(process, scope);
+
+    const currentState = stateData.startState;
+
+    data.startState = currentState;
+    data.states = stateData.states;
+    data.scope = scope;
+    data.initialized = true;
+
+    initialData = initial;
+
+    return renderViewState(currentState, process);
+}
+
+function ensureInitialized(process)
+{
+    if (!process[secret].initialized)
+    {
+        throw new Error("Process not initialized");
+    }
+}
+
+/**
+ * Process facade exposing a limited set of getters and methods as process API
+ */
+export class Process {
+    constructor(name, parent)
     {
         this[secret] = {
             name,
-            components,
-            initialized: false,
+            components: {},
+
+            parent,
+
             states: null,
             startState: null,
-            current: null
+
+            currentState: null,
+            currentObject: null,
+
+            scope: null,
+
+            layout: null,
+
+            initialized: false
         };
     }
 
@@ -151,12 +294,7 @@ export class Process
     {
         return this[secret].name;
     }
-
-    get components()
-    {
-        return this[secret].components;
-    }
-
+    
     get startState()
     {
         return this[secret].startState;
@@ -167,14 +305,64 @@ export class Process
         return this[secret].states;
     }
 
-    transitionTo(state)
+    get layout()
     {
-        let initialized = this[secret].initialized;
+        return this[secret].layout;
+    }
 
-        if (!initialized)
+    set layout(layout)
+    {
+        if (layout.prototype.isReactComponent || (layout && typeof layout === "object"))
         {
-            throw new Error("Cannot transition in locked process");
+            this[secret].layout = layout;
         }
+        else
+        {
+            throw new TypeError("Invalid layout: " + layout);
+        }
+    }
+
+    getComponent(name)
+    {
+        const component = this[secret].components[name];
+        if (!component)
+        {
+            throw new Error("Could not find component '" + name + "'");
+        }
+        return component;
+    }
+
+    transition(name, ... args)
+    {
+        ensureInitialized(this);
+
+        const data = this[secret];
+
+        const array = data.states[data.currentState];
+
+        let transition;
+
+        for (let i = 0; i < array.length; i++)
+        {
+            const current = array[i];
+
+            if (current.name === name)
+            {
+                 transition = current;
+                 break;
+            }
+        }
+
+        if (!transition)
+        {
+            throw new Error("Could not find transition '" + name + "' in Process '" + this.name + "'" )
+        }
+
+        return Promise.resolve(transition.action(args));
+    }
+
+    back()
+    {
         // TODO: implement
     }
 }
