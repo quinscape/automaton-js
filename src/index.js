@@ -6,6 +6,7 @@ import { configuration } from "./configuration";
 
 import DataGrid from "./ui/DataGrid"
 import Button from "./ui/Button"
+import type from "./decorator/type"
 
 export {
     configuration,
@@ -14,6 +15,7 @@ export {
     injection,
     withAutomatonEnv,
     i18n,
+    type,
 
     // UI components
     DataGrid,

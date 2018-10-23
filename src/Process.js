@@ -11,7 +11,7 @@ import InputSchema from "domainql-form/lib/InputSchema";
 import Authentication from "./auth";
 import { configuration } from "./configuration";
 
-const MODULE_REGEX = /\.\/(.*?)\/(components\/(.*?)|.*?)\.js/;
+const MODULE_REGEX = /\.\/(.*?)\/(composites\/(.*?)|.*?)\.js/;
 
 const NOT_IMPLEMENTED = { "_" : "NOT_IMPLEMENTED" };
 

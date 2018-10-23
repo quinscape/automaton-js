@@ -8,6 +8,12 @@
     "author": "Quinscape GmbH",
     "license": "-",
     "private": true,
+
+    "dependencies": {
+        "classnames": "^2.2.6",
+        "prop-types": "^15.6.2"
+    },
+
     "peerDependencies": {
         "create-react-class": "^15.6.3",
         "domainql-form": "^0.0.8",
@@ -33,14 +39,17 @@
         "react-dom": "^16.5.2",
         "sinon": "^5.0.10"
     },
+
+    "bin" : {
+        "model-to-js" : "./lib/modelToJs.js",
+        "js-to-model" : "./lib/jsToModel.js"
+    },
+
     "scripts": {
         "prepublish": "cross-env NODE_ENV=production babel src --out-dir lib",
         "watch": "cross-env NODE_ENV=development babel -s -w src --out-dir lib",
         "test": "cross-env BABEL_ENV=test mocha -r babel-register -r test/setup.js -R spec test/",
         "build-docs": "babel-node tooling/build-ref.js"
-    },
-    "dependencies": {
-        "classnames": "^2.2.6",
-        "prop-types": "^15.6.2"
     }
+
 }

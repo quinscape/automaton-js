@@ -10,7 +10,7 @@ class Column extends React.Component {
         {
             const result = children(context);
 
-            console.log("FN-RESULT", result);
+            //console.log("FN-RESULT", result);
 
             return (
                 <td>
@@ -28,7 +28,7 @@ class Column extends React.Component {
             );
         }
 
-        console.log("context[name] = ", context[name]);
+        //console.log("context[name] = ", context[name]);
 
         return (
             <td>
