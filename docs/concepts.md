@@ -1,4 +1,4 @@
-# JSON Model Format
+# Automaton Concepts
 
 Automaton uses an intermediary JSON format, currently for composite components and process exports, to be extended as 
 needed.
