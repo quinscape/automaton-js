@@ -65,15 +65,16 @@ Here we see the JavaScript source for a simple composite component.
 ```js
 import React from "react"
 
+import { observer } from "mobx"
+
+@observer
 class SimpleComposite extends React.Component {
 
     render()
     {
         return (
             <div>
-                <h1 className="test-class">
-                    SimpleComposite
-                </h1>
+                <h1 className="test-class">SimpleComposite</h1>
             </div>
         )
     }
@@ -86,17 +87,15 @@ Composite components contain two more properties in addition to `"importDeclarat
 ```json
 {
     "importDeclarations": [ "..." ],
-
+    
     "composite": {
         "type": "CompositeComponent",
         "constants": [],
         "root": {
-            "type": "JSXElement",
             "name": "div",
             "attrs": [],
             "kids": [
                 {
-                    "type": "JSXElement",
                     "name": "h1",
                     "attrs": [
                         {
@@ -113,13 +112,19 @@ Composite components contain two more properties in addition to `"importDeclarat
                             "type": "JSXText",
                             "value": "SimpleComposite"
                         }
-                    ]
+                    ],
+                    "type": "JSXElement"
                 }
-            ]
-        }
+            ],
+            "type": "JSXElement"
+        },
+        "decorators": [
+            {
+                "name": "observer"
+            }
+        ]
     },
     "export": "SimpleComposite"
-
 }
 ```
 Composite components contain two more properties in addition to `"importDeclarations"`
