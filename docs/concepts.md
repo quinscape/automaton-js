@@ -92,7 +92,7 @@ The Composite Components are large, organizational components with different ste
  
  Let's look at composite view in  JavaScript 
  
- ```jsx harmony
+ ```js
 import React from "react"
 import { observer } from "mobx-react";
 
@@ -175,7 +175,7 @@ One kind of JSX expression we special case, which is any kind of render prop, be
 
 Here we see an example of such a render function passed to an attribute
   
- ```jsx harmony
+ ```js
      return (
          
          <Widget 
@@ -201,7 +201,7 @@ before returning another JSX element tree for that function, all of which we ext
 
 We do support logical chaining to enable optional components
 
- ```jsx harmony
+ ```js
      return (
          condition && <Widget/>
      )
@@ -229,7 +229,7 @@ basic data-model for the process which is observed by the view components.
 
 ### initProcess function
 
- ```jsx harmony
+ ```js
 
 import CustomLayout from "../components/CustomLayout"
 
@@ -287,7 +287,7 @@ Each transition name points to a transtion object that can have two properties
 
 The process scope implementation must be the default process module export and can have any name.
 
- ```jsx harmony
+ ```js
 import {
     observable,
     computed,

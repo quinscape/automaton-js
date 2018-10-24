@@ -7,7 +7,7 @@ in that module.
 
 We support all syntax forms of ES6 imports
 
-```jsx harmony
+```js
 import React from "react"
 import { Original as Widget } from "../../components/ui"
 import * as Another from "another-lib"
@@ -62,7 +62,7 @@ a signal to render that clause on the way back.
 
 Here we see the JavaScript source for a simple composite component. 
 
-```jsx harmony
+```js
 import React from "react"
 
 class SimpleComposite extends React.Component {
@@ -151,7 +151,7 @@ sub-tree and the `"export"` key containing the source of the export declaration 
 Here we see a composite component demonstrating two advanced features: Render functions and constant declarations with
 object patterns.
 
-```jsx harmony
+```js
 import React from "react"
 import { Widget } from "../../components/ui"
 
@@ -256,7 +256,7 @@ render function accepts as
 a `"constants"` array with the normalish constant
 declaration for `uri`:
 
-```jsx harmony
+```js
     const uri = "/xxx/" + context + "/" + length;
 ```
 
@@ -276,13 +276,13 @@ Both can use arbitrarily complex destructuring.
 
 Let's take a look at the complex example we left out above 
 
-```jsx harmony
+```js
     const { env : { contextPath : length } } = this.props;
 ```
 
 This is an actually working but admittedly somewhat contrived example executing the following equivalent code.
 
-```jsx harmony
+```js
     const length = this.props.env.contextPath.length;
 ```
 
@@ -331,7 +331,7 @@ The same recursive "object pattern or identifier" thing happens for elements of 
  
 ## Process Exports
 
-```jsx harmony
+```js
 import {
     observable,
     computed,

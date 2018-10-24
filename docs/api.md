@@ -16,7 +16,7 @@ Configuration key | Description|
 layout            | Default Layout Component
 translations      | Map of translation tags to translated messages 
 
-```jsx harmony
+```js
     configuration({
         layout: Layout,
         translations: initial.translations
@@ -27,7 +27,7 @@ translations      | Map of translation tags to translated messages
 
 Starts a new root process from the myapp-app.js files
 
-```jsx harmony
+```js
     return renderProcess(
         initial,
         require.context("./processes/", true, /\.js$/)
@@ -45,7 +45,7 @@ data to the server so that the server can prepare the translations and injection
 Translation function. Inserts the translation for a given translation tag and possibly arguments. If the translation tag 
 accepts arguments, placeholders must be present in both tag name and translations
 
-```jsx harmony
+```js
 import { i18n } from "automaton-js"
 // ---------------------------------------
 
@@ -59,7 +59,7 @@ Injects the result of a single GraphQL query or mutation into a process scope va
 
 In `apps/myapp/processes/customer/customer.js` :
 
-```jsx harmony
+```js
 import {
     observable,
 } from "mobx";
