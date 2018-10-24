@@ -147,9 +147,9 @@ The `"kids"` property contains an array of further elements that can be either
  * `"RenderFunction"` typed
  * and an `"JSXElement"` 
 
-Apart from the `"constants"` the render function also contains another `"root"` property containing a new JSX component 
-sub-tree and the `"export"` key containing the source of the export declaration including all applied HOCs.
 
+The `"decorators"` property contains a list of all decorators applied to the composite component. Each decorator
+has a `"name"` property and potentially an `"arguments"` array with the source of all arguments. 
 
 ### Render Functions
 
@@ -255,14 +255,31 @@ Here's the JSON of that with the first complex constant left out
 ```
 
 The widget has a `"RenderFunction"` typed child which contains a `"params` array listing the arguments the 
-render function accepts as  
-
-
-a `"constants"` array with the normalish constant
-declaration for `uri`:
+render function accepts as a `"constants"` array with the normalish constant declaration for `uri`:
 
 ```js
     const uri = "/xxx/" + context + "/" + length;
+```
+
+```json
+{
+    "constants": [
+        {
+            "type": "VariableDeclaration",
+            "kind": "const",
+            "declarations": [
+                {
+                    "type": "VariableDeclarator",
+                    "id": {
+                        "type": "Identifier",
+                        "name": "uri"
+                    },
+                    "init": "\"/xxx/\" + context + \"/\" + length"
+                }
+            ]
+        }
+    ]
+}
 ```
 
 Each constant entry is a `"VariableDeclaration"` typed object with a `"kind` property containing either `"let"` or `"const"`.
