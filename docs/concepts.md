@@ -220,13 +220,6 @@ as the process.
 
 The module can have arbitrary imports and is expected to provide two exports.
 
-
-### Process Scope 
-
-The default export of the module must be a mobx decorated process scope definition. The process scope defines the 
-basic data-model for the process which is observed by the view components.
-
-
 ### initProcess function
 
  ```js
@@ -285,7 +278,8 @@ Each transition name points to a transtion object that can have two properties
           
 ### Process Scope
 
-The process scope implementation must be the default process module export and can have any name.
+The default export of the module must be a mobx decorated process scope definition which can have any name. The process 
+scope defines the basic data-model for the process which is observed by the view components.
 
  ```js
 import {
