@@ -55,10 +55,6 @@ file at the same relative location.
 In large parts, the model format is a simplified version of the Babel compiler AST und is collected by the 
 "babel-plugin-automaton" NPM module during the js build. 
 
-All data is written to a single file in the maven target directory `target/{war-name}/js/model.json` 
-(e.g. `target/automaton-test/js/model.json`) at first. The file contains a flat object map mapping paths like 
-`"./apps/shipping/processes/customer/composites/CustomerList"` to the JSON contents of that model.
-
 The package.json of the automaton applications defines to scripts to update the model information in either direction.
 
 #### Commands
@@ -70,11 +66,16 @@ yarn run js-to-model
 Copies the current model.json into the model directory to commit the changes alongside the corresponding manual changes
 to the generated JavaScript files.
 
+Running the command enables the special BABEL_ENV activating the "babel-plugin-automaton". The build collects model
+information from the JavaScript source files below `src/main/js/apps` and writes the data to model files below 
+`src/main/webapp/WEB-INF/automaton/apps/`.
+
 ```shell 
 yarn run model-to-js
 ```
 
-Regenerates the Javascript sources at `src/main/js/apps/` from model directory `src/main/webapp/WEB-INF/automaton/apps/`.
+Regenerates the Javascript sources at `src/main/js/apps/` from the model directory 
+`src/main/webapp/WEB-INF/automaton/apps/`.
 
 
 ---
