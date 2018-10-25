@@ -11,7 +11,28 @@ import InputSchema from "domainql-form/lib/InputSchema";
 import Authentication from "./auth";
 import { configuration } from "./configuration";
 
-const MODULE_REGEX = /\.\/(.*?)\/(composites\/(.*?)|.*?)\.js/;
+const NO_MATCH = {
+    processName : null,
+    moduleName : null,
+    isComposite : null
+};
+
+const MODULE_REGEX = /^\.\/(processes\/(.*?)\/(composites\/)?)?(.*?).js$/;
+
+function matchPath(path)
+{
+    const m = MODULE_REGEX.exec(path);
+    if (!m)
+    {
+        return NO_MATCH;
+    }
+
+    return {
+        processName: m[2],
+        shortName: m[4],
+        isComposite: !!m[3]
+    }
+}
 
 const NOT_IMPLEMENTED = { "_" : "NOT_IMPLEMENTED" };
 
@@ -72,19 +93,21 @@ function loadProcesses(initial, ctx)
     {
         const moduleName = keys[i];
 
-        let m = MODULE_REGEX.exec(moduleName);
+        const { processName, shortName, isComposite } = matchPath(keys[i]);
 
-        //console.log(m);
-
-        if (!m)
+        if (!processName)
         {
-            throw new Error("Module name '" + moduleName + "' does not match " + MODULE_REGEX);
+            continue;
+        }
+
+        console.log("loadProcesses", { moduleName, processName, shortName, isComposite });
+
+        if (!shortName)
+        {
+            throw new Error("Module name '" + keys[i] + "' does not match " + MODULE_REGEX);
         }
 
         //console.log("-- Process", m[1]);
-
-        const processName = m[1];
-        const componentName = m[3];
 
         let entry = processes[processName];
         if (!entry)
@@ -96,10 +119,10 @@ function loadProcesses(initial, ctx)
         }
 
         const module = ctx(moduleName);
-        if (componentName)
+        if (isComposite)
         {
             //console.log("process", process);
-            entry.process[secret].components[componentName] = module.default;
+            entry.process[secret].components[shortName] = module.default;
         }
         else
         {
@@ -201,11 +224,12 @@ function renderViewState(currentState, process)
 let initialData, authentication;
 
 
-export function renderProcess(initial, ctx, processName = initial.processName)
+export function renderProcess(initial, ctx, Scopes)
 {
     initialData = initial;
 
-    console.log("RENDER", processName);
+    const processName = initial.processName;
+    //console.log("RENDER", processName);
 
     const {
         injections,
@@ -215,7 +239,7 @@ export function renderProcess(initial, ctx, processName = initial.processName)
 
     const processes = loadProcesses(initial, ctx);
 
-    //console.log("PROCESSES", processes);
+    console.log("PROCESSES", processes);
     
     const processEntry = processes[processName];
 
@@ -224,7 +248,7 @@ export function renderProcess(initial, ctx, processName = initial.processName)
         throw new Error("Could not find process '" + processName + "'");
     }
 
-    //console.log("PROCESS-ENTRY", processEntry);
+    console.log("PROCESS-ENTRY", processEntry);
 
     const { process, initProcess, ScopeClass } = processEntry;
 
