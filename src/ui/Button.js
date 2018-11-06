@@ -1,12 +1,27 @@
 import React from "react"
 import withAutomatonEnv from "../withAutomatonEnv";
+import PropTypes from "prop-types";
 import Icon from "./Icon";
 import cx from "classnames"
 
+
 class Button extends React.Component {
 
+    static propTypes = {
+        action: PropTypes.func,
+        transition: PropTypes.string,
+        className: PropTypes.string,
+        icon: PropTypes.string,
+        text: PropTypes.string
+    };
+
+    static defaultProps = {
+        className: "btn btn-secondary",
+        text: ""
+    };
+
     onClick = ev => {
-        const { action, context, env } = this.props;
+        const {action, transition, context, env} = this.props;
 
         if (typeof action === "function")
         {
@@ -14,21 +29,22 @@ class Button extends React.Component {
         }
         else
         {
-            const { process } = env;
-            process.transition(context)
+            const {process} = env;
+            process.transition(transition, context)
         }
     };
 
+
     render()
     {
-        const { className, name, icon, text } = this.props;
+        const {className, name, icon, text} = this.props;
 
         return (
             <button
                 type="button"
-                name={ name }
-                className={ className }
-                onClick={ this.onClick }
+                name={name}
+                className={className}
+                onClick={this.onClick}
             >
                 {
                     icon && (
@@ -49,5 +65,6 @@ class Button extends React.Component {
         )
     }
 }
+
 
 export default withAutomatonEnv(Button)

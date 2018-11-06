@@ -1,5 +1,5 @@
-
 const secret = Symbol("AuthSecret");
+
 
 function mapRoles(roles)
 {
@@ -11,25 +11,28 @@ function mapRoles(roles)
     return rolesMap;
 }
 
-export default class Authentication
-{
+
+export default class Authentication {
     constructor(data)
     {
         this[secret] = {
-            ... data,
+            ...data,
             roles: mapRoles(data.roles)
         };
     }
+
 
     get login()
     {
         return this[secret].login;
     }
 
+
     get id()
     {
         return this[secret].id;
     }
+
 
     /**
      * Returns true if the user has any of the given roles.
@@ -37,7 +40,7 @@ export default class Authentication
      * @param {... String} roles    roles
      * @return {boolean}
      */
-    hasRole(... roles)
+    hasRole(...roles)
     {
         for (let i = 0; i < roles.length; i++)
         {

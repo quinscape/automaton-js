@@ -1,5 +1,6 @@
 import QueryDeclaration from "./QueryDeclaration";
 
+
 /**
  * Declares a GraphQL injection that will be automatically provided to the process scope on process initialization.
  *
@@ -15,7 +16,6 @@ import QueryDeclaration from "./QueryDeclaration";
  * @returns {QueryDeclaration} query declaration
  *
  */
-export default function injection(query)
-{
+export default function injection(query) {
     return new QueryDeclaration(query);
 }

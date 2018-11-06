@@ -1,10 +1,11 @@
 import React from "react"
 
+
 class Column extends React.Component {
 
     render()
     {
-        const { name, context, children } = this.props;
+        const {name, context, children} = this.props;
 
         if (typeof children === "function")
         {
@@ -52,8 +53,8 @@ class DataGrid extends React.Component {
 
     render()
     {
-        const { value, children } = this.props;
-        const { rows, rowCount } = value;
+        const {value, children} = this.props;
+        const {rows, rowCount} = value;
 
         return (
             <table className="table table-hover table-sm table-striped">
@@ -76,8 +77,8 @@ class DataGrid extends React.Component {
                 <tbody>
                 {
                     rows.map(
-                        (context, idx ) => (
-                            <tr key={ idx }>
+                        (context, idx) => (
+                            <tr key={idx}>
                                 {
                                     React.Children.map(
                                         children,
@@ -100,9 +101,9 @@ class DataGrid extends React.Component {
         )
     }
 
+
     static Column = Column;
 }
-
 
 
 export default DataGrid

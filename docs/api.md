@@ -5,35 +5,77 @@ internal "automaton-js" library.
 
 ## Startup
 
-### configuration
+### config
 
-configuration function for automaton. Can either by called without arguments
-to receive the current configuration or with an object to set the current 
-configuration.
+configuration object for automaton. Global constant client-side configuration is kept here. 
 
-Configuration key | Description|
-------------------|-----------------------
+Configuration key | Description                                    
+------------------|----------------------------------------------------------------------------------------------
 layout            | Default Layout Component
-translations      | Map of translation tags to translated messages 
+locale            | Current locale code
+translations      | Map of translation tags to translated messages for the current locale. You can register function values that can be used for dynamic transation.
+contextPath       | Servlet context path under which the application is deployed. Must be inserted into every local URI. uri() does this automatically
+scopeSyncTimeout  | Number of milliseconds that have to pass without further changes before a persistent scope is synchronized. Can be an object map with standard cope names to configure the values per scope.
 
 ```js
-    configuration({
-        layout: Layout,
-        translations: initial.translations
-    });
+    config.layout = Layout;
+    config.translations = {
+        ... config.translations,
+        "CustomKey" : function(tag, args)
+        {
+            const [ num ] = args;
+            if (num === 0 || num > 1)
+            {
+                return num + " custom keys"
+            }
+            else
+            {
+                return "a custom key";
+            }
+        }
+    };
 ```
 
-### renderProcess
+### startup
 
-Starts a new root process from the myapp-app.js files
+Starts the automaton application with the current process resulting from the URL mapping.
+
+#### Example startup module
 
 ```js
-    return renderProcess(
-        initial,
-        require.context("./processes/", true, /\.js$/)
+import React from 'react';
+import bootstrap from 'jsview-bootstrap'
+import { configure } from "mobx"
+import { startup, config } from "automaton-js"
+import Layout from "../../components/Layout";
 
-    );
+// set MobX configuration
+configure({
+    enforceActions: "observed"
+});
+
+bootstrap(
+    initial => {
+        return startup(
+            require.context("./", true, /\.js$/),
+            initial,
+            () => {
+                config.layout = Layout;
+            }
+        );
+    },
+    () => console.log("ready.")
+);
+
+module.exports = { config };
 ```
+Here we see a complete startup for an Automaton application. After the necessary imports, MobX is configured.
+
+Then we call the bootstrap module which calls our first callback with the initial data pushed from the server.
+
+We call the startup function with the require context that dynamically loads all modules in the current app directory.
+We give in the initial data and can optionally add a third callback argument that will be called after the default
+initialization is done but before the current process is started. 
 
 # Tracked Function
 

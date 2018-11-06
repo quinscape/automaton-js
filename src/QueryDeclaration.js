@@ -1,5 +1,3 @@
-
-export default function QueryDeclaration(query)
-{
+export default function QueryDeclaration(query) {
     this.query = query;
 }

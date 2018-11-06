@@ -5,7 +5,7 @@ class DefaultLayout extends React.Component {
 
     render()
     {
-        const { env, children } = this.props;
+        const {env, children} = this.props;
 
         return (
             <div className="container default-layout">
@@ -16,5 +16,6 @@ class DefaultLayout extends React.Component {
         )
     }
 }
+
 
 export default DefaultLayout

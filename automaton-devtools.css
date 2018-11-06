@@ -1,0 +1,23 @@
+
+.automaton-devtools {
+
+    position: fixed;
+    background-color: rgb(255, 255, 255);
+    color: #333;
+    border: 1px solid #aaa;
+    z-index: 65000;
+    display: flex;
+    top: -8px;
+}
+
+.automaton-devtools button.btn
+{
+    background: transparent;
+    color: #aaa;
+}
+
+.automaton-devtools button.active
+{
+    background: #ddd;
+    color: #000;
+}
