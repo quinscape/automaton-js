@@ -454,7 +454,7 @@ The above results in the following JSON
         ],
         
         "process": {
-            "startState": "CustomerList",
+            "startState": "\"CustomerList\"",
             "states": {
                 "CustomerList": {
                     "to-detail": {
@@ -518,7 +518,8 @@ The above results in the following JSON
                     "code": "return foo + 1;"
                 }
             ]
-        }
+        },
+        "extraConstants": []
     }
 }
 ```
@@ -533,8 +534,13 @@ The `"process"` property contains the transformed process map. Each action funct
 object with `"name"` property, `"params"` array that contains at most one transition parameter and a `"code"` property
 containing the actual action code.
 
+The `"startState"` property contains the source of the initial start state, either a static view state name as string literal
+or a transition function expression.
+
 The `"scope"` property contains a `"name"` property and four array properties containing the collected member types.
 
+The `"extraConstants"` property contains an array of extra definitions for the process. These can be constants and
+functions, exported or not.
 
 ### observables
 name          | description
