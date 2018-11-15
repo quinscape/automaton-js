@@ -230,7 +230,7 @@ import CustomLayout from "../components/CustomLayout"
 export function initProcess(process, scope)
 {
     // process config
-    process.layout = CustomLayout;
+    process.options.layout = CustomLayout;
     process.generalHelper(12);
 
     // return process states and transitions

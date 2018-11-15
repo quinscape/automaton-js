@@ -371,7 +371,7 @@ import {
 export function initProcess(process, scope)
 {
     // process config
-    process.layout = CustomLayout;
+    process.options.layout = CustomLayout;
     process.generalHelper(12);
 
     // return process states and transitions
@@ -449,7 +449,7 @@ The above results in the following JSON
         
         "configuration": [
             "/* process config /*\n",
-            "process.layout = CustomLayout",
+            "process.options.layout = CustomLayout",
             "process.generalHelper(12)"
         ],
         

@@ -57,7 +57,7 @@ class DataGrid extends React.Component {
         const {rows, rowCount} = value;
 
         return (
-            <table className="table table-hover table-sm table-striped">
+            <table className="table table-hover table-striped table-responsive">
                 <thead>
                 <tr>
                     {

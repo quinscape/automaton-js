@@ -29,7 +29,7 @@ export function serverSync(name, scope, uri)
         {
             wasCalled[name] = true;
 
-            console.log("Ignoring first sync");
+            //console.log("Ignoring first sync");
         }
         else
         {
@@ -77,7 +77,7 @@ export function storageSync(name, scope, storage)
 
 export function syncFromStorage(name, scope, storage)
 {
-    console.log("syncFromStorage", {name, scope, storage});
+    //console.log("syncFromStorage", {name, scope, storage});
 
     const json = storage.getItem("automaton-" + name);
     if (json)

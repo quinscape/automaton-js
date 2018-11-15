@@ -7,7 +7,6 @@ import {
     USER_SCOPE
 } from "./scopeNames";
 
-
 export const DEFAULT_OPTS = {
 
     contextPath: "",
@@ -26,6 +25,8 @@ export const DEFAULT_OPTS = {
     history: null,
 
     scopeSyncTimeout: 1500,
+
+    subProcessAsDialog: true,
 
     // standard scopes, might not exist in application
     [APP_SCOPE]: null,
@@ -47,15 +48,25 @@ function ensureValid(property)
     }
 }
 
+function applyDefaults(theConfig)
+{
+    for (let name in DEFAULT_OPTS)
+    {
+        if (DEFAULT_OPTS.hasOwnProperty(name))
+        {
+            theConfig[name] = DEFAULT_OPTS[name];
+        }
+    }
+}
+
 
 const VALID_KEYS = Object.keys(DEFAULT_OPTS);
 
 /**
  * Configuration object
  *
- * @type {{scopeSyncTimeout: number, layout: React.Component, translations: object, contextPath: String}}
  */
-export default new Proxy(
+const theConfig = new Proxy(
     function () {
 
     },
@@ -70,6 +81,8 @@ export default new Proxy(
         },
         set: function (config, property, value) {
 
+            ensureValid(property);
+
             config[property] = value;
 
             return true;
@@ -80,3 +93,7 @@ export default new Proxy(
         }
     }
 );
+
+applyDefaults(theConfig);
+export default theConfig;
+

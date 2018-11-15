@@ -1,7 +1,7 @@
 import React from "react";
 import { createViewModel } from "mobx-utils";
 import render from "./render";
-import { get, keys, set, toJS, action, observable } from "mobx";
+import { action, get, keys, observable, set, toJS } from "mobx";
 
 import QueryDeclaration from "./QueryDeclaration";
 import FormConfigProvider from "domainql-form/lib/FormConfigProvider";
@@ -9,6 +9,7 @@ import config from "./config";
 import Transition from "./Transition";
 import uri from "./uri";
 import i18n from "./i18n";
+import Dialog from "./Dialog";
 
 
 const NO_MATCH = {
@@ -18,6 +19,7 @@ const NO_MATCH = {
 };
 
 const MODULE_REGEX = /^\.\/(processes\/(.*?)\/(composites\/)?)?(.*?).js$/;
+
 
 
 function matchPath(path)
@@ -56,9 +58,7 @@ function ProcessEntry(definition)
     this.ScopeClass = null;
 }
 
-
 const processDefinitions = {};
-
 
 /**
  * Loads the process scope, initProcess and components from the given initial data and webpack require context
@@ -142,7 +142,7 @@ export function loadProcessDefinitions(ctx)
 
 function getLayout(process, currentState)
 {
-    const { layout } = process;
+    const { layout } = process.options;
 
     if (layout)
     {
@@ -166,36 +166,87 @@ function getLayout(process, currentState)
 }
 
 
-function renderViewState()
+function findRootProcess(process)
+{
+    while (process && process[secret].options.asDialog)
+    {
+        process = process[secret].parent;
+    }
+    return process;
+}
+
+
+function findViewComponent(rootProcess)
 {
     // directly access secret process data
-    const { definition, currentState } = currentProcess[secret];
+    const { definition, currentState } = rootProcess[secret];
 
     //console.log({ definition, currentState });
 
     const ViewComponent = definition.components[currentState];
     if (!ViewComponent)
     {
-        throw new Error("No component '" + currentState + "' in process '" + currentProcess.name)
+        throw new Error("No component '" + currentState + "' in process '" + rootProcess.name)
     }
 
-    //console.log({ ViewComponent });
+    return ViewComponent;
+}
 
+
+function createEnv(process)
+{
     const env = {
-        config,
-        state: currentState,
-        scope: currentProcess.scope
+        processName: process.name,
+        config: config,
+        state: process[secret].currentState,
+        scope: process.scope,
+        process: process
     };
 
-    Object.defineProperty(env, "process", {
-        get: () => currentProcess,
-        configurable: false,
-        enumerable: true
-    });
+    // Object.defineProperty(env, "process", {
+    //     get: () => currentProcess,
+    //     configurable: false,
+    //     enumerable: true
+    // });
 
-    const Layout = getLayout(currentProcess, currentState);
 
-    //console.log("LAYOUT", Layout);
+    return env;
+}
+
+
+function renderCurrentView()
+{
+    const rootProcess = findRootProcess(currentProcess);
+
+    const ViewComponent = findViewComponent(rootProcess);
+    const Layout = getLayout(rootProcess, rootProcess[secret].currentState);
+
+    const env = createEnv(rootProcess);
+
+    let dialogStack = false;
+
+    let process = currentProcess;
+
+    while (process !== rootProcess)
+    {
+        const subProcessEnv = createEnv(process);
+        const SubProcessViewComponent = findViewComponent(process);
+
+        dialogStack = (
+            <Dialog process={ process }>
+                <AutomatonEnv.Provider
+                    value={ subProcessEnv }
+                >
+                    <SubProcessViewComponent env={ subProcessEnv }/>
+                    {
+                        dialogStack
+                    }
+                </AutomatonEnv.Provider>
+            </Dialog>
+        );
+
+        process = process[secret].parent;
+    }
 
     return (
         <AutomatonEnv.Provider
@@ -207,10 +258,17 @@ function renderViewState()
                 <Layout
                     env={ env }
                 >
-                    <ViewComponent
-                        env={ env }
-                    />
+                    {
+                        ViewComponent && (
+                            <ViewComponent
+                                env={ env }
+                            />
+                        )
+                    }
                 </Layout>
+                {
+                    dialogStack
+                }
             </FormConfigProvider>
         </AutomatonEnv.Provider>
     )
@@ -222,6 +280,14 @@ function ensureInitialized(process)
     if (!process[secret].initialized)
     {
         throw new Error("Process not initialized");
+    }
+}
+
+function ensureNotInitialized(process)
+{
+    if (process[secret].initialized)
+    {
+        throw new Error("Process is already initialized");
     }
 }
 
@@ -249,6 +315,30 @@ function subProcessPromiseFns(process)
     return subProcessPromise;
 }
 
+const PROCESS_DEFAULT_OPTIONS = {
+
+    /**
+     * {React.Element|Object<React.Element>} layout component or map of layout components.
+     *
+     * If element, that element is used as layout for the process.
+     *
+     * If it is a map object, the view name will be used to look up the layout. If layout
+     * is registered for the view name, the `"default"` key is used. If neither is set,
+     * the global default layout used ( see config.js)
+     * 
+     */
+    layout: null,
+
+    /**
+     * {boolean} true to open a sub-process as dialog
+     */
+    asDialog: true,
+
+    /**
+     * If `true` force the process to be used as a sub-process. Throw an error if it is used as root process.
+     */
+    forceSubProcess: false
+};
 
 /**
  * Process facade exposing a limited set of getters and methods as process API
@@ -268,21 +358,19 @@ export class Process {
 
             states: null,
             currentState: null,
-            layout: null,
+
+            options: {
+                ... PROCESS_DEFAULT_OPTIONS,
+                asDialog:  parent ? config.subProcessAsDialog : false
+            },
 
             subProcessPromise: null,
 
             initialized: false
         };
+
+        console.log("PROCESS '" + name +"'", this);
     }
-
-
-    /**
-     * Current process object
-     * @type {*}
-     */
-    @observable currentObject = null;
-
 
     get name()
     {
@@ -308,11 +396,31 @@ export class Process {
     }
 
 
-    get layout()
+    get options()
     {
-        return this[secret].layout;
+        return this[secret].options;
     }
 
+
+    /**
+     * Merges the given object into the options object.
+     *
+     * @param {Object} newOpts   new options
+     */
+    set options(newOpts)
+    {
+        ensureNotInitialized(this);
+
+        if (!newOpts || typeof newOpts !== "object")
+        {
+            throw new Error("newOpts must be an map object");
+        }
+
+        this[secret].options = {
+            ... this[secret].options,
+            newOpts
+        };
+    }
 
     set layout(layout)
     {
@@ -332,6 +440,12 @@ export class Process {
     }
 
 
+    /**
+     * Returns the composite component with the given name.
+     *
+     * @param name      composite name
+     * @return {?React.Element} composite component or null
+     */
     getComponent(name)
     {
         const component = this[secret].components[name];
@@ -339,10 +453,17 @@ export class Process {
         {
             throw new Error("Could not find component '" + name + "'");
         }
-        return component;
+        return component || null;
     }
 
 
+    /**
+     * Executes the transition with the given name.
+     *
+     * @param name          transition name
+     * @param context       transition context object
+     * @return {Promise<any | never>}
+     */
     transition(name, context)
     {
         //console.log("process.transition" , name, context);
@@ -357,7 +478,7 @@ export class Process {
             throw new Error("Could not find transition '" + name + "' in Process '" + this.name + "'")
         }
 
-        console.log("TRANSITION", transition);
+        //console.log("TRANSITION", transition);
 
         return (
             Promise.resolve(
@@ -374,7 +495,7 @@ export class Process {
                     }
 
                     return render(
-                        renderViewState(currentState)
+                        renderCurrentView(currentState)
                     )
                 })
         );
@@ -390,48 +511,49 @@ export class Process {
     /**
      * Runs the process with the given name as sub-process.
      *
-     * @param processName   process name
-     * @param input         input object for the sub-process
+     * @param {String} processName     process name
+     * @param {Object} [input]         input object for the sub-process
      *
      * @return {Promise<any>} resolves to the sub-process result or is rejected when the sub-process is aborted.
      */
     runSubProcess(processName, input)
     {
-        return new Promise((resolve, reject) => {
-
-            return fetchProcessInjections(config.appName, processName, input)
+        // create new promise that will resolve when the sub-process ends
+        return new Promise(
+            (resolve, reject) => fetchProcessInjections(config.appName, processName, input)
                 .then(injections => {
 
                     //console.log("INJECTIONS", injections);
 
                     return (
                         renderSubProcess(processName, input, injections.injections)
-                            .then(elem => {
-
-                                //console.log("RENDER SUB-PROCESS VIEW", elem);
-
-                                // store for subProcessPromiseFns
-                                currentProcess[secret].subProcessPromise = {
-                                    resolve,
-                                    reject
-                                };
-
-                                render(elem);
-                            })
                     );
+                }, err => <ErrorView title="Error starting Process" info={ err } />)
+                .then(element => {
+
+                    //console.log("RENDER SUB-PROCESS VIEW", elem);
+
+                    // store for subProcessPromiseFns
+                    const access = currentProcess[secret];
+                    access.subProcessPromise = {
+                        resolve,
+                        reject
+                    };
+
+                    return render(element);
                 })
+        )
+        .then(result => {
+
+            pushProcessState();
+
+            return render(
+                renderCurrentView()
+            )
+            // make sure to resolve the sub-process result only after the parent view is restored.
+            .then( () => result);
         })
-            .then(result => {
-
-                pushProcessState();
-
-                render(
-                    renderViewState()
-                );
-
-                return result;
-            })
-            .catch(err => console.error("ERROR IN SUB-PROCESS", err))
+        .catch(err => console.error("ERROR IN SUB-PROCESS", err))
     }
 
 
@@ -489,7 +611,7 @@ function inject(scope, injections)
 }
 
 
-export function fetchProcessInjections(appName, processName, input)
+export function fetchProcessInjections(appName, processName, input = {})
 {
     //console.log("fetchProcessInjections", { appName, processName, input });
 
@@ -509,7 +631,7 @@ export function fetchProcessInjections(appName, processName, input)
                 // spring security enforces every POST request to carry a csrf token as either parameter or header
                 [csrfToken.header]: csrfToken.value
             },
-            body: JSON.stringify(input || {})
+            body: JSON.stringify(input)
         }
     )
         .then(response => response.json())
@@ -519,11 +641,14 @@ export function fetchProcessInjections(appName, processName, input)
                 {
                     return Promise.reject(data.error);
                 }
-
                 return data;
             }
         )
-        .catch(err => console.error("ERROR FETCHING PROCESS INJECTIONS", err));
+        .catch(err => {
+            console.error("ERROR FETCHING PROCESS INJECTIONS", err)
+
+            return Promise.reject(err);
+        });
 }
 
 
@@ -590,13 +715,7 @@ function executeTransition(name, actionFn, target, context)
                         }
                         access.scope = origScope;
                     }
-
-                    const { context } = transition;
-                    if (context)
-                    {
-                        currentProcess.currentObject = context;
-                    }
-
+                    
                     return transition.target
                 }
             }
@@ -613,8 +732,10 @@ function executeTransition(name, actionFn, target, context)
 }
 
 
-function noViewState()
+export function ErrorView(props)
 {
+    const { title, info } = props;
+
     return (
         <div className="container">
             <div className="row">
@@ -622,19 +743,30 @@ function noViewState()
                     <div className="alert alert-secondary">
                         <h3>
                             {
-                                i18n("View State Gone")
+                                title
                             }
                         </h3>
                         <hr/>
                         <p className="text-muted">
                             {
-                                i18n("View State Gone Desc")
+                                info
                             }
                         </p>
                     </div>
                 </div>
             </div>
         </div>
+    )
+
+}
+
+function noViewState()
+{
+    return (
+        <ErrorView
+            title={ i18n("View State Gone") }
+            info={ i18n("View State Gone Desc") }
+        />
     );
 }
 
@@ -658,15 +790,14 @@ export function onHistoryAction(location, action)
                 )
             }
 
-            const { processId, currentState, currentObject } = entry;
+            const { processId, currentState } = entry;
 
             currentProcess = processes[processId];
-            currentProcess.currentObject = currentObject;
 
             currentProcess[secret].currentState = currentState;
 
             render(
-                renderViewState()
+                renderCurrentView()
             )
         }
         // else
@@ -677,14 +808,10 @@ export function onHistoryAction(location, action)
 }
 
 
-function getObjectInfo(obj)
+function getURIInfo(obj)
 {
-    if (!obj)
-    {
-        return "";
-    }
-
-    return encodeURIComponent(obj.number || obj.name || obj.id);
+    /// XXX: info?
+    return "";
 }
 
 
@@ -692,14 +819,11 @@ function pushProcessState(replace = false)
 {
     const { id, currentState } = currentProcess[secret];
 
-    const { currentObject } = currentProcess;
-
     const navigationId = navigationHistory.length;
 
     navigationHistory.push({
         processId: id,
-        currentState: toJS(currentState),
-        currentObject: toJS(currentObject)
+        currentState
     });
 
     const op = replace ? "replace" : "push";
@@ -712,10 +836,32 @@ function pushProcessState(replace = false)
                 appName: config.appName,
                 processName: currentProcess.name,
                 stateName: currentState,
-                info: getObjectInfo(currentObject)
+                info: getURIInfo()
             }, true), {
             navigationId
         });
+}
+
+
+function finishInitialization(process)
+{
+    //console.log("finishInitialization", process.name);
+
+    const access = process[secret];
+    const { options } = access;
+
+    const keys = Object.keys(options);
+
+    for (let i = 0; i < keys.length; i++)
+    {
+        if (!PROCESS_DEFAULT_OPTIONS.hasOwnProperty(keys[i]))
+        {
+            throw new Error("'" + process.name + ": '" + name + "' is not a valid process option");
+        }
+    }
+
+    access.options = Object.freeze(options);
+    access.initialized = true;
 }
 
 
@@ -726,10 +872,11 @@ function pushProcessState(replace = false)
  * @param {object} input            input map
  * @param {object} injections       injections maps
  * @param {boolean} asSubProcess    launch process as sub-process
- * @return {{Promise<ReactElement>}}
+ * @return {Promise<React.Element>}
  */
 function renderProcessInternal(processName, input, injections, asSubProcess)
 {
+
     let process;
     let access;
 
@@ -786,9 +933,14 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
         .then(
             ({ startState, states }) => {
 
+                if (process.options.forceSubProcess && !asSubProcess)
+                {
+                    throw new Error("Process '" + process.name + "' must be run as sub-process");
+                }
+
                 access.states = states;
 
-                access.initialized = true;
+                finishInitialization(process);
 
                 currentProcess = process;
 
@@ -820,12 +972,19 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
 
                 pushProcessState(noPriorProcess);
 
-                return renderViewState();
+                return renderCurrentView();
             }
         )
-        .catch(err => console.error("ERROR IN START PROCESS", err))
+        .catch(err => {
+            console.error("ERROR IN START PROCESS", err)
+            return (
+                <ErrorView
+                    title={ i18n("Process Startup Error ") }
+                    info={ String(err) }
+                />
+            );
+        })
 }
-
 
 /**
  * Starts a new root process and renders the first React element tree.
@@ -835,7 +994,7 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
  * @param {object} input            input data
  * @param {object} injections       injections for the process
  *
- * @return {Promise<ReactElement>}   rendered elements of the first view.
+ * @return {Promise<React.Element>}   rendered elements of the first view.
  */
 export function renderProcess(processName, input, injections)
 {
@@ -851,11 +1010,16 @@ export function renderProcess(processName, input, injections)
  * @param {object} input            input data
  * @param {object} injections                injections for the sub-process
  *
- * @return {Promise<ReactElement>}   rendered elements of the first view.
+ * @return {Promise<React.Element>}   rendered elements of the first view.
  */
 export function renderSubProcess(processName, input, injections)
 {
     return renderProcessInternal(processName, input, injections, true)
+}
+
+export function getCurrentProcess()
+{
+    return currentProcess;
 }
 
 

@@ -1,27 +1,28 @@
-import {
-    loadProcessDefinitions,
-    onHistoryAction,
-    renderProcess
-} from "./Process";
-import config, { DEFAULT_OPTS } from "./config";
-import Authentication from "./auth";
-import InputSchema from "domainql-form/lib/InputSchema";
-import { autorun } from "mobx";
-import uri from "./uri";
-import { serverSync, storageSync, syncFrom, syncFromStorage } from "./sync";
+import { loadProcessDefinitions, onHistoryAction, renderProcess } from "./Process"
+import config, { DEFAULT_OPTS } from "./config"
+import Authentication from "./auth"
+import InputSchema from "domainql-form/lib/InputSchema"
+import { autorun } from "mobx"
+import uri from "./uri"
+import { serverSync, storageSync, syncFrom, syncFromStorage } from "./sync"
 
-import { APP_SCOPE, LOCAL_SCOPE, SESSION_SCOPE, USER_SCOPE } from "./scopeNames";
-
-import QueryDeclaration from "./QueryDeclaration";
+import { APP_SCOPE, LOCAL_SCOPE, SESSION_SCOPE, USER_SCOPE } from "./scopeNames"
 
 import createHistory from "history/createBrowserHistory"
-
 
 const SCOPES_MODULE_NAME = "./scopes.js";
 
 let unlistenHistory;
 
 
+/**
+ * Default automaton initialization procedure for automaton apps. This is what happens before the user-provided
+ * config function in `app-startup.js` is called.
+ *
+ * @param ctx           webpack require context
+ * @param initial       initial data
+ * @return {Promise<any[] | never>}
+ */
 function defaultInit(ctx, initial)
 {
     const {
@@ -55,6 +56,7 @@ function defaultInit(ctx, initial)
 
     let promises = [];
 
+    // Initialize scopes if `./scopes.js` module is present
     const keys = ctx.keys();
     if (keys.indexOf(SCOPES_MODULE_NAME) >= 0)
     {
@@ -104,13 +106,8 @@ function defaultInit(ctx, initial)
         }
     }
 
-    return Promise.all(promises)
-        .then(data => {
-            console.log("INIT CONFIG", config);
-            return data
-        });
+    return Promise.all(promises);
 }
-
 
 export function reinitializeSessionScope()
 {
@@ -126,7 +123,6 @@ export function reinitializeLocalScope()
         typeof config[LOCAL_SCOPE].init === "function" && config[LOCAL_SCOPE].init()
     )
 }
-
 
 /**
  * Returns an options object for autorun with the delay for the given scope and the name of the autorun-action reflecting

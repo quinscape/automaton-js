@@ -1,8 +1,8 @@
-import { fetchProcessInjections, renderProcess } from "./Process";
+import { fetchProcessInjections, renderProcess, ErrorView } from "./Process";
 import config from "./config";
 import render from "./render";
 import url from "url";
-
+import React from "react";
 
 const NUMBER_RE = /^-?[0-9]{1-15}$/;
 
@@ -95,24 +95,24 @@ export function runProcessURI(uri)
  * High-level entry point to execute a process. Performs the whole initialization procedure and then triggers
  * a rendering of the first view-state.
  *
- * @param {String} processName      process name
- * @param {object} input            input map (processed format with single strings and numbers)
+ *
+ * @param {String} processName     process name
+ * @param {object} [input]         input map (processed format with single strings and numbers)
  *
  * @return {Promise}    promise that resolves after the new process has finished rendering.
  */
 export default function runProcess(processName, input) {
 
-    return fetchProcessInjections(config.appName, processName, input)
+        return fetchProcessInjections(config.appName, processName, input)
         .then(
             ({input, injections}) =>
                 renderProcess(
                     processName,
                     input,
-                    injections,
-                    false
-                )
-        )
+                    injections
+            )
+        , err => <ErrorView title="Error running Process" info={ err } />)
         .then(elem => render(elem))
         .catch(err => console.error("ERROR RUNNING PROCESS", err))
-
 }
+
