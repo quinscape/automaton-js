@@ -1,1 +1,1 @@
-{"version":3,"sources":["../src/modelToJs.js"],"names":["console","log"],"mappings":";;AACAA,QAAQC,GAAR,CAAY,sBAAZ","file":"modelToJs.js","sourcesContent":["\nconsole.log(\"HELLO FROM modelToJs\");\n"]}
+{"version":3,"sources":["../src/modelToJs.js"],"names":["console","log"],"mappings":";;AACAA,QAAQC,GAAR,CAAY,+BAAZ","file":"modelToJs.js","sourcesContent":["\nconsole.log(\"modelToJs not implemented yet\");\n"]}
