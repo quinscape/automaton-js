@@ -1,7 +1,7 @@
 import React from "react";
 import { createViewModel } from "mobx-utils";
 import render from "./render";
-import { action, get, keys, observable, set, toJS } from "mobx";
+import { action, get, keys, set } from "mobx";
 
 import QueryDeclaration from "./QueryDeclaration";
 import FormConfigProvider from "domainql-form/lib/FormConfigProvider";
@@ -195,22 +195,13 @@ function findViewComponent(rootProcess)
 
 function createEnv(process)
 {
-    const env = {
-        processName: process.name,
+    return {
+        processName: process && process.name,
         config: config,
-        state: process[secret].currentState,
-        scope: process.scope,
+        state: process && process[secret].currentState,
+        scope: process && process.scope,
         process: process
     };
-
-    // Object.defineProperty(env, "process", {
-    //     get: () => currentProcess,
-    //     configurable: false,
-    //     enumerable: true
-    // });
-
-
-    return env;
 }
 
 
@@ -325,7 +316,7 @@ const PROCESS_DEFAULT_OPTIONS = {
      * If it is a map object, the view name will be used to look up the layout. If layout
      * is registered for the view name, the `"default"` key is used. If neither is set,
      * the global default layout used ( see config.js)
-     * 
+     *
      */
     layout: null,
 
@@ -715,7 +706,7 @@ function executeTransition(name, actionFn, target, context)
                         }
                         access.scope = origScope;
                     }
-                    
+
                     return transition.target
                 }
             }
@@ -734,10 +725,12 @@ function executeTransition(name, actionFn, target, context)
 
 export function ErrorView(props)
 {
-    const { title, info } = props;
+    const {title, info} = props;
+
+    const Layout = config.layout;
 
     return (
-        <div className="container">
+        <Layout env={ createEnv(null) }>
             <div className="row">
                 <div className="col">
                     <div className="alert alert-secondary">
@@ -755,7 +748,7 @@ export function ErrorView(props)
                     </div>
                 </div>
             </div>
-        </div>
+        </Layout>
     )
 
 }
