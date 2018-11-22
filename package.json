@@ -1,13 +1,15 @@
 {
-    "name": "automaton-js",
+    "name": "@quinscape/automaton-js",
     "version": "0.0.3",
     "description": "Automation development system javascript companion library",
     "main": "lib/index.js",
     "esnext": "src/index.js",
-    "repository": "https://shelmberger@intern.quinscape.de/bitbucket/scm/auto/automaton-js.git",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/quinscape/automaton-js.git"
+    },
     "author": "Quinscape GmbH",
     "license": "Apache-2.0",
-
     "dependencies": {
         "classnames": "^2.2.6",
         "prop-types": "^15.6.2",
@@ -53,5 +55,12 @@
         "watch": "cross-env NODE_ENV=development babel -s -w src --out-dir lib",
         "test": "cross-env BABEL_ENV=test mocha -r babel-register -r test/setup.js -R spec test/",
         "build-docs": "babel-node tooling/build-ref.js"
-    }
+    },
+    "directories": {
+        "doc": "docs",
+        "lib": "lib"
+    },
+    "keywords": [
+        "generator"
+    ]
 }
