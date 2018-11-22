@@ -1,13 +1,13 @@
 {
     "name": "automaton-js",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Automation development system javascript companion library",
     "main": "lib/index.js",
     "esnext": "src/index.js",
     "repository": "https://shelmberger@intern.quinscape.de/bitbucket/scm/auto/automaton-js.git",
     "author": "Quinscape GmbH",
-    "license": "-",
-    "private": true,
+    "license": "Apache-2.0",
+
     "dependencies": {
         "classnames": "^2.2.6",
         "prop-types": "^15.6.2",
