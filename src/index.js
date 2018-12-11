@@ -12,7 +12,6 @@ import DataGrid from "./ui/DataGrid"
 import Button from "./ui/Button"
 import Icon from "./ui/Icon"
 import Link from "./ui/Link"
-import type from "./decorator/type"
 import AutomatonDevTools from "./AutomatonDevTools"
 
 
@@ -24,7 +23,6 @@ export {
     withAutomatonEnv,
     i18n,
     uri,
-    type,
 
     runProcess,
     runProcessURI,

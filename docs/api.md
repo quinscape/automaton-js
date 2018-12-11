@@ -111,7 +111,6 @@ import { injection, type } from "automaton-js";
 export default class CustomerScope {
 
     /** Current todos */
-    @type("PagedTodo")
     @observable customers = injection(
         // language=GraphQL
         `{              
@@ -127,10 +126,6 @@ export default class CustomerScope {
     );
 }
 ```
-
-### type
-
-Our @type decorator which can also be seen above.
 
 ### withAutomatonEnv
 

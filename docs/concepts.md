@@ -297,7 +297,6 @@ import {
 export default class TestScope {
 
     /* Current customers */
-    @type("PagedCustomer")
     @observable customers = injection(
         // language=GraphQL
             `{
