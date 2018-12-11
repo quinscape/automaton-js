@@ -1,4 +1,5 @@
 import React from "react"
+import get from "lodash.get"
 
 
 class Column extends React.Component {
@@ -37,7 +38,7 @@ class Column extends React.Component {
                     className="form-control-plaintext"
                 >
                     {
-                        context[name]
+                        String(get(context,name))
                     }
                 </p>
             </td>
