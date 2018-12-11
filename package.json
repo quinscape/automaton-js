@@ -17,7 +17,7 @@
     },
     "peerDependencies": {
         "create-react-class": "^15.6.3",
-        "domainql-form": "^0.0.8",
+        "domainql-form": "quinscape/domainql-form",
         "history": "^4.7.2",
         "mobx": "^5.5.0",
         "mobx-react": "^5.2.8",
@@ -40,6 +40,7 @@
         "babel-preset-stage-1": "^6.24.1",
         "babel-register": "^6.26.0",
         "cross-env": "^5.1.4",
+        "domainql-form": "quinscape/domainql-form",
         "mocha": "^5.1.1",
         "power-assert": "^1.5.0",
         "react": "^16.5.2",
