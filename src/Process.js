@@ -476,6 +476,18 @@ export class Process {
 
         //console.log("TRANSITION", transition);
 
+        const { confirmation } = transition;
+
+        if (confirmation)
+        {
+            const message = confirmation(context);
+
+            if (message && !confirm(message))
+            {
+                return Promise.resolve(null);
+            }
+        }
+        
         return (
             Promise.resolve(
                 transition.action ?
@@ -491,10 +503,25 @@ export class Process {
                     }
 
                     return render(
-                        renderCurrentView(currentState)
+                        renderCurrentView()
                     )
                 })
         );
+    }
+
+
+    /**
+     * Returns the transition with the given name from the current state map
+     * 
+     * @return {Object} transition entry or null if there is no such transition
+     */
+    getTransition(name)
+    {
+        const access = this[secret];
+
+        //console.log("getTransition", access.currentState, access.states);
+
+        return access.states[access.currentState][name] || null;
     }
 
 
@@ -722,6 +749,8 @@ export function fetchProcessInjections(appName, processName, input = {})
  */
 function executeTransition(name, actionFn, target, context)
 {
+    //console.log("executeTransition", {name, actionFn, target, context});
+
     let viewModel;
     const transition = new Transition(currentProcess, currentProcess[secret].currentState, target, context);
 
@@ -749,6 +778,8 @@ function executeTransition(name, actionFn, target, context)
         (resolve, reject) => {
             try
             {
+                //console.log("EXECUTE MOB-X TRANSITION", mobxAction, transition);
+
                 resolve(
                     mobxAction(
                         transition
