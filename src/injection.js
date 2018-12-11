@@ -1,4 +1,4 @@
-import QueryDeclaration from "./QueryDeclaration";
+import GraphQLQuery from "./GraphQLQuery";
 
 
 /**
@@ -13,9 +13,9 @@ import QueryDeclaration from "./QueryDeclaration";
  * The GraphQL query value will be stripped of its first level. There can be only one query or mutation per injection.
  * This has no performance implications since all initial process queries are running at once on the server side anyway.
  *
- * @returns {QueryDeclaration} query declaration
+ * @returns {GraphQLQuery} query declaration
  *
  */
 export default function injection(query) {
-    return new QueryDeclaration(query);
+    return new GraphQLQuery(query);
 }

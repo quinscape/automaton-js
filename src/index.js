@@ -12,7 +12,9 @@ import DataGrid from "./ui/DataGrid"
 import Button from "./ui/Button"
 import Icon from "./ui/Icon"
 import Link from "./ui/Link"
+import graphql from "./graphql"
 import AutomatonDevTools from "./AutomatonDevTools"
+import GraphQLQuery from "./GraphQLQuery"
 
 
 export {
@@ -23,9 +25,11 @@ export {
     withAutomatonEnv,
     i18n,
     uri,
+    graphql,
 
     runProcess,
     runProcessURI,
+
     Process,
     getCurrentProcess,
     // UI components
@@ -33,6 +37,7 @@ export {
     Button,
     Link,
     Icon,
+    GraphQLQuery,
 
     AutomatonDevTools,
     reinitializeLocalScope,

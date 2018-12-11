@@ -3,7 +3,7 @@ import { createViewModel } from "mobx-utils";
 import render from "./render";
 import { action, get, keys, set } from "mobx";
 
-import QueryDeclaration from "./QueryDeclaration";
+import GraphQLQuery from "./GraphQLQuery";
 import { FormConfigProvider, WireFormat } from "domainql-form";
 import config from "./config";
 import Transition from "./Transition";
@@ -632,7 +632,7 @@ function inject(scope, injections)
         const name = scopeKeys[i];
 
         const prop = get(scope, name);
-        if (prop instanceof QueryDeclaration)
+        if (prop instanceof GraphQLQuery)
         {
             const result = injections[prop.query];
             if (result === undefined)
