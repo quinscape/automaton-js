@@ -4,13 +4,13 @@ import render from "./render";
 import { action, get, keys, set } from "mobx";
 
 import QueryDeclaration from "./QueryDeclaration";
-import FormConfigProvider from "domainql-form/lib/FormConfigProvider";
+import { FormConfigProvider, WireFormat } from "domainql-form";
 import config from "./config";
 import Transition from "./Transition";
 import uri from "./uri";
 import i18n from "./i18n";
 import Dialog from "./Dialog";
-
+import { getWireFormat } from "./domain";
 
 const NO_MATCH = {
     processName: null,
@@ -59,6 +59,7 @@ function ProcessEntry(definition)
 }
 
 const processDefinitions = {};
+
 
 /**
  * Loads the process scope, initProcess and components from the given initial data and webpack require context
@@ -360,7 +361,7 @@ export class Process {
             initialized: false
         };
 
-        console.log("PROCESS '" + name +"'", this);
+        //console.log("PROCESS '" + name +"'", this);
     }
 
     get name()
@@ -368,6 +369,10 @@ export class Process {
         return this[secret].name;
     }
 
+    get currentState()
+    {
+        return this[secret].currentState;
+    }
 
     get startState()
     {
@@ -575,6 +580,47 @@ export class Process {
 }
 
 
+function getFieldTypeByName(fields, gqlMethod)
+{
+    for (let i = 0; i < fields.length; i++)
+    {
+        const field = fields[i];
+        if (field.name === gqlMethod)
+        {
+            return field.type;
+        }
+    }
+    return null;
+}
+
+
+export function getGraphQLMethodType(gqlMethod)
+{
+    if (!gqlMethod)
+    {
+        throw new Error("Need gqlMethod");
+    }
+
+    const queryType = config.inputSchema.getType("QueryType");
+
+    const queryFieldType = getFieldTypeByName(queryType.fields, gqlMethod);
+    if (queryFieldType)
+    {
+        return queryFieldType;
+    }
+    
+    const mutationType = config.inputSchema.getType("MutationType");
+
+    const mutationFieldType = getFieldTypeByName(mutationType.fields, gqlMethod);
+    if (mutationFieldType)
+    {
+        return mutationFieldType;
+    }
+
+    throw new Error("Could not find type of GraphQL method '" + gqlMethod + "'");
+}
+
+
 function inject(scope, injections)
 {
     //console.log("INJECTIONS", injections);
@@ -594,13 +640,35 @@ function inject(scope, injections)
                 throw new Error("Could not find query for prop '" + name + "'");
             }
 
-            //console.log("inject", name, "with", result);
+            const names = Object.keys(result);
+            if (names.length !== 1)
+            {
+                throw new Error("Injection result must have exactly one key: has " + names.join(", "))
+            }
+            const [ gqlMethod ] = names;
 
-            set(scope, name, result);
+            const type = getGraphQLMethodType(gqlMethod);
+
+            const injectionValue = result[gqlMethod];
+            //console.log("inject", name, "with", gqlMethod, injectionValue, "type = ", JSON.stringify(type));
+
+            try
+            {
+                const converted = getWireFormat().convert(type, injectionValue, true);
+
+                //console.log("SCOPE:" + name , "=", converted);
+
+                set(scope, name, converted);
+            }
+            catch(e)
+            {
+                const msg = "Error converting '" + name + "'";
+                console.error(msg, e);
+                throw new Error(msg + " = " + JSON.stringify(injectionValue) + ": " + e);
+            }
         }
     }
 }
-
 
 export function fetchProcessInjections(appName, processName, input = {})
 {

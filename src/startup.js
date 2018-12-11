@@ -9,6 +9,7 @@ import { serverSync, storageSync, syncFrom, syncFromStorage } from "./sync"
 import { APP_SCOPE, LOCAL_SCOPE, SESSION_SCOPE, USER_SCOPE } from "./scopeNames"
 
 import createHistory from "history/createBrowserHistory"
+import { loadDomainDefinitions } from "./domain";
 
 const SCOPES_MODULE_NAME = "./scopes.js";
 
@@ -238,6 +239,9 @@ export function startup(ctx, initial, initFn)
         ).then(
             () => {
 
+                // config now ready
+                
+                loadDomainDefinitions(ctx);
                 loadProcessDefinitions(ctx);
 
                 // AUTOMATON RUNTIME PHASE
