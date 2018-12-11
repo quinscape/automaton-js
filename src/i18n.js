@@ -11,16 +11,16 @@ function format(tag, args)
 
 /**
  * Returns a translation of the given translation key with additional optional arguments
- * @param {string} s translation tag/key
+ * @param {string} key translation tag/key
  * @param {...string} args optional translation parameters
  * @returns {string}
  */
-export default function (s, ...args) {
-    const result = config.translations[s];
+export default function (key, ...args) {
+    const result = config.translations[key];
 
     if (typeof result === "function")
     {
-        return result(s, args);
+        return result(key, args);
     }
 
     if (result !== undefined)
@@ -28,15 +28,15 @@ export default function (s, ...args) {
         return format(result, args);
     }
 
-    const colonPos = s.indexOf(":");
+    const colonPos = key.indexOf(":");
     if (colonPos >= 0)
     {
-        s = s.substr(colonPos + 1);
+        key = key.substr(colonPos + 1);
     }
 
     if (args.length > 0)
     {
-        return "[" + format(s, args) + "]"
+        return "[" + format(key, args) + "]"
     }
-    return "[" + s + "]";
+    return "[" + key + "]";
 };
