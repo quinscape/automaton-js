@@ -15,8 +15,10 @@ import Link from "./ui/Link"
 import graphql from "./graphql"
 import AutomatonDevTools from "./AutomatonDevTools"
 import GraphQLQuery from "./GraphQLQuery"
+import { storeDomainObject, deleteDomainObject } from "./standard-queries"
 
 
+// noinspection JSUnusedGlobalSymbols
 export {
     config,
     render,
@@ -41,5 +43,9 @@ export {
 
     AutomatonDevTools,
     reinitializeLocalScope,
-    reinitializeSessionScope
+    reinitializeSessionScope,
+
+    // Standard Queries/Mutations
+    storeDomainObject,
+    deleteDomainObject
 }
