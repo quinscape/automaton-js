@@ -1,1 +1,0 @@
-{"version":3,"sources":["../src/QueryDeclaration.js"],"names":["QueryDeclaration","query"],"mappings":";;;;;kBAAwBA,gB;AAAT,SAASA,gBAAT,CAA0BC,KAA1B,EAAiC;AAC5C,SAAKA,KAAL,GAAaA,KAAb;AACH","file":"QueryDeclaration.js","sourcesContent":["export default function QueryDeclaration(query) {\n    this.query = query;\n}\n"]}
