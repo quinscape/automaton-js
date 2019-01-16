@@ -62,6 +62,19 @@ function applyDefaults(theConfig)
 
 const VALID_KEYS = Object.keys(DEFAULT_OPTS);
 
+
+/**
+ * Adds a new config name and value to the global config object and also adds that name to the list of valid option
+ * names
+ * @param name
+ * @param value
+ */
+export function addConfig(name, value)
+{
+    VALID_KEYS.push(name);
+    theConfig[name] = value;
+}
+
 /**
  * Configuration object
  *
@@ -76,6 +89,8 @@ const theConfig = new Proxy(
             {
                 return VALID_KEYS;
             }
+
+            ensureValid(property);
 
             return config[property];
         },

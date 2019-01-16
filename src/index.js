@@ -3,7 +3,7 @@ import { startup, reinitializeLocalScope, reinitializeSessionScope } from "./sta
 import injection from "./injection";
 import i18n from "./i18n";
 import uri from "./uri";
-import config from "./config";
+import config, { addConfig } from "./config";
 import render from "./render";
 import { Process, getCurrentProcess } from "./Process";
 import runProcess, { runProcessURI } from "./runProcess";
@@ -47,5 +47,7 @@ export {
 
     // Standard Queries/Mutations
     storeDomainObject,
-    deleteDomainObject
+    deleteDomainObject,
+
+    addConfig
 }
