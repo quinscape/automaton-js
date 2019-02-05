@@ -14,6 +14,7 @@ export function defaultErrorHandler(errors)
     console.table(errors);
 }
 
+
 function convertInput(varTypes, variables)
 {
     if (!variables)
@@ -35,7 +36,7 @@ function convertInput(varTypes, variables)
             {
                 throw new Error("Cannot convert invalid variable '" + name + "'");
             }
-            
+
             out[name] = wireFormat.convert(varType, value, false);
         }
     }
@@ -50,16 +51,19 @@ export function formatGraphQLError(query, errors)
            errors.map(
                e => (
            e.message +
+           ( e.path ? (
+
            "\nPath: " +
-           e.path.join(".") +
+           e.path.join(".")
+               ) : "") +
            " " +
-           ( e.locations ? e.locations.map(
+           (e.locations ? e.locations.map(
                l =>
            "line " +
            l.line +
            ", " +
            l.column
-           ).join(", ") : "")+
+           ).join(", ") : "") +
            "\n"
                )
            );
@@ -80,7 +84,7 @@ export default function graphql(params) {
 
     //console.log("QUERY: ", params);
 
-    const { csrfToken, contextPath } = config;
+    const {csrfToken, contextPath} = config;
 
     let queryDecl;
     if (params.query instanceof GraphQLQuery)
@@ -94,41 +98,41 @@ export default function graphql(params) {
         queryDecl = new GraphQLQuery(params.query);
     }
 
-    const autoConvert  = params.autoConvert !== false;
+    const autoConvert = params.autoConvert !== false;
 
-    let { variables } = params;
+    let {variables} = params;
     if (autoConvert)
     {
         variables = convertInput(queryDecl.getVars(), variables);
     }
 
     return fetch(
-            window.location.origin + contextPath + "/graphql",
-            {
-                method: "POST",
-                credentials: "same-origin",
-                headers: {
-                    "Content-Type": "application/json",
+        window.location.origin + contextPath + "/graphql",
+        {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json",
 
-                    // spring security enforces every POST request to carry a csrf token as either parameter or header
-                    [csrfToken.header] : csrfToken.value
-                },
-                body: JSON.stringify({
-                    query: queryDecl.query,
-                    variables
-                })
-            }
-        )
+                // spring security enforces every POST request to carry a csrf token as either parameter or header
+                [csrfToken.header]: csrfToken.value
+            },
+            body: JSON.stringify({
+                query: queryDecl.query,
+                variables
+            })
+        }
+    )
         .then(response => response.json())
         .then(
-            ({ data, errors}) => {
+            ({data, errors}) => {
                 if (errors)
                 {
                     const err = new Error(
                         formatGraphQLError(queryDecl.query, errors)
                     );
 
-                    return  Promise.reject(err);
+                    return Promise.reject(err);
                 }
 
                 if (autoConvert)
