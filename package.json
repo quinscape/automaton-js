@@ -21,6 +21,7 @@
         "domainql-form": "quinscape/domainql-form",
         "history": "^4.7.2",
         "mobx": "^5.5.0",
+        "mobx-react-lite": "^1.0.0",
         "mobx-react": "^5.2.8",
         "mobx-react-devtools": "^6.0.3",
         "mobx-utils": "^5.0.4",
@@ -50,7 +51,9 @@
         "react-docgen": "^3.0.0",
         "react-dom": "^16.5.2",
         "sinon": "^5.0.10",
-        "tempy": "^0.2.1"
+        "tempy": "^0.2.1",
+        "mobx-react-lite": "^1.0.0",
+        "mobx-react": "^5.2.8"
     },
     "bin": {
         "model-to-js": "./lib/modelToJs.js",

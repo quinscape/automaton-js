@@ -1,11 +1,8 @@
 import React from "react"
 import cx from "classnames"
 
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-
-import { isObservable, toJS } from "mobx"
-import withAutomatonEnv from "./withAutomatonEnv";
-
+// noinspection ES6UnusedImports
+import useAutomatonEnv from "./useAutomatonEnv";
 
 let AutomatonDevTools;
 if (process.env.NODE_ENV === "production")
@@ -43,24 +40,21 @@ else
 
     const {default: DevTools } = devToolsModule;
 
-    AutomatonDevTools = withAutomatonEnv(
-        class extends React.Component {
+    AutomatonDevTools = props =>  {
 
-            render()
+            // XXX: our env?
+            // const env = useAutomatonEnv();
+
+            if (process.env.NODE_ENV === "production")
             {
-                if (process.env.NODE_ENV === "production")
-                {
-                    return false;
-                }
-
-
-                return (
-                    <DevTools />
-                )
+                return false;
             }
-        }
-    )
 
+
+            return (
+                <DevTools />
+            )
+    };
 }
 
 export default AutomatonDevTools

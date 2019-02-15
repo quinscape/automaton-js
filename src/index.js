@@ -1,4 +1,4 @@
-import withAutomatonEnv from "./withAutomatonEnv"
+import useAutomatonEnv from "./useAutomatonEnv"
 import { startup, reinitializeLocalScope, reinitializeSessionScope } from "./startup";
 import injection from "./injection";
 import i18n from "./i18n";
@@ -25,7 +25,7 @@ export {
     render,
     startup,
     injection,
-    withAutomatonEnv,
+    useAutomatonEnv,
     i18n,
     uri,
     graphql,
