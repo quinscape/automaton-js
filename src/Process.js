@@ -294,7 +294,7 @@ export class ProcessDefinition {
 /**
  * Access the resolve and reject functions stored for a sub-process or throws an error when the process is not a sub-process
  *
- * @param process
+ * @param {Process} process       process instance
  */
 function subProcessPromiseFns(process)
 {
@@ -742,7 +742,7 @@ export function fetchProcessInjections(appName, processName, input = {})
  * Executes the given transition action function
  *
  * @param {String} name                     Transition name
- * @param {Function<Transition>} actionFn   Transition action function
+ * @param {Function} actionFn               Transition action function
  * @param {String} [target]                 transition target
  * @param {object} [context]                domain object context
  * @return {Promise<any | never>}

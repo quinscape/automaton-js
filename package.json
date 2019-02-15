@@ -42,11 +42,15 @@
         "babel-register": "^6.26.0",
         "cross-env": "^5.1.4",
         "domainql-form": "quinscape/domainql-form",
+        "jsdoc": "^3.5.5",
+        "jsdoc-json": "^2.0.2",
         "mocha": "^5.1.1",
         "power-assert": "^1.5.0",
         "react": "^16.5.2",
+        "react-docgen": "^3.0.0",
         "react-dom": "^16.5.2",
-        "sinon": "^5.0.10"
+        "sinon": "^5.0.10",
+        "tempy": "^0.2.1"
     },
     "bin": {
         "model-to-js": "./lib/modelToJs.js",
