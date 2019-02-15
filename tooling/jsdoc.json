@@ -1,0 +1,2426 @@
+[
+    {
+        "comment": "/**\n * GraphQL query abstraction for both GraphQL queries and mutations.\n *\n * Can be used to parse application queries only once and then .execute() them.\n *\n * The graphql service will always create a new instance of GraphQLQuery on every request otherwise.\n *\n */",
+        "meta": {
+            "range": [
+                387,
+                1124
+            ],
+            "filename": "GraphQLQuery.js",
+            "lineno": 14,
+            "columnno": 15,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100000311",
+                "name": "module.exports",
+                "type": "ClassDeclaration",
+                "paramnames": [
+                    "query"
+                ]
+            }
+        },
+        "classdesc": "GraphQL query abstraction for both GraphQL queries and mutations.\n\nCan be used to parse application queries only once and then .execute() them.\n\nThe graphql service will always create a new instance of GraphQLQuery on every request otherwise.",
+        "name": "exports",
+        "longname": "module.exports",
+        "kind": "class",
+        "memberof": "module",
+        "scope": "static",
+        "params": [],
+        "___id": "T000002R000025",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Executes this GraphQL query/mutation with the given variables\n     *\n     * @param {object} [variables]    variables object map\n     *\n     * @return {Promise<*,*>}   Resolves with query/mutation result or rejects with a GraphQL error.\n     */",
+        "meta": {
+            "range": [
+                974,
+                1122
+            ],
+            "filename": "GraphQLQuery.js",
+            "lineno": 40,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100000358",
+                "name": "execute",
+                "type": "MethodDefinition",
+                "paramnames": [
+                    "variables"
+                ]
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Executes this GraphQL query/mutation with the given variables",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                },
+                "optional": true,
+                "description": "variables object map",
+                "name": "variables"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise.<*, *>"
+                    ]
+                },
+                "description": "Resolves with query/mutation result or rejects with a GraphQL error."
+            }
+        ],
+        "name": "execute",
+        "longname": "execute",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000031",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Loads the process scope, initProcess and components from the given initial data and webpack require context\n *\n * @param ctx       webpack require context\n *\n * @return {{process: *, initProcess: *, ScopeClass: *}}    infrastructural process objects\n */",
+        "meta": {
+            "range": [
+                1502,
+                3431
+            ],
+            "filename": "Process.js",
+            "lineno": 71,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100000537",
+                "name": "exports.loadProcessDefinitions",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "ctx"
+                ]
+            }
+        },
+        "description": "Loads the process scope, initProcess and components from the given initial data and webpack require context",
+        "params": [
+            {
+                "description": "webpack require context",
+                "name": "ctx"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Object"
+                    ]
+                },
+                "description": "infrastructural process objects"
+            }
+        ],
+        "name": "loadProcessDefinitions",
+        "longname": "loadProcessDefinitions",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000058",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Access the resolve and reject functions stored for a sub-process or throws an error when the process is not a sub-process\n *\n * @param {Process} process       process instance\n */",
+        "meta": {
+            "range": [
+                7169,
+                7416
+            ],
+            "filename": "Process.js",
+            "lineno": 299,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001093",
+                "name": "subProcessPromiseFns",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "process"
+                ]
+            },
+            "vars": {
+                "undefined": null
+            }
+        },
+        "description": "Access the resolve and reject functions stored for a sub-process or throws an error when the process is not a sub-process",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Process"
+                    ]
+                },
+                "description": "process instance",
+                "name": "process"
+            }
+        ],
+        "name": "subProcessPromiseFns",
+        "longname": "subProcessPromiseFns",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000113",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * {React.Element|Object<React.Element>} layout component or map of layout components.\n     *\n     * If element, that element is used as layout for the process.\n     *\n     * If it is a map object, the view name will be used to look up the layout. If layout\n     * is registered for the view name, the `\"default\"` key is used. If neither is set,\n     * the global default layout used ( see config.js)\n     *\n     */",
+        "meta": {
+            "range": [
+                7885,
+                7897
+            ],
+            "filename": "Process.js",
+            "lineno": 322,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001125",
+                "name": "layout",
+                "type": "Literal",
+                "value": null
+            }
+        },
+        "description": "{React.Element|Object<React.Element>} layout component or map of layout components.\n\nIf element, that element is used as layout for the process.\n\nIf it is a map object, the view name will be used to look up the layout. If layout\nis registered for the view name, the `\"default\"` key is used. If neither is set,\nthe global default layout used ( see config.js)",
+        "name": "layout",
+        "longname": "PROCESS_DEFAULT_OPTIONS.layout",
+        "kind": "member",
+        "memberof": "PROCESS_DEFAULT_OPTIONS",
+        "scope": "static",
+        "___id": "T000002R000116",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * {boolean} true to open a sub-process as dialog\n     */",
+        "meta": {
+            "range": [
+                7974,
+                7988
+            ],
+            "filename": "Process.js",
+            "lineno": 327,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001127",
+                "name": "asDialog",
+                "type": "Literal",
+                "value": true
+            }
+        },
+        "description": "{boolean} true to open a sub-process as dialog",
+        "name": "asDialog",
+        "longname": "PROCESS_DEFAULT_OPTIONS.asDialog",
+        "kind": "member",
+        "memberof": "PROCESS_DEFAULT_OPTIONS",
+        "scope": "static",
+        "___id": "T000002R000117",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * If `true` force the process to be used as a sub-process. Throw an error if it is used as root process.\n     */",
+        "meta": {
+            "range": [
+                8121,
+                8143
+            ],
+            "filename": "Process.js",
+            "lineno": 332,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001129",
+                "name": "forceSubProcess",
+                "type": "Literal",
+                "value": false
+            }
+        },
+        "description": "If `true` force the process to be used as a sub-process. Throw an error if it is used as root process.",
+        "name": "forceSubProcess",
+        "longname": "PROCESS_DEFAULT_OPTIONS.forceSubProcess",
+        "kind": "member",
+        "memberof": "PROCESS_DEFAULT_OPTIONS",
+        "scope": "static",
+        "___id": "T000002R000118",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Process facade exposing a limited set of getters and methods as process API\n */",
+        "meta": {
+            "range": [
+                8235,
+                14648
+            ],
+            "filename": "Process.js",
+            "lineno": 338,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001131",
+                "name": "exports.Process",
+                "type": "ClassDeclaration"
+            }
+        },
+        "classdesc": "Process facade exposing a limited set of getters and methods as process API",
+        "name": "Process",
+        "longname": "Process",
+        "kind": "class",
+        "scope": "global",
+        "params": [],
+        "___id": "T000002R000119",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Merges the given object into the options object.\n     *\n     * @param {Object} newOpts   new options\n     */",
+        "meta": {
+            "range": [
+                9397,
+                9704
+            ],
+            "filename": "Process.js",
+            "lineno": 406,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001247",
+                "name": "Process#options",
+                "type": "MethodDefinition",
+                "paramnames": [
+                    "newOpts"
+                ]
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Merges the given object into the options object.",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Object"
+                    ]
+                },
+                "description": "new options",
+                "name": "newOpts"
+            }
+        ],
+        "name": "options",
+        "longname": "Process#options",
+        "kind": "member",
+        "memberof": "Process",
+        "scope": "instance",
+        "___id": "T000002R000142",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Returns the composite component with the given name.\n     *\n     * @param name      composite name\n     * @return {?React.Element} composite component or null\n     */",
+        "meta": {
+            "range": [
+                10261,
+                10498
+            ],
+            "filename": "Process.js",
+            "lineno": 445,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001333",
+                "name": "Process#getComponent",
+                "type": "MethodDefinition",
+                "paramnames": [
+                    "name"
+                ]
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Returns the composite component with the given name.",
+        "params": [
+            {
+                "description": "composite name",
+                "name": "name"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "React.Element"
+                    ]
+                },
+                "nullable": true,
+                "description": "composite component or null"
+            }
+        ],
+        "name": "getComponent",
+        "longname": "Process#getComponent",
+        "kind": "function",
+        "memberof": "Process",
+        "scope": "instance",
+        "___id": "T000002R000148",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Executes the transition with the given name.\n     *\n     * @param name          transition name\n     * @param context       transition context object\n     * @return {Promise<any | never>}\n     */",
+        "meta": {
+            "range": [
+                10716,
+                12006
+            ],
+            "filename": "Process.js",
+            "lineno": 463,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001364",
+                "name": "Process#transition",
+                "type": "MethodDefinition",
+                "paramnames": [
+                    "name",
+                    "context"
+                ]
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Executes the transition with the given name.",
+        "params": [
+            {
+                "description": "transition name",
+                "name": "name"
+            },
+            {
+                "description": "transition context object",
+                "name": "context"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise.<(any|never)>"
+                    ]
+                }
+            }
+        ],
+        "name": "transition",
+        "longname": "Process#transition",
+        "kind": "function",
+        "memberof": "Process",
+        "scope": "instance",
+        "___id": "T000002R000150",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Returns the transition with the given name from the current state map\n     * \n     * @return {Object} transition entry or null if there is no such transition\n     */",
+        "meta": {
+            "range": [
+                12194,
+                12405
+            ],
+            "filename": "Process.js",
+            "lineno": 518,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001484",
+                "name": "Process#getTransition",
+                "type": "MethodDefinition",
+                "paramnames": [
+                    "name"
+                ]
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Returns the transition with the given name from the current state map",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Object"
+                    ]
+                },
+                "description": "transition entry or null if there is no such transition"
+            }
+        ],
+        "name": "getTransition",
+        "longname": "Process#getTransition",
+        "kind": "function",
+        "memberof": "Process",
+        "scope": "instance",
+        "params": [],
+        "___id": "T000002R000156",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Runs the process with the given name as sub-process.\n     *\n     * @param {String} processName     process name\n     * @param {Object} [input]         input object for the sub-process\n     *\n     * @return {Promise<any>} resolves to the sub-process result or is rejected when the sub-process is aborted.\n     */",
+        "meta": {
+            "range": [
+                12791,
+                14127
+            ],
+            "filename": "Process.js",
+            "lineno": 542,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001511",
+                "name": "Process#runSubProcess",
+                "type": "MethodDefinition",
+                "paramnames": [
+                    "processName",
+                    "input"
+                ]
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Runs the process with the given name as sub-process.",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "description": "process name",
+                "name": "processName"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Object"
+                    ]
+                },
+                "optional": true,
+                "description": "input object for the sub-process",
+                "name": "input"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise.<any>"
+                    ]
+                },
+                "description": "resolves to the sub-process result or is rejected when the sub-process is aborted."
+            }
+        ],
+        "name": "runSubProcess",
+        "longname": "Process#runSubProcess",
+        "kind": "function",
+        "memberof": "Process",
+        "scope": "instance",
+        "___id": "T000002R000159",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Ends the sub-process successfully and returns the given output object\n     * @param {*} [output]      sub-process output object\n     */",
+        "meta": {
+            "range": [
+                14285,
+                14443
+            ],
+            "filename": "Process.js",
+            "lineno": 587,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001612",
+                "name": "Process#endSubProcess",
+                "type": "MethodDefinition",
+                "paramnames": [
+                    "output"
+                ]
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Ends the sub-process successfully and returns the given output object",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "*"
+                    ]
+                },
+                "optional": true,
+                "description": "sub-process output object",
+                "name": "output"
+            }
+        ],
+        "name": "endSubProcess",
+        "longname": "Process#endSubProcess",
+        "kind": "function",
+        "memberof": "Process",
+        "scope": "instance",
+        "___id": "T000002R000164",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Aborts the sub-process with an error object\n     *\n     * @param {*} [err]     error object\n     */",
+        "meta": {
+            "range": [
+                14565,
+                14645
+            ],
+            "filename": "Process.js",
+            "lineno": 602,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100001637",
+                "name": "Process#abortSubProcess",
+                "type": "MethodDefinition",
+                "paramnames": [
+                    "err"
+                ]
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Aborts the sub-process with an error object",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "*"
+                    ]
+                },
+                "optional": true,
+                "description": "error object",
+                "name": "err"
+            }
+        ],
+        "name": "abortSubProcess",
+        "longname": "Process#abortSubProcess",
+        "kind": "function",
+        "memberof": "Process",
+        "scope": "instance",
+        "___id": "T000002R000167",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Executes the given transition action function\n *\n * @param {String} name                     Transition name\n * @param {Function} actionFn               Transition action function\n * @param {String} [target]                 transition target\n * @param {object} [context]                domain object context\n * @return {Promise<any | never>}\n */",
+        "meta": {
+            "range": [
+                18591,
+                20467
+            ],
+            "filename": "Process.js",
+            "lineno": 750,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002011",
+                "name": "executeTransition",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "name",
+                    "actionFn",
+                    "target",
+                    "context"
+                ]
+            },
+            "vars": {
+                "viewModel": "executeTransition~viewModel",
+                "transition": "executeTransition~transition",
+                "access": "executeTransition~access",
+                "origScope": "executeTransition~origScope",
+                "access.scope": "executeTransition~access.scope",
+                "mobXActionKey": "executeTransition~mobXActionKey",
+                "mobxAction": "executeTransition~mobxAction",
+                "currentProcess[undefined][undefined]": null,
+                "": null
+            }
+        },
+        "description": "Executes the given transition action function",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "description": "Transition name",
+                "name": "name"
+            },
+            {
+                "type": {
+                    "names": [
+                        "function"
+                    ]
+                },
+                "description": "Transition action function",
+                "name": "actionFn"
+            },
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "optional": true,
+                "description": "transition target",
+                "name": "target"
+            },
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                },
+                "optional": true,
+                "description": "domain object context",
+                "name": "context"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise.<(any|never)>"
+                    ]
+                }
+            }
+        ],
+        "name": "executeTransition",
+        "longname": "executeTransition",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000199",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Internal process render start function\n *\n * @param {String} processName      process name\n * @param {object} input            input map\n * @param {object} injections       injections maps\n * @param {boolean} asSubProcess    launch process as sub-process\n * @return {Promise<React.Element>}\n */",
+        "meta": {
+            "range": [
+                23711,
+                26630
+            ],
+            "filename": "Process.js",
+            "lineno": 969,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002502",
+                "name": "renderProcessInternal",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "processName",
+                    "input",
+                    "injections",
+                    "asSubProcess"
+                ]
+            },
+            "vars": {
+                "process": "renderProcessInternal~process",
+                "access": "renderProcessInternal~access",
+                "entry": "renderProcessInternal~entry",
+                "undefined": null,
+                "scope": "renderProcessInternal~scope",
+                "noPriorProcess": "renderProcessInternal~noPriorProcess",
+                "config.rootProcess": "config.rootProcess",
+                "processesLen": "renderProcessInternal~processesLen",
+                "newProcessId": "renderProcessInternal~newProcessId",
+                "processes": "renderProcessInternal~processes",
+                "": null
+            }
+        },
+        "description": "Internal process render start function",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "description": "process name",
+                "name": "processName"
+            },
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                },
+                "description": "input map",
+                "name": "input"
+            },
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                },
+                "description": "injections maps",
+                "name": "injections"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "description": "launch process as sub-process",
+                "name": "asSubProcess"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise.<React.Element>"
+                    ]
+                }
+            }
+        ],
+        "name": "renderProcessInternal",
+        "longname": "renderProcessInternal",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000247",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Starts a new root process and renders the first React element tree.\n * The states of the old root process remain in-memory for the user to navigate back.\n *\n * @param {String} processName      process name\n * @param {object} input            input data\n * @param {object} injections       injections for the process\n *\n * @return {Promise<React.Element>}   rendered elements of the first view.\n */",
+        "meta": {
+            "range": [
+                27037,
+                27174
+            ],
+            "filename": "Process.js",
+            "lineno": 1091,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002784",
+                "name": "exports.renderProcess",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "processName",
+                    "input",
+                    "injections"
+                ]
+            }
+        },
+        "description": "Starts a new root process and renders the first React element tree.\nThe states of the old root process remain in-memory for the user to navigate back.",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "description": "process name",
+                "name": "processName"
+            },
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                },
+                "description": "input data",
+                "name": "input"
+            },
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                },
+                "description": "injections for the process",
+                "name": "injections"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise.<React.Element>"
+                    ]
+                },
+                "description": "rendered elements of the first view."
+            }
+        ],
+        "name": "renderProcess",
+        "longname": "renderProcess",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000270",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Starts the process with the given name as sub-process and renders the first React element tree.\n * Ending the subprocess will resume the parent process\n *\n * @param {String} processName      name of process to start as sub-process\n * @param {object} input            input data\n * @param {object} injections                injections for the sub-process\n *\n * @return {Promise<React.Element>}   rendered elements of the first view.\n */",
+        "meta": {
+            "range": [
+                27620,
+                27759
+            ],
+            "filename": "Process.js",
+            "lineno": 1107,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002798",
+                "name": "exports.renderSubProcess",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "processName",
+                    "input",
+                    "injections"
+                ]
+            }
+        },
+        "description": "Starts the process with the given name as sub-process and renders the first React element tree.\nEnding the subprocess will resume the parent process",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "description": "name of process to start as sub-process",
+                "name": "processName"
+            },
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                },
+                "description": "input data",
+                "name": "input"
+            },
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                },
+                "description": "injections for the sub-process",
+                "name": "injections"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise.<React.Element>"
+                    ]
+                },
+                "description": "rendered elements of the first view."
+            }
+        ],
+        "name": "renderSubProcess",
+        "longname": "renderSubProcess",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000272",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Encapsulates a runtime transition within a process.\n */",
+        "meta": {
+            "range": [
+                122,
+                1878
+            ],
+            "filename": "Transition.js",
+            "lineno": 6,
+            "columnno": 15,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002827",
+                "name": "module.exports",
+                "type": "ClassDeclaration",
+                "paramnames": [
+                    "process",
+                    "source",
+                    "target",
+                    "context"
+                ]
+            }
+        },
+        "classdesc": "Encapsulates a runtime transition within a process.",
+        "name": "exports",
+        "longname": "module.exports",
+        "kind": "class",
+        "memberof": "module",
+        "scope": "static",
+        "params": [],
+        "___id": "T000002R000278",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Process this transition happens in.\n     *\n     * @return {*}\n     */",
+        "meta": {
+            "range": [
+                475,
+                537
+            ],
+            "filename": "Transition.js",
+            "lineno": 24,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002854",
+                "name": "process",
+                "type": "MethodDefinition",
+                "paramnames": []
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Process this transition happens in.",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "*"
+                    ]
+                }
+            }
+        ],
+        "name": "process",
+        "longname": "process",
+        "kind": "member",
+        "scope": "global",
+        "params": [],
+        "___id": "T000002R000286",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Context object. Can be set by calling t.selectTargetObject().\n     * @return {*}\n     */",
+        "meta": {
+            "range": [
+                648,
+                710
+            ],
+            "filename": "Transition.js",
+            "lineno": 34,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002864",
+                "name": "context",
+                "type": "MethodDefinition",
+                "paramnames": []
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Context object. Can be set by calling t.selectTargetObject().",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "*"
+                    ]
+                }
+            }
+        ],
+        "name": "context",
+        "longname": "context",
+        "kind": "member",
+        "scope": "global",
+        "params": [],
+        "___id": "T000002R000287",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Returns true if the transition has been canceled.\n     *\n     * @return {boolean}\n     */",
+        "meta": {
+            "range": [
+                897,
+                965
+            ],
+            "filename": "Transition.js",
+            "lineno": 51,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002887",
+                "name": "isCanceled",
+                "type": "MethodDefinition",
+                "paramnames": []
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Returns true if the transition has been canceled.",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                }
+            }
+        ],
+        "name": "isCanceled",
+        "longname": "isCanceled",
+        "kind": "member",
+        "scope": "global",
+        "params": [],
+        "___id": "T000002R000290",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Source state\n     *\n     * @return {String}\n     */",
+        "meta": {
+            "range": [
+                1039,
+                1099
+            ],
+            "filename": "Transition.js",
+            "lineno": 62,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002897",
+                "name": "source",
+                "type": "MethodDefinition",
+                "paramnames": []
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Source state",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                }
+            }
+        ],
+        "name": "source",
+        "longname": "source",
+        "kind": "member",
+        "scope": "global",
+        "params": [],
+        "___id": "T000002R000291",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Returns the current target state\n     *\n     * @return {String}\n     */",
+        "meta": {
+            "range": [
+                1193,
+                1253
+            ],
+            "filename": "Transition.js",
+            "lineno": 73,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002907",
+                "name": "target",
+                "type": "MethodDefinition",
+                "paramnames": []
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Returns the current target state",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                }
+            }
+        ],
+        "name": "target",
+        "longname": "target",
+        "kind": "member",
+        "scope": "global",
+        "params": [],
+        "___id": "T000002R000292",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Sets the current target state\n     * @param name\n     */",
+        "meta": {
+            "range": [
+                1332,
+                1681
+            ],
+            "filename": "Transition.js",
+            "lineno": 83,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002917",
+                "name": "target",
+                "type": "MethodDefinition",
+                "paramnames": [
+                    "name"
+                ]
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Sets the current target state",
+        "params": [
+            {
+                "name": "name"
+            }
+        ],
+        "name": "target",
+        "longname": "target",
+        "kind": "member",
+        "scope": "global",
+        "___id": "T000002R000293",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Cancels the transition and reverts the process scope changes.\n     *\n     */",
+        "meta": {
+            "range": [
+                1780,
+                1876
+            ],
+            "filename": "Transition.js",
+            "lineno": 104,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100002969",
+                "name": "cancel",
+                "type": "MethodDefinition",
+                "paramnames": []
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Cancels the transition and reverts the process scope changes.",
+        "name": "cancel",
+        "longname": "cancel",
+        "kind": "function",
+        "scope": "global",
+        "params": [],
+        "___id": "T000002R000297",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Returns true if the user has any of the given roles.\n     *\n     * @param {...String} roles    roles\n     * @return {boolean}\n     */",
+        "meta": {
+            "range": [
+                654,
+                890
+            ],
+            "filename": "auth.js",
+            "lineno": 43,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100003071",
+                "name": "hasRole",
+                "type": "MethodDefinition",
+                "paramnames": [
+                    "roles"
+                ]
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Returns true if the user has any of the given roles.",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "variable": true,
+                "description": "roles",
+                "name": "roles"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                }
+            }
+        ],
+        "name": "hasRole",
+        "longname": "hasRole",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000312",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Adds a new config name and value to the global config object and also adds that name to the list of valid option\n * names\n * @param name\n * @param value\n */",
+        "meta": {
+            "range": [
+                1275,
+                1373
+            ],
+            "filename": "config.js",
+            "lineno": 72,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100003221",
+                "name": "exports.addConfig",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "name",
+                    "value"
+                ]
+            }
+        },
+        "description": "Adds a new config name and value to the global config object and also adds that name to the list of valid option\nnames",
+        "params": [
+            {
+                "name": "name"
+            },
+            {
+                "name": "value"
+            }
+        ],
+        "name": "addConfig",
+        "longname": "addConfig",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000337",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Configuration object\n *\n */",
+        "meta": {
+            "range": [
+                1416,
+                2035
+            ],
+            "filename": "config.js",
+            "lineno": 82,
+            "columnno": 6,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100003240",
+                "name": "theConfig",
+                "type": "NewExpression",
+                "value": ""
+            }
+        },
+        "description": "Configuration object",
+        "name": "theConfig",
+        "longname": "theConfig",
+        "kind": "constant",
+        "scope": "global",
+        "params": [],
+        "___id": "T000002R000340",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Logs graphql errors\n * @param errors\n */",
+        "meta": {
+            "range": [
+                215,
+                334
+            ],
+            "filename": "graphql.js",
+            "lineno": 11,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100003414",
+                "name": "exports.defaultErrorHandler",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "errors"
+                ]
+            }
+        },
+        "description": "Logs graphql errors",
+        "params": [
+            {
+                "name": "errors"
+            }
+        ],
+        "name": "defaultErrorHandler",
+        "longname": "defaultErrorHandler",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000359",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * GraphQL query service\n *\n * @param {Object} params                   Parameters\n * @param {String} params.query             query string\n * @param {Object} [params.variables]       query variables\n * @param {Object} [params.autoConvert]     if false, don't convert input ( default is true)\n *\n * @returns {Promise<any>} Promise resolving to query data\n */",
+        "meta": {
+            "range": [
+                1776,
+                3881
+            ],
+            "filename": "graphql.js",
+            "lineno": 83,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100003571",
+                "name": "module.exports",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "params"
+                ]
+            }
+        },
+        "description": "GraphQL query service",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "Object"
+                    ]
+                },
+                "description": "Parameters",
+                "name": "params"
+            },
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "description": "query string",
+                "name": "params.query"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Object"
+                    ]
+                },
+                "optional": true,
+                "description": "query variables",
+                "name": "params.variables"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Object"
+                    ]
+                },
+                "optional": true,
+                "description": "if false, don't convert input ( default is true)",
+                "name": "params.autoConvert"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise.<any>"
+                    ]
+                },
+                "description": "Promise resolving to query data"
+            }
+        ],
+        "name": "exports",
+        "longname": "module.exports",
+        "kind": "function",
+        "memberof": "module",
+        "scope": "static",
+        "___id": "T000002R000370",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Returns a translation of the given translation key with additional optional arguments\n * @param {string} key translation tag/key\n * @param {...string} args optional translation parameters\n * @returns {string}\n */",
+        "meta": {
+            "range": [
+                377,
+                855
+            ],
+            "filename": "i18n.js",
+            "lineno": 18,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100003783",
+                "name": "module.exports",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "key",
+                    "args"
+                ]
+            },
+            "vars": {
+                "result": "module.exports~result",
+                "colonPos": "module.exports~colonPos",
+                "key": "module.exports~key"
+            }
+        },
+        "description": "Returns a translation of the given translation key with additional optional arguments",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "description": "translation tag/key",
+                "name": "key"
+            },
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                },
+                "variable": true,
+                "description": "optional translation parameters",
+                "name": "args"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                }
+            }
+        ],
+        "name": "exports",
+        "longname": "module.exports",
+        "kind": "function",
+        "memberof": "module",
+        "scope": "static",
+        "___id": "T000002R000395",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Declares a GraphQL injection that will be automatically provided to the process scope on process initialization.\n *\n * The returned value is a query declaration object that is used to resolve the data from the initial process data\n * provided by the server.\n *\n * The server in turn uses JSON data generated by NPM module \"babel-plugin-track-usage\" to automatically determine\n * the injection queries.\n *\n * The GraphQL query value will be stripped of its first level. There can be only one query or mutation per injection.\n * This has no performance implications since all initial process queries are running at once on the server side anyway.\n *\n * @returns {GraphQLQuery} query declaration\n *\n */",
+        "meta": {
+            "range": [
+                752,
+                832
+            ],
+            "filename": "injection.js",
+            "lineno": 19,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100004029",
+                "name": "module.exports",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "query"
+                ]
+            }
+        },
+        "description": "Declares a GraphQL injection that will be automatically provided to the process scope on process initialization.\n\nThe returned value is a query declaration object that is used to resolve the data from the initial process data\nprovided by the server.\n\nThe server in turn uses JSON data generated by NPM module \"babel-plugin-track-usage\" to automatically determine\nthe injection queries.\n\nThe GraphQL query value will be stripped of its first level. There can be only one query or mutation per injection.\nThis has no performance implications since all initial process queries are running at once on the server side anyway.",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "GraphQLQuery"
+                    ]
+                },
+                "description": "query declaration"
+            }
+        ],
+        "name": "exports",
+        "longname": "module.exports",
+        "kind": "function",
+        "memberof": "module",
+        "scope": "static",
+        "___id": "T000002R000423",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Parses the given query and returns a map with type references for the used variables.\n *\n * @param {InputSchema} inputSchema     input schema\n * @param {String} query                GraphQL query document\n *\n * @return {Object} object mapping variable names to type references.\n */",
+        "meta": {
+            "range": [
+                1230,
+                2106
+            ],
+            "filename": "parseQuery.js",
+            "lineno": 50,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100004165",
+                "name": "module.exports",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "inputSchema",
+                    "query"
+                ]
+            },
+            "vars": {
+                "vars": "module.exports~vars",
+                "document": "module.exports~document",
+                "undefined": null,
+                "i": "module.exports~i",
+                "definition": "module.exports~definition",
+                "j": "module.exports~j",
+                "variableDefinition": "module.exports~variableDefinition",
+                "name": "module.exports~name",
+                "vars[undefined]": "module.exports~vars.undefined]"
+            }
+        },
+        "description": "Parses the given query and returns a map with type references for the used variables.",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "InputSchema"
+                    ]
+                },
+                "description": "input schema",
+                "name": "inputSchema"
+            },
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "description": "GraphQL query document",
+                "name": "query"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Object"
+                    ]
+                },
+                "description": "object mapping variable names to type references."
+            }
+        ],
+        "name": "exports",
+        "longname": "module.exports",
+        "kind": "function",
+        "memberof": "module",
+        "scope": "static",
+        "___id": "T000002R000438",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Renders the given React element and returns a promise that resolves when the rendering is done.\n *\n * @param {React.Element} elem      element to render\n * @param {String} [targetId]       Id attribute of the element to render into (default is our \"root\" element)\n * \n * @return {Promise}  promise that resolves after the element has rendered. Exceptions happening during the ReactDOM.render call will cause a rejection of the promise.\n */",
+        "meta": {
+            "range": [
+                507,
+                1034
+            ],
+            "filename": "render.js",
+            "lineno": 12,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100004298",
+                "name": "module.exports",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "elem",
+                    "targetId"
+                ]
+            }
+        },
+        "description": "Renders the given React element and returns a promise that resolves when the rendering is done.",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "React.Element"
+                    ]
+                },
+                "description": "element to render",
+                "name": "elem"
+            },
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "optional": true,
+                "description": "Id attribute of the element to render into (default is our \"root\" element)",
+                "name": "targetId"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise"
+                    ]
+                },
+                "description": "promise that resolves after the element has rendered. Exceptions happening during the ReactDOM.render call will cause a rejection of the promise."
+            }
+        ],
+        "name": "exports",
+        "longname": "module.exports",
+        "kind": "function",
+        "memberof": "module",
+        "scope": "static",
+        "___id": "T000002R000449",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * High-level entry point to execute a process based on a local URI.\n */",
+        "meta": {
+            "range": [
+                1036,
+                1927
+            ],
+            "filename": "runProcess.js",
+            "lineno": 58,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100004477",
+                "name": "exports.runProcessURI",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "uri"
+                ]
+            }
+        },
+        "description": "High-level entry point to execute a process based on a local URI.",
+        "name": "runProcessURI",
+        "longname": "runProcessURI",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000463",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * High-level entry point to execute a process. Performs the whole initialization procedure and then triggers\n * a rendering of the first view-state.\n *\n *\n * @param {String} processName     process name\n * @param {object} [input]         input map (processed format with single strings and numbers)\n *\n * @return {Promise}    promise that resolves after the new process has finished rendering.\n */",
+        "meta": {
+            "range": [
+                2333,
+                2832
+            ],
+            "filename": "runProcess.js",
+            "lineno": 104,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100004588",
+                "name": "module.exports",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "processName",
+                    "input"
+                ]
+            }
+        },
+        "description": "High-level entry point to execute a process. Performs the whole initialization procedure and then triggers\na rendering of the first view-state.",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "description": "process name",
+                "name": "processName"
+            },
+            {
+                "type": {
+                    "names": [
+                        "object"
+                    ]
+                },
+                "optional": true,
+                "description": "input map (processed format with single strings and numbers)",
+                "name": "input"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise"
+                    ]
+                },
+                "description": "promise that resolves after the new process has finished rendering."
+            }
+        ],
+        "name": "exports",
+        "longname": "module.exports",
+        "kind": "function",
+        "memberof": "module",
+        "scope": "static",
+        "___id": "T000002R000475",
+        "___s": true
+    },
+    {
+        "comment": "/** config option for AppScope **/",
+        "meta": {
+            "range": [
+                35,
+                71
+            ],
+            "filename": "scopeNames.js",
+            "lineno": 2,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100004649",
+                "name": "exports.APP_SCOPE",
+                "type": "VariableDeclaration"
+            }
+        },
+        "description": "config option for AppScope",
+        "name": "APP_SCOPE",
+        "longname": "APP_SCOPE",
+        "kind": "constant",
+        "scope": "global",
+        "___id": "T000002R000479",
+        "___s": true
+    },
+    {
+        "comment": "/** config option for UserScope **/",
+        "meta": {
+            "range": [
+                109,
+                147
+            ],
+            "filename": "scopeNames.js",
+            "lineno": 5,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100004654",
+                "name": "exports.USER_SCOPE",
+                "type": "VariableDeclaration"
+            }
+        },
+        "description": "config option for UserScope",
+        "name": "USER_SCOPE",
+        "longname": "USER_SCOPE",
+        "kind": "constant",
+        "scope": "global",
+        "___id": "T000002R000481",
+        "___s": true
+    },
+    {
+        "comment": "/** config option for SessionScope **/",
+        "meta": {
+            "range": [
+                188,
+                232
+            ],
+            "filename": "scopeNames.js",
+            "lineno": 8,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100004659",
+                "name": "exports.SESSION_SCOPE",
+                "type": "VariableDeclaration"
+            }
+        },
+        "description": "config option for SessionScope",
+        "name": "SESSION_SCOPE",
+        "longname": "SESSION_SCOPE",
+        "kind": "constant",
+        "scope": "global",
+        "___id": "T000002R000483",
+        "___s": true
+    },
+    {
+        "comment": "/** config option for LocalScope **/",
+        "meta": {
+            "range": [
+                271,
+                311
+            ],
+            "filename": "scopeNames.js",
+            "lineno": 11,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100004664",
+                "name": "exports.LOCAL_SCOPE",
+                "type": "VariableDeclaration"
+            }
+        },
+        "description": "config option for LocalScope",
+        "name": "LOCAL_SCOPE",
+        "longname": "LOCAL_SCOPE",
+        "kind": "constant",
+        "scope": "global",
+        "___id": "T000002R000485",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Deletes the given domain object with the given id.\n *\n * @param {String} type     domain type name\n * @param {String} id       id field\n *\n * @return {Promise<Boolean, Array>} resolves to a boolean that is true when exactly one row was deleted from the table.\n *                                   Rejects if the domain object couldn't be deleted -- either because it is still referenced\n *                                   or because the table has no id field.\n */",
+        "meta": {
+            "range": [
+                907,
+                1021
+            ],
+            "filename": "standard-queries.js",
+            "lineno": 29,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100004689",
+                "name": "exports.deleteDomainObject",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "type",
+                    "id"
+                ]
+            }
+        },
+        "description": "Deletes the given domain object with the given id.",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "description": "domain type name",
+                "name": "type"
+            },
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "description": "id field",
+                "name": "id"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise.<Boolean, Array>"
+                    ]
+                },
+                "description": "resolves to a boolean that is true when exactly one row was deleted from the table.\n                                  Rejects if the domain object couldn't be deleted -- either because it is still referenced\n                                  or because the table has no id field."
+            }
+        ],
+        "name": "deleteDomainObject",
+        "longname": "deleteDomainObject",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000489",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Default automaton initialization procedure for automaton apps. This is what happens before the user-provided\n * config function in `app-startup.js` is called.\n *\n * @param ctx           webpack require context\n * @param initial       initial data\n * @return {Promise<any[] | never>}\n */",
+        "meta": {
+            "range": [
+                905,
+                3106
+            ],
+            "filename": "startup.js",
+            "lineno": 27,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100004785",
+                "name": "defaultInit",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "ctx",
+                    "initial"
+                ]
+            },
+            "vars": {
+                "undefined": null,
+                "config.history": "config.history",
+                "config.contextPath": "config.contextPath",
+                "config.translations": "config.translations",
+                "config.auth": "config.auth",
+                "config.inputSchema": "config.inputSchema",
+                "config.appName": "config.appName",
+                "config.locale": "config.locale",
+                "config.csrfToken": "config.csrfToken",
+                "config.rootProcess": "config.rootProcess",
+                "promises": "defaultInit~promises",
+                "keys": "defaultInit~keys",
+                "scopesModule": "defaultInit~scopesModule",
+                "appScope": "defaultInit~appScope",
+                "config.appScope": "config.appScope",
+                "userScope": "defaultInit~userScope",
+                "config.userScope": "config.userScope",
+                "sessionScope": "defaultInit~sessionScope",
+                "config.sessionScope": "config.sessionScope",
+                "localScope": "defaultInit~localScope",
+                "config.localScope": "config.localScope"
+            }
+        },
+        "description": "Default automaton initialization procedure for automaton apps. This is what happens before the user-provided\nconfig function in `app-startup.js` is called.",
+        "params": [
+            {
+                "description": "webpack require context",
+                "name": "ctx"
+            },
+            {
+                "description": "initial data",
+                "name": "initial"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Promise.<(Array.<any>|never)>"
+                    ]
+                }
+            }
+        ],
+        "name": "defaultInit",
+        "longname": "defaultInit",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000498",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Returns an options object for autorun with the delay for the given scope and the name of the autorun-action reflecting\n * the name of the scope\n *\n * @param name      scope name\n * @return {{name: *, delay: *}}    options\n */",
+        "meta": {
+            "range": [
+                3678,
+                4025
+            ],
+            "filename": "startup.js",
+            "lineno": 135,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100005066",
+                "name": "getSyncOpts",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "name"
+                ]
+            },
+            "vars": {
+                "configValue": "getSyncOpts~configValue",
+                "delay": "getSyncOpts~delay"
+            }
+        },
+        "description": "Returns an options object for autorun with the delay for the given scope and the name of the autorun-action reflecting\nthe name of the scope",
+        "params": [
+            {
+                "description": "scope name",
+                "name": "name"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "Object"
+                    ]
+                },
+                "description": "options"
+            }
+        ],
+        "name": "getSyncOpts",
+        "longname": "getSyncOpts",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000538",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Entry point to the automaton client-side process engine\n *\n * @param ctx                   require.context with all .js files\n * @param {Object}initial       initial data pushed from server\n * @param {Function} initFn     init callback\n *\n * @return {ReactElement} initial component output\n */",
+        "meta": {
+            "range": [
+                5568,
+                6465
+            ],
+            "filename": "startup.js",
+            "lineno": 226,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100005209",
+                "name": "exports.startup",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "ctx",
+                    "initial",
+                    "initFn"
+                ]
+            }
+        },
+        "description": "Entry point to the automaton client-side process engine",
+        "params": [
+            {
+                "description": "require.context with all .js files",
+                "name": "ctx"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Object"
+                    ]
+                },
+                "description": "initial data pushed from server",
+                "name": "initial"
+            },
+            {
+                "type": {
+                    "names": [
+                        "function"
+                    ]
+                },
+                "description": "init callback",
+                "name": "initFn"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "ReactElement"
+                    ]
+                },
+                "description": "initial component output"
+            }
+        ],
+        "name": "startup",
+        "longname": "startup",
+        "kind": "function",
+        "scope": "global",
+        "___id": "T000002R000553",
+        "___s": true
+    },
+    {
+        "comment": "/**\n     * Returns either the explicit context set as prop or the current form object model if present.\n     *\n     * @return {*} context\n     */",
+        "meta": {
+            "range": [
+                749,
+                1034
+            ],
+            "filename": "Button.js",
+            "lineno": 32,
+            "columnno": 4,
+            "path": "/home/sven/ideaprojects/automaton-js/src/ui",
+            "code": {
+                "id": "astnode100005569",
+                "name": "Button#getContext",
+                "type": "MethodDefinition",
+                "paramnames": []
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "description": "Returns either the explicit context set as prop or the current form object model if present.",
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "*"
+                    ]
+                },
+                "description": "context"
+            }
+        ],
+        "name": "getContext",
+        "longname": "Button#getContext",
+        "kind": "function",
+        "memberof": "Button",
+        "scope": "instance",
+        "params": [],
+        "___id": "T000002R000590",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Data grid what works based on degenerified Paged<DomainObject> types.\n */",
+        "meta": {
+            "range": [
+                1208,
+                2952
+            ],
+            "filename": "DataGrid.js",
+            "lineno": 53,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src/ui",
+            "code": {
+                "id": "astnode100005983",
+                "name": "DataGrid",
+                "type": "ClassDeclaration",
+                "paramnames": []
+            }
+        },
+        "classdesc": "Data grid what works based on degenerified Paged<DomainObject> types.",
+        "name": "DataGrid",
+        "longname": "DataGrid",
+        "kind": "class",
+        "scope": "global",
+        "___id": "T000002R000626",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Data grid what works based on degenerified Paged<DomainObject> types.\n */",
+        "meta": {
+            "range": [
+                1208,
+                2952
+            ],
+            "filename": "IQueryGrid.js",
+            "lineno": 53,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src/ui",
+            "code": {
+                "id": "astnode100006245",
+                "name": "DataGrid",
+                "type": "ClassDeclaration",
+                "paramnames": []
+            }
+        },
+        "classdesc": "Data grid what works based on degenerified Paged<DomainObject> types.",
+        "name": "DataGrid",
+        "longname": "DataGrid",
+        "kind": "class",
+        "scope": "global",
+        "___id": "T000002R000646",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Simple FontAwesome Icon component\n */",
+        "meta": {
+            "range": [
+                136,
+                660
+            ],
+            "filename": "Icon.js",
+            "lineno": 9,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src/ui",
+            "code": {
+                "id": "astnode100006384",
+                "name": "Icon",
+                "type": "ClassDeclaration",
+                "paramnames": []
+            }
+        },
+        "classdesc": "Simple FontAwesome Icon component",
+        "name": "Icon",
+        "longname": "Icon",
+        "kind": "class",
+        "scope": "global",
+        "___id": "T000002R000655",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Special automaton link that can do process changes within the current page context.\n *\n * You can use it like a normal link and if the URI patterns match, it will do its magic thing and otherwise\n * it will just be a link.\n */",
+        "meta": {
+            "range": [
+                337,
+                1357
+            ],
+            "filename": "Link.js",
+            "lineno": 12,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src/ui",
+            "code": {
+                "id": "astnode100006454",
+                "name": "Link",
+                "type": "ClassDeclaration",
+                "paramnames": []
+            },
+            "vars": {
+                "": null
+            }
+        },
+        "classdesc": "Special automaton link that can do process changes within the current page context.\n\nYou can use it like a normal link and if the URI patterns match, it will do its magic thing and otherwise\nit will just be a link.",
+        "name": "Link",
+        "longname": "Link",
+        "kind": "class",
+        "scope": "global",
+        "___id": "T000002R000664",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * Formats a local URI with path patterns and parameters.\n *\n * @param {String} location                 local location e.g. \"/app/process/{name}\"\n * @param {Object} [params]                   path variable or HTTP parameter to add to the URI. If a parameter name is not present as a path variable, it is used as HTTP parameter.\n * @param {boolean} [containsContextPath]   if set to true, `location` will be assumed to already contain the context path\n * @return {string}\n */",
+        "meta": {
+            "range": [
+                1455,
+                2138
+            ],
+            "filename": "uri.js",
+            "lineno": 51,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100006669",
+                "name": "module.exports",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "location",
+                    "params",
+                    "containsContextPath"
+                ]
+            }
+        },
+        "description": "Formats a local URI with path patterns and parameters.",
+        "params": [
+            {
+                "type": {
+                    "names": [
+                        "String"
+                    ]
+                },
+                "description": "local location e.g. \"/app/process/{name}\"",
+                "name": "location"
+            },
+            {
+                "type": {
+                    "names": [
+                        "Object"
+                    ]
+                },
+                "optional": true,
+                "description": "path variable or HTTP parameter to add to the URI. If a parameter name is not present as a path variable, it is used as HTTP parameter.",
+                "name": "params"
+            },
+            {
+                "type": {
+                    "names": [
+                        "boolean"
+                    ]
+                },
+                "optional": true,
+                "description": "if set to true, `location` will be assumed to already contain the context path",
+                "name": "containsContextPath"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "string"
+                    ]
+                }
+            }
+        ],
+        "name": "exports",
+        "longname": "module.exports",
+        "kind": "function",
+        "memberof": "module",
+        "scope": "static",
+        "___id": "T000002R000685",
+        "___s": true
+    },
+    {
+        "comment": "/**\n * High-order component to receive all standard enviroment contexts as props.\n *\n * This is not needed for process view component which receive those properties in any case.\n *\n * @param Component\n * @return {React.Component} component with environment props\n */",
+        "meta": {
+            "range": [
+                389,
+                1091
+            ],
+            "filename": "withAutomatonEnv.js",
+            "lineno": 14,
+            "columnno": 0,
+            "path": "/home/sven/ideaprojects/automaton-js/src",
+            "code": {
+                "id": "astnode100006800",
+                "name": "module.exports",
+                "type": "FunctionDeclaration",
+                "paramnames": [
+                    "Component"
+                ]
+            }
+        },
+        "description": "High-order component to receive all standard enviroment contexts as props.\n\nThis is not needed for process view component which receive those properties in any case.",
+        "params": [
+            {
+                "name": "Component"
+            }
+        ],
+        "returns": [
+            {
+                "type": {
+                    "names": [
+                        "React.Component"
+                    ]
+                },
+                "description": "component with environment props"
+            }
+        ],
+        "name": "exports",
+        "longname": "module.exports",
+        "kind": "function",
+        "memberof": "module",
+        "scope": "static",
+        "___id": "T000002R000697",
+        "___s": true
+    },
+    {
+        "kind": "package",
+        "longname": "package:undefined",
+        "files": [
+            "/home/sven/ideaprojects/automaton-js/src/AutomatonDevTools.js",
+            "/home/sven/ideaprojects/automaton-js/src/Dialog.js",
+            "/home/sven/ideaprojects/automaton-js/src/GraphQLQuery.js",
+            "/home/sven/ideaprojects/automaton-js/src/Process.js",
+            "/home/sven/ideaprojects/automaton-js/src/Transition.js",
+            "/home/sven/ideaprojects/automaton-js/src/auth.js",
+            "/home/sven/ideaprojects/automaton-js/src/config.js",
+            "/home/sven/ideaprojects/automaton-js/src/domain.js",
+            "/home/sven/ideaprojects/automaton-js/src/graphql.js",
+            "/home/sven/ideaprojects/automaton-js/src/i18n.js",
+            "/home/sven/ideaprojects/automaton-js/src/index.js",
+            "/home/sven/ideaprojects/automaton-js/src/injection.js",
+            "/home/sven/ideaprojects/automaton-js/src/modelToJs.js",
+            "/home/sven/ideaprojects/automaton-js/src/parseQuery.js",
+            "/home/sven/ideaprojects/automaton-js/src/render.js",
+            "/home/sven/ideaprojects/automaton-js/src/runProcess.js",
+            "/home/sven/ideaprojects/automaton-js/src/scopeNames.js",
+            "/home/sven/ideaprojects/automaton-js/src/standard-queries.js",
+            "/home/sven/ideaprojects/automaton-js/src/startup.js",
+            "/home/sven/ideaprojects/automaton-js/src/sync.js",
+            "/home/sven/ideaprojects/automaton-js/src/ui/Button.js",
+            "/home/sven/ideaprojects/automaton-js/src/ui/DataGrid.js",
+            "/home/sven/ideaprojects/automaton-js/src/ui/DefaultLayout.js",
+            "/home/sven/ideaprojects/automaton-js/src/ui/IQueryGrid.js",
+            "/home/sven/ideaprojects/automaton-js/src/ui/Icon.js",
+            "/home/sven/ideaprojects/automaton-js/src/ui/Link.js",
+            "/home/sven/ideaprojects/automaton-js/src/uri.js",
+            "/home/sven/ideaprojects/automaton-js/src/util/getDisplayName.js",
+            "/home/sven/ideaprojects/automaton-js/src/withAutomatonEnv.js"
+        ],
+        "___id": "T000002R000701",
+        "___s": true
+    }
+]
