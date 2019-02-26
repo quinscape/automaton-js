@@ -1,18 +1,23 @@
+import { action } from "mobx"
+
 const secret = Symbol("TransitionSecret");
 
 /**
  * Encapsulates a runtime transition within a process.
  */
 export default class Transition {
-    constructor(process, source, target, context)
+    constructor(process, source, target, context, processHistory, currentHistoryPos)
     {
         this[secret] = {
-            process: process,
-            source: source,
-            target: target,
-            context: context,
-            isCanceled: false
-        }
+            process,
+            source,
+            target,
+            context,
+            processHistory,
+            currentHistoryPos
+        };
+
+        this.isRecorded = false;
     }
 
 
@@ -42,18 +47,6 @@ export default class Transition {
         this[secret].context = value;
     }
 
-
-    /**
-     * Returns true if the transition has been canceled.
-     *
-     * @return {boolean}
-     */
-    get isCanceled()
-    {
-        return this[secret].isCanceled;
-    }
-
-
     /**
      * Source state
      *
@@ -82,9 +75,9 @@ export default class Transition {
      */
     set target(name)
     {
-        const access = this[secret];
+        const storage = this[secret];
 
-        const {process} = access;
+        const { process } = storage;
 
         console.log("Process of transition", process);
 
@@ -93,17 +86,56 @@ export default class Transition {
             throw new Error("'" + name + "' is no valid target state in process '" + process.name + "'");
         }
 
-        access.target = name;
+        storage.target = name;
     }
 
 
     /**
-     * Cancels the transition and reverts the process scope changes.
+     * Goes back to a previous process state.
      *
+     * @param {Number|Function} [n]     Number of steps to go back, default is 1.
+     *                                  if n is a function, it will be called with every history entry starting with the last
+     *                                  until the function returns true. Then the process goes to that history state.
+     *
+     *                                  Throws an error if it cannot go back n states or if the function n never returns true
      */
-    cancel()
+    @action
+    back(n = 1)
     {
-        this[secret].isCanceled = true;
-        this[secret].target = null;
+
+        const { processHistory, currentHistoryPos } = this[secret];
+
+        let backTargetEntry = 0;
+        if (typeof n === "function")
+        {
+            for (let i = currentHistoryPos - 1; i >= 0; i--)
+            {
+                const entry = processHistory[i];
+
+                if (n(entry) === true)
+                {
+                    backTargetEntry = entry;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            if (n <= currentHistoryPos)
+            {
+                backTargetEntry = processHistory[currentHistoryPos - n];
+            }
+        }
+
+        if (!backTargetEntry)
+        {
+            throw new Error("Could not go back ( n = " + String(n) + ")" );
+        }
+
+        const { currentState, versionedProps } = backTargetEntry;
+
+        Object.assign(this[secret].process.scope, versionedProps);
+
+        this[secret].target = currentState;
     }
 }

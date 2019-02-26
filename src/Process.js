@@ -1,7 +1,6 @@
 import React from "react";
-import { createViewModel } from "mobx-utils";
 import render from "./render";
-import { action, get, keys, set } from "mobx";
+import { action, get, keys, set, observe } from "mobx";
 
 import GraphQLQuery from "./GraphQLQuery";
 import { FormConfigProvider, WireFormat } from "domainql-form";
@@ -11,6 +10,7 @@ import uri from "./uri";
 import i18n from "./i18n";
 import ProcessDialog from "./ProcessDialog";
 import { getWireFormat } from "./domain";
+import ScopeObserver from "./ScopeObserver";
 
 const NO_MATCH = {
     processName: null,
@@ -19,8 +19,6 @@ const NO_MATCH = {
 };
 
 const MODULE_REGEX = /^\.\/(processes\/(.*?)\/(composites\/)?)?(.*?).js$/;
-
-
 
 function matchPath(path)
 {
@@ -45,10 +43,10 @@ export const AutomatonEnv = React.createContext({
 });
 
 let currentProcess = null;
-let unlistenHistory = null;
 let processes = [];
 
-export let navigationHistory = [];
+let processHistory = [];
+let currentHistoryPos = -1;
 
 
 function ProcessEntry(definition)
@@ -294,7 +292,7 @@ export class ProcessDefinition {
 /**
  * Access the resolve and reject functions stored for a sub-process or throws an error when the process is not a sub-process
  *
- * @param process
+ * @param {Process} process       process instance
  */
 function subProcessPromiseFns(process)
 {
@@ -332,6 +330,18 @@ const PROCESS_DEFAULT_OPTIONS = {
     forceSubProcess: false
 };
 
+
+/**
+ * Default versioning strategy which versions all fields whose name starts with "current"
+ *
+ * @param name          property name
+ * @return {boolean}  true if versioned
+ */
+function versionCurrent(name)
+{
+    return name.indexOf("current") === 0
+}
+
 /**
  * Process facade exposing a limited set of getters and methods as process API
  */
@@ -358,9 +368,20 @@ export class Process {
 
             subProcessPromise: null,
 
-            initialized: false
+            versioningStrategy: null,
+            scopeObserver: null,
+
+            initialized: false,
+
+            cleanup: () => {
+                    // clean up scopeObserver
+                    this[secret].scopeObserver.dispose();
+                    this[secret].scopeObserver = null;
+            }
         };
 
+        // correctly initialize versioningStrategy and scopeObserver
+        this.versioningStrategy = versionCurrent;
         //console.log("PROCESS '" + name +"'", this);
     }
 
@@ -430,6 +451,23 @@ export class Process {
         }
     }
 
+    get versioningStrategy()
+    {
+        return this[secret].versioningStrategy;
+    }
+
+    set versioningStrategy(strategy)
+    {
+        if (typeof strategy !== "function")
+        {
+            throw new Error("Invalid strategy: " + strategy);
+        }
+
+        this[secret].versioningStrategy = strategy;
+        // we need to recreate the scope observer when the strategy changes
+        this[secret].scopeObserver = new ScopeObserver(strategy, this[secret].scope);
+    }
+
     get input()
     {
         return this[secret].input;
@@ -466,9 +504,10 @@ export class Process {
 
         ensureInitialized(this);
 
-        const access = this[secret];
+        const storage = this[secret];
 
-        const transition = access.states[access.currentState][name];
+        const currentState = storage.currentState;
+        const transition = storage.states[currentState][name];
         if (!transition)
         {
             throw new Error("Could not find transition '" + name + "' in Process '" + this.name + "'")
@@ -494,11 +533,11 @@ export class Process {
                     executeTransition(name, transition.action, transition.to, context) :
                     transition.to
             )
-                .then(currentState => {
+                .then(newState => {
 
-                    if (currentState)
+                    if (newState)
                     {
-                        access.currentState = currentState;
+                        storage.currentState = newState;
                         pushProcessState();
                     }
 
@@ -517,11 +556,11 @@ export class Process {
      */
     getTransition(name)
     {
-        const access = this[secret];
+        const storage = this[secret];
 
-        //console.log("getTransition", access.currentState, access.states);
+        //console.log("getTransition", storage.currentState, storage.states);
 
-        return access.states[access.currentState][name] || null;
+        return storage.states[storage.currentState][name] || null;
     }
 
 
@@ -557,8 +596,8 @@ export class Process {
                     //console.log("RENDER SUB-PROCESS VIEW", elem);
 
                     // store for subProcessPromiseFns
-                    const access = currentProcess[secret];
-                    access.subProcessPromise = {
+                    const storage = currentProcess[secret];
+                    storage.subProcessPromise = {
                         resolve,
                         reject
                     };
@@ -588,10 +627,14 @@ export class Process {
     {
         const fns = subProcessPromiseFns(this);
 
-        currentProcess = this[secret].parent;
+        const storage = this[secret];
+
+        currentProcess = storage.parent;
+        storage.cleanup();
 
         fns.resolve(output);
     }
+
 
 
     /**
@@ -601,6 +644,11 @@ export class Process {
      */
     abortSubProcess(err)
     {
+        const storage = this[secret];
+
+        currentProcess = storage.parent;
+        storage.cleanup();
+
         subProcessPromiseFns(this).reject(err);
     }
 
@@ -739,10 +787,39 @@ export function fetchProcessInjections(appName, processName, input = {})
 
 
 /**
+ * Returns true if the given view model contains changed keys that are also versioned according the process' versioning
+ * strategy.
+ *
+ * @param viewModel     transition view model
+ * @param process       process instance
+ *
+ * @return {boolean} true if any of the versioned properties are dirty
+ */
+function anyVersionedFieldsDirty(viewModel, process)
+{
+    if (!viewModel.isDirty)
+    {
+        return false;
+    }
+
+    const names = keys(viewModel);
+    for (let i = 0; i < names.length; i++)
+    {
+        const name = names[i];
+        if (process.versioningStrategy(name) && viewModel.isPropertyDirty(name))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+/**
  * Executes the given transition action function
  *
  * @param {String} name                     Transition name
- * @param {Function<Transition>} actionFn   Transition action function
+ * @param {Function} actionFn               Transition action function
  * @param {String} [target]                 transition target
  * @param {object} [context]                domain object context
  * @return {Promise<any | never>}
@@ -752,70 +829,67 @@ function executeTransition(name, actionFn, target, context)
     //console.log("executeTransition", {name, actionFn, target, context});
 
     let viewModel;
-    const transition = new Transition(currentProcess, currentProcess[secret].currentState, target, context);
+    const sourceState = currentProcess[secret].currentState;
 
-    const access = currentProcess[secret];
-    const origScope = access.scope;
-    if (origScope)
-    {
-        viewModel = createViewModel(origScope);
-        access.scope = viewModel;
-    }
+    const transition = new Transition(
+        currentProcess,
+        sourceState,
+        target,
+        context,
+        processHistory,
+        currentHistoryPos
+    );
+
+    const storage = currentProcess[secret];
 
     const mobXActionKey = "mobxAction-" + name;
 
-    let mobxAction = currentProcess[secret][mobXActionKey];
+    let mobxAction = storage[mobXActionKey];
     if (!mobxAction)
     {
         mobxAction = action(
             currentProcess.name + "." + name,
             actionFn
         );
-        currentProcess[secret][mobXActionKey] = mobxAction;
+        storage[mobXActionKey] = mobxAction;
     }
 
-    return new Promise(
-        (resolve, reject) => {
-            try
-            {
-                //console.log("EXECUTE MOB-X TRANSITION", mobxAction, transition);
+    const { scopeObserver } = storage;
 
-                resolve(
-                    mobxAction(
-                        transition
-                    )
-                );
+    scopeObserver.reset();
+
+    return new Promise(
+            (resolve, reject) => {
+                try
+                {
+                    //console.log("EXECUTE MOB-X TRANSITION", mobxAction, transition);
+
+                    resolve(
+                        mobxAction(
+                            transition
+                        )
+                    );
+
+                }
+                catch (e)
+                {
+                    reject(e);
+                }
             }
-            catch (e)
-            {
-                reject(e);
-            }
-        }
-    )
+        )
         .then(
             () => {
 
-                if (!transition.isCanceled)
-                {
-                    if (origScope)
-                    {
-                        if (viewModel.isDirty)
-                        {
-                            viewModel.submit();
-                        }
-                        access.scope = origScope;
-                    }
+                const { target } = transition;
 
-                    return transition.target
-                }
+                const isRecorded = target !== sourceState || transition.isRecorded || scopeObserver.versionedPropsChanged;
+
+                return isRecorded ? target : null
             }
         )
         .catch(
             err => {
-                if (origScope)
-                {
-                    access.scope = origScope;
-                }
+
                 console.error("ERROR IN TRANSITION", err);
             }
         );
@@ -873,7 +947,9 @@ export function onHistoryAction(location, action)
             //console.log("POP", state);
 
             const { navigationId } = state;
-            const entry = navigationHistory[navigationId];
+
+
+            const entry = processHistory[navigationId];
 
             if (!entry)
             {
@@ -882,15 +958,8 @@ export function onHistoryAction(location, action)
                 )
             }
 
-            const { processId, currentState } = entry;
-
-            currentProcess = processes[processId];
-
-            currentProcess[secret].currentState = currentState;
-
-            render(
-                renderCurrentView()
-            )
+            currentHistoryPos = navigationId;
+            renderRestoredView(entry);
         }
         // else
         // {
@@ -907,31 +976,98 @@ function getURIInfo(obj)
 }
 
 
+/**
+ * Extracts the versioned property of a process scope based on the versioning strategy registered in the process.
+ * 
+ * @param process       process instance
+ * 
+ * @return {object} object with versioned props
+ */
+function getVersionedProps(process)
+{
+    const { scope, versioningStrategy } = process;
+
+    const out = {};
+    for (let name in scope)
+    {
+        if (scope.hasOwnProperty(name) && versioningStrategy(name))
+        {
+            out[name] = scope[name];
+        }
+    }
+
+    //console.log("getVersionedProps:", out);
+
+    return out;
+}
+
+
+/**
+ * Renders a restored view from a history entry.
+ *
+ * First it applies the versioned props to the process then it makes that process the current process
+ * and renders the current view, all in one mobx transaction. ( This prevents stale view components complaining
+ * about new data etc. )
+ *
+ */
+const renderRestoredView = action(
+    "renderRestoredView",
+    (historyEntry) => {
+        //console.log("Updating scope with ", versionedProps);
+
+        const { processId, currentState, versionedProps } = historyEntry;
+
+        currentProcess = processes[processId];
+
+        currentProcess[secret].currentState = currentState;
+
+        const { scope } = currentProcess;
+
+        Object.assign(scope, versionedProps);
+
+        return render(
+            renderCurrentView()
+        );
+    }
+);
+
+
 function pushProcessState(replace = false)
 {
-    const { id, currentState } = currentProcess[secret];
+    const { id, currentState, scope } = currentProcess[secret];
 
-    const navigationId = navigationHistory.length;
+    //console.log("pushProcessState: pos = ", currentHistoryPos, processHistory);
 
-    navigationHistory.push({
+    const navigationId = ++currentHistoryPos;
+
+    if (navigationId < processHistory.length)
+    {
+        //console.log("Prune history");
+        processHistory = processHistory.slice(0, navigationId);
+    }
+
+    const versionedProps = getVersionedProps(currentProcess);
+    processHistory[navigationId] = {
         processId: id,
-        currentState
-    });
+        currentState,
+        versionedProps
+    };
 
     const op = replace ? "replace" : "push";
 
     //console.log("pushProcessState", op);
 
     config.history[op](
-        uri("/{appName}/{processName}/{stateName}/{info}",
-            {
-                appName: config.appName,
-                processName: currentProcess.name,
-                stateName: currentState,
-                info: getURIInfo()
-            }, true), {
-            navigationId
-        });
+            uri("/{appName}/{processName}/{stateName}/{info}",
+                {
+                    appName: config.appName,
+                    processName: currentProcess.name,
+                    stateName: currentState,
+                    info: getURIInfo()
+                }, true), {
+                navigationId
+            }
+        );
 }
 
 
@@ -939,8 +1075,8 @@ function finishInitialization(process)
 {
     //console.log("finishInitialization", process.name);
 
-    const access = process[secret];
-    const { options } = access;
+    const storage = process[secret];
+    const { options } = storage;
 
     const keys = Object.keys(options);
 
@@ -952,8 +1088,8 @@ function finishInitialization(process)
         }
     }
 
-    access.options = Object.freeze(options);
-    access.initialized = true;
+    storage.options = Object.freeze(options);
+    storage.initialized = true;
 }
 
 
