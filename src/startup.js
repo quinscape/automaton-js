@@ -1,3 +1,5 @@
+import React from "react"
+import ReactDOM from "react-dom"
 import { loadProcessDefinitions, onHistoryAction, renderProcess } from "./Process"
 import config, { DEFAULT_OPTS } from "./config"
 import Authentication from "./auth"
@@ -13,8 +15,16 @@ import { loadDomainDefinitions } from "./domain";
 
 const SCOPES_MODULE_NAME = "./scopes.js";
 
-let unlistenHistory;
-
+let disposers = [];
+/**
+ * Deregisters the necessary handlers and shuts down the running automaton app.
+ */
+export function shutdown()
+{
+    disposers.forEach( disposer => disposer());
+    disposers = [];
+    ReactDOM.render( false, document.getElementById("root"));
+}
 
 /**
  * Default automaton initialization procedure for automaton apps. This is what happens before the user-provided
@@ -159,56 +169,64 @@ function setupScopeSynchronization()
 
     if (appScope)
     {
-        autorun(() => serverSync(
-            APP_SCOPE,
-            appScope,
-            uri(
-                "/_auto/sync/app/{appName}",
-                {
-                    appName: config.appName
-                }
+        disposers.push(
+            autorun(() => serverSync(
+                APP_SCOPE,
+                appScope,
+                uri(
+                    "/_auto/sync/app/{appName}",
+                    {
+                        appName: config.appName
+                    }
+                )
+                ),
+                getSyncOpts(APP_SCOPE)
             )
-            ),
-            getSyncOpts(APP_SCOPE)
         );
     }
 
     const login = config.auth.login;
     if (userScope && login !== "anonymous")
     {
-        autorun(() => serverSync(
-            USER_SCOPE,
-            userScope,
-            uri(
-                "/_auto/sync/user/{login}",
-                {
-                    login: login
-                }
+        disposers.push(
+            autorun(() => serverSync(
+                USER_SCOPE,
+                userScope,
+                uri(
+                    "/_auto/sync/user/{login}",
+                    {
+                        login: login
+                    }
+                )
+                ),
+                getSyncOpts(USER_SCOPE)
             )
-            ),
-            getSyncOpts(USER_SCOPE)
         );
     }
 
     if (sessionScope)
     {
-        autorun(() => storageSync(
-            SESSION_SCOPE,
-            sessionScope,
-            sessionStorage
-            ),
-            getSyncOpts(SESSION_SCOPE)
+        disposers.push(
+            autorun(() => storageSync(
+                SESSION_SCOPE,
+                sessionScope,
+                sessionStorage
+                ),
+                getSyncOpts(SESSION_SCOPE)
+            )
         );
     }
 
     if (localScope)
     {
-        autorun(() => storageSync(
-            LOCAL_SCOPE,
-            localScope,
-            localStorage
-            ),
-            getSyncOpts(LOCAL_SCOPE)
+        disposers.push(
+            autorun(() => storageSync(
+                LOCAL_SCOPE,
+                localScope,
+                localStorage
+                ),
+                getSyncOpts(LOCAL_SCOPE)
+            )
         );
     }
 }
@@ -247,7 +265,9 @@ export function startup(ctx, initial, initFn)
                 // AUTOMATON RUNTIME PHASE
                 setupScopeSynchronization();
 
-                unlistenHistory = config.history.listen(onHistoryAction);
+                disposers.push(
+                    config.history.listen(onHistoryAction)
+                );
 
                 return renderProcess(
                     config.rootProcess,

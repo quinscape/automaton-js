@@ -1,5 +1,5 @@
-import withAutomatonEnv from "./withAutomatonEnv"
-import { startup, reinitializeLocalScope, reinitializeSessionScope } from "./startup";
+import useAutomatonEnv from "./useAutomatonEnv"
+import { startup, reinitializeLocalScope, reinitializeSessionScope, shutdown } from "./startup";
 import injection from "./injection";
 import i18n from "./i18n";
 import uri from "./uri";
@@ -24,8 +24,9 @@ export {
     config,
     render,
     startup,
+    shutdown,
     injection,
-    withAutomatonEnv,
+    useAutomatonEnv,
     i18n,
     uri,
     graphql,

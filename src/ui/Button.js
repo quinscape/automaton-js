@@ -1,71 +1,63 @@
 import React from "react"
-import withAutomatonEnv from "../withAutomatonEnv";
-import { withFormConfig } from "domainql-form";
-import PropTypes from "prop-types";
+import PropTypes from "prop-types"
+import { useFormConfig } from "domainql-form"
 import Icon from "./Icon";
 import cx from "classnames"
 
-import { observer } from "mobx-react"
+import { observer as fnObserver } from "mobx-react-lite"
+import useAutomatonEnv from "../useAutomatonEnv";
 
 
-class Button extends React.Component {
+const Button = props => {
 
-    static propTypes = {
-        action: PropTypes.func,
-        transition: PropTypes.string,
-        className: PropTypes.string,
-        icon: PropTypes.string,
-        text: PropTypes.string
-    };
+    const formConfig = useFormConfig();
+    const env = useAutomatonEnv();
 
-    static defaultProps = {
-        className: "btn btn-secondary",
-        text: ""
-    };
-
-
+    const { className, name, icon, text, transition, disabled } = props;
     /**
      * Returns either the explicit context set as prop or the current form object model if present.
      *
      * @return {*} context
      */
-    getContext()
+    const getContext = () =>
     {
-        const { context : contextFromProps, formConfig } = this.props;
+        const { context : contextFromProps } = props;
         // if no explicit context is set, use original form root (might be null)
         return contextFromProps !== undefined ? contextFromProps : formConfig.root && formConfig.root.model;
-    }
+    };
 
-    onClick = ev => {
-        const { action, transition, context : contextFromProps, env, formConfig } = this.props;
+    const onClick = ev => {
 
         // double check for safety
-        if (this.isDisabled())
+        if (isDisabled())
         {
             return;
         }
 
-
+        const { action } = props;
         //console.log("BUTTON-CLICK", { action, transition, context, env })
 
         if (typeof action === "function")
         {
-            action(this.getContext())
+            action(getContext())
         }
         else
         {
-            const entry = this.getTransitionEntry();
-
-            if (entry.discard)
+            const entry = env.process.getTransition(transition);
+            if (!entry)
             {
-                formConfig.root && formConfig.root.reset();
+                throw new Error("No transition '" + transition + "' in " + env.process.name + "/" + env.process.currentState)
             }
-            else
+
+            if (formConfig.root)
             {
-                const { formInstance } = formConfig;
-                if (formInstance)
+                if (entry.discard)
                 {
-                    formInstance.handleSubmit();
+                    formConfig.root.reset();
+                }
+                else
+                {
+                    formConfig.ctx.submit();
                 }
             }
 
@@ -75,7 +67,7 @@ class Button extends React.Component {
 
                 //console.log("TRANSITION", transition, process);
                 // it's important to take context *after* we submit or reset it above
-                process.transition(transition, this.getContext())
+                process.transition(transition, getContext())
             }
             catch (e)
             {
@@ -84,9 +76,8 @@ class Button extends React.Component {
         }
     };
 
-    isDisabled()
+    const isDisabled = () =>
     {
-        const { transition, formConfig, disabled } = this.props;
 
         let isDisabled = false;
 
@@ -98,38 +89,26 @@ class Button extends React.Component {
         // if the `transition` prop is defined ..
         if (!isDisabled && transition)
         {
-            const entry = this.getTransitionEntry();
+            const entry = env.process.getTransition(transition);
+            if (!entry)
+            {
+                throw new Error("No transition '" + transition + "' in " + env.process.name + "/" + env.process.currentState)
+            }
 
             // .. and we're not discarding and we have errors, then disable button
             isDisabled = !entry.discard && formConfig.hasErrors();
         }
 
         return isDisabled;
-    }
-
-    getTransitionEntry()
-    {
-        const { env, transition } = this.props;
-        const entry = env.process.getTransition(transition);
-        if (!entry)
-        {
-            throw new Error("No transition '" + transition + "' in " + env.process.name + "/" + env.process.currentState)
-        }
-        return entry;
-    }
-
-
-    render()
-    {
-        const { className, name, icon, text } = this.props;
+    };
 
         return (
             <button
                 type="button"
                 name={ name }
                 className={ className }
-                disabled={ this.isDisabled() }
-                onClick={ this.onClick }
+                disabled={ isDisabled() }
+                onClick={ onClick }
             >
                 {
                     icon && (
@@ -148,16 +127,20 @@ class Button extends React.Component {
                 }
             </button>
         )
-    }
+};
+
+Button.propTypes = {
+    action: PropTypes.func,
+    transition: PropTypes.string,
+    className: PropTypes.string,
+    icon: PropTypes.string,
+    text: PropTypes.string
+};
+
+Button.defaultProps = {
+    className: "btn btn-secondary",
+    text: ""
+};
 
 
-}
-
-
-export default withAutomatonEnv(
-    withFormConfig(
-        observer(
-            Button
-        )
-    )
-)
+export default fnObserver( Button )

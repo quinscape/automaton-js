@@ -18,13 +18,14 @@
     },
     "peerDependencies": {
         "create-react-class": "^15.6.3",
-        "domainql-form": "quinscape/domainql-form",
+        "domainql-form": "^2.0.4",
         "history": "^4.7.2",
-        "mobx": "^5.5.0",
+        "mobx": "^5.9.0",
+        "mobx-react-lite": "^1.1.0",
         "mobx-react": "^5.2.8",
         "mobx-react-devtools": "^6.0.3",
         "mobx-utils": "^5.0.4",
-        "react": "^16.5.2",
+        "react": "^16.8.3",
         "reactstrap": "^6.5.0"
     },
     "devDependencies": {
@@ -41,12 +42,18 @@
         "babel-preset-stage-1": "^6.24.1",
         "babel-register": "^6.26.0",
         "cross-env": "^5.1.4",
-        "domainql-form": "quinscape/domainql-form",
+        "domainql-form": "^2.0.4",
+        "jsdoc": "^3.5.5",
+        "jsdoc-json": "^2.0.2",
         "mocha": "^5.1.1",
         "power-assert": "^1.5.0",
-        "react": "^16.5.2",
-        "react-dom": "^16.5.2",
-        "sinon": "^5.0.10"
+        "react": "^16.8.3",
+        "react-docgen": "^3.0.0",
+        "react-dom": "^16.8.3",
+        "sinon": "^5.0.10",
+        "tempy": "^0.2.1",
+        "mobx-react-lite": "^1.0.0",
+        "mobx-react": "^5.2.8"
     },
     "bin": {
         "model-to-js": "./lib/modelToJs.js",

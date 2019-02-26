@@ -9,11 +9,11 @@ import { runProcessURI } from "../runProcess";
  * You can use it like a normal link and if the URI patterns match, it will do its magic thing and otherwise
  * it will just be a link.
  */
-class Link extends React.Component {
+const Link = props =>  {
 
-    onClick = ev => {
+    const onClick = ev => {
 
-        const { href } = this.props;
+        const { href } = props;
 
         // we use the runProcessURI variant because we're starting out with a URI. (Not the runProcess variant that allows
         // process execution based on process name and processed input map).
@@ -28,27 +28,23 @@ class Link extends React.Component {
         ev.preventDefault();
     };
 
+    const { href, title, role, className, children } = props;
 
-    render()
-    {
-        const {href, title, role, className, children} = this.props;
-
-        return (
-            <a
-                className={
-                    cx("link-internal", className)
-                }
-                href={href}
-                onClick={this.onClick}
-                title={title}
-                role={role}
-            >
-                {
-                    children
-                }
-            </a>
-        )
-    }
+    return (
+        <a
+            className={
+                cx("link-internal", className)
+            }
+            href={ href }
+            onClick={ onClick }
+            title={ title }
+            role={ role }
+        >
+            {
+                children
+            }
+        </a>
+    )
 }
 
 

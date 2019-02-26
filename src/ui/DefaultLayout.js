@@ -1,21 +1,16 @@
 import React from "react"
 
+const DefaultLayout = props => {
 
-class DefaultLayout extends React.Component {
+    const { children } = props;
 
-    render()
-    {
-        const {env, children} = this.props;
-
-        return (
-            <div className="container default-layout">
-                {
-                    children
-                }
-            </div>
-        )
-    }
-}
-
+    return (
+        <div className="container default-layout">
+            {
+                children
+            }
+        </div>
+    )
+};
 
 export default DefaultLayout

@@ -37,7 +37,7 @@ export default class Authentication {
     /**
      * Returns true if the user has any of the given roles.
      *
-     * @param {... String} roles    roles
+     * @param {...String} roles    roles
      * @return {boolean}
      */
     hasRole(...roles)

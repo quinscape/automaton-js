@@ -9,7 +9,7 @@ import config from "./config";
 import Transition from "./Transition";
 import uri from "./uri";
 import i18n from "./i18n";
-import Dialog from "./Dialog";
+import ProcessDialog from "./ProcessDialog";
 import { getWireFormat } from "./domain";
 
 const NO_MATCH = {
@@ -225,7 +225,7 @@ function renderCurrentView()
         const SubProcessViewComponent = findViewComponent(process);
 
         dialogStack = (
-            <Dialog process={ process }>
+            <ProcessDialog process={ process }>
                 <AutomatonEnv.Provider
                     value={ subProcessEnv }
                 >
@@ -234,7 +234,7 @@ function renderCurrentView()
                         dialogStack
                     }
                 </AutomatonEnv.Provider>
-            </Dialog>
+            </ProcessDialog>
         );
 
         process = process[secret].parent;
