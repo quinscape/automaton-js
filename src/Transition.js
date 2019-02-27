@@ -14,10 +14,11 @@ export default class Transition {
             target,
             context,
             processHistory,
-            currentHistoryPos
+            currentHistoryPos,
+            historyIndex: -1
         };
 
-        this.isRecorded = false;
+        this.isRecorded = null;
     }
 
 
@@ -70,6 +71,16 @@ export default class Transition {
 
 
     /**
+     * Returns the history index the transition has returned to
+     *
+     * @return {Number} history index or -1 if no history navigation took place
+     */
+    get historyIndex()
+    {
+        return this[secret].historyIndex;
+    }
+
+    /**
      * Sets the current target state
      * @param name
      */
@@ -105,7 +116,7 @@ export default class Transition {
 
         const { processHistory, currentHistoryPos } = this[secret];
 
-        let backTargetEntry = 0;
+        let historyIndex = -1;
         if (typeof n === "function")
         {
             for (let i = currentHistoryPos - 1; i >= 0; i--)
@@ -114,28 +125,28 @@ export default class Transition {
 
                 if (n(entry) === true)
                 {
-                    backTargetEntry = entry;
+                    historyIndex = i;
                     break;
                 }
             }
+
+            //console.log("back(fn) : true for history index #", processHistory[historyIndex]);
         }
         else
         {
             if (n <= currentHistoryPos)
             {
-                backTargetEntry = processHistory[currentHistoryPos - n];
+                historyIndex = currentHistoryPos - n;
             }
         }
 
-        if (!backTargetEntry)
+        if (historyIndex < 0 || historyIndex >= processHistory.length)
         {
             throw new Error("Could not go back ( n = " + String(n) + ")" );
         }
 
-        const { currentState, versionedProps } = backTargetEntry;
-
-        Object.assign(this[secret].process.scope, versionedProps);
-
-        this[secret].target = currentState;
+        this.isRecorded = false;
+        // remember history index to go back to
+        this[secret].historyIndex = historyIndex;
     }
 }

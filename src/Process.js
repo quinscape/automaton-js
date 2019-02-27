@@ -531,16 +531,31 @@ export class Process {
             Promise.resolve(
                 transition.action ?
                     executeTransition(name, transition.action, transition.to, context) :
-                    transition.to
+                    new Transition(this, name, transition.to, null, processHistory, currentHistoryPos)
             )
-                .then(newState => {
+                .then(transition => {
 
-                    if (newState)
+                    const { historyIndex } = transition;
+                    if (historyIndex >= 0)
                     {
-                        storage.currentState = newState;
-                        pushProcessState();
-                    }
+                        const oldIndex = currentHistoryPos;
+                        currentHistoryPos = historyIndex;
 
+                        config.history.go(currentHistoryPos - oldIndex);
+                        return false;
+                    }
+                    else
+                    {
+                        const { target, isRecorded } = transition;
+                        // --> transition
+
+                        storage.currentState = target;
+
+                        if (isRecorded)
+                        {
+                            pushProcessState();
+                        }
+                    }
                     return render(
                         renderCurrentView()
                     )
@@ -816,13 +831,39 @@ function anyVersionedFieldsDirty(viewModel, process)
 
 
 /**
+ * Wraps the given action function in a mobx action once or returns a previously wrapped mobx action
+ *
+ * @param {Object} storage      process storage
+ * @param {String} name         action name
+ * @param {Function} actionFn   action function
+ *
+ * @return mobx action
+ */
+
+function prepareMobXAction(storage, name, actionFn)
+{
+    const mobXActionKey = "mobxAction-" + name;
+
+    let mobxAction = storage[mobXActionKey];
+    if (!mobxAction)
+    {
+        mobxAction = action(
+            currentProcess.name + "." + name,
+            actionFn
+        );
+        storage[mobXActionKey] = mobxAction;
+    }
+    return mobxAction;
+}
+
+/**
  * Executes the given transition action function
  *
  * @param {String} name                     Transition name
  * @param {Function} actionFn               Transition action function
  * @param {String} [target]                 transition target
  * @param {object} [context]                domain object context
- * @return {Promise<any | never>}
+ * @return {Promise<Transition| never>}     Resolves to the transition object
  */
 function executeTransition(name, actionFn, target, context)
 {
@@ -842,17 +883,7 @@ function executeTransition(name, actionFn, target, context)
 
     const storage = currentProcess[secret];
 
-    const mobXActionKey = "mobxAction-" + name;
-
-    let mobxAction = storage[mobXActionKey];
-    if (!mobxAction)
-    {
-        mobxAction = action(
-            currentProcess.name + "." + name,
-            actionFn
-        );
-        storage[mobXActionKey] = mobxAction;
-    }
+    const mobxAction = prepareMobXAction(storage, name, actionFn);
 
     const { scopeObserver } = storage;
 
@@ -863,7 +894,6 @@ function executeTransition(name, actionFn, target, context)
                 try
                 {
                     //console.log("EXECUTE MOB-X TRANSITION", mobxAction, transition);
-
                     resolve(
                         mobxAction(
                             transition
@@ -879,17 +909,25 @@ function executeTransition(name, actionFn, target, context)
         )
         .then(
             () => {
+                const { target, isRecorded } = transition;
 
-                const { target } = transition;
+                // if isRecorded hasn't been explicitly defined
+                if (isRecorded !== false && isRecorded !== true)
+                {
+                    // record the transition if
+                    transition.isRecorded = (
+                       // the state changed
+                       target !== sourceState ||
+                       // .. or if the scopeObserver recorded changes in versioned props
+                       scopeObserver.versionedPropsChanged
+                    );
+                }
 
-                const isRecorded = target !== sourceState || transition.isRecorded || scopeObserver.versionedPropsChanged;
-
-                return isRecorded ? target : null
+                return transition;
             }
         )
         .catch(
             err => {
-
                 console.error("ERROR IN TRANSITION", err);
             }
         );
@@ -959,6 +997,8 @@ export function onHistoryAction(location, action)
             }
 
             currentHistoryPos = navigationId;
+
+            // noinspection JSIgnoredPromiseFromCall
             renderRestoredView(entry);
         }
         // else
@@ -1015,11 +1055,11 @@ const renderRestoredView = action(
     (historyEntry) => {
         //console.log("Updating scope with ", versionedProps);
 
-        const { processId, currentState, versionedProps } = historyEntry;
+        const { processId, state, versionedProps } = historyEntry;
 
         currentProcess = processes[processId];
 
-        currentProcess[secret].currentState = currentState;
+        currentProcess[secret].currentState = state;
 
         const { scope } = currentProcess;
 
@@ -1049,7 +1089,7 @@ function pushProcessState(replace = false)
     const versionedProps = getVersionedProps(currentProcess);
     processHistory[navigationId] = {
         processId: id,
-        currentState,
+        state: currentState,
         versionedProps
     };
 
@@ -1106,7 +1146,6 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
 {
 
     let process;
-    let access;
 
     const entry = processDefinitions[processName];
     if (!entry)
@@ -1153,7 +1192,7 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
     process = new Process(newProcessId, entry.definition, scope, input, asSubProcess ? currentProcess : null);
     processes.push(process);
 
-    access = process[secret];
+    const storage = process[secret];
 
     return Promise.resolve(
         initProcess(process, scope)
@@ -1166,7 +1205,7 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
                     throw new Error("Process '" + process.name + "' must be run as sub-process");
                 }
 
-                access.states = states;
+                storage.states = states;
 
                 finishInitialization(process);
 
@@ -1185,19 +1224,28 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
                 }
                 else
                 {
-                    return String(startState)
+                    return new Transition(
+                        process,
+                        null,
+                        startState,
+                        null,
+                        processHistory,
+                        currentHistoryPos
+                    );
                 }
             }
         )
         .then(
-            currentState => {
+            transition => {
 
-                if (!currentState)
+                const { target } = transition;
+
+                if (!target)
                 {
                     throw new Error("No initial state");
                 }
-                access.currentState = currentState;
 
+                storage.currentState = target;
                 pushProcessState(noPriorProcess);
 
                 return renderCurrentView();
