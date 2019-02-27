@@ -90,7 +90,7 @@ export default class Transition {
 
         const { process } = storage;
 
-        console.log("Process of transition", process);
+        // console.log("Process of transition", process);
 
         if (!process.states[name])
         {

@@ -529,11 +529,11 @@ export class Process {
         
         return (
             Promise.resolve(
-                transition.action ?
-                    executeTransition(name, transition.action, transition.to, context) :
-                    new Transition(this, name, transition.to, null, processHistory, currentHistoryPos)
+                executeTransition(name, transition.action, transition.to, context)
             )
                 .then(transition => {
+
+                    //console.log("TRANSITION END", transition);
 
                     const { historyIndex } = transition;
                     if (historyIndex >= 0)
@@ -860,7 +860,7 @@ function prepareMobXAction(storage, name, actionFn)
  * Executes the given transition action function
  *
  * @param {String} name                     Transition name
- * @param {Function} actionFn               Transition action function
+ * @param {Function} [actionFn]             Transition action function
  * @param {String} [target]                 transition target
  * @param {object} [context]                domain object context
  * @return {Promise<Transition| never>}     Resolves to the transition object
@@ -869,8 +869,9 @@ function executeTransition(name, actionFn, target, context)
 {
     //console.log("executeTransition", {name, actionFn, target, context});
 
-    let viewModel;
-    const sourceState = currentProcess[secret].currentState;
+    const storage = currentProcess[secret];
+    
+    const sourceState = storage.currentState;
 
     const transition = new Transition(
         currentProcess,
@@ -881,9 +882,7 @@ function executeTransition(name, actionFn, target, context)
         currentHistoryPos
     );
 
-    const storage = currentProcess[secret];
-
-    const mobxAction = prepareMobXAction(storage, name, actionFn);
+    const mobxAction = actionFn && prepareMobXAction(storage, name, actionFn);
 
     const { scopeObserver } = storage;
 
@@ -894,36 +893,36 @@ function executeTransition(name, actionFn, target, context)
                 try
                 {
                     //console.log("EXECUTE MOB-X TRANSITION", mobxAction, transition);
-                    resolve(
+
+                    if (mobxAction)
+                    {
                         mobxAction(
                             transition
                         )
-                    );
+                    }
 
+                    const { target, isRecorded } = transition;
+
+                    // if isRecorded hasn't been explicitly defined
+                    if (isRecorded === null)
+                    {
+                        // record the transition if
+                        transition.isRecorded = (
+                            // the state changed
+                            target !== sourceState ||
+                            // .. or if the scopeObserver recorded changes in versioned props
+                            scopeObserver.versionedPropsChanged
+                        );
+                    }
+
+                    resolve(
+                        transition
+                    )
                 }
                 catch (e)
                 {
                     reject(e);
                 }
-            }
-        )
-        .then(
-            () => {
-                const { target, isRecorded } = transition;
-
-                // if isRecorded hasn't been explicitly defined
-                if (isRecorded !== false && isRecorded !== true)
-                {
-                    // record the transition if
-                    transition.isRecorded = (
-                       // the state changed
-                       target !== sourceState ||
-                       // .. or if the scopeObserver recorded changes in versioned props
-                       scopeObserver.versionedPropsChanged
-                    );
-                }
-
-                return transition;
             }
         )
         .catch(
@@ -1211,32 +1210,31 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
 
                 currentProcess = process;
 
+                const startTransitionName = process.name + ".start";
                 if (typeof startState === "function")
                 {
-                    const startTransitionName = process.name + ".start";
                     return executeTransition(
                         startTransitionName,
-                        action(
-                            startTransitionName,
-                            startState
-                        )
+                        startState,
+                        null,
+                        null
                     );
                 }
                 else
                 {
-                    return new Transition(
-                        process,
+                    return executeTransition(
+                        startTransitionName,
                         null,
                         startState,
-                        null,
-                        processHistory,
-                        currentHistoryPos
+                        null
                     );
                 }
             }
         )
         .then(
             transition => {
+
+                //console.log("START TRANSITION", transition);
 
                 const { target } = transition;
 
@@ -1252,7 +1250,9 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
             }
         )
         .catch(err => {
+
             console.error("ERROR IN START PROCESS", err)
+            
             return (
                 <ErrorView
                     title={ i18n("Process Startup Error ") }
