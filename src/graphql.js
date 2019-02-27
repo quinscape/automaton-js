@@ -93,7 +93,7 @@ export default function graphql(params) {
     }
     else
     {
-        console.log("NEW QUERY DECL");
+        //console.log("NEW QUERY DECL");
 
         queryDecl = new GraphQLQuery(params.query);
     }

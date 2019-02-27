@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-console.log("modelToJs not implemented yet");
+//console.log("modelToJs not implemented yet");

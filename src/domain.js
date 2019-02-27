@@ -24,7 +24,7 @@ export function loadDomainDefinitions(ctx)
         }
     }
 
-    console.log("DOMAIN-CLASSES", domainClasses);
+    //console.log("DOMAIN-CLASSES", domainClasses);
 
     wireFormat = new WireFormat(
         config.inputSchema,
