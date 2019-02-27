@@ -18,6 +18,7 @@ import AutomatonDevTools from "./AutomatonDevTools"
 import GraphQLQuery from "./GraphQLQuery"
 import { storeDomainObject, deleteDomainObject } from "./standard-queries"
 
+import { backToParent } from "./back-functions"
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -51,6 +52,8 @@ export {
     // Standard Queries/Mutations
     storeDomainObject,
     deleteDomainObject,
+
+    backToParent,
 
     addConfig
 }
