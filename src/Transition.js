@@ -110,7 +110,6 @@ export default class Transition {
      *
      *                                  Throws an error if it cannot go back n states or if the function n never returns true
      */
-    @action
     back(n = 1)
     {
 
@@ -130,7 +129,7 @@ export default class Transition {
                 }
             }
 
-            //console.log("back(fn) : true for history index #", processHistory[historyIndex]);
+            //console.log("back(fn) : true for history index #", historyIndex, "=", processHistory[historyIndex]);
         }
         else
         {

@@ -374,9 +374,9 @@ export class Process {
             initialized: false,
 
             cleanup: () => {
-                    // clean up scopeObserver
-                    this[secret].scopeObserver.dispose();
-                    this[secret].scopeObserver = null;
+                // clean up scopeObserver
+                this[secret].scopeObserver.dispose();
+                this[secret].scopeObserver = null;
             }
         };
 
@@ -526,18 +526,19 @@ export class Process {
                 return Promise.resolve(null);
             }
         }
-        
+
         return (
             Promise.resolve(
                 executeTransition(name, transition.action, transition.to, context)
             )
                 .then(transition => {
 
-                    //console.log("TRANSITION END", transition);
+                    //console.log("TRANSITION END", "transition = ", transition);
 
                     const { historyIndex } = transition;
                     if (historyIndex >= 0)
                     {
+                        //console.log("RESTORE HISTORY", historyIndex);
                         const oldIndex = currentHistoryPos;
                         currentHistoryPos = historyIndex;
 
@@ -548,6 +549,7 @@ export class Process {
                     {
                         const { target, isRecorded } = transition;
                         // --> transition
+                        //console.log("NEXT", { historyIndex, target, isRecorded} );
 
                         storage.currentState = target;
 
@@ -566,7 +568,7 @@ export class Process {
 
     /**
      * Returns the transition with the given name from the current state map
-     * 
+     *
      * @return {Object} transition entry or null if there is no such transition
      */
     getTransition(name)
@@ -620,17 +622,17 @@ export class Process {
                     return render(element);
                 })
         )
-        .then(result => {
+            .then(result => {
 
-            pushProcessState();
+                pushProcessState();
 
-            return render(
-                renderCurrentView()
-            )
-            // make sure to resolve the sub-process result only after the parent view is restored.
-            .then( () => result);
-        })
-        .catch(err => console.error("ERROR IN SUB-PROCESS", err))
+                return render(
+                    renderCurrentView()
+                )
+                // make sure to resolve the sub-process result only after the parent view is restored.
+                    .then( () => result);
+            })
+            .catch(err => console.error("ERROR IN SUB-PROCESS", err))
     }
 
 
@@ -698,7 +700,7 @@ export function getGraphQLMethodType(gqlMethod)
     {
         return queryFieldType;
     }
-    
+
     const mutationType = config.inputSchema.getType("MutationType");
 
     const mutationFieldType = getFieldTypeByName(mutationType.fields, gqlMethod);
@@ -870,7 +872,7 @@ function executeTransition(name, actionFn, target, context)
     //console.log("executeTransition", {name, actionFn, target, context});
 
     const storage = currentProcess[secret];
-    
+
     const sourceState = storage.currentState;
 
     const transition = new Transition(
@@ -889,47 +891,47 @@ function executeTransition(name, actionFn, target, context)
     scopeObserver.reset();
 
     return new Promise(
-            (resolve, reject) => {
-                try
-                {
-                    //console.log("EXECUTE MOB-X TRANSITION", mobxAction, transition);
+        (resolve, reject) => {
+            try
+            {
+                //console.log("EXECUTE MOB-X TRANSITION", mobxAction, transition);
 
-                    if (mobxAction)
-                    {
-                        mobxAction(
-                            transition
-                        )
-                    }
-
-                    const { target, isRecorded } = transition;
-
-                    // if isRecorded hasn't been explicitly defined
-                    if (isRecorded === null)
-                    {
-                        // record the transition if
-                        transition.isRecorded = (
-                            // the state changed
-                            target !== sourceState ||
-                            // .. or if the scopeObserver recorded changes in versioned props
-                            scopeObserver.versionedPropsChanged
-                        );
-                    }
-
-                    resolve(
-                        transition
-                    )
-                }
-                catch (e)
-                {
-                    reject(e);
-                }
+                // make sure to resolve a potential promise return from the transition before ending the transition
+                resolve(
+                    mobxAction && mobxAction(transition)
+                );
             }
-        )
-        .catch(
-            err => {
-                console.error("ERROR IN TRANSITION", err);
+            catch (e)
+            {
+                reject(e);
             }
-        );
+        }).then(
+        () =>
+        {
+            const { target, isRecorded } = transition;
+
+            // if isRecorded hasn't been explicitly defined
+            if (isRecorded === null)
+            {
+                // record the transition if
+                transition.isRecorded = (
+                    // the state changed
+                    target !== sourceState ||
+                    // .. or if the scopeObserver recorded changes in versioned props
+                    scopeObserver.versionedPropsChanged
+                );
+            }
+
+            return (
+                transition
+            )
+        }
+    )
+    .catch(
+        err => {
+            console.error("ERROR IN TRANSITION", err);
+        }
+    );
 }
 
 
@@ -1017,9 +1019,9 @@ function getURIInfo(obj)
 
 /**
  * Extracts the versioned property of a process scope based on the versioning strategy registered in the process.
- * 
+ *
  * @param process       process instance
- * 
+ *
  * @return {object} object with versioned props
  */
 function getVersionedProps(process)
@@ -1052,9 +1054,10 @@ function getVersionedProps(process)
 const renderRestoredView = action(
     "renderRestoredView",
     (historyEntry) => {
-        //console.log("Updating scope with ", versionedProps);
 
         const { processId, state, versionedProps } = historyEntry;
+
+        //console.log("renderRestoredView", { processId, state, versionedProps });
 
         currentProcess = processes[processId];
 
@@ -1073,9 +1076,11 @@ const renderRestoredView = action(
 
 function pushProcessState(replace = false)
 {
-    const { id, currentState, scope } = currentProcess[secret];
+    const { id, currentState } = currentProcess[secret];
 
-    //console.log("pushProcessState: pos = ", currentHistoryPos, processHistory);
+
+
+    //console.log("pushProcessState", {id, currentState});
 
     const navigationId = ++currentHistoryPos;
 
@@ -1097,16 +1102,16 @@ function pushProcessState(replace = false)
     //console.log("pushProcessState", op);
 
     config.history[op](
-            uri("/{appName}/{processName}/{stateName}/{info}",
-                {
-                    appName: config.appName,
-                    processName: currentProcess.name,
-                    stateName: currentState,
-                    info: getURIInfo()
-                }, true), {
-                navigationId
-            }
-        );
+        uri("/{appName}/{processName}/{stateName}/{info}",
+            {
+                appName: config.appName,
+                processName: currentProcess.name,
+                stateName: currentState,
+                info: getURIInfo()
+            }, true), {
+            navigationId
+        }
+    );
 }
 
 
@@ -1252,7 +1257,7 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
         .catch(err => {
 
             console.error("ERROR IN START PROCESS", err)
-            
+
             return (
                 <ErrorView
                     title={ i18n("Process Startup Error ") }
