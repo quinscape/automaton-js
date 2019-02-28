@@ -11,7 +11,6 @@ function toInternalPath(fileName)
     const pos = fileName.indexOf(APPS_INFIX);
     if (pos < 0)
     {
-        console.log("Ignore ", fileName, " for now");
         return null;
     }
 
@@ -30,6 +29,16 @@ function getFirstSegment(path)
 }
 
 
+/**
+ * Replaces the OS specific file separator characters in the given path with
+ * @param p         path with OS-specific separators
+ * @returns {*} path with slashes
+ */
+function handleSlashes(p)
+{
+    return p.replace(new RegExp("\\" + path.sep,"g"), "/")
+}
+
 recursiveReadDir(MODEL_PATH, [], function (err, fileNames) {
 
     if (err)
@@ -40,7 +49,7 @@ recursiveReadDir(MODEL_PATH, [], function (err, fileNames) {
 
     for (let i = 0; i < fileNames.length; i++)
     {
-        const internalPath = toInternalPath(fileNames[i])
+        const internalPath = toInternalPath(handleSlashes(fileNames[i]))
         if (internalPath === null)
         {
             continue;
