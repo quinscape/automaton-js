@@ -11,29 +11,8 @@ import i18n from "./i18n";
 import ProcessDialog from "./ProcessDialog";
 import { getWireFormat } from "./domain";
 import ScopeObserver from "./ScopeObserver";
+import matchPath from "./matchPath";
 
-const NO_MATCH = {
-    processName: null,
-    moduleName: null,
-    isComposite: null
-};
-
-const MODULE_REGEX = /^\.\/(processes\/(.*?)\/(composites\/)?)?(.*?).js$/;
-
-function matchPath(path)
-{
-    const m = MODULE_REGEX.exec(path);
-    if (!m)
-    {
-        return NO_MATCH;
-    }
-
-    return {
-        processName: m[2],
-        shortName: m[4],
-        isComposite: !!m[3]
-    }
-}
 
 
 const secret = Symbol("ProcessSecret");

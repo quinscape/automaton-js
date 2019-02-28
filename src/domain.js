@@ -1,11 +1,11 @@
 import { WireFormat } from "domainql-form"
 import config from "./config"
+import matchPath from "./matchPath";
 
 const domainClasses = {};
 
 let wireFormat;
 
-const DOMAIN_REGEX = /^\.\/domain\/(.*?)\.js$/
 
 export function loadDomainDefinitions(ctx)
 {
@@ -17,14 +17,14 @@ export function loadDomainDefinitions(ctx)
     {
         const moduleName = keys[i];
 
-        const m = DOMAIN_REGEX.exec(moduleName);
-        if (m)
+        const { isDomain, shortName } = matchPath(moduleName);
+        if (isDomain)
         {
-            domainClasses[m[1]] = ctx(moduleName).default;
+            domainClasses[shortName] = ctx(moduleName).default;
         }
     }
 
-    //console.log("DOMAIN-CLASSES", domainClasses);
+    console.log("DOMAIN-CLASSES", domainClasses);
 
     wireFormat = new WireFormat(
         config.inputSchema,
