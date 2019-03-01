@@ -13,6 +13,7 @@ import IQueryGrid from "./ui/IQueryGrid"
 import Button from "./ui/Button"
 import Icon from "./ui/Icon"
 import Link from "./ui/Link"
+import ScrollTracker from "./ui/ScrollTracker"
 import graphql from "./graphql"
 import AutomatonDevTools from "./AutomatonDevTools"
 import GraphQLQuery from "./GraphQLQuery"
@@ -43,8 +44,9 @@ export {
     Button,
     Link,
     Icon,
-    GraphQLQuery,
+    ScrollTracker,
 
+    GraphQLQuery,
     AutomatonDevTools,
     reinitializeLocalScope,
     reinitializeSessionScope,
