@@ -15,18 +15,21 @@ export default class ScopeObserver {
      */
     constructor(versioningStrategy, scope)
     {
-        if (!isObservableObject(scope))
+        if (scope)
         {
-            throw new Error("Object must be observable : " + scope);
-        }
-        this.dispose = observe(scope, change => {
-
-            if (!this.versionedPropsChanged && versioningStrategy(change.name))
+            if (!isObservableObject(scope))
             {
-                this.versionedPropsChanged = true;
+                throw new Error("Object must be observable : " + scope);
             }
-        });
-        
+            this.dispose = observe(scope, change => {
+
+                if (!this.versionedPropsChanged && versioningStrategy(change.name))
+                {
+                    this.versionedPropsChanged = true;
+                }
+            });
+        }
+
         this.reset();
     }
 
