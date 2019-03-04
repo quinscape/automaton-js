@@ -29,6 +29,10 @@ export default class ScopeObserver {
                 }
             });
         }
+        else
+        {
+            this.dispose = () => {};
+        }
 
         this.reset();
     }
