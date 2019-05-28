@@ -11,7 +11,8 @@ import { serverSync, storageSync, syncFrom, syncFromStorage } from "./sync"
 import { APP_SCOPE, LOCAL_SCOPE, SESSION_SCOPE, USER_SCOPE } from "./scopeNames"
 
 import createHistory from "history/createBrowserHistory"
-import { loadDomainDefinitions } from "./domain";
+import { loadDomainDefinitions, registerGenericType } from "./domain";
+import InteractiveQuery from "./model/InteractiveQuery";
 
 const SCOPES_MODULE_NAME = "./scopes.js";
 
@@ -58,6 +59,7 @@ function defaultInit(ctx, initial)
 
     config.auth = new Authentication(authentication);
     config.inputSchema = new InputSchema(schema);
+    config.genericTypes = schema.genericTypes;
 
     config.appName = appName;
     config.locale = locale;
@@ -232,6 +234,9 @@ function setupScopeSynchronization()
 }
 
 
+function registerSystemTypes()
+{
+}
 /**
  * Entry point to the automaton client-side process engine
  *
@@ -258,8 +263,9 @@ export function startup(ctx, initial, initFn)
             () => {
 
                 // config now ready
-                
+                registerSystemTypes();
                 loadDomainDefinitions(ctx);
+
                 loadProcessDefinitions(ctx);
 
                 // AUTOMATON RUNTIME PHASE
