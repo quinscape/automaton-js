@@ -12,6 +12,7 @@ import ProcessDialog from "./ProcessDialog";
 import { getWireFormat } from "./domain";
 import ScopeObserver from "./ScopeObserver";
 import matchPath from "./matchPath";
+import AutomatonDevTools from "./AutomatonDevTools";
 
 
 
@@ -224,6 +225,7 @@ function renderCurrentView()
             <FormConfigProvider
                 schema={ config.inputSchema }
             >
+                <AutomatonDevTools/>
                 <Layout
                     env={ env }
                 >
@@ -702,30 +704,34 @@ function inject(scope, injections)
     {
         const name = scopeKeys[i];
 
-        const prop = get(scope, name);
-        if (prop instanceof GraphQLQuery)
+        const graphQlQuery = get(scope, name);
+        if (graphQlQuery instanceof GraphQLQuery)
         {
-            const result = injections[prop.query];
+            const { methods, aliases } = graphQlQuery.getQueryDefinition();
+
+            const result = injections[graphQlQuery.query];
             if (result === undefined)
             {
                 throw new Error("Could not find query for prop '" + name + "'");
             }
 
-            const names = Object.keys(result);
-            if (names.length !== 1)
+            if (methods.length !== 1)
             {
-                throw new Error("Injection result must have exactly one key: has " + names.join(", "))
+                throw new Error("Injection result must have exactly one key: has " + methods.join(", "))
             }
-            const [ gqlMethod ] = names;
 
-            const type = getGraphQLMethodType(gqlMethod);
+            const [ methodName ] = methods;
 
-            const injectionValue = result[gqlMethod];
-            //console.log("inject", name, "with", gqlMethod, injectionValue, "type = ", JSON.stringify(type));
+            const type = getGraphQLMethodType(methodName);
+
+            const alias = aliases && aliases[methodName];
+            const injectionValue = result[alias ? alias : methodName];
+
+            //console.log("inject", name, "with", methodName, injectionValue, "type = ", JSON.stringify(type));
 
             try
             {
-                const converted = getWireFormat().convert(type, injectionValue, true);
+                const converted = getWireFormat().convert(type, injectionValue, true, aliases, methodName);
 
                 //console.log("SCOPE:" + name , "=", converted);
 

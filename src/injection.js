@@ -13,9 +13,12 @@ import GraphQLQuery from "./GraphQLQuery";
  * The GraphQL query value will be stripped of its first level. There can be only one query or mutation per injection.
  * This has no performance implications since all initial process queries are running at once on the server side anyway.
  *
- * @returns {GraphQLQuery} query declaration
+ * @param query             query string
+ * @param defaultVars       Formal variable parameter. Not really used on the client side per se. Only needed to be detected
+ *                          by NPM module "babel-plugin-track-usage"
  *
+ * @returns {GraphQLQuery} query declaration
  */
-export default function injection(query) {
+export default function injection(query, defaultVars) {
     return new GraphQLQuery(query);
 }

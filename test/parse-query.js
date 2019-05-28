@@ -1,6 +1,6 @@
 import assert from "power-assert"
 import parseQuery from "../src/parseQuery";
-import { InputSchema } from "domainql-form";
+import InputSchema from "domainql-form/lib/InputSchema";
 
 import RAW_SCHEMA from "./test-schema.json";
 
@@ -12,7 +12,7 @@ describe("parseQuery", function () {
         const inputSchema = new InputSchema(RAW_SCHEMA);
 
         // language=GraphQL
-        const vars = parseQuery(inputSchema, `
+        const {vars, aliases} = parseQuery(inputSchema, `
             mutation testMutation($target: FooInput!, $count: Int){
                 wireTestMutation(input : $target, count: $count)
                 {
@@ -21,7 +21,9 @@ describe("parseQuery", function () {
                     check
                 }
             }`
-        )
+        );
+
+        assert(aliases === false);
 
         assert.deepEqual(
             vars,
@@ -47,11 +49,14 @@ describe("parseQuery", function () {
         const inputSchema = new InputSchema(RAW_SCHEMA);
 
         // language=GraphQL
-        const vars = parseQuery(inputSchema, `
+        const {vars, aliases} = parseQuery(inputSchema, `
+
             mutation testMutation($list: [String]){
                 wireTestMutation2(list: $list)
             }`
         )
+
+        assert(aliases === false);
 
         assert.deepEqual(
             vars,
@@ -73,7 +78,7 @@ describe("parseQuery", function () {
         const inputSchema = new InputSchema(RAW_SCHEMA);
 
         // language=GraphQL
-        const vars = parseQuery(inputSchema, `
+        const {vars, aliases} = parseQuery(inputSchema, `
             {
                 wireTestMutation
                 {
@@ -84,6 +89,8 @@ describe("parseQuery", function () {
             }`
         );
 
+        assert(aliases === false);
+
         assert.deepEqual(
             vars,
             {}
@@ -91,4 +98,87 @@ describe("parseQuery", function () {
 
     });
 
+    it("extracts field aliases", function () {
+
+        const inputSchema = new InputSchema(RAW_SCHEMA);
+
+        // language=GraphQL
+        const {vars, aliases} = parseQuery(inputSchema, `
+            mutation testMutation($target: FooInput!, $count: Int){
+                wireTestMutation(input : $target, count: $count)
+                {
+                    f1: id
+                    f2: created
+                    f3: check
+                }
+            }`
+        );
+
+        assert.deepEqual(aliases, {
+            "wireTestMutation.id": "f1",
+            "wireTestMutation.created": "f2",
+            "wireTestMutation.check": "f3"
+        });
+
+        assert.deepEqual(
+            vars,
+            {
+                "target": {
+                    "kind": "NON_NULL",
+                    "ofType": {
+                        "kind": "OBJECT",
+                        "name": "FooInput"
+                    }
+                },
+                "count": {
+                    "kind": "SCALAR",
+                    "name": "Int"
+                }
+            }
+        )
+
+    });
+
+    it("extracts invoked queries/mutations", function () {
+
+        const inputSchema = new InputSchema(RAW_SCHEMA);
+
+        // language=GraphQL
+        const {methods, vars, aliases} = parseQuery(inputSchema, `
+                    query getUsers
+                    {
+                        xxx: getUsers( limit: 1000)
+                    {
+                        rowCount
+                        rows{
+                            name : login
+                            value : created
+                        }
+                    }
+                    }
+            `
+        );
+
+        assert.deepEqual(
+            methods,
+            [
+                "getUsers"
+            ]
+        );
+
+        assert.deepEqual(
+            aliases,
+            {
+                "getUsers" : "xxx",
+                "getUsers.rows.login": "name",
+                "getUsers.rows.created": "value"
+            }
+        );
+
+        assert.deepEqual(
+            vars,
+            {}
+        )
+
+    });
 });

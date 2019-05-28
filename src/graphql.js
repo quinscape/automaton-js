@@ -19,7 +19,7 @@ function convertInput(varTypes, variables)
 {
     if (!variables)
     {
-        return;
+        return undefined;
     }
 
     const wireFormat = getWireFormat();
@@ -71,12 +71,18 @@ export function formatGraphQLError(query, errors)
 
 
 /**
- * GraphQL query service
+ * GraphQL query service.
+ *
+ * Executes the given GraphQL query with the given variables. By default it will automatically perform a wire format
+ * conversions. The variables are converted from Javascript format to the current wire format and the result received
+ * is being converted from wire format to Javascript.
+ *
+ * You can pass in a param `autoConvert: false` to disable that behavior.
  *
  * @param {Object} params                   Parameters
  * @param {String} params.query             query string
  * @param {Object} [params.variables]       query variables
- * @param {Object} [params.autoConvert]     if false, don't convert input ( default is true)
+ * @param {Object} [params.autoConvert]     if false, don't convert input and result ( default is true)
  *
  * @returns {Promise<any>} Promise resolving to query data
  */
@@ -103,26 +109,27 @@ export default function graphql(params) {
     let {variables} = params;
     if (autoConvert)
     {
-        variables = convertInput(queryDecl.getVars(), variables);
+        variables = convertInput(queryDecl.getQueryDefinition().vars, variables);
     }
 
-    return fetch(
-        window.location.origin + contextPath + "/graphql",
-        {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-                "Content-Type": "application/json",
+    return (
+        fetch(
+            window.location.origin + contextPath + "/graphql",
+            {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
 
-                // spring security enforces every POST request to carry a csrf token as either parameter or header
-                [csrfToken.header]: csrfToken.value
-            },
-            body: JSON.stringify({
-                query: queryDecl.query,
-                variables
-            })
-        }
-    )
+                    // spring security enforces every POST request to carry a csrf token as either parameter or header
+                    [csrfToken.header]: csrfToken.value
+                },
+                body: JSON.stringify({
+                    query: queryDecl.query,
+                    variables
+                })
+            }
+        )
         .then(response => response.json())
         .then(
             ({data, errors}) => {
@@ -137,22 +144,26 @@ export default function graphql(params) {
 
                 if (autoConvert)
                 {
-                    for (let methodName in data)
+                    const { methods, aliases } = queryDecl.getQueryDefinition();
+                    for (let i = 0; i < methods.length; i++)
                     {
-                        if (data.hasOwnProperty(methodName))
-                        {
-                            const typeRef = getGraphQLMethodType(methodName);
+                        const methodName = methods[i];
+                        const typeRef = getGraphQLMethodType(methodName);
+                        const alias = aliases && aliases[methodName];
 
-                            //console.log("AUTO-CONVERT", methodName, "type = ", typeRef);
-
-                            data[methodName] = getWireFormat().convert(typeRef, data[methodName], true);
-
-                            //console.log("converted", data[methodName]);
-                        }
+                        //console.log("AUTO-CONVERT", methodName, "type = ", typeRef);
+                        data[methodName] = getWireFormat().convert(
+                            typeRef,
+                            data[alias ? alias : methodName],
+                            true,
+                            aliases,
+                            methodName
+                        );
                     }
                 }
 
                 return data;
             }
-        );
+        )
+    );
 }

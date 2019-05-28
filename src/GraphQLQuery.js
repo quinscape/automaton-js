@@ -16,19 +16,23 @@ export default class GraphQLQuery {
     constructor(query)
     {
         this.query = query;
-        this.vars = null;
+        this.queryDef = null;
     }
 
-    getVars()
+
+    /**
+     * Lazily parses the query string of this query and returns result.
+     *
+     * @return {QueryDefinition}
+     */
+    getQueryDefinition()
     {
-        // lazily parse query on first usage.
-        if (!this.vars)
+        if (!this.queryDef)
         {
-            this.vars = parseQuery(config.inputSchema, this.query);
+            this.queryDef = parseQuery(config.inputSchema, this.query);
         }
-        return this.vars;
+        return this.queryDef;
     }
-
 
     /**
      * Executes this GraphQL query/mutation with the given variables
@@ -39,6 +43,8 @@ export default class GraphQLQuery {
      */
     execute(variables)
     {
+        //console.log("GraphQLQuery.execute", this, variables);
+
         return graphql(
             {
                 query: this,
