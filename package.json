@@ -20,7 +20,7 @@
     },
     "peerDependencies": {
         "create-react-class": "^15.6.3",
-        "domainql-form": "^2.1.0",
+        "domainql-form": "^2.2.1",
         "history": "^4.7.2",
         "mobx": "^5.9.4",
         "mobx-react": "^5.4.4",
@@ -45,7 +45,7 @@
         "babel-plugin-transform-imports": "^1.5.1",
         "bignumber.js": "^8.1.1",
         "cross-env": "^5.1.4",
-        "domainql-form": "^2.1.0",
+        "domainql-form": "^2.2.1",
         "jsdoc": "^3.5.5",
         "jsdoc-json": "^2.0.2",
         "mobx-react": "^5.2.8",
