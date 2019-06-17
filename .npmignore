@@ -3,3 +3,6 @@ LICENSE
 src
 test
 .idea
+docs
+tooling
+.babelrc
