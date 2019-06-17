@@ -29,7 +29,7 @@ const Button = props => {
     const onClick = ev => {
 
         // double check for safety
-        if (isDisabled())
+        if (isDisabled(formConfig))
         {
             return;
         }
@@ -130,11 +130,39 @@ const Button = props => {
 };
 
 Button.propTypes = {
-    action: PropTypes.func,
+    /**
+     * Transition reference. button must have either a `transition` or an `action` attribute.
+     */
     transition: PropTypes.string,
+    /**
+     * Additional button classes
+     */
     className: PropTypes.string,
+    /**
+     * Icon class for the button
+     */
     icon: PropTypes.string,
-    text: PropTypes.string
+
+    /**
+     * Text for the button
+     */
+    text: PropTypes.string,
+    /**
+     * Additional function to check for disabled status. The default behavior is to disable the button if the button has
+     * a transition which is not discarding and there are form errors.
+     *
+     * This check runs before that and can disable the button in any case.
+     */
+    disabled: PropTypes.func,
+    /**
+     * Explicitly sets the button context to the given object. If no context is given, the form base object of the surrounding
+     * form is used.
+     */
+    context: PropTypes.any,
+    /**
+     * Optional action function, receives the context as argument
+     */
+    action: PropTypes.func
 };
 
 Button.defaultProps = {

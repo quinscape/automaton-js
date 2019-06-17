@@ -1,4 +1,5 @@
 import React from "react"
+import PropTypes from "prop-types"
 import cx from "classnames"
 import { runProcessURI } from "../runProcess";
 
@@ -45,7 +46,27 @@ const Link = props =>  {
             }
         </a>
     )
-}
+};
+
+Link.propTypes = {
+    /**
+     * Internal URI ( required )
+     */
+    href: PropTypes.string.isRequired,
+
+    /**
+     * Optional title attribute
+     */
+    title: PropTypes.string,
+    /**
+     * Optional role attribute
+     */
+    role: PropTypes.string,
+    /**
+     * Classes for the link element ( "link-internal" is added )
+     */
+    className: PropTypes.string
+};
 
 
 export default Link

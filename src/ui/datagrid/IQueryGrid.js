@@ -1,60 +1,16 @@
 import React, { useMemo } from "react"
-import { action } from "mobx"
 import PropTypes from "prop-types"
 import cx from "classnames"
-import get from "lodash.get"
 import { observer as fnObserver } from "mobx-react-lite"
-import { PropTypes as MobxPropTypes } from "mobx-react";
 import i18n from "../../i18n";
 import GridStateForm from "./GridStateForm";
 import Pagination from "./Pagination";
 import FilterRow from "./FilterRow";
 import lookupType from "../../util/lookupType";
 import SortLink from "./SortLink";
-import AutomatonPropTypes from "../../util/AutomatonPropTypes";
 import useObservableInput from "../../util/useObservableInput";
-
-
-const Column = fnObserver(props => {
-
-    const {name, context, children} = props;
-
-    if (typeof children === "function")
-    {
-        const result = children(context);
-
-        //console.log("FN-RESULT", result);
-
-        return (
-            <td>
-                {
-                    typeof result === "string" ?
-                        <p
-                            className="form-control-plaintext"
-                        >
-                            {
-                                result
-                            }
-                        </p> : result
-                }
-            </td>
-        );
-    }
-
-    //console.log("context[name] = ", context[name]);
-
-    return (
-        <td>
-            <p
-                className="form-control-plaintext"
-            >
-                {
-                    String(get(context, name))
-                }
-            </p>
-        </td>
-    )
-});
+import Column from "./Column";
+import RowSelector from "./RowSelector";
 
 
 function findColumn(columnStates, name)
@@ -70,62 +26,6 @@ function findColumn(columnStates, name)
     return null;
 }
 
-const updateSelectedArray = action("update grid selection array", (selectedValues, id) => {
-
-    const idIsSelected = selectedValues.indexOf(id) >= 0;
-    if (idIsSelected)
-    {
-        selectedValues.replace(selectedValues.filter( v => v !== id));
-    }
-    else
-    {
-        selectedValues.push(id);
-    }
-});
-
-const updateSelectedSet = action("update grid selection set", (selectedValues, id) => {
-    if (selectedValues.has(id))
-    {
-        selectedValues.delete(id);
-    }
-    else
-    {
-        selectedValues.add(id);
-    }
-});
-
-/**
- * Row-Selection checkbox helper
- */
-const RowSelector = props => {
-
-    const { id, selectedValues } = props;
-
-    const checkboxId = "row-selector." + id;
-
-    const isArray = Array.isArray(selectedValues);
-
-    const idIsSelected = (
-        isArray ?
-            selectedValues.indexOf(id) >= 0 :
-            selectedValues.has(id)
-     );
-
-    return (
-        <div className="form-control-plaintext">
-            <div className="form-check m-1">
-                <input
-                    id={ checkboxId }
-                    className="form-check-input"
-                    type="checkbox"
-                    checked={ idIsSelected }
-                    onChange={ ev => (isArray ? updateSelectedArray : updateSelectedSet)(selectedValues, id) }
-                />
-                <label htmlFor={ checkboxId } className="form-check-label sr-only">Row Selected</label>
-            </div>
-        </div>
-    );
-};
 
 const COLUMN_CONFIG_INPUT_OPTS = {
     name: "React to column changes"
@@ -324,37 +224,7 @@ DataGrid.propTypes = {
     rowClasses: PropTypes.func
 };
 
-Column.propTypes = {
-    /**
-     * Column name / path expression. (e.g. "name", but also "foo.owner.name")
-     */
-    name: PropTypes.string,
-    /**
-     */
-    filter: PropTypes.oneOfType([
 
-        PropTypes.string,
-        PropTypes.func
-    ])
-};
-
-RowSelector.propTypes = {
-
-    /**
-     * Unique id string representing an object
-     */
-    id: PropTypes.string.isRequired,
-
-    /**
-     * External observable containing the currently selected values. Either an observable array or set.
-     * 
-     */
-    selectedValues:
-        PropTypes.oneOfType([
-            AutomatonPropTypes.isObservableSet,
-            MobxPropTypes.observableArray
-        ]).isRequired
-};
 
 
 DataGrid.Column = Column;

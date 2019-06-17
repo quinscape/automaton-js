@@ -75,6 +75,7 @@ const CalendarField = props => {
                                         className="btn btn-outline-secondary"
                                         type="button"
                                         title={ buttonTitle }
+                                        disabled={ effectiveMode !== FieldMode.NORMAL }
                                         aria-roledescription={ buttonTitle }
                                         onClick={ () => setOpen(true) }
                                     >
@@ -110,7 +111,52 @@ CalendarField.propTypes = {
     /**
      * Maximum date the user can select
      */
-    maxDate: PropTypes.instanceOf(Date)
+    maxDate: PropTypes.instanceOf(Date),
+
+    // FIELD PROP TYPES
+
+    /**
+     * Name / path for the  calendar field value (e.g. "name", but also "foos.0.name")
+     */
+    name: PropTypes.string.isRequired,
+
+    /**
+     * Mode for this calendar field. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
+     */
+    mode: PropTypes.oneOf(FieldMode.values()),
+
+    /**
+     * Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
+     */
+    helpText: PropTypes.string,
+    /**
+     * Tooltip / title attribute for the input element
+     */
+    tooltip: PropTypes.string,
+    /**
+     * Label for the field.
+     */
+    label: PropTypes.string,
+    /**
+     * Placeholder text to render for text inputs.
+     */
+    placeholder: PropTypes.string,
+
+    /**
+     * Additional HTML classes for the input element.
+     */
+    inputClass: PropTypes.string,
+
+    /**
+     * Additional HTML classes for the label element.
+     */
+    labelClass: PropTypes.string,
+
+    /**
+     * Additional HTML classes for the form group element.
+     */
+    formGroupClass: PropTypes.string
+
 };
 
 export default CalendarField;

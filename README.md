@@ -7,6 +7,7 @@ Contains common functionality referenced in the generated code.
 ## Documentation
 
  * ["automaton-js" API](./docs/api.md)
+ * [Automaton Component Reference](./docs/component-reference.md)
  
 ## Model Documentation (babel-plugin-automaton)
  

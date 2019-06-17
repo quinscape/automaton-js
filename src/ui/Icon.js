@@ -23,8 +23,17 @@ const Icon = props =>  {
 }
 
 Icon.propTypes = {
+    /**
+     * Fontawesome icon as class name
+     */
     className: PropTypes.string.isRequired,
+    /**
+     * Optional tooltip / title
+     */
     title: PropTypes.string,
+    /**
+     * true if icon is a brand icon
+     */
     brand: PropTypes.bool
 };
 

@@ -1,8 +1,9 @@
 import React from "react"
 import ReactDOM from "react-dom"
+import PropTypes from "prop-types"
+import { FormConfig } from "domainql-form"
 
 import offset from "../util/offset"
-
 import scrollPos from "../util/scrollPos";
 
 /**
@@ -185,5 +186,11 @@ class ScrollTracker extends React.Component {
     }
 }
 
+ScrollTracker.propTypes = {
+    /**
+     * Form config of form to track.
+     */
+    formConfig: PropTypes.instanceOf(FormConfig).isRequired
+};
 
 export default ScrollTracker
