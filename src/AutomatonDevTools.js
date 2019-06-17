@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === "production")
 else
 {
     // noinspection JSUnusedLocalSymbols
-    const DEV_TOOLS_CSS = require("./automaton-devtools.css");
+    //const DEV_TOOLS_CSS = require("./automaton-devtools.css");
     // optimization friendly late imports
     const devToolsModule = require("mobx-react-devtools");
 
