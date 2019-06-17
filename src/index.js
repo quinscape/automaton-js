@@ -9,7 +9,7 @@ import { Process, getCurrentProcess } from "./Process";
 import runProcess, { runProcessURI } from "./runProcess";
 
 import DataGrid from "./ui/DataGrid"
-import IQueryGrid from "./ui/IQueryGrid"
+import IQueryGrid from "./ui/datagrid/IQueryGrid"
 import Button from "./ui/Button"
 import Icon from "./ui/Icon"
 import Link from "./ui/Link"
@@ -22,6 +22,8 @@ import { storeDomainObject, deleteDomainObject } from "./standard-queries"
 
 import { backToParent } from "./back-functions"
 import { registerGenericType, registerType } from "./domain"
+import InteractiveQuery from "./model/InteractiveQuery"
+
 import {
     Type,
     not,
@@ -163,6 +165,8 @@ export {
 
     registerGenericType,
     registerType,
+    InteractiveQuery,
+
     FilterDSL,
     CalendarField
 }
