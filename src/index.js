@@ -13,6 +13,7 @@ import IQueryGrid from "./ui/IQueryGrid"
 import Button from "./ui/Button"
 import Icon from "./ui/Icon"
 import Link from "./ui/Link"
+import CalendarField from "./ui/CalendarField"
 import ScrollTracker from "./ui/ScrollTracker"
 import graphql from "./graphql"
 import AutomatonDevTools from "./AutomatonDevTools"
@@ -162,5 +163,6 @@ export {
 
     registerGenericType,
     registerType,
-    FilterDSL
+    FilterDSL,
+    CalendarField
 }
