@@ -234,9 +234,14 @@ function setupScopeSynchronization()
 }
 
 
+const INTERACTIVE_QUERY = "de.quinscape.automaton.model.data.InteractiveQuery";
+
 function registerSystemTypes()
 {
+    registerGenericType(INTERACTIVE_QUERY, InteractiveQuery );
 }
+
+
 /**
  * Entry point to the automaton client-side process engine
  *
