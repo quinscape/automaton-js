@@ -733,6 +733,13 @@ function inject(scope, injections)
             {
                 const converted = getWireFormat().convert(type, injectionValue, true, aliases, methodName);
 
+                if (typeof converted === "object" && !Array.isArray(converted))
+                {
+                    //console.log("SET QUERY", converted, JSON.stringify(type), graphQlQuery);
+
+                    converted._query = graphQlQuery;
+                }
+
                 //console.log("SCOPE:" + name , "=", converted);
 
                 set(scope, name, converted);
