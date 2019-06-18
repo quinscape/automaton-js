@@ -23,6 +23,7 @@ import { storeDomainObject, deleteDomainObject } from "./standard-queries"
 import { backToParent } from "./back-functions"
 import { registerGenericType, registerType } from "./domain"
 import InteractiveQuery from "./model/InteractiveQuery"
+import createDomainObject from "./createDomainObject"
 
 import {
     Type,
@@ -156,6 +157,7 @@ export {
     reinitializeSessionScope,
 
     // Standard Queries/Mutations
+    createDomainObject,
     storeDomainObject,
     deleteDomainObject,
 
