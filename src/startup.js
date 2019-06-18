@@ -10,10 +10,10 @@ import { serverSync, storageSync, syncFrom, syncFromStorage } from "./sync"
 
 import { APP_SCOPE, LOCAL_SCOPE, SESSION_SCOPE, USER_SCOPE } from "./scopeNames"
 
-import createHistory from "history/createBrowserHistory"
 import { loadDomainDefinitions, registerGenericType } from "./domain";
 import InteractiveQuery from "./model/InteractiveQuery";
 
+import { createBrowserHistory } from "history"
 const SCOPES_MODULE_NAME = "./scopes.js";
 
 let disposers = [];
@@ -50,7 +50,7 @@ function defaultInit(ctx, initial)
         [USER_SCOPE]: userScopeFromInitial
     } = initial;
 
-    config.history = createHistory({
+    config.history = createBrowserHistory({
         basename: contextPath
     });
 
