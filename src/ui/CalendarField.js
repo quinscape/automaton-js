@@ -43,7 +43,7 @@ const CalendarField = props => {
                     //console.log("checkbox value = ", fieldValue);
 
                     // if the mode is DISABLED, we keep that, otherwise we set it to READ_ONLY for the input
-                    const effectiveMode = mode !== FieldMode.DISABLED ? FieldMode.READ_ONLY : FieldMode.DISABLED;
+                    const inputMode = mode !== FieldMode.DISABLED ? FieldMode.READ_ONLY : FieldMode.DISABLED;
 
                     const buttonTitle = i18n("Open calendar");
 
@@ -65,9 +65,9 @@ const CalendarField = props => {
                                     }
                                     type="text"
                                     placeholder={ placeholder }
-                                    disabled={ effectiveMode === FieldMode.DISABLED }
+                                    disabled={ inputMode === FieldMode.DISABLED }
                                     title={ tooltip }
-                                    readOnly={ effectiveMode === FieldMode.READ_ONLY }
+                                    readOnly={ inputMode === FieldMode.READ_ONLY }
                                     value={ fieldValue }
                                 />
                                 <span className="input-group-append">
@@ -75,7 +75,7 @@ const CalendarField = props => {
                                         className="btn btn-outline-secondary"
                                         type="button"
                                         title={ buttonTitle }
-                                        disabled={ effectiveMode !== FieldMode.NORMAL }
+                                        disabled={ mode !== FieldMode.NORMAL }
                                         aria-roledescription={ buttonTitle }
                                         onClick={ () => setOpen(true) }
                                     >
