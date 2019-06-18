@@ -20,16 +20,18 @@
     },
     "peerDependencies": {
         "create-react-class": "^15.6.3",
-        "domainql-form": "^2.2.1",
-        "history": "^4.7.2",
-        "mobx": "^5.9.4",
+        "domainql-form": "^2.2.2",
+        "history": "^4.9.0",
+
+        "mobx": "^5.10.1",
         "mobx-react": "^5.4.4",
         "mobx-react-devtools": "^6.1.1",
-        "mobx-react-lite": "^1.3.2",
-        "mobx-utils": "^5.4.0",
-        "react": "^16.8.3",
+        "mobx-react-lite": "^1.4.0",
+        "mobx-utils": "^5.4.1",
+
+        "react": "^16.8.6",
         "react-calendar": "^2.19.0",
-        "reactstrap": "^6.5.0"
+        "reactstrap": "^8.0.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.4.4",
@@ -45,20 +47,25 @@
         "babel-plugin-transform-imports": "^1.5.1",
         "bignumber.js": "^8.1.1",
         "cross-env": "^5.1.4",
-        "domainql-form": "^2.2.1",
+        "domainql-form": "^2.2.2",
         "jsdoc": "^3.5.5",
         "jsdoc-json": "^2.0.2",
-        "mobx-react": "^5.2.8",
-        "mobx-react-lite": "^1.1.0",
+        
+        "mobx": "^5.10.1",
+        "mobx-react": "^5.4.4",
+        "mobx-react-devtools": "^6.1.1",
+        "mobx-react-lite": "^1.4.0",
+        "mobx-utils": "^5.4.1",
+
         "mocha": "^5.1.1",
         "power-assert": "^1.5.0",
-        "react": "^16.8.3",
+        "react": "^16.8.6",
         "react-calendar": "^2.19.0",
         "react-docgen": "^3.0.0",
-        "react-dom": "^16.8.3",
+        "react-dom": "^16.8.6",
         "sinon": "^5.0.10",
         "tempy": "^0.2.1",
-        "use-debounce": "^1.1.1"
+        "use-debounce": "^2.1.0"
     },
     "bin": {
         "model-to-js": "./lib/modelToJs.js"
