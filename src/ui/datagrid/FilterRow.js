@@ -1,7 +1,21 @@
 import React, { useContext } from "react"
 import { observer as fnObserver } from "mobx-react-lite"
-import FilterField from "./FilterField";
+import { Select } from "domainql-form"
+import i18n from "../../i18n"
 import { FilterContext } from "./GridStateForm";
+import { Field } from "domainql-form"
+
+
+const BOOLEAN_VALUES = [
+    {
+        name : i18n("Boolean:False"),
+        value: false
+    },
+    {
+        name : i18n("Boolean:True"),
+        value: true
+    }
+];
 
 const FilterRow = fnObserver(props => {
 
@@ -16,38 +30,77 @@ const FilterRow = fnObserver(props => {
         return false;
     }
 
-    let index = 0;
-    return (
-        <tr className="filter-row">
+    const filterColumnElements = [];
+
+    let filterIndex = 0;
+
+    columns.forEach(
+        (col, idx) => {
+
+            if (col.enabled)
             {
+                if (!col.filter)
+                {
+                    filterColumnElements.push(
+                        <th key={ idx }/>
+                    );
+                }
+                else
+                {
+                    const { values } = filterState.filters[filterIndex];
 
-                columns.map(
-                    (col, idx) => {
+                    for (let i = 0; i < values.length; i++)
+                    {
+                        const fieldName = "filters." + filterIndex + ".values." + i + ".value";
+                        const fieldType = values[i].type;
+                        const label = i18n("Argument {0} for filter on {1}", i +1 , col.name);
 
-                        if (!col.enabled)
+                        let filterElem;
+
+                        if (fieldType === "Boolean")
                         {
-                            return false;
+                            filterElem = (
+                                <Select
+                                    labelClass="sr-only"
+                                    label={ label }
+                                    name={ fieldName }
+                                    values={ BOOLEAN_VALUES }
+                                    type={ fieldType }
+                                />
+                            );
                         }
-                        if (!col.filter)
+                        else
                         {
-                            return (
-                                <th key={idx}/>
+                            filterElem = (
+                                <Field
+                                    labelClass="sr-only"
+                                    label={ label }
+                                    name={fieldName}
+                                    type={ fieldType }
+                                />
                             );
                         }
 
-                        const entry = filterState.filters[index++];
-                        const { values } = entry;
-
-                        return (
+                        filterColumnElements.push(
                             <th key={idx}>
-                                <FilterField
-                                    index={ index - 1}
-                                    values={ values }
-                                />
+                                {
+                                    filterElem
+                                }
                             </th>
-                        );
+                        )
                     }
-                )
+
+                    filterIndex++;
+
+                }
+            }
+        }
+    );
+
+    return (
+        <tr className="filter-row">
+            {
+                filterColumnElements
             }
         </tr>
     );
