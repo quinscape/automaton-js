@@ -14,7 +14,10 @@ import { loadDomainDefinitions, registerGenericType } from "./domain";
 import InteractiveQuery from "./model/InteractiveQuery";
 
 import { createBrowserHistory } from "history"
+import { getWireFormat } from "./domain"
 const SCOPES_MODULE_NAME = "./scopes.js";
+
+const pkgJSON = require("../package.json");
 
 let disposers = [];
 /**
@@ -279,6 +282,30 @@ export function startup(ctx, initial, initFn)
                 disposers.push(
                     config.history.listen(onHistoryAction)
                 );
+
+                if (__DEV)
+                {
+                    console.group("Automaton Startup v" + pkgJSON.version);
+
+                    console.info("INITIAL", initial);
+                    console.info("INJECTED VALUES", Object.values(initial.injections))
+
+                    console.group("JavaScript Domain Implementations:");
+                    const domainClasses = getWireFormat().classes;
+                    for (let name in domainClasses)
+                    {
+                        if (domainClasses.hasOwnProperty(name))
+                        {
+                            const cls = domainClasses[name];
+
+                            console.log(name + ":", cls);
+                        }
+                    }
+
+                    console.groupEnd();
+                    console.groupEnd();
+
+                }
 
                 return renderProcess(
                     config.rootProcess,
