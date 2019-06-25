@@ -24,6 +24,7 @@ import { backToParent } from "./back-functions"
 import { registerGenericType, registerType } from "./domain"
 import InteractiveQuery from "./model/InteractiveQuery"
 import createDomainObject from "./createDomainObject"
+import LogoutForm from "./ui/LogoutForm"
 
 import {
     Type,
@@ -170,5 +171,6 @@ export {
     InteractiveQuery,
 
     FilterDSL,
-    CalendarField
+    CalendarField,
+    LogoutForm
 }
