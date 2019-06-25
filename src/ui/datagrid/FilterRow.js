@@ -37,9 +37,11 @@ const FilterRow = fnObserver(props => {
     columns.forEach(
         (col, idx) => {
 
-            if (col.enabled)
+            const { name, enabled, filter, renderFilter } = col;
+
+            if (enabled)
             {
-                if (!col.filter)
+                if (!filter)
                 {
                     filterColumnElements.push(
                         <th key={ idx }/>
@@ -49,18 +51,20 @@ const FilterRow = fnObserver(props => {
                 {
                     const { values } = filterState.filters[filterIndex];
 
+                    const filterElems = [];
                     for (let i = 0; i < values.length; i++)
                     {
                         const fieldName = "filters." + filterIndex + ".values." + i + ".value";
                         const fieldType = values[i].type;
-                        const label = i18n("Argument {0} for filter on {1}", i +1 , col.name);
+                        const label = i18n("Argument {0} for filter on {1}", i +1 , name);
 
-                        let filterElem;
+                        const key = idx + "." + i;
 
                         if (fieldType === "Boolean")
                         {
-                            filterElem = (
+                            filterElems.push(
                                 <Select
+                                    key={ key }
                                     labelClass="sr-only"
                                     label={ label }
                                     name={ fieldName }
@@ -69,10 +73,23 @@ const FilterRow = fnObserver(props => {
                                 />
                             );
                         }
+                        else if (renderFilter)
+                        {
+                            const customElem = renderFilter(fieldName, fieldType, label, i);
+                            filterElems.push(
+                                React.cloneElement(
+                                    customElem,
+                                    {
+                                        key
+                                    }
+                                )
+                            );
+                        }
                         else
                         {
-                            filterElem = (
+                            filterElems.push(
                                 <Field
+                                    key={ key }
                                     labelClass="sr-only"
                                     label={ label }
                                     name={fieldName}
@@ -81,14 +98,14 @@ const FilterRow = fnObserver(props => {
                             );
                         }
 
-                        filterColumnElements.push(
-                            <th key={idx}>
-                                {
-                                    filterElem
-                                }
-                            </th>
-                        )
                     }
+                    filterColumnElements.push(
+                        <th key={ idx }>
+                            {
+                                filterElems
+                            }
+                        </th>
+                    );
 
                     filterIndex++;
 

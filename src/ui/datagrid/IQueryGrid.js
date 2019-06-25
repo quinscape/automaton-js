@@ -70,7 +70,7 @@ const DataGrid = fnObserver(props => {
             let enabledCount = 0;
             const columns = React.Children.map(children, (kid, idx) => {
 
-                const {name, filter, heading} = kid.props;
+                const {name, filter, heading, renderFilter } = kid.props;
 
                 let typeRef = null, sortable = false, enabled = false;
                 if (name)
@@ -101,7 +101,8 @@ const DataGrid = fnObserver(props => {
                     filter,
                     enabled,
                     type: typeRef && typeRef.name,
-                    heading: heading || name
+                    heading: heading || name,
+                    renderFilter
                 });
             });
 
