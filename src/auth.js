@@ -8,7 +8,7 @@ function mapRoles(roles)
     {
         rolesMap[roles[i]] = true;
     }
-    return rolesMap;
+    return Object.freeze(rolesMap);
 }
 
 
@@ -17,7 +17,8 @@ export default class Authentication {
     {
         this[secret] = {
             ...data,
-            roles: mapRoles(data.roles)
+            roles: data.roles,
+            rolesMap: mapRoles(data.roles)
         };
     }
 
@@ -33,6 +34,12 @@ export default class Authentication {
         return this[secret].id;
     }
 
+    get roles()
+    {
+        return this[secret].roles;
+    }
+
+
 
     /**
      * Returns true if the user has any of the given roles.
@@ -42,9 +49,10 @@ export default class Authentication {
      */
     hasRole(...roles)
     {
+        const { rolesMap } = this[secret];
         for (let i = 0; i < roles.length; i++)
         {
-            if (this[secret].roles.hasOwnProperty(roles[i]))
+            if (rolesMap.hasOwnProperty(roles[i]))
             {
                 return true;
             }
