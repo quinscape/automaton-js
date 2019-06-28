@@ -10,7 +10,7 @@ import { serverSync, storageSync, syncFrom, syncFromStorage } from "./sync"
 
 import { APP_SCOPE, LOCAL_SCOPE, SESSION_SCOPE, USER_SCOPE } from "./scopeNames"
 
-import { loadDomainDefinitions, registerGenericType } from "./domain";
+import { INTERACTIVE_QUERY, loadDomainDefinitions, registerGenericType } from "./domain";
 import InteractiveQuery from "./model/InteractiveQuery";
 
 import { createBrowserHistory } from "history"
@@ -237,7 +237,6 @@ function setupScopeSynchronization()
 }
 
 
-const INTERACTIVE_QUERY = "de.quinscape.automaton.model.data.InteractiveQuery";
 
 function registerSystemTypes()
 {

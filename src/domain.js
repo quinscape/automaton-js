@@ -44,6 +44,30 @@ export function registerType(name, DomainClass)
     domainClasses[name] = DomainClass;
 }
 
+export const INTERACTIVE_QUERY = "de.quinscape.automaton.model.data.InteractiveQuery";
+
+
+/**
+ * Looks up the generic type the type with the given name is based on.
+ *
+ * @param {String} typeName     type name
+ * @return {String|null} full qualified generic type name or null
+ */
+export function getGenericType(typeName)
+{
+    const { genericTypes } = config;
+
+    for (let i = 0; i < genericTypes.length; i++)
+    {
+        const entry = genericTypes[i];
+        if (entry.type === typeName)
+        {
+            return entry.genericType;
+        }
+    }
+    return null;
+}
+
 export function loadDomainDefinitions(ctx)
 {
     const keys = ctx.keys();

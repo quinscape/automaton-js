@@ -21,7 +21,7 @@ import GraphQLQuery from "./GraphQLQuery"
 import { storeDomainObject, deleteDomainObject } from "./standard-queries"
 
 import { backToParent } from "./back-functions"
-import { registerGenericType, registerType } from "./domain"
+import { registerGenericType, registerType, getGenericType } from "./domain"
 import InteractiveQuery from "./model/InteractiveQuery"
 import createDomainObject from "./createDomainObject"
 import LogoutForm from "./ui/LogoutForm"
