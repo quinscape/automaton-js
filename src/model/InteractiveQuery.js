@@ -21,7 +21,7 @@ const updateFromResult = action("Update iQuery from Result", (iQuery, result) =>
 
     iQuery.rows.replace(value.rows);
     Object.assign(iQuery.queryConfig, value.queryConfig);
-    Object.assign(iQuery.columnConfig, value.columnConfig);
+    iQuery.columnStates.replace(value.columnStates);
     iQuery.rowCount = value.rowCount;
 
     return true;
@@ -72,9 +72,9 @@ export default class InteractiveQuery {
     @observable queryConfig;
 
     /**
-     * Column config object used to create this query
+     * Array of column states for this query
      */
-    @observable columnConfig;
+    @observable columnStates;
 
     /**
      * Total number of rows available for pagination

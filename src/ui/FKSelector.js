@@ -206,7 +206,7 @@ const FKSelector = props => {
 
                                                     iQuery._query = query;
 
-                                                    const columns = iQuery.columnConfig.columnStates
+                                                    const columns = iQuery.columnStates
                                                         .filter(
                                                             cs => cs.enabled && cs.name !== "id"
                                                         )

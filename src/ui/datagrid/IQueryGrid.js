@@ -39,13 +39,11 @@ const DataGrid = fnObserver(props => {
 
     const { id, value, tableClassName, rowClasses, children } = props;
 
-    const { type, columnConfig } = value;
+    const { type, columnStates } = value;
 
 
-    const columnConfigInput = useObservableInput(
+    const columnStatesInput = useObservableInput(
         () => {
-
-            const { columnStates } = value.columnConfig;
 
             let s = "";
             for (let i = 0; i < columnStates.length; i++)
@@ -60,12 +58,10 @@ const DataGrid = fnObserver(props => {
     );
 
     /**
-     * A memoized copy of the columnConfig structure with resolved column types and filters
+     * A memoized copy of the columnStates structure with resolved column types and filters
      */
     const columns = useMemo(
         () => {
-
-            const { columnStates } = columnConfig;
 
             let enabledCount = 0;
             const columns = React.Children.map(children, (kid, idx) => {
@@ -123,7 +119,7 @@ const DataGrid = fnObserver(props => {
             return columns;
 
         },
-        [ type, columnConfigInput ]
+        [ type, columnStatesInput ]
     );
 
     const { rows } = value;
