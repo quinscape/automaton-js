@@ -64,7 +64,17 @@ Column.propTypes = {
 
         PropTypes.string,
         PropTypes.func
-    ])
+    ]),
+    
+    /**
+     * Field expression string or field expression FilterDSL map
+     */
+    sort:
+        PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.object
+        ])
+
 };
 
 Column.displayName = "DataGrid.Column";

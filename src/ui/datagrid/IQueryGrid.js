@@ -70,7 +70,7 @@ const DataGrid = fnObserver(props => {
             let enabledCount = 0;
             const columns = React.Children.map(children, (kid, idx) => {
 
-                const {name, filter, heading, renderFilter } = kid.props;
+                const {name, filter, heading, sort, renderFilter } = kid.props;
 
                 let typeRef = null, sortable = false, enabled = false;
                 if (name)
@@ -91,6 +91,10 @@ const DataGrid = fnObserver(props => {
                 }
                 else
                 {
+                    if (sort)
+                    {
+                        sortable = true;
+                    }
                     enabled = true;
                     enabledCount++;
                 }
@@ -102,6 +106,7 @@ const DataGrid = fnObserver(props => {
                     enabled,
                     type: typeRef && typeRef.name,
                     heading: heading || name,
+                    sort: sort || name,
                     renderFilter
                 });
             });
@@ -148,9 +153,7 @@ const DataGrid = fnObserver(props => {
                                 >
                                     <SortLink
                                         iQuery={ value }
-                                        column={ col.name }
-                                        text={ col.heading }
-                                        sortable={ col.sortable }
+                                        column={ col }
                                     />
                                 </th>
                             )
@@ -230,5 +233,7 @@ DataGrid.propTypes = {
 
 DataGrid.Column = Column;
 DataGrid.RowSelector = RowSelector;
+
+DataGrid.displayName = "IQueryGrid";
 
 export default DataGrid

@@ -178,6 +178,13 @@ export function condition(name)
 {
     return new Condition(name);
 }
+export function operation(name, operands)
+{
+    const op = new Field(name);
+    op.type = Type.OPERATION;
+    op.operands = operands;
+    return op;
+}
 
 
 /**

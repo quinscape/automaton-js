@@ -96,10 +96,7 @@ export default class InteractiveQuery {
      *
      * // sorty by name descending
      * iQuery.update({
-     *     sortOrder:
-     *         {
-     *             fields: [ "!name" ]
-     *         }
+     *     sortFields: [ "!name" ]
      * })
      * ```
      *
