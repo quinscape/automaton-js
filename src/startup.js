@@ -287,21 +287,9 @@ export function startup(ctx, initial, initFn)
                     console.group("Automaton Startup v" + pkgJSON.version);
 
                     console.info("INITIAL", initial);
-                    console.info("INJECTED VALUES", Object.values(initial.injections))
+                    console.info("INJECTED VALUES", Object.values(initial.injections));
 
-                    console.group("JavaScript Domain Implementations:");
-                    const domainClasses = getWireFormat().classes;
-                    for (let name in domainClasses)
-                    {
-                        if (domainClasses.hasOwnProperty(name))
-                        {
-                            const cls = domainClasses[name];
-
-                            console.log(name + ":", cls);
-                        }
-                    }
-
-                    console.groupEnd();
+                    console.info("JavaScript Domain Implementations: ", getWireFormat().classes);
                     console.groupEnd();
 
                 }
