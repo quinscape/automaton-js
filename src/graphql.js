@@ -1,4 +1,5 @@
 import config from "./config"
+import { observable } from "mobx";
 import { getWireFormat } from "./domain";
 import GraphQLQuery from "./GraphQLQuery";
 import { getGraphQLMethodType } from "./Process";
@@ -162,7 +163,7 @@ export default function graphql(params) {
                     }
                 }
 
-                return data;
+                return observable(data);
             }
         )
     );

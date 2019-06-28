@@ -26,6 +26,7 @@ import InteractiveQuery from "./model/InteractiveQuery"
 import createDomainObject from "./createDomainObject"
 import LogoutForm from "./ui/LogoutForm"
 import extractTypeData from "./extractTypeData"
+import FKSelector from "./ui/FKSelector"
 
 import {
     Type,
@@ -174,5 +175,6 @@ export {
     FilterDSL,
     CalendarField,
     LogoutForm,
-    extractTypeData
+    extractTypeData,
+    FKSelector
 }

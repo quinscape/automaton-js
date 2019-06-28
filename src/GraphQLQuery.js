@@ -13,10 +13,11 @@ import graphql from "./graphql";
  */
 export default class GraphQLQuery {
 
-    constructor(query)
+    constructor(query, vars)
     {
         this.query = query;
         this.queryDef = null;
+        this.defaultVars = vars;
     }
 
 

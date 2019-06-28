@@ -2,7 +2,7 @@ import { action, observable } from "mobx";
 import { component, condition, isLogicalCondition, Type } from "../FilterDSL";
 import compareConditions from "../util/compareConditions"
 
-function getFirstValue(m)
+export function getFirstValue(m)
 {
     for (let key in m)
     {
