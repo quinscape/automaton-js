@@ -25,6 +25,7 @@ import { registerGenericType, registerType, getGenericType } from "./domain"
 import InteractiveQuery from "./model/InteractiveQuery"
 import createDomainObject from "./createDomainObject"
 import LogoutForm from "./ui/LogoutForm"
+import extractTypeData from "./extractTypeData"
 
 import {
     Type,
@@ -172,5 +173,6 @@ export {
 
     FilterDSL,
     CalendarField,
-    LogoutForm
+    LogoutForm,
+    extractTypeData
 }
