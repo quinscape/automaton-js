@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react"
 import get from "lodash.get"
+import { GlobalConfig } from "domainql-form"
 import { observer as fnObserver } from "mobx-react-lite"
 
 /**
@@ -11,6 +12,8 @@ const Column = fnObserver(props => {
 
     const {name, context, children} = props;
 
+    const noneText = GlobalConfig.none();
+    
     if (typeof children === "function")
     {
         const result = children(context);
@@ -20,14 +23,16 @@ const Column = fnObserver(props => {
         return (
             <td>
                 {
-                    typeof result === "string" ?
-                        <p
-                            className="form-control-plaintext"
-                        >
-                            {
-                                result
-                            }
-                        </p> : result
+                    React.isValidElement(result) ?
+                        result : (
+                            <p
+                                className="form-control-plaintext"
+                            >
+                                {
+                                    String(result === null || result === undefined || result === "" ? noneText : result)
+                                }
+                            </p>
+                        )
                 }
             </td>
         );
@@ -41,7 +46,7 @@ const Column = fnObserver(props => {
                 className="form-control-plaintext"
             >
                 {
-                    String(get(context, name))
+                    String(get(context, name) || noneText)
                 }
             </p>
         </td>
