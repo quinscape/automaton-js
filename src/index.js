@@ -27,6 +27,7 @@ import createDomainObject from "./createDomainObject"
 import LogoutForm from "./ui/LogoutForm"
 import extractTypeData from "./extractTypeData"
 import FKSelector from "./ui/FKSelector"
+import query from "./query";
 
 import {
     Type,
@@ -176,5 +177,6 @@ export {
     CalendarField,
     LogoutForm,
     extractTypeData,
-    FKSelector
+    FKSelector,
+    query
 }

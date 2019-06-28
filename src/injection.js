@@ -20,5 +20,10 @@ import GraphQLQuery from "./GraphQLQuery";
  * @returns {GraphQLQuery} query declaration
  */
 export default function injection(query, defaultVars) {
-    return new GraphQLQuery(query);
+
+    if (query instanceof GraphQLQuery)
+    {
+        return query;
+    }
+    return new GraphQLQuery(query, defaultVars);
 }
