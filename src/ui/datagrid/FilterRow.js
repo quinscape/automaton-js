@@ -25,7 +25,7 @@ const FilterRow = fnObserver(props => {
 
     //console.log("FilterRow", {filterState});
 
-    if (filterState == null)
+    if (filterState.filters.length === 0)
     {
         return false;
     }
