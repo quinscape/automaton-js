@@ -8,6 +8,7 @@ import Calendar from "react-calendar"
 import Icon from "./Icon";
 
 import set from "lodash.set"
+import autoSubmitHack from "../util/autoSubmitHack";
 
 
 const changeOuterFormValue = action(
@@ -70,12 +71,7 @@ const CalendarModal = props =>  {
 
                 changeOuterFormValue(formConfig.root, name, composite);
 
-                // XXX: Hack to ensure autosubmit on date change
-                if (formConfig.options.autoSubmit)
-                {
-                    // selection is so slow we can submit every time
-                    formConfig.ctx.submit();
-                }
+                autoSubmitHack(formConfig);
             }
         }
 
