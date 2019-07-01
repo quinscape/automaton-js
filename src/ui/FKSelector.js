@@ -1,20 +1,17 @@
-import React, { useCallback, useState } from "react"
+import React, { useCallback, useState, useMemo } from "react"
 import cx from "classnames"
 import PropTypes from "prop-types"
-import { Field, FieldMode, FormGroup, GlobalConfig, unwrapType, useFormConfig } from "domainql-form"
+import { Field, FieldMode, FormConfig, FormGroup, GlobalConfig, unwrapType, useFormConfig } from "domainql-form"
 import i18n from "../i18n";
-import { action } from "mobx";
-
-import { Container, Modal, ModalBody, ModalHeader, ButtonToolbar } from "reactstrap"
+import { action, toJS } from "mobx";
 import GraphQLQuery from "../GraphQLQuery";
 import { getFirstValue } from "../model/InteractiveQuery";
 import config from "../config"
 
 import { getGenericType, INTERACTIVE_QUERY } from "../domain";
-import DataGrid from "./datagrid/IQueryGrid";
 import autoSubmitHack from "../util/autoSubmitHack";
-import { isNonNull } from "domainql-form/src/InputSchema";
-
+import FkSelectorModal from "./FkSelectorModal";
+import toPath from "lodash.topath"
 
 function toggleOpen(modalState)
 {
@@ -62,56 +59,124 @@ function getOutputType(type)
 }
 
 
+let fkSelectorCount = 0;
 
 const FKSelector = props => {
 
-    const { display, query, modalTitle, targetField, onUpdate, ... fieldProps} = props;
-
     const formConfig = useFormConfig();
 
-    const [ modalState, setModalState ] = useState(MODAL_STATE_CLOSED);
+    const [modalState, setModalState] = useState(MODAL_STATE_CLOSED);
+
+    const { display, query, modalTitle, targetField, onUpdate } = props;
+
+    // FIELD PROPS
+    const { id, name, mode: modeFromProps, helpText, tooltip, label: labelFromProps, inputClass, labelClass, formGroupClass } = props;
+
 
     const getUpdateForEmbedded = (rowType, rowValue) => {
 
         // resolve type of FKSelector parent;
         const type = getOutputType(formConfig.type);
-        // if (rowType !== type)
-        // {
-        //     throw new Error("Type mismatch: formConfig = " + type + ", rowValue = " + rowType);
-        // }
 
         const typeDef = config.inputSchema.getType(type);
 
-        console.log("TYPE-DEF", typeDef);
+        //console.log("TYPE-DEF", typeDef);
         const objectFields = typeDef.fields.filter(fd => unwrapType(fd.type).name === rowType);
 
         const fieldCount = objectFields.length;
         if (fieldCount > 1)
         {
-            throw new Error("Amiguous embbeded fields in " + rowType + ": " + JSON.stringify(objectFields));
+            throw new Error("Ambiguous embedded fields in " + rowType + ": " + JSON.stringify(objectFields));
         }
 
         if (fieldCount === 1)
         {
             return {
-                [objectFields[0].name] : rowValue || {}
+                [objectFields[0].name]: rowValue || {}
             }
         }
-        
+
         return null;
     };
 
+    /**
+     * We're creating a simplified field context basically because our name prop is optional here :\
+     */
+    const fkContext = useMemo(
+        () => {
+
+            const haveNameProp = !!name;
+
+            let qualifiedName;
+            let path;
+            let fieldType;
+            let fieldId;
+            let effectiveLabel;
+
+
+
+            if (haveNameProp)
+            {
+                qualifiedName = formConfig.getPath(name);
+                path = toPath(qualifiedName);
+                fieldType = formConfig.schema.resolveType(formConfig.type, path);
+                const lastSegment = path[path.length - 1];
+                fieldId = id || "field-" + formConfig.type + "-" + qualifiedName;
+                effectiveLabel =
+                    typeof labelFromProps === "string" ? labelFromProps : formConfig.options.lookupLabel(formConfig, lastSegment);
+
+            }
+            else
+            {
+                if (!labelFromProps)
+                {
+                    throw new Error("<FKSelector/> needs a label prop if the name prop is missing");
+                }
+                if (!display)
+                {
+                    throw new Error("<FKSelector/> needs a display prop if the name prop is missing");
+                }
+
+                qualifiedName = null;
+                path = null;
+                fieldType = null;
+                fieldId = "field-" + formConfig.type + "-fk" + fkSelectorCount++;
+                effectiveLabel = labelFromProps;
+            }
+
+            const effectiveMode = modeFromProps || formConfig.options.mode;
+
+            const ctx = {
+                qualifiedName,
+                path,
+                fieldType,
+                fieldId,
+                label: effectiveLabel,
+                mode: effectiveMode
+            };
+
+            //console.log("FK-CONTEXT", ctx);
+
+            return ctx;
+        },
+        [ formConfig.type, name ]
+    );
 
     const selectRow = row => {
-        const qualifiedName = formConfig.getPath(fieldProps.name);
 
+        const formUpdate = {};
+        const { qualifiedName } = fkContext;
+        if (qualifiedName)
+        {
+            formUpdate[qualifiedName] = row && row[targetField];
+        }
 
-        const formUpdate = {
-            [qualifiedName]: row && row[targetField],
-            ... !onUpdate ? getUpdateForEmbedded(modalState.iQuery.type, row) : null
-        };
+        if (!onUpdate)
+        {
+            Object.assign(formUpdate, getUpdateForEmbedded(modalState.iQuery.type, row));
+        }
 
-        console.log("FORM UPDATE", formUpdate);
+        //console.log("FORM UPDATE", formUpdate, "onUpdate = ", onUpdate, "row = ", toJS(row));
 
         updateOuterForm(
             formConfig.root,
@@ -119,196 +184,133 @@ const FKSelector = props => {
             onUpdate,
             row
         );
-
         autoSubmitHack(formConfig);
         setModalState(MODAL_STATE_CLOSED);
     };
-
-
 
     const toggle = useCallback(
         () => setModalState(toggleOpen),
         []
     );
 
+    const { fieldId, fieldType, qualifiedName, path, label, mode } = fkContext;
 
+    let fieldValue;
+    if (display)
+    {
+        fieldValue = display(formConfig)
+    }
+    else
+    {
+
+        const errorMessages = formConfig.getErrors(qualifiedName);
+        const scalarType = unwrapType(fieldType).name;
+
+
+        fieldValue = formConfig.getValue(path, errorMessages);
+        fieldValue = fieldValue !== null ? GlobalConfig.renderStatic(scalarType, fieldValue) : null;
+    }
+
+    //console.log("MODAL-STATE", modalState);
 
     return (
-        <Field
-            {... fieldProps}
+        <FormGroup
+            formConfig={ formConfig }
+            formGroupClass={ cx( "fk-selector", formGroupClass ) }
+
+            fieldId={ fieldId }
+            label={ label }
+            helpText={ helpText }
+            labelClass={ labelClass }
+            mode={ mode }
         >
-            {
-
-                (formConfig, ctx) => {
-
-                    const { fieldType, mode, fieldId, inputClass, tooltip, path, qualifiedName, placeholder } = ctx;
-
-                    const errorMessages = formConfig.getErrors(qualifiedName);
-                    const scalarType = unwrapType(fieldType).name;
-
-                    let fieldValue = formConfig.getValue(path, errorMessages);
-                    //const fieldValue = InputSchema.scalarToValue(scalarType, fieldValue);
-                    if (display)
-                    {
-                        fieldValue = display(formConfig)
+            <div className="input-group mb-3">
+                <span
+                    id={ fieldId }
+                    className={
+                        cx(
+                            inputClass,
+                            "fks-display form-control-plaintext border rounded pl-2"
+                        )
                     }
-                    else
-                    {
-                        fieldValue = fieldValue !== null && GlobalConfig.renderStatic(scalarType, fieldValue);
+                    title={
+                        tooltip
                     }
 
-                    console.log("MODAL-STATE", modalState);
+                >
+                    {
+                        fieldValue !== null && fieldValue !== undefined && fieldValue !== "" ?
+                            fieldValue :
+                            GlobalConfig.none()
+                    }
+                </span>
+                <span className="input-group-append">
+                    <button
+                        className="btn btn-secondary"
+                        type="button"
+                        title={ modalTitle }
+                        disabled={ mode !== FieldMode.NORMAL }
+                        aria-roledescription={ modalTitle }
+                        onClick={
+                            () =>
+                                query.execute(
+                                    query.defaultVars
+                                ).then(result => {
 
-                    return (
-                        <FormGroup
-                            { ... ctx }
-                            formConfig={ formConfig }
-                            errorMessages={ errorMessages }
-                            formGroupClass={ cx("fk-selector", ctx.formGroupClass) }
-                        >
-                            <div className="input-group mb-3">
-                                <span
-                                    id={ fieldId }
-                                    className={
-                                        cx(
-                                            inputClass,
-                                            "fks-display form-control-plaintext border rounded pl-2"
-                                        )
-                                    }
-                                    title={
-                                        tooltip
-                                    }
-
-                                >
+                                    try
                                     {
-                                        fieldValue !== null && fieldValue !== undefined && fieldValue !== "" ? fieldValue : GlobalConfig.none()
-                                    }
-                                </span>
-                                <span className="input-group-append">
-                                    <button
-                                        className="btn btn-secondary"
-                                        type="button"
-                                        title={ modalTitle }
-                                        disabled={ mode !== FieldMode.NORMAL }
-                                        aria-roledescription={ modalTitle }
-                                        onClick={
-                                            () => query.execute(
-                                                query.defaultVars
-                                            ).then(result => {
-
-                                                try
-                                                {
-                                                    const iQuery = getFirstValue(result);
-                                                    if (getGenericType(iQuery._type) !== INTERACTIVE_QUERY)
-                                                    {
-                                                        throw new Error("Result is no interactive query object");
-                                                    }
-
-                                                    iQuery._query = query;
-
-                                                    const columns = iQuery.columnStates
-                                                        .filter(
-                                                            cs => cs.enabled && cs.name !== "id"
-                                                        )
-                                                        .map(
-                                                            cs => cs.name
-                                                        );
-
-                                                    //console.log("COLUMNS", columns);
-
-                                                    setModalState({
-                                                        iQuery,
-                                                        columns,
-                                                        isOpen: true
-                                                    })
-                                                }
-                                                catch(e)
-                                                {
-                                                    console.error("ERROR", e);
-                                                }
-                                            })
-                                        }
-                                    >
-                                        &hellip;
-                                    </button>
-                                </span>
-                                <Modal isOpen={ modalState.isOpen } toggle={ toggle } size="lg">
-                                    <ModalHeader
-                                        toggle={ toggle }
-                                    >
+                                        const iQuery = getFirstValue(result);
+                                        if (getGenericType(iQuery._type) !== INTERACTIVE_QUERY)
                                         {
-                                            modalTitle
+                                            throw new Error("Result is no interactive query object");
                                         }
-                                    </ModalHeader>
-                                    <ModalBody>
-                                        <Container fluid={ true }>
-                                            {
-                                                modalState.isOpen && (
-                                                    <DataGrid
-                                                        id="fk-selector-grid"
-                                                        tableClassName="table-hover table-striped table-bordered table-sm table-responsive"
-                                                        value={ modalState.iQuery }
-                                                    >
-                                                        <DataGrid.Column
-                                                            heading={ "Action" }
-                                                        >
-                                                            {
-                                                                row => (
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn btn-secondary"
-                                                                        onClick={ ev => selectRow(row) }
-                                                                    >
-                                                                        {
-                                                                            i18n("Select")
-                                                                        }
-                                                                    </button>
-                                                                )
-                                                            }
-                                                        </DataGrid.Column>
-                                                        {
-                                                            modalState.columns.map(
-                                                                name => (
-                                                                    <DataGrid.Column
-                                                                        key={ name }
-                                                                        name={ name }
-                                                                        filter="containsIgnoreCase"
-                                                                    />
-                                                                )
-                                                            )
-                                                        }
-                                                    </DataGrid>
-                                                )
-                                            }
-                                            <ButtonToolbar>
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-secondary"
-                                                    disabled={ isNonNull(fieldType) }
-                                                    onClick={ ev => selectRow(null) }
-                                                >
-                                                    {
-                                                        i18n("Select None")
-                                                    }
-                                                </button>
 
-                                            </ButtonToolbar>
-                                        </Container>
-                                    </ModalBody>
-                                </Modal>
-                            </div>
-                        </FormGroup>
-                    );
-                }
-            }
-        </Field>
+                                        iQuery._query = query;
+
+                                        const columns = iQuery.columnStates
+                                            .filter(
+                                                cs => cs.enabled && cs.name !== "id"
+                                            )
+                                            .map(
+                                                cs => cs.name
+                                            );
+
+                                        //console.log("COLUMNS", columns);
+
+                                        setModalState({
+                                            iQuery,
+                                            columns,
+                                            isOpen: true
+                                        });
+                                        
+                                    }
+                                    catch (e)
+                                    {
+                                        console.error("ERROR", e);
+                                    }
+                                }
+                            )
+                        }
+                    >
+                        &hellip;
+                    </button>
+                </span>
+                <FkSelectorModal
+                    { ...modalState }
+                    title={ modalTitle }
+                    fieldType={ fieldType }
+                    selectRow={ selectRow }
+                    toggle={ toggle }
+                />
+            </div>
+        </FormGroup>
     );
 
 };
 
 FKSelector.propTypes = {
     /**
-     * Optional render function for the current value  ( formConfig => ReactElement )
+     * Optional render function for the current value  ( formConfig => ReactElement ). Must be set if name is not set.
      */
     display: PropTypes.func,
     /**
@@ -334,9 +336,10 @@ FKSelector.propTypes = {
     // FIELD PROP TYPES
 
     /**
-     * Name / path for the  calendar field value (e.g. "name", but also "foos.0.name")
+     * Name / path for the  calendar field value (e.g. "name", but also "foos.0.name"). Optional for this widget as it can
+     * also operate just by updating embedded objects. If name is not set, display and label must be set.
      */
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string,
 
     /**
      * Mode for this calendar field. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
@@ -352,7 +355,7 @@ FKSelector.propTypes = {
      */
     tooltip: PropTypes.string,
     /**
-     * Label for the field.
+     * Label for the field. Must be defined if name is missing.
      */
     label: PropTypes.string,
 
@@ -374,7 +377,6 @@ FKSelector.propTypes = {
 };
 
 FKSelector.defaultProps = {
-    nonNull: false,
     targetField: "id",
     modalTitle: i18n("Select Target Object")
 };
