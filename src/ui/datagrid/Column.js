@@ -4,6 +4,9 @@ import get from "lodash.get"
 import { GlobalConfig } from "domainql-form"
 import { observer as fnObserver } from "mobx-react-lite"
 
+
+
+
 /**
  * DataGrid column component
  */
@@ -29,7 +32,7 @@ const Column = fnObserver(props => {
                                 className="form-control-plaintext"
                             >
                                 {
-                                    String(result === null || result === undefined || result === "" ? noneText : result)
+                                    GlobalConfig.valueOrNone(result)
                                 }
                             </p>
                         )
@@ -40,13 +43,14 @@ const Column = fnObserver(props => {
 
     //console.log("context[name] = ", context[name]);
 
+    const value = get(context, name);
     return (
         <td>
             <p
                 className="form-control-plaintext"
             >
                 {
-                    String(get(context, name) || noneText)
+                    GlobalConfig.valueOrNone(value)
                 }
             </p>
         </td>
