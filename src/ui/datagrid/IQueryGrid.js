@@ -4,7 +4,7 @@ import cx from "classnames"
 import { observer as fnObserver } from "mobx-react-lite"
 import i18n from "../../i18n";
 import GridStateForm from "./GridStateForm";
-import Pagination from "./Pagination";
+import Pagination from "../Pagination";
 import FilterRow from "./FilterRow";
 import lookupType from "../../util/lookupType";
 import SortLink from "./SortLink";

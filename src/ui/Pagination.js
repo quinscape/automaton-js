@@ -2,7 +2,7 @@ import React from "react"
 import cx from "classnames"
 import { isObservable } from "mobx"
 import { observer as fnObserver } from "mobx-react-lite"
-import i18n from "../../i18n";
+import i18n from "../i18n";
 
 
 export const DEFAULT_PAGE_SIZES = [

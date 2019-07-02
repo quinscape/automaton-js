@@ -27,6 +27,7 @@ import createDomainObject from "./createDomainObject"
 import LogoutForm from "./ui/LogoutForm"
 import extractTypeData from "./extractTypeData"
 import FKSelector from "./ui/FKSelector"
+import Pagination from "./ui/Pagination"
 import query from "./query";
 
 import {
@@ -150,6 +151,7 @@ export {
     // UI components
     DataGrid,
     IQueryGrid,
+    Pagination,
     Button,
     Link,
     Icon,
