@@ -1404,10 +1404,10 @@ doctrine@^2.0.0:
   dependencies:
     esutils "^2.0.2"
 
-domainql-form@^2.2.5:
-  version "2.2.5"
-  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-2.2.5.tgz#8835c9c05f626cce896405c4b5bf95e5caffbf01"
-  integrity sha512-umg1Po2hKzOGg5UbouRc8n6Ljp0NpqudP3hv0IWTNgIpLz3iqzhID+zHIkrzuNnIOEt4yol8mg45dV7L3+Udog==
+domainql-form@^2.2.6:
+  version "2.2.6"
+  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-2.2.6.tgz#035f8d8e9b53205b3a1052dc5fb1efdd9ffda5fd"
+  integrity sha512-GlDRZ0yud13QjNfjAZEZmeP9yyGfcgVFdjLVEJVo9DN6JwgKY6IwVMKlT8thZ7iDHusS4iQALBvpgX/V3xQGEg==
   dependencies:
     classnames "^2.2.5"
     lodash.debounce "^4.0.8"
