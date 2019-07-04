@@ -2,7 +2,7 @@
 import config from "../config";
 import unwrapAll from "./unwrapAll";
 
-function findNamed(array, name)
+export function findNamed(array, name)
 {
     for (let i = 0; i < array.length; i++)
     {
