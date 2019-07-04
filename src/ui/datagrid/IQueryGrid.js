@@ -139,7 +139,7 @@ const DataGrid = fnObserver(props => {
                 }
             >
                 <thead>
-                <tr>
+                <tr className="headers">
                     {
                         columns.map(
                             (col, idx) => col.enabled && (
