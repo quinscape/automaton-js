@@ -41,7 +41,6 @@ const DataGrid = fnObserver(props => {
 
     const { type, columnStates } = value;
 
-
     const columnStatesInput = useObservableInput(
         () => {
 
@@ -168,7 +167,7 @@ const DataGrid = fnObserver(props => {
                             <tr
                                 key={idx}
                                 className={
-                                    rowClasses ? rowClasses(context) : null
+                                    cx("data", rowClasses ? rowClasses(context) : null)
                                 }
                             >
                                 {
