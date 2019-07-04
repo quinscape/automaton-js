@@ -4,11 +4,12 @@ import InputSchema from "domainql-form/lib/InputSchema";
 import config from "../src/config";
 import lookupType from "../src/util/lookupType"
 
-import RAW_SCHEMA from "./test-schema.json"
-config.inputSchema = new InputSchema(RAW_SCHEMA);
+const RAW_SCHEMA = require("./test-schema.json");
 
 describe("lookupType", function () {
     it("looks up types", function () {
+
+        config.inputSchema = new InputSchema(RAW_SCHEMA);
 
         assert.deepEqual(lookupType("PagedOrder", "rows") , {
             "kind": "OBJECT",
