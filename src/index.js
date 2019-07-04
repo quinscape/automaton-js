@@ -29,6 +29,7 @@ import extractTypeData from "./extractTypeData"
 import FKSelector from "./ui/FKSelector"
 import Pagination from "./ui/Pagination"
 import query from "./query";
+import pickSchemaTypes from "./util/pickSchemaTypes";
 
 import {
     Type,
@@ -180,5 +181,6 @@ export {
     LogoutForm,
     extractTypeData,
     FKSelector,
-    query
+    query,
+    pickSchemaTypes
 }
