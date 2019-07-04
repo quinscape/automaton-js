@@ -262,7 +262,7 @@ function resolveFilters(columns, componentId, currentCondition)
  */
 const GridStateForm = props => {
 
-    const { iQuery, columns, children, componentId } = props;
+    const { iQuery, columns, componentId, filterTimeout, children } = props;
 
     //console.log("Render FilterRow", { iQuery, columns });
 
@@ -346,11 +346,11 @@ const GridStateForm = props => {
             }
             ,{
                 name: "Update on filter-change",
-                delay: 350,
+                delay: filterTimeout,
                 equals: comparer.structural
             }
         ),
-        []
+        [filterTimeout]
     );
 
     //

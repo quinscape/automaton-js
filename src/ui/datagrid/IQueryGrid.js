@@ -37,7 +37,7 @@ const COLUMN_CONFIG_INPUT_OPTS = {
  */
 const DataGrid = fnObserver(props => {
 
-    const { id, value, tableClassName, rowClasses, children } = props;
+    const { id, value, tableClassName, rowClasses, filterTimeout, children } = props;
 
     const { type, columnStates } = value;
 
@@ -128,6 +128,7 @@ const DataGrid = fnObserver(props => {
             iQuery={ value }
             columns={ columns }
             componentId={ id }
+            filterTimeout={ filterTimeout }
         >
             <table
                 className={
@@ -210,6 +211,7 @@ const DataGrid = fnObserver(props => {
 
 DataGrid.defaultProps = {
     tableClassName: "table-hover table-striped table-bordered table-sm",
+    filterTimeout: 350
 };
 
 DataGrid.propTypes = {
@@ -220,7 +222,12 @@ DataGrid.propTypes = {
     /**
      * Function to produce additional classes for each row ( context => classes )
      */
-    rowClasses: PropTypes.func
+    rowClasses: PropTypes.func,
+    /**
+     * Timeout in milliseconds for the filter inputs. The actual update of the filter will be delayed until this many
+     * milliseconds have passed since the last filter change.
+     */
+    filterTimeout: PropTypes.number
 };
 
 
