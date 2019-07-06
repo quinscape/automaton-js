@@ -27,10 +27,10 @@ function offsetLink(offset)
     };
 }
 
-const BUTTON_FIRST = "First";
-const BUTTON_PREV = "Prev";
-const BUTTON_NEXT = "Next";
-const BUTTON_LAST = "Last";
+const BUTTON_FIRST = i18n("Pagination:First");
+const BUTTON_PREV = i18n("Pagination:Prev");
+const BUTTON_NEXT = i18n("Pagination:Next");
+const BUTTON_LAST = i18n("Pagination:Last");
 
 function getTargetPage(btn, currentPage, numPages)
 {
@@ -153,8 +153,12 @@ const Pagination = fnObserver(props => {
 
     const navigate = ev => {
         ev.preventDefault();
+        const currentPage = +ev.target.dataset.page;
+
+        //console.log("Pagination.navigate", currentPage);
+
         return iQuery.update({
-            currentPage: +ev.target.dataset.page
+            currentPage
         });
     };
 
@@ -217,7 +221,7 @@ const Pagination = fnObserver(props => {
                             >
                                 {
                                     React.createElement(
-                                        isCurrent ? "span" : "a",
+                                        isCurrent || isDisabled ? "span" : "a",
                                         {
                                             className: "page-link",
                                             href: isDisabled ? null : "#",
