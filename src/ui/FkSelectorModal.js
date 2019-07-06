@@ -3,7 +3,7 @@ import i18n from "../i18n";
 
 import { ButtonToolbar, Container, Modal, ModalBody, ModalHeader } from "reactstrap"
 import DataGrid from "./datagrid/IQueryGrid";
-import { isNonNull } from "domainql-form/src/InputSchema";
+import { isNonNull } from "domainql-form/lib/InputSchema";
 
 
 /**
