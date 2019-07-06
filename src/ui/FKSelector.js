@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import { Field, FieldMode, FormConfig, FormGroup, GlobalConfig, unwrapType, useFormConfig } from "domainql-form"
 import i18n from "../i18n";
 import { action, toJS } from "mobx";
+import { observer as fnObserver } from "mobx-react-lite";
 import GraphQLQuery from "../GraphQLQuery";
 import { getFirstValue } from "../model/InteractiveQuery";
 import config from "../config"
@@ -61,7 +62,7 @@ function getOutputType(type)
 
 let fkSelectorCount = 0;
 
-const FKSelector = props => {
+const FKSelector = fnObserver(props => {
 
     const formConfig = useFormConfig();
 
@@ -164,6 +165,8 @@ const FKSelector = props => {
 
     const selectRow = row => {
 
+        //console.log("selectRow", toJS(row));
+
         const formUpdate = {};
         const { qualifiedName } = fkContext;
         if (qualifiedName)
@@ -176,7 +179,7 @@ const FKSelector = props => {
             Object.assign(formUpdate, getUpdateForEmbedded(modalState.iQuery.type, row));
         }
 
-        //console.log("FORM UPDATE", formUpdate, "onUpdate = ", onUpdate, "row = ", toJS(row));
+        //console.log("FORM UPDATE", toJS(formUpdate, { recurseEverything: true}), "onUpdate = ", onUpdate, "row = ", toJS(row));
 
         updateOuterForm(
             formConfig.root,
@@ -210,8 +213,6 @@ const FKSelector = props => {
         fieldValue = formConfig.getValue(path, errorMessages);
         fieldValue = fieldValue !== null ? GlobalConfig.renderStatic(scalarType, fieldValue) : null;
     }
-
-    //console.log("MODAL-STATE", modalState);
 
     return (
         <FormGroup
@@ -306,7 +307,7 @@ const FKSelector = props => {
         </FormGroup>
     );
 
-};
+});
 
 FKSelector.propTypes = {
     /**
