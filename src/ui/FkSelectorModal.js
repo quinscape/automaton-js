@@ -11,10 +11,10 @@ import { isNonNull } from "domainql-form/lib/InputSchema";
  */
 const FkSelectorModal = props => {
 
-    const { isOpen, iQuery, columns, title, fieldType, selectRow, toggle } = props;
+    const { isOpen, iQuery, columns, title, fieldType, selectRow, toggle, fade } = props;
 
     return(
-        <Modal isOpen={ isOpen } toggle={ toggle } size="lg">
+        <Modal isOpen={ isOpen } toggle={ toggle } size="lg" fade={ fade }>
             <ModalHeader
                 toggle={ toggle }
             >

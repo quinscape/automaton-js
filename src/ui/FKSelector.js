@@ -68,7 +68,7 @@ const FKSelector = fnObserver(props => {
 
     const [modalState, setModalState] = useState(MODAL_STATE_CLOSED);
 
-    const { display, query, modalTitle, targetField, onUpdate } = props;
+    const { display, query, modalTitle, targetField, onUpdate, fade } = props;
 
     // FIELD PROPS
     const { id, name, mode: modeFromProps, helpText, tooltip, label: labelFromProps, inputClass, labelClass, formGroupClass } = props;
@@ -302,6 +302,7 @@ const FKSelector = fnObserver(props => {
                     fieldType={ fieldType }
                     selectRow={ selectRow }
                     toggle={ toggle }
+                    fade={ fade }
                 />
             </div>
         </FormGroup>
@@ -373,13 +374,19 @@ FKSelector.propTypes = {
     /**
      * Additional HTML classes for the form group element.
      */
-    formGroupClass: PropTypes.string
+    formGroupClass: PropTypes.string,
+
+    /**
+     * Whether to do the modal fade animation on selection (default is true)
+     */
+    fade: PropTypes.bool
 
 };
 
 FKSelector.defaultProps = {
     targetField: "id",
-    modalTitle: i18n("Select Target Object")
+    modalTitle: i18n("Select Target Object"),
+    fade: true
 };
 
 export default FKSelector;
