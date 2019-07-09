@@ -1,10 +1,11 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import { loadProcessDefinitions, onHistoryAction, renderProcess } from "./Process"
+import { getCurrentProcess, loadProcessDefinitions, onHistoryAction, renderProcess } from "./Process"
 import config, { DEFAULT_OPTS } from "./config"
 import Authentication from "./auth"
 import InputSchema from "domainql-form/lib/InputSchema"
 import { autorun } from "mobx"
+import { deepObserve } from "mobx-utils"
 import uri from "./uri"
 import { serverSync, storageSync, syncFrom, syncFromStorage } from "./sync"
 
@@ -293,6 +294,11 @@ export function startup(ctx, initial, initFn)
                     console.groupEnd();
 
                 }
+
+                deepObserve(getCurrentProcess().scope, (change, path) => {
+                    console.log("CHANGE", change, path);
+                });
+
 
                 return renderProcess(
                     config.rootProcess,
