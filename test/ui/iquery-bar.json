@@ -1,0 +1,67 @@
+{
+    "type": "Bar",
+    "columnStates": [
+        {
+            "name": "id",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "created",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "name",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "numa",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "numb",
+            "enabled": true,
+            "sortable": true
+        }
+    ],
+    "queryConfig": {
+        "id": null,
+        "condition": null,
+        "currentPage": 0,
+        "pageSize": 5,
+        "sortFields": ["numa"]
+    },
+    "rows": [
+        {
+            "id": "f496152f-43b2-41c2-8e06-b63097aba51d",
+            "created": "2019-01-17T18:40:14.549Z",
+            "name": "Bar #27",
+            "numa": 1,
+            "numb": 90
+        }, {
+            "id": "6568c40d-e2f4-4976-8cbc-f36fba4485f6",
+            "created": "2019-04-05T11:40:14.563Z",
+            "name": "Bar #148",
+            "numa": 4,
+            "numb": 74
+        }, {
+            "id": "d0d5cbb1-f51c-494e-9999-36dbab42c3ee",
+            "created": "2018-06-18T17:40:14.563Z",
+            "name": "Bar #152",
+            "numa": 6,
+            "numb": 73
+        }, {
+            "id": "286af8d2-cf76-469c-8459-3b221ce0dd16",
+            "created": "2019-01-31T13:40:14.562Z",
+            "name": "Bar #144",
+            "numa": 8,
+            "numb": 11
+        }, {
+            "id": "b5f50136-dfe7-4a19-9cb3-47ff782f0c21",
+            "created": "2018-07-05T14:40:14.554Z",
+            "name": "Bar #51",
+            "numa": 10,
+            "numb": 43
+        }
+    ],
+    "rowCount": 200
+}

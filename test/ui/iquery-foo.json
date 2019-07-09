@@ -1,0 +1,95 @@
+{
+    "type": "Foo",
+    "columnStates": [
+        {
+            "name": "id",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "name",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "description",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "flag",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "type",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "owner.id",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "owner.login",
+            "enabled": true,
+            "sortable": true
+        }
+    ],
+    "queryConfig": {
+        "id": null,
+        "condition": null,
+        "currentPage": 0,
+        "pageSize": 5,
+        "sortFields": ["name"]
+    },
+    "rows": [
+        {
+            "id": "13a4ad86-e2c3-4979-81e2-a8f102b501c1",
+            "name": "Foo #1",
+            "description": "desc ",
+            "flag": true,
+            "type": "TYPE_B",
+            "owner": {
+                "id": "d7df0f2c-9aa8-4845-b2bf-1d02abd3666e",
+                "login": "admin"
+            }
+        }, {
+            "id": "c45b5ab6-dabf-400e-982f-27f3f4a5291a",
+            "name": "Foo #22",
+            "description": "xxx",
+            "flag": true,
+            "type": "TYPE_B",
+            "owner": {
+                "id": "af432487-a1b1-4f99-96d4-3b8e9796c95a",
+                "login": "anonymous"
+            }
+        }, {
+            "id": "d57dec43-350d-417a-a374-813770eb06af",
+            "name": "Foo #33",
+            "description": null,
+            "flag": false,
+            "type": "TYPE_C",
+            "owner": {
+                "id": "dd7924d2-4692-4112-b418-3fce8a3eab30",
+                "login": "user_b"
+            }
+        }, {
+            "id": "c3e89a90-b616-43c7-b6a0-0fe937898985",
+            "name": "Foo #4",
+            "description": "xxx",
+            "flag": true,
+            "type": "TYPE_D",
+            "owner": {
+                "id": "af432487-a1b1-4f99-96d4-3b8e9796c95a",
+                "login": "anonymous"
+            }
+        }, {
+            "id": "51cb3a62-92a6-446d-94ae-5d5d844ea5b5",
+            "name": "Foo #6",
+            "description": "",
+            "flag": true,
+            "type": "TYPE_A",
+            "owner": {
+                "id": "af432487-a1b1-4f99-96d4-3b8e9796c95a",
+                "login": "anonymous"
+            }
+        }
+    ],
+    "rowCount": 7
+}
