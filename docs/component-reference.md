@@ -60,7 +60,7 @@ className | string | Classes for the link element ( "link-internal" is added )
 **href** (required) | string | Internal URI ( required )
 role | string | Optional role attribute
 title | string | Optional title attribute
-## &lt;DataGrid/&gt;
+## &lt;IQueryGrid/&gt;
 
 Data grid what works based on degenerified Paged<DomainObject> types.
 
@@ -68,6 +68,7 @@ Data grid what works based on degenerified Paged<DomainObject> types.
 
  Name | Type | Description 
 ------|------|-------------
+filterTimeout | number | Timeout in milliseconds for the filter inputs. The actual update of the filter will be delayed until this many milliseconds have passed since the last filter change.
 rowClasses | func | Function to produce additional classes for each row ( context => classes )
 tableClassName | string | Additional classes to set on the table element. (default is "table-hover table-striped table-bordered")
 # DataGrid Examples
@@ -171,6 +172,7 @@ DataGrid column component
 filter | string or func | Either a JOOQ / Filter DSL comparison name or a custom filter function (see below)
 heading | string | Column heading
 name | string | Column name / path expression. (e.g. "name", but also "foo.owner.name")
+sort | string or object | Field expression string or field expression FilterDSL map
 # Custom Filter
 
 A client-side custom filter can be defined by giving a function to `filter`.  
