@@ -84,7 +84,9 @@ describe("Pagination", function () {
             assert(last.tagName === "A");
 
             act(
-                () => next.click()
+                () => {
+                    next.click();
+                }
             );
 
             assert(updateSpy.called);
@@ -95,7 +97,9 @@ describe("Pagination", function () {
             ]);
 
             act(
-                () => last.click()
+                () => {
+                    last.click();
+                }
             );
 
             assert(updateSpy.callCount === 2);
@@ -125,7 +129,9 @@ describe("Pagination", function () {
             assert(last.tagName === "A");
 
             act(
-                () => next.click()
+                () => {
+                    next.click();
+                }
             );
 
             assert(updateSpy.callCount === 3);
@@ -165,7 +171,9 @@ describe("Pagination", function () {
             assert(last.tagName === "A");
 
             act(
-                () => next.click()
+                () => {
+                    next.click();
+                }
             );
 
             assert(updateSpy.callCount === 5);
@@ -215,7 +223,9 @@ describe("Pagination", function () {
             assert(last.tagName === "A");
 
             act(
-                () => last.click()
+                () => {
+                    last.click();
+                }
             );
 
             assert(updateSpy.callCount === 6);
@@ -231,12 +241,13 @@ describe("Pagination", function () {
             const selectElem = container.querySelector("select");
 
             act(
-                () =>
+                () => {
                     fireEvent.change(selectElem, {
                         target: {
                             value: "2147483647"
                         }
-                    })
+                    });
+                }
             );
 
             assert(container.querySelectorAll("page-link").length === 0)
