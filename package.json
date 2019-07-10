@@ -28,6 +28,7 @@
         "react-json-tree": "^0.11.0",
         "reactstrap": "^8.0.0",
         "recursive-readdir": "^2.2.2",
+        "simple-git": "^1.119.0",
         "uuid": "^3.3.2"
     },
     "devDependencies": {
@@ -54,8 +55,10 @@
         "power-assert": "^1.5.0",
         "react-docgen": "^3.0.0",
         "react-dom": "^16.8.6",
+        "shelljs": "^0.8.3",
         "sinon": "^7.3.2",
         "tempy": "^0.2.1",
+        "tmp": "^0.1.0",
         "use-debounce": "^2.1.0"
     },
     "bin": {
