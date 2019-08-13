@@ -16,7 +16,7 @@ import Link from "./ui/Link"
 import CalendarField from "./ui/CalendarField"
 import ScrollTracker from "./ui/ScrollTracker"
 import graphql from "./graphql"
-import AutomatonDevTools from "./AutomatonDevTools"
+//import AutomatonDevTools from "./AutomatonDevTools"
 import GraphQLQuery from "./GraphQLQuery"
 import { storeDomainObject, deleteDomainObject } from "./standard-queries"
 
@@ -30,6 +30,8 @@ import FKSelector from "./ui/FKSelector"
 import Pagination from "./ui/Pagination"
 import query from "./query";
 import pickSchemaTypes from "./util/pickSchemaTypes";
+
+const AutomatonDevTools = "span";
 
 import {
     Type,
