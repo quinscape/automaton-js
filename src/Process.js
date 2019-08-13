@@ -225,7 +225,6 @@ function renderCurrentView()
             <FormConfigProvider
                 schema={ config.inputSchema }
             >
-                <AutomatonDevTools/>
                 <Layout
                     env={ env }
                 >
