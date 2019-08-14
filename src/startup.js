@@ -286,7 +286,12 @@ export function startup(ctx, initial, initFn)
                 {
                     console.group("Automaton Startup v" + pkgJSON.version);
 
-                    console.info("INITIAL", initial);
+                    console.info("INITIAL", {
+                        ... initial,
+                        injections: {
+                            "...": initial.injections
+                        }
+                    } );
                     console.info("INJECTED VALUES", Object.values(initial.injections));
 
                     console.info("JavaScript Domain Implementations: ", getWireFormat().classes);
