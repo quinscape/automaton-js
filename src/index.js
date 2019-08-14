@@ -30,6 +30,7 @@ import FKSelector from "./ui/FKSelector"
 import Pagination from "./ui/Pagination"
 import query from "./query";
 import pickSchemaTypes from "./util/pickSchemaTypes";
+import Hub from "./message/Hub";
 
 const AutomatonDevTools = "span";
 
@@ -185,5 +186,6 @@ export {
     FKSelector,
     query,
     pickSchemaTypes,
-    getWireFormat
+    getWireFormat,
+    Hub
 }
