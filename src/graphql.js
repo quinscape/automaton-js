@@ -46,9 +46,9 @@ function convertInput(varTypes, variables)
 }
 
 
-export function formatGraphQLError(query, errors)
+export function formatGraphQLError(params, errors)
 {
-    return "\n" + query + "\n\n" +
+    return "\nQUERY ERROR: " + JSON.stringify(params, null, 4) + "\n\n" +
            errors.map(
                e => (
            e.message +
@@ -137,7 +137,7 @@ export default function graphql(params) {
                 if (errors)
                 {
                     const err = new Error(
-                        formatGraphQLError(queryDecl.query, errors)
+                        formatGraphQLError(params, errors)
                     );
 
                     return Promise.reject(err);
