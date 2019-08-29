@@ -1796,10 +1796,10 @@ dom-helpers@^3.4.0:
   dependencies:
     "@babel/runtime" "^7.1.2"
 
-domainql-form@^2.2.7:
-  version "2.2.7"
-  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-2.2.7.tgz#603d29d57c4fa8deb1b9bbc744c4809658b81083"
-  integrity sha512-h6C4pTbpRCTS3WxSVnm+KNicuVtZJlNDlN7mOcxPmX+Y2M1dXZmCZwArhakv98Ic9vuidNnSWchVkuG84kyS7Q==
+domainql-form@^2.2.9:
+  version "2.2.9"
+  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-2.2.9.tgz#609b5a3788ecc5465c560803c3836aa4cdc378a3"
+  integrity sha512-bJ7JQm0T9bqF2TOzgfF2DcJigQ+CBdM3EDsX/FLvNQwH/cc+//r4BanHPD5JSGk84L3rBLLJxmR7+7q0B1AzCA==
   dependencies:
     classnames "^2.2.5"
     lodash.debounce "^4.0.8"

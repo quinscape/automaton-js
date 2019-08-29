@@ -1,9 +1,9 @@
-import React, { useCallback, useState, useMemo } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import cx from "classnames"
 import PropTypes from "prop-types"
-import { Field, FieldMode, FormConfig, FormGroup, GlobalConfig, unwrapType, useFormConfig } from "domainql-form"
+import { FieldMode, FormGroup, GlobalConfig, InputSchema, unwrapType, useFormConfig } from "domainql-form"
 import i18n from "../i18n";
-import { action, toJS } from "mobx";
+import { action } from "mobx";
 import { observer as fnObserver } from "mobx-react-lite";
 import GraphQLQuery from "../GraphQLQuery";
 import { getFirstValue } from "../model/InteractiveQuery";
@@ -12,7 +12,14 @@ import config from "../config"
 import { getGenericType, INTERACTIVE_QUERY } from "../domain";
 import autoSubmitHack from "../util/autoSubmitHack";
 import FkSelectorModal from "./FkSelectorModal";
+import useDebouncedCallback from "use-debounce/lib/callback"
 import toPath from "lodash.topath"
+import get from "lodash.get"
+import lookupType, { findNamed } from "../util/lookupType"
+
+import { field, value } from "../FilterDSL"
+import { getGraphQLMethodType } from "../Process";
+import { isNonNull } from "domainql-form/lib/InputSchema";
 
 function toggleOpen(modalState)
 {
@@ -62,16 +69,24 @@ function getOutputType(type)
 
 let fkSelectorCount = 0;
 
+
+function isSelected(fieldValue)
+{
+    return fieldValue !== null && fieldValue !== undefined && fieldValue !== "";
+}
+
+
 const FKSelector = fnObserver(props => {
 
     const formConfig = useFormConfig();
 
     const [modalState, setModalState] = useState(MODAL_STATE_CLOSED);
+    const [ flag, setFlag ] = useState(false);
 
-    const { display, query, modalTitle, targetField, onUpdate, fade } = props;
+    const { display, query, modalTitle, targetField, onUpdate, fade, validateInput } = props;
 
     // FIELD PROPS
-    const { id, name, mode: modeFromProps, helpText, tooltip, label: labelFromProps, inputClass, labelClass, formGroupClass } = props;
+    const { id, name, mode: modeFromProps, helpText, tooltip, label: labelFromProps, inputClass, labelClass, formGroupClass, autoFocus, validationTimeout, placeholder } = props;
 
 
     const getUpdateForEmbedded = (rowType, rowValue) => {
@@ -145,7 +160,24 @@ const FKSelector = fnObserver(props => {
                 effectiveLabel = labelFromProps;
             }
 
-            const effectiveMode = modeFromProps || formConfig.options.mode;
+            let effectiveMode = modeFromProps || formConfig.options.mode;
+
+            let inputMode;
+            if (validateInput)
+            {
+                inputMode = FieldMode.NORMAL;
+            }
+            else
+            {
+                if (effectiveMode !== FieldMode.READ_ONLY)
+                {
+                    inputMode = FieldMode.DISABLED;
+                }
+                else
+                {
+                    inputMode = effectiveMode;
+                }
+            }
 
             const ctx = {
                 qualifiedName,
@@ -153,22 +185,122 @@ const FKSelector = fnObserver(props => {
                 fieldType,
                 fieldId,
                 label: effectiveLabel,
-                mode: effectiveMode
+                mode: effectiveMode,
+                inputMode
             };
 
-            //console.log("FK-CONTEXT", ctx);
+            //console.log("FK-CONTEXT", ctx, "PROPS", props);
 
             return ctx;
         },
         [ formConfig.type, name ]
     );
 
-    const selectRow = row => {
+    const errorMessages  = formConfig.getErrors(fkContext.fieldId);
+
+    const getFieldValue = () => {
+
+        let fieldValue;
+        if (display)
+        {
+            fieldValue = typeof display === "function" ? display(formConfig) : get(formConfig.root, display);
+        }
+        else
+        {
+            const scalarType = unwrapType(fkContext.fieldType).name;
+            fieldValue = formConfig.getValue(fkContext.path, errorMessages);
+            fieldValue = fieldValue !== null ? InputSchema.scalarToValue(scalarType, fieldValue) : "";
+        }
+
+        if (!isSelected(fieldValue))
+        {
+            fieldValue = validateInput ? "" : GlobalConfig.none();
+        }
+
+        return fieldValue;
+    };
+
+    const [inputValue, setInputValue] = useState(getFieldValue);
+
+    const [ debouncedInputValidation, cancelDebouncedInputValidation ] = useDebouncedCallback(
+        val => {
+
+            const iQueryType = getGraphQLMethodType(query.getQueryDefinition().methods[0]);
+
+            if (val === "")
+            {
+                if (isNonNull(fkContext.fieldType))
+                {
+                    formConfig.addError(
+                        fkContext.fieldId,
+                        "Field Required",
+                        ""
+                    );
+                    return;
+                }
+
+                const genericTypes = config.genericTypes.filter(
+                    genericType => genericType.type === "InteractiveQueryQuxD"
+                );
+                const type = genericTypes[0].typeParameters[0];
+                selectRow(type, null);
+                return;
+            }
+
+            const typeRef = lookupType(iQueryType.name, "rows." + validateInput);
+            const condition = field(validateInput)
+                .eq(
+                    value(
+                        typeRef.name,
+                        val
+                    )
+                );
+
+            //console.log("FK-CONTEXT", fkContext);
+            //console.log("QUERY", query);
+
+
+            query.execute({
+                config: {
+                    condition,
+                    pageSize: 2
+                }
+            }).then(result => {
+                const iQuery = getFirstValue(result);
+
+                const { length } = iQuery.rows;
+
+                if (length === 1)
+                {
+                    selectRow(iQuery.type, iQuery.rows[0]);
+                    formConfig.removeErrors(fkContext.fieldId);
+                }
+                else if (length === 0)
+                {
+                    formConfig.addError(fkContext.fieldId, i18n("FKSelector:No match"), val);
+                }
+                else
+                {
+                    formConfig.addError(fkContext.fieldId, i18n("FKSelector:Ambiguous match"), val);
+                }
+
+                setFlag(!flag);
+                //console.log("ERRORS", formConfig.errors);
+            });
+        },
+        validationTimeout,
+        [
+        ]
+    );
+
+
+
+    const selectRow = (type,row) => {
 
         //console.log("selectRow", toJS(row));
 
         const formUpdate = {};
-        const { qualifiedName } = fkContext;
+        const { qualifiedName, fieldId } = fkContext;
         if (qualifiedName)
         {
             formUpdate[qualifiedName] = row && row[targetField];
@@ -176,19 +308,24 @@ const FKSelector = fnObserver(props => {
 
         if (!onUpdate)
         {
-            Object.assign(formUpdate, getUpdateForEmbedded(modalState.iQuery.type, row));
+            Object.assign(formUpdate, getUpdateForEmbedded(type, row));
         }
 
         //console.log("FORM UPDATE", toJS(formUpdate, { recurseEverything: true}), "onUpdate = ", onUpdate, "row = ", toJS(row));
 
+        formConfig.removeErrors(fieldId);
         updateOuterForm(
             formConfig.root,
             formUpdate,
             onUpdate,
             row
         );
+
+        setInputValue(getFieldValue());
+
         autoSubmitHack(formConfig);
         setModalState(MODAL_STATE_CLOSED);
+
     };
 
     const toggle = useCallback(
@@ -196,29 +333,19 @@ const FKSelector = fnObserver(props => {
         []
     );
 
-    const { fieldId, fieldType, qualifiedName, path, label, mode } = fkContext;
-
-    let fieldValue;
-    if (display)
-    {
-        fieldValue = display(formConfig)
-    }
-    else
-    {
-
-        const errorMessages = formConfig.getErrors(qualifiedName);
-        const scalarType = unwrapType(fieldType).name;
 
 
-        fieldValue = formConfig.getValue(path, errorMessages);
-        fieldValue = fieldValue !== null ? GlobalConfig.renderStatic(scalarType, fieldValue) : null;
-    }
+
+    const { fieldId, fieldType, qualifiedName, path, label, mode, inputMode } = fkContext;
+
+    //console.log("render FKSelector", { props, fkContext});
+
 
     return (
         <FormGroup
             formConfig={ formConfig }
             formGroupClass={ cx( "fk-selector", formGroupClass ) }
-
+            errorMessages={ errorMessages }
             fieldId={ fieldId }
             label={ label }
             helpText={ helpText }
@@ -226,25 +353,32 @@ const FKSelector = fnObserver(props => {
             mode={ mode }
         >
             <div className="input-group mb-3">
-                <span
+                <input
                     id={ fieldId }
+                    name={ fieldId }
                     className={
                         cx(
                             inputClass,
-                            "fks-display form-control-plaintext border rounded pl-2"
+                            "fks-display form-control border rounded pl-2",
+                            inputMode !== FieldMode.NORMAL && "disabled",
+                            errorMessages.length > 0 && "is-invalid"
                         )
                     }
-                    title={
-                        tooltip
+                    type="text"
+                    placeholder={ placeholder }
+                    title={ tooltip }
+                    disabled={ inputMode === FieldMode.DISABLED }
+                    readOnly={ inputMode === FieldMode.READ_ONLY }
+                    value={ inputValue }
+                    onChange={
+                        ev => {
+                            const value = ev.target.value;
+                            setInputValue(value);
+                            debouncedInputValidation(value);
+                        }
                     }
-
-                >
-                    {
-                        fieldValue !== null && fieldValue !== undefined && fieldValue !== "" ?
-                            fieldValue :
-                            GlobalConfig.none()
-                    }
-                </span>
+                    autoFocus={ autoFocus ? true : null }
+                />
                 <span className="input-group-append">
                     <button
                         className="btn btn-secondary"
@@ -253,44 +387,45 @@ const FKSelector = fnObserver(props => {
                         disabled={ mode !== FieldMode.NORMAL }
                         aria-roledescription={ modalTitle }
                         onClick={
-                            () =>
-                                query.execute(
+                            () => {
+
+                                return query.execute(
                                     query.defaultVars
                                 ).then(result => {
 
-                                    try
-                                    {
-                                        const iQuery = getFirstValue(result);
-                                        if (getGenericType(iQuery._type) !== INTERACTIVE_QUERY)
+                                        try
                                         {
-                                            throw new Error("Result is no interactive query object");
+                                            const iQuery = getFirstValue(result);
+                                            if (getGenericType(iQuery._type) !== INTERACTIVE_QUERY)
+                                            {
+                                                throw new Error("Result is no interactive query object");
+                                            }
+
+                                            iQuery._query = query;
+
+                                            const columns = iQuery.columnStates
+                                                .filter(
+                                                    cs => cs.enabled && cs.name !== "id"
+                                                )
+                                                .map(
+                                                    cs => cs.name
+                                                );
+
+                                            //console.log("COLUMNS", columns);
+
+                                            setModalState({
+                                                iQuery,
+                                                columns,
+                                                isOpen: true
+                                            });
+
+                                        } catch (e)
+                                        {
+                                            console.error("ERROR", e);
                                         }
-
-                                        iQuery._query = query;
-
-                                        const columns = iQuery.columnStates
-                                            .filter(
-                                                cs => cs.enabled && cs.name !== "id"
-                                            )
-                                            .map(
-                                                cs => cs.name
-                                            );
-
-                                        //console.log("COLUMNS", columns);
-
-                                        setModalState({
-                                            iQuery,
-                                            columns,
-                                            isOpen: true
-                                        });
-                                        
                                     }
-                                    catch (e)
-                                    {
-                                        console.error("ERROR", e);
-                                    }
-                                }
-                            )
+                                );
+                            }
                         }
                     >
                         &hellip;
@@ -312,9 +447,12 @@ const FKSelector = fnObserver(props => {
 
 FKSelector.propTypes = {
     /**
-     * Optional render function for the current value  ( formConfig => ReactElement ). Must be set if name is not set.
+     * Property to use as display value or render function for the current value  ( formConfig => ReactElement ). Must be set if name is not set.
      */
-    display: PropTypes.func,
+    display: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.func
+    ]),
     /**
      * iQuery GraphQL query to fetch the current list of target objects
      */
@@ -379,14 +517,43 @@ FKSelector.propTypes = {
     /**
      * Whether to do the modal fade animation on selection (default is true)
      */
-    fade: PropTypes.bool
+    fade: PropTypes.bool,
 
+    /**
+     * True to focus the fk selector input (See `validateInput` )
+     */
+    autoFocus: PropTypes.bool,
+
+    /**
+     * Field name or function returning a filter expression used to allow and
+     * validate text-input changes of the selected value.
+     *
+     * The field or filter must match exactly one element from the current `query`
+     *
+     */
+    validateInput: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.func
+    ]),
+
+    /**
+     * Timeout in ms after which the input will do the validation query ( default: 300).
+     */
+    validationTimeout: PropTypes.number,
+
+    /**
+     * Placeholder for input (See `validateInput`)
+     */
+    placeholder: PropTypes.string
 };
 
 FKSelector.defaultProps = {
     targetField: "id",
     modalTitle: i18n("Select Target Object"),
-    fade: true
+    fade: false,
+    validationTimeout: 250
 };
+
+FKSelector.displayName = "FKSelector";
 
 export default FKSelector;

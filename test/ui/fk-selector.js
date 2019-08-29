@@ -115,7 +115,7 @@ const TestForm = withForm(
 
                     <FKSelector
                         label="quxD"
-                        display={() => root.quxD && root.quxD.name}
+                        display="quxD.name"
                         query={Q_QuxD}
                         fade={ false }
                     />
@@ -282,40 +282,40 @@ describe("FKSelector", function () {
 
 
         const fkSelectorA = getByLabelText(container, "quxAId");
-        assert(fkSelectorA.textContent === "Qux A #1");
+        assert(fkSelectorA.value === "Qux A #1");
         const fkSelectorB = getByLabelText(container, "quxBName");
-        assert(fkSelectorB.textContent === "---");
+        assert(fkSelectorB.value === "---");
 
         const fkSelectorC1 = getByLabelText(container, "quxCId1");
-        assert(fkSelectorC1.textContent === "Qux C #5");
+        assert(fkSelectorC1.value === "Qux C #5");
         const fkSelectorC2 = getByLabelText(container, "quxCId2");
-        assert(fkSelectorC2.textContent === "Qux C #6");
+        assert(fkSelectorC2.value === "Qux C #6");
 
         const fkSelectorD = getByLabelText(container, "quxD");
-        assert(fkSelectorD.textContent === "---");
+        assert(fkSelectorD.value === "---");
 
 
         selectFromModal(fkSelectorA, "Qux A #3")
             .then(() => {
-                assert(fkSelectorA.textContent === "Qux A #3");
+                assert(fkSelectorA.value === "Qux A #3");
                 // deep path not part of view model
                 //assert(formObj.quxA.name === "Qux A #3")
             })
             .then(() => selectFromModal(fkSelectorB, "Qux B #1") )
             .then(() => {
-                assert(fkSelectorB.textContent === "Qux B #1");
+                assert(fkSelectorB.value === "Qux B #1");
             })
             .then(() => selectFromModal(fkSelectorC1, "Qux C #1") )
             .then(() => {
-                assert(fkSelectorC1.textContent === "Qux C #1");
+                assert(fkSelectorC1.value === "Qux C #1");
             })
             .then(() => selectFromModal(fkSelectorC2, null) )
             .then(() => {
-                assert(fkSelectorC2.textContent === "---");
+                assert(fkSelectorC2.value === "---");
             })
             .then(() => selectFromModal(fkSelectorD, "Qux D #2") )
             .then(() => {
-                assert(fkSelectorD.textContent === "Qux D #2");
+                assert(fkSelectorD.value === "Qux D #2");
             })
             .then(() => {
 
