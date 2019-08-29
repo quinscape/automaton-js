@@ -39,7 +39,7 @@ const FkSelectorModal = props => {
                                             <button
                                                 type="button"
                                                 className="btn btn-secondary"
-                                                onClick={ ev => selectRow(row) }
+                                                onClick={ ev => selectRow(iQuery.type, row) }
                                             >
                                                 {
                                                     i18n("Select")
@@ -68,7 +68,7 @@ const FkSelectorModal = props => {
                                 <button
                                     type="button"
                                     className="btn btn-secondary"
-                                    onClick={ ev => selectRow(null) }
+                                    onClick={ ev => selectRow(iQuery.type, null) }
                                 >
                                     {
                                         i18n("Select None")
