@@ -85,7 +85,7 @@ export function formatGraphQLError(params, errors)
  * @param {Object} [params.variables]       query variables
  * @param {Object} [params.autoConvert]     if false, don't convert input and result ( default is true)
  *
- * @returns {Promise<any>} Promise resolving to query data
+ * @returns {Promise<*,*>} Promise resolving to query data
  */
 export default function graphql(params) {
 
