@@ -1,6 +1,7 @@
 import React from "react"
 import sinon from "sinon"
 import assert from "power-assert"
+import userEvent from "@testing-library/user-event";
 import { toJS } from "mobx"
 import { observer as fnObserver } from "mobx-react-lite"
 import { act, render, getByLabelText, waitForElement, waitForElementToBeRemoved, getByText, prettyDOM } from "@testing-library/react"
@@ -10,6 +11,7 @@ import config from "../../src/config"
 import InteractiveQuery from "../../src/model/InteractiveQuery"
 import FKSelector from "../../src/ui/FKSelector";
 import GraphQLQuery from "../../src/GraphQLQuery"
+import { field, value } from "../../src/FilterDSL"
 
 const rawSchema = require("./fk-schema.json");
 
@@ -120,6 +122,30 @@ const TestForm = withForm(
                         fade={ false }
                     />
 
+                    <FKSelector
+                        label="quxE"
+                        display="quxE.name"
+                        validateInput="value"
+                        query={Q_QuxE}
+                        fade={ false }
+                    />
+
+                    <FKSelector
+                        label="quxF"
+                        validateInput={
+                            val => field("name")
+                                .eq(
+                                    value(
+                                        "String",
+                                        val
+                                    )
+                                )
+                        }
+                        display="quxF.name"
+                        query={Q_QuxF}
+                        fade={ false }
+                    />
+
                     <button type="submit">Submit</button>
 
                 </React.Fragment>
@@ -158,6 +184,8 @@ let Q_QuxA;
 let Q_QuxB;
 let Q_QuxC;
 let Q_QuxD;
+let Q_QuxE;
+let Q_QuxF;
 
 describe("FKSelector", function () {
 
@@ -220,6 +248,8 @@ describe("FKSelector", function () {
         Q_QuxB = createMockedQuery(format, "InteractiveQueryQuxB", require("./iquery-qux-b.json"));
         Q_QuxC = createMockedQuery(format, "InteractiveQueryQuxC", require("./iquery-qux-c.json"));
         Q_QuxD = createMockedQuery(format, "InteractiveQueryQuxD", require("./iquery-qux-d.json"));
+        Q_QuxE = createMockedQuery(format, "InteractiveQueryQuxD", require("./iquery-qux-e.json"));
+        Q_QuxF = createMockedQuery(format, "InteractiveQueryQuxD", require("./iquery-qux-f.json"));
 
     });
 
@@ -261,7 +291,13 @@ describe("FKSelector", function () {
                     "name": "Qux C #6",
                     "value": 6
                 },
-                "quxD": null
+                "quxD": null,
+                "quxE": {
+                    "_type": "QuxE",
+                    "name": "Qux E #4",
+                    "value": 4
+                },
+                "quxF": null,
             },
             true
         );
@@ -293,6 +329,10 @@ describe("FKSelector", function () {
 
         const fkSelectorD = getByLabelText(container, "quxD");
         assert(fkSelectorD.value === "---");
+        const fkSelectorE = getByLabelText(container, "quxE");
+        assert(fkSelectorE.value === "Qux E #4");
+        const fkSelectorF = getByLabelText(container, "quxF");
+        assert(fkSelectorF.value === "");
 
 
         selectFromModal(fkSelectorA, "Qux A #3")
@@ -314,6 +354,25 @@ describe("FKSelector", function () {
                 assert(fkSelectorC2.value === "---");
             })
             .then(() => selectFromModal(fkSelectorD, "Qux D #2") )
+            .then(() => {
+                act(
+                () => {
+
+                    userEvent.type(fkSelectorE, "4");
+
+                }
+            )})
+            .then(() => {
+
+                // TODO: Test update behavior
+                // console.log(
+                //     prettyDOM(
+                //         document.querySelectorAll(".global-errors")
+                //     )
+                // )
+
+                //assert(fkSelectorE.value === "Qux E #4");
+            })
             .then(() => {
                 assert(fkSelectorD.value === "Qux D #2");
             })
