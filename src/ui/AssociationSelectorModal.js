@@ -29,7 +29,7 @@ const AssociationSelectorModal = fnObserver(props => {
                         isOpen && (
                             <DataGrid
                                 id="fk-selector-grid"
-                                tableClassName="table-hover table-striped table-bordered table-sm table-responsive"
+                                tableClassName="table-hover table-striped table-bordered table-sm"
                                 value={ iQuery }
                             >
                                 <DataGrid.Column
