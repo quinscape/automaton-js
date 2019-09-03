@@ -31,6 +31,7 @@ import Pagination from "./ui/Pagination"
 import query from "./query";
 import pickSchemaTypes from "./util/pickSchemaTypes";
 import Hub from "./message/Hub";
+import AssociationSelector from "./ui/AssociationSelector";
 
 const AutomatonDevTools = "span";
 
@@ -198,5 +199,6 @@ export {
     pickSchemaTypes,
     getWireFormat,
     Hub,
+    AssociationSelector,
     updateAssociations
 }
