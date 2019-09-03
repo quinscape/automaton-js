@@ -85,7 +85,7 @@ function SelectButtonAddon({modalTitle, mode, query, setModalState, left })
             }
         >
             <button
-                className="btn btn-secondary"
+                className="btn btn-light border"
                 type="button"
                 title={modalTitle}
                 disabled={mode !== FieldMode.NORMAL}
