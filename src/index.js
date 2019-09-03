@@ -43,6 +43,7 @@ import {
     field,
     component,
     value,
+    values,
     getConditionArgCount,
     isLogicalCondition,
     findComponentNode
@@ -108,6 +109,15 @@ const FilterDSL = {
      * @return {Value} value node
      */
     value,
+    /**
+     * Creates a new values node that encapsulates a collection of scalar values (for e.g. the IN operator)
+     *
+     * @param {String} type     scalar type name
+     * @param {Object} values   var args of scalar value of appropriate type
+     *
+     * @return {Values} values node
+     */
+    values,
     /**
      * Returns the number of expected arguments for the condition with the given name.
      *

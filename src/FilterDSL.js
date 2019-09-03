@@ -1,12 +1,13 @@
 /**
  * Node type constants.
  * 
- * @type {{OPERATION: string, FIELD: string, CONDITION: string, COMPONENT: string, VALUE: string}}
+ * @type {{OPERATION: string, FIELD: string, CONDITION: string, COMPONENT: string, VALUE: string, VALUES: string}}
  */
 export const Type = {
     FIELD : "Field",
     CONDITION : "Condition",
     VALUE : "Value",
+    VALUES : "Values",
     OPERATION : "Operation",
     COMPONENT : "Component"
 };
@@ -91,7 +92,9 @@ const FIELD_CONDITIONS = {
     "endsWith":1,
     "le":1,
     "isNotDistinctFrom":1,
-    "startsWith":1
+    "startsWith":1,
+    // 1 collection arg
+    "in" : 1
 };
 
 const CONDITION_METHODS = {
@@ -225,6 +228,13 @@ function Value(type, value, name = null)
     this.name = name;
 }
 
+function Values(type, values)
+{
+    this.type = Type.VALUES;
+    this.scalarType = type;
+    this.values = values;
+}
+
 
 /**
  * Creates a new value node
@@ -238,6 +248,19 @@ function Value(type, value, name = null)
 export function value(type, value, name)
 {
     return new Value(type, value, name);
+}
+
+/**
+ * Creates a new values node that encapsulates a collection of scalar values (for e.g. the IN operator)
+ *
+ * @param {String} type     scalar type name
+ * @param {Object} values   var args of scalar value of appropriate type
+ *
+ * @return {Values} values node
+ */
+export function values(type, ... values)
+{
+    return new Values(type, values);
 }
 
 // function join(a,b)
