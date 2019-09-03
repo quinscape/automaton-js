@@ -899,16 +899,6 @@
   resolved "https://registry.yarnpkg.com/@sinonjs/text-encoding/-/text-encoding-0.7.1.tgz#8da5c6530915653f3a1f38fd5f101d8c3f8079c5"
   integrity sha512-+iTbntw2IZPb/anVDbypzfQa+ay64MW0Zo8aJ8gZPWMMK6/OubMVb6lUPMagqjOPnmtauXnFCACVl3O7ogjeqQ==
 
-"@testing-library/dom@5.1.1":
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-5.1.1.tgz#091a30b1ca058080bf432cd1aeb2b7c646022f97"
-  integrity sha512-twpAkqomsI0xeOLehijOAmPxeKvs6+WZC/6/nXD0+HNQupP3OZeZho/PBlNhrGL+8nQWiPjdvmxeyU0tq+hctA==
-  dependencies:
-    "@babel/runtime" "^7.4.5"
-    "@sheerun/mutationobserver-shim" "^0.3.2"
-    pretty-format "^24.8.0"
-    wait-for-expect "^1.2.0"
-
 "@testing-library/dom@^5.0.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-5.5.0.tgz#7c5024116ca8173187b52c538648884ac6b7b2f9"
@@ -928,12 +918,10 @@
     "@babel/runtime" "^7.4.5"
     "@testing-library/dom" "^5.0.0"
 
-"@testing-library/user-event@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-4.1.0.tgz#f039fc10b2c5f7dfd82896e25450a86e3b05684b"
-  integrity sha512-INS0lbelHSlYmaZi78XTXghvwqi1J9S2SSYgvKKdMhzI479Z5mW5oGDCguePU+KwHY5pAXTHZKmweQBeQ5IaSA==
-  dependencies:
-    "@testing-library/dom" "5.1.1"
+"@testing-library/user-event@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-7.0.0.tgz#99a7a92e5def523135b7615f3948434dc36f7e01"
+  integrity sha512-S1DacFSP7B932oDs15ADFAJcMDxd5YDYb9FAdeOARM15qBcn+2mPHqtd4QJQuBEFDtqdOXZ81rBt9u9QDFKFjw==
 
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0":
   version "2.0.1"
@@ -1796,10 +1784,10 @@ dom-helpers@^3.4.0:
   dependencies:
     "@babel/runtime" "^7.1.2"
 
-domainql-form@^2.2.9:
-  version "2.2.9"
-  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-2.2.9.tgz#609b5a3788ecc5465c560803c3836aa4cdc378a3"
-  integrity sha512-bJ7JQm0T9bqF2TOzgfF2DcJigQ+CBdM3EDsX/FLvNQwH/cc+//r4BanHPD5JSGk84L3rBLLJxmR7+7q0B1AzCA==
+domainql-form@^2.2.10:
+  version "2.2.10"
+  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-2.2.10.tgz#7c5351862b2070ca0430c9fdc05143b979c611cf"
+  integrity sha512-NWm2H6q5uKD4H9+E9N4p+mj6wBVjQ8jY8FV288asKT750IqpZMsQyyDxjYQt1pNrBsAlafnj2nQnONjKVuM0cQ==
   dependencies:
     classnames "^2.2.5"
     lodash.debounce "^4.0.8"
