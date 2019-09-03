@@ -18,7 +18,7 @@ import ScrollTracker from "./ui/ScrollTracker"
 import graphql from "./graphql"
 //import AutomatonDevTools from "./AutomatonDevTools"
 import GraphQLQuery from "./GraphQLQuery"
-import { storeDomainObject, deleteDomainObject } from "./standard-queries"
+import { storeDomainObject, deleteDomainObject, updateAssociations } from "./standard-queries"
 
 import { backToParent } from "./back-functions"
 import { registerGenericType, registerType, getGenericType, getWireFormat } from "./domain"
@@ -197,5 +197,6 @@ export {
     query,
     pickSchemaTypes,
     getWireFormat,
-    Hub
+    Hub,
+    updateAssociations
 }
