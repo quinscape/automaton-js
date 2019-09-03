@@ -1,0 +1,58 @@
+{
+    "type": "QuxE",
+    "columnStates": [
+        {
+            "name": "id",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "name",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "value",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "description",
+            "enabled": true,
+            "sortable": true
+        }
+    ],
+    "queryConfig": {
+        "id": null,
+        "condition": null,
+        "currentPage": 0,
+        "pageSize": 5,
+        "sortFields": ["name"]
+    },
+    "rows": [
+        {
+            "id": "9a65b53f-4ab8-486a-8144-95de58c13159",
+            "name": "Qux E #1",
+            "value": 1,
+            "description": "Desc Qux E #1"
+        }, {
+            "id": "fb0d868f-131e-443a-a026-d4e792660979",
+            "name": "Qux E #2",
+            "value": 2,
+            "description": "Desc Qux E #2"
+        }, {
+            "id": "16a51e1f-771f-47be-b6bf-d2ff53c692d8",
+            "name": "Qux E #3",
+            "value": 3,
+            "description": "Desc Qux E #3"
+        }, {
+            "id": "9ae97706-915e-4c6e-a440-16c9fc6a817e",
+            "name": "Qux E #4",
+            "value": 4,
+            "description": "Desc Qux E #4"
+        }, {
+            "id": "07d36258-1e10-42d0-9ad6-ed43e4127d46",
+            "name": "Qux E #5",
+            "value": 5,
+            "description": "Desc Qux E #5"
+        }
+    ],
+    "rowCount": 9
+}

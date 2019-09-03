@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo, useState } from "react"
 import cx from "classnames"
 import PropTypes from "prop-types"
-import { FieldMode, FormGroup, GlobalConfig, InputSchema, unwrapType, useFormConfig } from "domainql-form"
+import { FieldMode, FormGroup, GlobalConfig, InputSchema, unwrapType, useFormConfig, Addon } from "domainql-form"
 import i18n from "../i18n";
-import { action } from "mobx";
+import { action, toJS } from "mobx";
 import { observer as fnObserver } from "mobx-react-lite";
 import GraphQLQuery from "../GraphQLQuery";
 import { getFirstValue } from "../model/InteractiveQuery";
@@ -76,6 +76,72 @@ function isSelected(fieldValue)
 }
 
 
+function SelectButtonAddon({modalTitle, mode, query, setModalState, left })
+{
+    return (
+        <span
+            className={
+                left ? "input-group-prepend": "input-group-append"
+            }
+        >
+            <button
+                className="btn btn-secondary"
+                type="button"
+                title={modalTitle}
+                disabled={mode !== FieldMode.NORMAL}
+                aria-roledescription={modalTitle}
+                onClick={
+                    () => {
+                        query.execute(
+                            query.defaultVars
+                        ).then(
+                            result => {
+                                try
+                                {
+                                    const iQuery = getFirstValue(result);
+                                    if (getGenericType(iQuery._type) !== INTERACTIVE_QUERY)
+                                    {
+                                        throw new Error("Result is no interactive query object");
+                                    }
+
+                                    iQuery._query = query;
+
+                                    const columns = iQuery.columnStates
+                                        .filter(
+                                            cs => cs.enabled && cs.name !== "id"
+                                        )
+                                        .map(
+                                            cs => cs.name
+                                        );
+
+                                    //console.log("COLUMNS", columns);
+
+                                    setModalState({
+                                        iQuery,
+                                        columns,
+                                        isOpen: true
+                                    });
+
+                                } catch (e)
+                                {
+                                    console.error("ERROR", e);
+                                }
+                            }
+                        );
+                    }
+                }
+            >
+                &hellip;
+            </button>
+        </span>
+    );
+}
+
+
+/**
+ * Renders the current value of foreign key references and allows changing of references via text-input and selection from
+ * modal grid.
+ */
 const FKSelector = fnObserver(props => {
 
     const formConfig = useFormConfig();
@@ -83,7 +149,7 @@ const FKSelector = fnObserver(props => {
     const [modalState, setModalState] = useState(MODAL_STATE_CLOSED);
     const [ flag, setFlag ] = useState(false);
 
-    const { display, query, modalTitle, targetField, onUpdate, fade, validateInput } = props;
+    const { display, query, modalTitle, targetField, onUpdate, fade, validateInput, children } = props;
 
     // FIELD PROPS
     const { id, name, mode: modeFromProps, helpText, tooltip, label: labelFromProps, inputClass, labelClass, formGroupClass, autoFocus, validationTimeout, placeholder } = props;
@@ -102,7 +168,7 @@ const FKSelector = fnObserver(props => {
         const fieldCount = objectFields.length;
         if (fieldCount > 1)
         {
-            throw new Error("Ambiguous embedded fields in " + rowType + ": " + JSON.stringify(objectFields));
+            throw new Error("Ambiguous embedded fields in " + rowType + ": " + JSON.stringify(objectFields, null, 4));
         }
 
         if (fieldCount === 1)
@@ -179,6 +245,83 @@ const FKSelector = fnObserver(props => {
                 }
             }
 
+            const addons = Addon.filterAddons(children);
+            const leftAddons = [];
+            const rightAddons = [];
+
+            let haveButtonAddon = false;
+            let i;
+            for (i = 0; i < addons.length; i++)
+            {
+                const addon = addons[i];
+
+                const {className, placement} = addon.props;
+
+                const isButtonAddon = className && className.indexOf(FKSelector.addonClass) >= 0;
+
+                if (isButtonAddon)
+                {
+                    haveButtonAddon = true;
+                }
+
+                if (placement === Addon.LEFT)
+                {
+                    leftAddons.push(
+                        isButtonAddon ? (
+                                <SelectButtonAddon
+                                    key={ i }
+                                    query={ query }
+                                    modalTitle={ modalTitle }
+                                    mode={ effectiveMode }
+                                    setModalState={ setModalState }
+                                    left={ true }
+                                />
+                            ) :
+                            React.cloneElement(
+                                addon,
+                                {
+                                    key: i
+                                }
+                            )
+                    );
+                }
+                else if (placement === Addon.RIGHT)
+                {
+                    rightAddons.push(
+                        isButtonAddon ? (
+                                <SelectButtonAddon
+                                    key={ i }
+                                    query={ query }
+                                    modalTitle={ modalTitle }
+                                    mode={ effectiveMode }
+                                    setModalState={ setModalState }
+                                    left={ false }
+                                />
+                            ) :
+                            React.cloneElement(
+                                addon,
+                                {
+                                    key: i
+                                }
+                            )
+                    );
+                }
+            }
+
+            if (!haveButtonAddon)
+            {
+                rightAddons.push(
+                    <SelectButtonAddon
+                        key={ i }
+                        query={ query }
+                        modalTitle={ modalTitle }
+                        mode={ effectiveMode }
+                        setModalState={ setModalState }
+                        left={ false }
+                    />
+                )
+            }
+
             const ctx = {
                 qualifiedName,
                 path,
@@ -186,7 +329,10 @@ const FKSelector = fnObserver(props => {
                 fieldId,
                 label: effectiveLabel,
                 mode: effectiveMode,
-                inputMode
+                inputMode,
+                leftAddons,
+                rightAddons,
+                haveButtonAddon
             };
 
             //console.log("FK-CONTEXT", ctx, "PROPS", props);
@@ -247,14 +393,23 @@ const FKSelector = fnObserver(props => {
                 return;
             }
 
-            const typeRef = lookupType(iQueryType.name, "rows." + validateInput);
-            const condition = field(validateInput)
-                .eq(
-                    value(
-                        typeRef.name,
-                        val
-                    )
-                );
+            let condition;
+
+            if (typeof validateInput === "function")
+            {
+                condition = validateInput(val)
+            }
+            else
+            {
+                const typeRef = lookupType(iQueryType.name, "rows." + validateInput);
+                condition = field(validateInput)
+                    .eq(
+                        value(
+                            typeRef.name,
+                            val
+                        )
+                    );
+            }
 
             //console.log("FK-CONTEXT", fkContext);
             //console.log("QUERY", query);
@@ -272,8 +427,8 @@ const FKSelector = fnObserver(props => {
 
                 if (length === 1)
                 {
-                    selectRow(iQuery.type, iQuery.rows[0]);
                     formConfig.removeErrors(fkContext.fieldId);
+                    selectRow(iQuery.type, iQuery.rows[0]);
                 }
                 else if (length === 0)
                 {
@@ -324,7 +479,10 @@ const FKSelector = fnObserver(props => {
         setInputValue(getFieldValue());
 
         autoSubmitHack(formConfig);
-        setModalState(MODAL_STATE_CLOSED);
+        if (modalState.isOpen)
+        {
+            setModalState(MODAL_STATE_CLOSED);
+        }
 
     };
 
@@ -336,26 +494,29 @@ const FKSelector = fnObserver(props => {
 
 
 
-    const { fieldId, fieldType, qualifiedName, path, label, mode, inputMode } = fkContext;
+    const { fieldId, fieldType, qualifiedName, path, label, mode, inputMode, leftAddons, rightAddons } = fkContext;
 
     //console.log("render FKSelector", { props, fkContext});
 
 
     return (
         <FormGroup
-            formConfig={ formConfig }
-            formGroupClass={ cx( "fk-selector", formGroupClass ) }
-            errorMessages={ errorMessages }
-            fieldId={ fieldId }
-            label={ label }
-            helpText={ helpText }
-            labelClass={ labelClass }
-            mode={ mode }
+            formConfig={formConfig}
+            formGroupClass={cx("fk-selector", formGroupClass)}
+            errorMessages={errorMessages}
+            fieldId={fieldId}
+            label={label}
+            helpText={helpText}
+            labelClass={labelClass}
+            mode={mode}
         >
             <div className="input-group mb-3">
+                {
+                    leftAddons
+                }
                 <input
-                    id={ fieldId }
-                    name={ fieldId }
+                    id={fieldId}
+                    name={fieldId}
                     className={
                         cx(
                             inputClass,
@@ -365,11 +526,11 @@ const FKSelector = fnObserver(props => {
                         )
                     }
                     type="text"
-                    placeholder={ placeholder }
-                    title={ tooltip }
-                    disabled={ inputMode === FieldMode.DISABLED }
-                    readOnly={ inputMode === FieldMode.READ_ONLY }
-                    value={ inputValue }
+                    placeholder={placeholder}
+                    title={tooltip}
+                    disabled={inputMode === FieldMode.DISABLED}
+                    readOnly={inputMode === FieldMode.READ_ONLY}
+                    value={inputValue}
                     onChange={
                         ev => {
                             const value = ev.target.value;
@@ -377,67 +538,18 @@ const FKSelector = fnObserver(props => {
                             debouncedInputValidation(value);
                         }
                     }
-                    autoFocus={ autoFocus ? true : null }
+                    autoFocus={autoFocus ? true : null}
                 />
-                <span className="input-group-append">
-                    <button
-                        className="btn btn-secondary"
-                        type="button"
-                        title={ modalTitle }
-                        disabled={ mode !== FieldMode.NORMAL }
-                        aria-roledescription={ modalTitle }
-                        onClick={
-                            () => {
-
-                                return query.execute(
-                                    query.defaultVars
-                                ).then(result => {
-
-                                        try
-                                        {
-                                            const iQuery = getFirstValue(result);
-                                            if (getGenericType(iQuery._type) !== INTERACTIVE_QUERY)
-                                            {
-                                                throw new Error("Result is no interactive query object");
-                                            }
-
-                                            iQuery._query = query;
-
-                                            const columns = iQuery.columnStates
-                                                .filter(
-                                                    cs => cs.enabled && cs.name !== "id"
-                                                )
-                                                .map(
-                                                    cs => cs.name
-                                                );
-
-                                            //console.log("COLUMNS", columns);
-
-                                            setModalState({
-                                                iQuery,
-                                                columns,
-                                                isOpen: true
-                                            });
-
-                                        } catch (e)
-                                        {
-                                            console.error("ERROR", e);
-                                        }
-                                    }
-                                );
-                            }
-                        }
-                    >
-                        &hellip;
-                    </button>
-                </span>
+                {
+                    rightAddons
+                }
                 <FkSelectorModal
-                    { ...modalState }
-                    title={ modalTitle }
-                    fieldType={ fieldType }
-                    selectRow={ selectRow }
-                    toggle={ toggle }
-                    fade={ fade }
+                    {...modalState}
+                    title={modalTitle}
+                    fieldType={fieldType}
+                    selectRow={selectRow}
+                    toggle={toggle}
+                    fade={fade}
                 />
             </div>
         </FormGroup>
@@ -476,13 +588,13 @@ FKSelector.propTypes = {
     // FIELD PROP TYPES
 
     /**
-     * Name / path for the  calendar field value (e.g. "name", but also "foos.0.name"). Optional for this widget as it can
+     * Name / path for the  foreign key value (e.g. "name", but also "foos.0.name"). Optional for this widget as it can
      * also operate just by updating embedded objects. If name is not set, display and label must be set.
      */
     name: PropTypes.string,
 
     /**
-     * Mode for this calendar field. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
+     * Mode for this foreign key selector. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
      */
     mode: PropTypes.oneOf(FieldMode.values()),
 
@@ -528,7 +640,9 @@ FKSelector.propTypes = {
      * Field name or function returning a filter expression used to allow and
      * validate text-input changes of the selected value.
      *
-     * The field or filter must match exactly one element from the current `query`
+     * The field or filter must match exactly one element from the current `query`.
+     *
+     * (Function must be of the form `value => ...` and must return a Filter DSL condition.)
      *
      */
     validateInput: PropTypes.oneOfType([
@@ -555,5 +669,7 @@ FKSelector.defaultProps = {
 };
 
 FKSelector.displayName = "FKSelector";
+
+FKSelector.addonClass = "fk-selector";
 
 export default FKSelector;
