@@ -875,7 +875,7 @@ function executeTransition(name, actionFn, target, context)
         currentHistoryPos
     );
 
-    const mobxAction = actionFn && prepareMobXAction(storage, name, actionFn);
+    const mobxAction = actionFn && prepareMobXAction(storage, sourceState + "." + name, actionFn);
 
     const { scopeObserver } = storage;
 
