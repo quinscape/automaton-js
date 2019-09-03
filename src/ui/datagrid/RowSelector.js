@@ -1,8 +1,9 @@
 import React from "react"
-import { action } from "mobx"
+import { action, toJS } from "mobx"
 import PropTypes from "prop-types"
 import { PropTypes as MobxPropTypes } from "mobx-react";
 import AutomatonPropTypes from "../../util/AutomatonPropTypes";
+import { observer as fnObserver } from "mobx-react-lite";
 
 
 const updateSelectedArray = action("update grid selection array", (selectedValues, id) => {
@@ -27,12 +28,14 @@ const updateSelectedSet = action("update grid selection set", (selectedValues, i
     {
         selectedValues.add(id);
     }
+
+    //console.log("updateSelectedSet", toJS(selectedValues));
 });
 
 /**
  * Row-Selection checkbox helper
  */
-const RowSelector = props => {
+const RowSelector = fnObserver(props => {
 
     const { id, selectedValues } = props;
 
@@ -60,7 +63,7 @@ const RowSelector = props => {
             </div>
         </div>
     );
-};
+});
 
 RowSelector.propTypes = {
 
