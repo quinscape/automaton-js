@@ -70,7 +70,7 @@ RowSelector.propTypes = {
     /**
      * Unique id string representing an object
      */
-    id: PropTypes.string.isRequired,
+    id: PropTypes.any.isRequired,
 
     /**
      * External observable containing the currently selected values. Either an observable array or set.
