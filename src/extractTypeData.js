@@ -20,7 +20,11 @@ export default function extractTypeData(typeName, obj)
     for (let i = 0; i < fields.length; i++)
     {
         const { name } = fields[i];
-        out[name] = obj[name];
+        const value = obj[name];
+        if (value !== undefined)
+        {
+            out[name] = value;
+        }
     }
 
     return out;
