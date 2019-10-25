@@ -3,7 +3,8 @@ import GraphQLQuery from "./GraphQLQuery";
 import config from "./config";
 import { findNamed } from "./util/lookupType";
 import unwrapAll from "./util/unwrapAll";
-
+import { SCALAR } from "domainql-form/lib/kind";
+import { getFirstValue } from "./model/InteractiveQuery";
 
 // language=GraphQL
 const DeleteQuery = new GraphQLQuery(`
@@ -20,20 +21,32 @@ const StoreQuery = new GraphQLQuery(`
 );
 
 // language=GraphQL
+const BatchStoreQuery = new GraphQLQuery(`
+    mutation storeDomainObjects($domainObjects: [DomainObject]!){
+        storeDomainObjects(domainObjects: $domainObjects)
+    }`
+);
+
+// language=GraphQL
+const GenerateIdQuery = new GraphQLQuery(`
+    mutation generateDomainObjectId($domainType: String!){
+        generateDomainObjectId(domainType: $domainType)
+    }`
+);
+
+// language=GraphQL
 const UpdateAssociationsQuery = new GraphQLQuery(`
     mutation updateAssociations(
-        $type: String!,
-        $sourceFieldName: String!,
-        $targetFieldName: String!,
-        $sourceId:  GenericScalar!,
-        $connected:  [GenericScalar]!
+        $domainType: String!, 
+        $leftSideRelation: String!, 
+        $sourceIds: [GenericScalar]!,
+        $domainObjects: [DomainObject]! 
     ){
         updateAssociations(
-            type: $type,
-            sourceFieldName: $sourceFieldName,
-            targetFieldName: $targetFieldName,
-            sourceId: $sourceId,
-            connected: $connected
+            domainType: $domainType, 
+            leftSideRelation: $leftSideRelation, 
+            sourceIds: $sourceIds,
+            domainObjects: $domainObjects 
         )
     }`
 );
@@ -56,11 +69,82 @@ export function deleteDomainObject(type, id)
     });
 }
 
+
+/**
+ * Unwraps the payload value of a GenericScalar instance.
+ *
+ * @param genericScalar
+ * @returns {*}
+ */
+function mapGenericScalarToValue(genericScalar)
+{
+    if (__DEV)
+    {
+        let typeDef;
+        if (
+            !genericScalar.type ||
+            genericScalar.value === undefined ||
+            !(typeDef = config.inputSchema.getType(genericScalar.type)) ||
+            typeDef.kind !== SCALAR
+        )
+        {
+            throw new Error("Invalid generic scalar value: " + JSON.stringify(genericScalar))
+        }
+    }
+    return genericScalar.value;
+}
+
+
+/**
+ * Stores a single domain object and resolves to the id of the stored object. You can use special id values (e.g. "" for UUIDGenerator an or 0 for SequenceIdGenerator)
+ * for them to be replaced with a new UUID or autoincrement id.
+ *
+ * @param {object} domainObject     domain object
+ *
+ * @returns {Promise<*>} resolves to the id of the stored object.
+ */
 export function storeDomainObject(domainObject)
 {
     return StoreQuery.execute({
         domainObject
-    });
+    }).then(
+        result => mapGenericScalarToValue(getFirstValue(result))
+    );
+}
+
+
+/**
+ * Stores a heterogeneous list of domain objects. You can use special id values (e.g. "" for UUIDGenerator an or 0 for SequenceIdGenerator)
+ * for them to be replaced with a new UUID or autoincrement id.
+ *
+ * @param {Array<object>} domainObjects     list of domain objects
+ *
+ * @returns {Promise<*>} resolves to an array of id values
+ */
+export function storeDomainObjects(domainObjects)
+{
+    return BatchStoreQuery.execute({
+        domainObjects
+    }).then(
+        result => getFirstValue(result).map(mapGenericScalarToValue)
+    );
+}
+
+/**
+ * Generates a new unique id for the given domain type using the application specific id generator
+ * (a server-side Spring bean implementing de.quinscape.automaton.runtime.domain.IdGenerator)
+ *
+ * @param {String} domainType   domain type name
+ *
+ * @returns {Promise<*>} resolves to a new unique id value
+ */
+export function generateDomainObjectId(domainType)
+{
+    return GenerateIdQuery.execute({
+        domainType
+    }).then(
+        result => mapGenericScalarToValue(getFirstValue(result))
+    );
 }
 
 
@@ -83,55 +167,103 @@ function getScalarType(typeDef, fieldName)
 }
 
 
+function findRelationById(id)
+{
+    const relations = config.inputSchema.schema.relations.filter(r => r.id === id);
+    if (!relations.length)
+    {
+        throw new Error("Could not find relation with id '" + id + "'");
+    }
+    return relations[0];
+}
+
+function findRelationByTargetType( type)
+{
+    const relations = config.inputSchema.schema.relations.filter(r => r.targetType === type);
+    if (!relations.length)
+    {
+        throw new Error("Could not find relation with target type '" + type + "'");
+    }
+    if (relations.length > 1)
+    {
+        throw new Error("There's more than one relatio rarget type '" + type + "'");
+    }
+    return relations[0];
+}
+
+
 /**
- * Updates the associative domain objects from one of the associated types. The associative domain objects express
- * a many to many relationship between two associated domain types. 
+ * Updates a many-to-many / associative entity from one of the associated objects. Ids may be placeholder id values.
  *
- * @param {String} type                 name of the associative domain type
- * @param {String} sourceFieldName      the field name for "our" side, the source side from our point of view
- * @param {String} targetFieldName      the field name for other side, the target side from our point of view
- * @param {*} sourceId                  the id value for the source side
- * @param {Array<*>} connected          the id values for the target side
- * 
- * @returns {Promise<*, *>} promise resolving to true if the mutation succeeded
+ * @param {Object} opts                         options
+ * @param {String} opts.domainType              Name of the associative entity ( e.g. "BazLink" )
+ * @param {object|*} opts.sourceId              Id value for the source object. Will be automatically wrapped as generic scalar
+ *                                              unless it already is an object in which case it is used as-is.
+ * @param {Array<object>} opts.domainObjects    Array containing all associative entities for the source object
+ *
+ * @returns {Promise<*>} Array of id values
  */
-export function updateAssociations(
-    type,
-    sourceFieldName,
-    targetFieldName,
-    sourceId,
-    connected
+export function updateAssociations(opts
 )
 {
+    const {
+        domainType,
+        sourceIds,
+        domainObjects,
+        leftSideType
+    } = opts;
 
-    console.log("updateAssociations", {type, sourceFieldName, targetFieldName, sourceId, connected});
+    let {
+        leftSideRelation,
+    } = opts;
 
-    const typeDef = config.inputSchema.getType(type);
-    if (!typeDef)
+    if (!leftSideRelation)
     {
-        throw new Error("Could not find definition for type '" + type + "'");
+        if (!leftSideType)
+        {
+            throw new Error("Need either leftSideRelation or leftSideType option");
+        }
+
+        leftSideRelation = findRelationByTargetType(leftSideType).id;
     }
 
-    const scalarType = getScalarType(typeDef, "id");
-
-    // ensure source and target fields are valid
-    getScalarType(typeDef, sourceFieldName);
-    getScalarType(typeDef, targetFieldName);
-    
     return UpdateAssociationsQuery.execute({
-        type,
-        sourceFieldName,
-        targetFieldName,
-        sourceId: {
-            type: scalarType,
-            value: sourceId
-        },
-        connected:
-            connected.map(
-                value => ({
-                    type: scalarType,
-                    value
-                })
-            )
-    })
+        domainType,
+        leftSideRelation,
+        sourceIds: sourceIds.map( v => wrapAsGenericScalar(v)),
+        domainObjects: domainObjects.map( obj => {
+            if (obj._type === domainType)
+            {
+                return obj;
+            }
+            else
+            {
+                return {
+                    ... obj,
+                    _type: domainType
+                };
+            }
+        })
+    }).then(
+        result => getFirstValue(result).map(mapGenericScalarToValue)
+    );
+}
+
+
+/**
+ * Wraps the given value in a GenericScalar object. If the given value already is an object, the value is returns as-is.
+ *
+ * @param value
+ * @returns {{type: (string), value: *}|*}
+ */
+export function wrapAsGenericScalar(value)
+{
+    if (value && typeof value === "object")
+    {
+        return value;
+    }
+    return {
+        type: typeof value === "number" ? "Long" : "String",
+        value
+    }
 }
