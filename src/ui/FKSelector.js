@@ -12,7 +12,7 @@ import config from "../config"
 import { getGenericType, INTERACTIVE_QUERY } from "../domain";
 import autoSubmitHack from "../util/autoSubmitHack";
 import FkSelectorModal from "./FkSelectorModal";
-import useDebouncedCallback from "use-debounce/lib/callback"
+import { useDebouncedCallback } from "use-debounce"
 import toPath from "lodash.topath"
 import get from "lodash.get"
 import lookupType, { findNamed } from "../util/lookupType"
@@ -443,9 +443,7 @@ const FKSelector = fnObserver(props => {
                 //console.log("ERRORS", formConfig.errors);
             });
         },
-        validationTimeout,
-        [
-        ]
+        validationTimeout
     );
 
 
