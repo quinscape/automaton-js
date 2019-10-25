@@ -18,7 +18,6 @@ import Icon from "./Icon";
 import autoSubmitHack from "../util/autoSubmitHack";
 import { field, values } from "../FilterDSL";
 import lookupType from "../util/lookupType";
-import createDomainObject from "../createDomainObject";
 
 
 function toggleOpen(modalState)
@@ -33,10 +32,13 @@ const removeLink = action(
     "Remove Link",
     (root, selected, link, name, value) => {
 
-        selected.delete(get(link,value));
+        const id = get(link,value);
+        selected.delete(id);
         const links = get(root, name);
         const newLinks = links.filter(l => l !== link);
         set(root, name, newLinks);
+
+        //console.log("AFTER: {}", toJS(root))
     }
 );
 
@@ -60,7 +62,7 @@ const updateLinksAction = action("update links", (root, name, newLinks) =>
     set(root, name, newLinks);
 });
 
-function updateLinks(root, name, modalState, selected)
+function updateLinks(root, name, modalState, selected, generateId)
 {
 
     const { iQuery, valuePath } = modalState;
@@ -154,14 +156,12 @@ function updateLinks(root, name, modalState, selected)
             // create new links for new links ids
             for (let id of newLinkIds)
             {
-
-                createDomainObject(iQuery.type)
-                newLinks.push({
-                    id: uuid.v4(),
-                    [valuePath[0]] : objectLookup.get(id)
-                })
+                const newObj = {
+                    id: generateId(),
+                    [valuePath[0]]: objectLookup.get(id)
+                };
+                newLinks.push(newObj)
             }
-
             updateLinksAction(root, name, newLinks);
         }
     )
@@ -204,7 +204,7 @@ function setsEqual(setA, setB)
  */
 const AssociationSelector = fnObserver(props => {
 
-    const { name, value, display, mode: modeFromProps, label, query, modalTitle, fade, helpText, labelClass, formGroupClass } = props;
+    const { name, value, display, mode: modeFromProps, label, query, modalTitle, fade, helpText, labelClass, formGroupClass, generateId } = props;
 
     const [elementId] = useState("assoc-selector-" + (++associationSelectorCount));
 
@@ -271,7 +271,7 @@ const AssociationSelector = fnObserver(props => {
         if (!setsEqual(selected, selectedBefore))
         {
             autoSubmitHack(formConfig);
-            updateLinks(formConfig.root, name, modalState, selected)
+            updateLinks(formConfig.root, name, modalState, selected, generateId)
         }
 
     };
@@ -413,7 +413,14 @@ AssociationSelector.propTypes = {
     /**
      * Whether to do the modal fade animation on selection (default is true)
      */
-    fade: PropTypes.bool
+    fade: PropTypes.bool,
+
+    /**
+     * Function to return a new id value for newly created associations. Note that you can use placeholder id values.
+     *
+     * Default is to create a new UUID (NPM "uuid" v4).
+     */
+    generateId: PropTypes.func
 
 };
 
@@ -421,7 +428,8 @@ AssociationSelector.defaultProps = {
     targetField: "id",
     modalTitle: i18n("Select Associated Objects"),
     fade: false,
-    validationTimeout: 250
+    validationTimeout: 250,
+    generateId: uuid.v4
 };
 
 AssociationSelector.displayName = "AssociationSelector";
