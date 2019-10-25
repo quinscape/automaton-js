@@ -896,33 +896,32 @@ function executeTransition(name, actionFn, target, context)
             {
                 reject(e);
             }
-        }).then(
-        () =>
-        {
-            const { target, isRecorded } = transition;
+        })
+        .then(
+            () => {
 
-            // if isRecorded hasn't been explicitly defined
-            if (isRecorded === null)
-            {
-                // record the transition if
-                transition.isRecorded = (
-                    // the state changed
-                    target !== sourceState ||
-                    // .. or if the scopeObserver recorded changes in versioned props
-                    scopeObserver.versionedPropsChanged
-                );
+                const { target, isRecorded } = transition;
+
+                // if isRecorded hasn't been explicitly defined
+                if (isRecorded === null)
+                {
+                    // record the transition if
+                    transition.isRecorded = (
+                        // the state changed
+                        target !== sourceState ||
+                        // .. or if the scopeObserver recorded changes in versioned props
+                        scopeObserver.versionedPropsChanged
+                    );
+                }
+
+                return (
+                    transition
+                )
+            },
+            err => {
+                console.error("ERROR IN TRANSITION", err);
             }
-
-            return (
-                transition
-            )
-        }
-    )
-    .catch(
-        err => {
-            console.error("ERROR IN TRANSITION", err);
-        }
-    );
+        );
 }
 
 
@@ -1243,11 +1242,10 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
                 pushProcessState(noPriorProcess);
 
                 return renderCurrentView();
-            }
-        )
-        .catch(err => {
+            },
+            err => {
 
-            console.error("ERROR IN START PROCESS", err)
+            console.error("ERROR IN START PROCESS", err);
 
             return (
                 <ErrorView
@@ -1255,7 +1253,8 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
                     info={ String(err) }
                 />
             );
-        })
+        }
+    )
 }
 
 /**
