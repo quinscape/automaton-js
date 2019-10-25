@@ -1,3 +1,5 @@
+import i18n from "../i18n"
+
 let ws = null;
 
 let attempts = 0;
@@ -8,7 +10,10 @@ let connectionId = null;
 
 let messageCount = 0;
 
+let notifiedAboutSessionLoss = false;
+
 const REQUEST_TIMEOUT = 30000;
+const NOT_REGISTERED = 4100;
 
 function createWebSocket(cid, resolve, reject)
 {
@@ -26,8 +31,20 @@ function createWebSocket(cid, resolve, reject)
 
         resolve(cid);
     };
-    ws.onclose = function () {
-        //console.log("ws.onclose");
+    ws.onclose = function (ev) {
+
+        if (ev && ev.code === NOT_REGISTERED)
+        {
+            if (!notifiedAboutSessionLoss)
+            {
+                notifiedAboutSessionLoss = true;
+                alert(
+                    i18n("Server Restarted. Please Reload")
+                );
+            }
+            return;
+        }
+
         if (!wasConnected || attempts > 2)
         {
             preferFallback = true;
