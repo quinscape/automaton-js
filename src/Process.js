@@ -203,16 +203,18 @@ function renderCurrentView()
         const SubProcessViewComponent = findViewComponent(process);
 
         dialogStack = (
-            <ProcessDialog process={ process }>
-                <AutomatonEnv.Provider
-                    value={ subProcessEnv }
-                >
-                    <SubProcessViewComponent env={ subProcessEnv }/>
-                    {
-                        dialogStack
-                    }
-                </AutomatonEnv.Provider>
-            </ProcessDialog>
+            <React.StrictMode>
+                <ProcessDialog process={ process }>
+                    <AutomatonEnv.Provider
+                        value={ subProcessEnv }
+                    >
+                        <SubProcessViewComponent env={ subProcessEnv }/>
+                        {
+                            dialogStack
+                        }
+                    </AutomatonEnv.Provider>
+                </ProcessDialog>
+            </React.StrictMode>
         );
 
         process = process[secret].parent;
