@@ -476,11 +476,12 @@ export class Process {
     /**
      * Executes the transition with the given name.
      *
-     * @param name          transition name
-     * @param context       transition context object
+     * @param {String} name     transition name
+     * @param {*} context       context object
+     * @param {String} button   button name
      * @return {Promise<any | never>}
      */
-    transition(name, context)
+    transition(name, context, button)
     {
         //console.log("process.transition" , name, context);
 
@@ -511,7 +512,7 @@ export class Process {
 
         return (
             Promise.resolve(
-                executeTransition(name, transition.action, transition.to, context)
+                executeTransition(name, transition.action, transition.to, context, button)
             )
                 .then(transition => {
 
@@ -858,9 +859,10 @@ function prepareMobXAction(storage, name, actionFn)
  * @param {Function} [actionFn]             Transition action function
  * @param {String} [target]                 transition target
  * @param {object} [context]                domain object context
+ * @param {String} [button]                 button name                    
  * @return {Promise<Transition| never>}     Resolves to the transition object
  */
-function executeTransition(name, actionFn, target, context)
+function executeTransition(name, actionFn, target, context, button)
 {
     //console.log("executeTransition", {name, actionFn, target, context});
 
@@ -874,7 +876,8 @@ function executeTransition(name, actionFn, target, context)
         target,
         context,
         processHistory,
-        currentHistoryPos
+        currentHistoryPos,
+        button
     );
 
     const mobxAction = actionFn && prepareMobXAction(storage, sourceState + "." + name, actionFn);
@@ -1210,21 +1213,11 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
                 const startTransitionName = process.name + ".start";
                 if (typeof startState === "function")
                 {
-                    return executeTransition(
-                        startTransitionName,
-                        startState,
-                        null,
-                        null
-                    );
+                    return executeTransition(startTransitionName, startState, null, null, null);
                 }
                 else
                 {
-                    return executeTransition(
-                        startTransitionName,
-                        null,
-                        startState,
-                        null
-                    );
+                    return executeTransition(startTransitionName, null, startState, null, null);
                 }
             }
         )

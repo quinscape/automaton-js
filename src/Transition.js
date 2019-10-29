@@ -6,7 +6,7 @@ const secret = Symbol("TransitionSecret");
  * Encapsulates a runtime transition within a process.
  */
 export default class Transition {
-    constructor(process, source, target, context, processHistory, currentHistoryPos)
+    constructor(process, source, target, context, processHistory, currentHistoryPos, button)
     {
         this[secret] = {
             process,
@@ -15,7 +15,8 @@ export default class Transition {
             context,
             processHistory,
             currentHistoryPos,
-            historyIndex: -1
+            historyIndex: -1,
+            button
         };
 
         this.isRecorded = null;
@@ -56,6 +57,16 @@ export default class Transition {
     get source()
     {
         return this[secret].source;
+    }
+
+    /**
+     * Button name if the transition was executed by a button and that button had a name prop.
+     *
+     * @return {String}
+     */
+    get button()
+    {
+        return this[secret].button;
     }
 
 

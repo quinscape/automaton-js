@@ -67,7 +67,7 @@ const Button = props => {
 
                 //console.log("TRANSITION", transition, process);
                 // it's important to take context *after* we submit or reset it above
-                process.transition(transition, getContext())
+                process.transition(transition, getContext(), name)
             }
             catch (e)
             {
