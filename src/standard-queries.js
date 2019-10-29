@@ -177,16 +177,16 @@ function findRelationById(id)
     return relations[0];
 }
 
-function findRelationByTargetType( type)
+function findRelationByTargetType(sourceType, type)
 {
-    const relations = config.inputSchema.schema.relations.filter(r => r.targetType === type);
+    const relations = config.inputSchema.schema.relations.filter(r => r.sourceType === sourceType && r.targetType === type);
     if (!relations.length)
     {
-        throw new Error("Could not find relation with target type '" + type + "'");
+        throw new Error("Could not find relation with target type '" + type + "' and source type '" + sourceType + "'");
     }
     if (relations.length > 1)
     {
-        throw new Error("There's more than one relatio rarget type '" + type + "'");
+        throw new Error("There's more than one relatio rarget type '" + type + "': " + JSON.stringify(relations));
     }
     return relations[0];
 }
@@ -197,8 +197,10 @@ function findRelationByTargetType( type)
  *
  * @param {Object} opts                         options
  * @param {String} opts.domainType              Name of the associative entity ( e.g. "BazLink" )
- * @param {object|*} opts.sourceId              Id value for the source object. Will be automatically wrapped as generic scalar
- *                                              unless it already is an object in which case it is used as-is.
+ * @param {Array<object|*>} opts.sourceIds      Array of id values for the source object. Each will be automatically wrapped as generic scalar unless it already is an object in which case it is used as-is.
+ * @param {String} [opts.leftSideType]          Type determining the side from which we update associated values. One of leftSideType or leftSideRelation must be given,
+ * @param {String} [opts.leftSideRelation]      Relation id defining from which side we update associated values. One of leftSideType or leftSideRelation must be given,
+ *
  * @param {Array<object>} opts.domainObjects    Array containing all associative entities for the source object
  *
  * @returns {Promise<*>} Array of id values
@@ -224,7 +226,7 @@ export function updateAssociations(opts
             throw new Error("Need either leftSideRelation or leftSideType option");
         }
 
-        leftSideRelation = findRelationByTargetType(leftSideType).id;
+        leftSideRelation = findRelationByTargetType(domainType, leftSideType).id;
     }
 
     return UpdateAssociationsQuery.execute({
