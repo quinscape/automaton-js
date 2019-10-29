@@ -534,7 +534,10 @@ export class Process {
                         // --> transition
                         //console.log("NEXT", { historyIndex, target, isRecorded} );
 
-                        storage.currentState = target;
+                        if (target)
+                        {
+                            storage.currentState = target;
+                        }
 
                         if (isRecorded)
                         {
