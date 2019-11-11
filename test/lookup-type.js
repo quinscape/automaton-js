@@ -2,7 +2,7 @@ import assert from "power-assert"
 import InputSchema from "domainql-form/lib/InputSchema";
 
 import config from "../src/config";
-import lookupType from "../src/util/lookupType"
+import { lookupType } from "../src/util/type-utils"
 
 const RAW_SCHEMA = require("./test-schema.json");
 

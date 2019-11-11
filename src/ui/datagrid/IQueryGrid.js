@@ -6,7 +6,7 @@ import i18n from "../../i18n";
 import GridStateForm from "./GridStateForm";
 import Pagination from "../Pagination";
 import FilterRow from "./FilterRow";
-import lookupType from "../../util/lookupType";
+import { lookupType } from "../../util/type-utils";
 import SortLink from "./SortLink";
 import useObservableInput from "../../util/useObservableInput";
 import Column from "./Column";

@@ -1,7 +1,7 @@
 // language=GraphQL
 import GraphQLQuery from "./GraphQLQuery";
 import config from "./config";
-import { findNamed } from "./util/lookupType";
+import { findNamed } from "./util/type-utils";
 import unwrapAll from "./util/unwrapAll";
 import { SCALAR } from "domainql-form/lib/kind";
 import { getFirstValue } from "./model/InteractiveQuery";

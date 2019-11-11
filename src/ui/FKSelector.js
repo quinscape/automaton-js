@@ -15,7 +15,7 @@ import FkSelectorModal from "./FkSelectorModal";
 import { useDebouncedCallback } from "use-debounce"
 import toPath from "lodash.topath"
 import get from "lodash.get"
-import lookupType, { findNamed } from "../util/lookupType"
+import { getOutputTypeName, lookupType } from "../util/type-utils"
 
 import { field, value } from "../FilterDSL"
 import { getGraphQLMethodType } from "../Process";
@@ -48,7 +48,6 @@ const updateOuterForm = action(
     }
 );
 
-const INPUT = "Input";
 
 const MODAL_STATE_CLOSED = {
     iQuery: null,
@@ -56,15 +55,6 @@ const MODAL_STATE_CLOSED = {
     isOpen: false
 };
 
-function getOutputType(type)
-{
-    const end = type.length - INPUT.length;
-    if (type.lastIndexOf(INPUT) === end)
-    {
-        return type.substr(0, end)
-    }
-    return type;
-}
 
 
 let fkSelectorCount = 0;
@@ -158,7 +148,7 @@ const FKSelector = fnObserver(props => {
     const getUpdateForEmbedded = (rowType, rowValue) => {
 
         // resolve type of FKSelector parent;
-        const type = getOutputType(formConfig.type);
+        const type = getOutputTypeName(formConfig.type);
 
         const typeDef = config.inputSchema.getType(type);
 

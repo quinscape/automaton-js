@@ -17,7 +17,7 @@ import AssociationSelectorModal from "./AssociationSelectorModal";
 import Icon from "./Icon";
 import autoSubmitHack from "../util/autoSubmitHack";
 import { field, values } from "../FilterDSL";
-import lookupType from "../util/lookupType";
+import { lookupType } from "../util/type-utils";
 
 
 function toggleOpen(modalState)

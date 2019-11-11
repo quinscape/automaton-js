@@ -1,4 +1,4 @@
-import { findNamed } from "./lookupType"
+import { findNamed } from "./type-utils"
 import unwrapAll from "./unwrapAll";
 
 

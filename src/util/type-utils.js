@@ -1,6 +1,6 @@
-
 import config from "../config";
 import unwrapAll from "./unwrapAll";
+
 
 export function findNamed(array, name)
 {
@@ -27,7 +27,7 @@ export function findNamed(array, name)
  * @param {String} name     base domain type
  * @param {String} path     path separated by dots, ignoring lists
  */
-export default function lookupType(name, path)
+export function lookupType(name, path)
 {
     let type = config.inputSchema.getType(name);
     if (!type)
@@ -69,4 +69,42 @@ export default function lookupType(name, path)
         }
     }
     return fieldTypeRef;
+}
+
+export const INPUT = "Input";
+
+
+/**
+ * Returns the output type name without input suffix for the given type name.
+ *
+ * @param {String} type      type name
+ * @returns {string} output type name
+ */
+export function getOutputTypeName(type)
+{
+    if (endsWithInput(type))
+    {
+        return type.substr(0, type.length - INPUT.length)
+    }
+    return type;
+}
+
+/**
+ * Returns the input type name with input suffix for the given type name.
+ *
+ * @param {String} type      type name
+ * @returns {string} input type name
+ */
+export function getInputTypeName(type)
+{
+    if (!endsWithInput(type))
+    {
+        return type + INPUT;
+    }
+    return type;
+}
+
+function endsWithInput(s)
+{
+    return s.lastIndexOf(INPUT) === s.length - INPUT.length;
 }
