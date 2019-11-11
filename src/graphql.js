@@ -48,7 +48,7 @@ function convertInput(varTypes, variables)
 
 export function formatGraphQLError(params, errors)
 {
-    return "\nQUERY ERROR: " + JSON.stringify(params, null, 4) + "\n\n" +
+    return "\nQUERY ERROR:\n" + params.query.query + "\nvariables: " + JSON.stringify(params.variables, null, 4) + "\n\n" +
            errors.map(
                e => (
            e.message +
