@@ -148,23 +148,6 @@ export function generateDomainObjectId(domainType)
 }
 
 
-function getScalarType(typeDef, fieldName)
-{
-    const fields = typeDef.fields || typeDef.inputFields;
-
-    const fieldDef = findNamed(fields, fieldName);
-    if (!fieldDef)
-    {
-        throw new Error("Could not find field definition for " + typeDef.name + "." + fieldName);
-    }
-
-    const unwrapped = unwrapAll(fieldDef.type);
-    if (unwrapped.kind !== "SCALAR")
-    {
-        throw new Error("Invalid field type " + typeDef.name + "." + fieldName + ": " + JSON.stringify(unwrapped));
-    }
-    return unwrapped.name;
-}
 
 
 function findRelationById(id)
