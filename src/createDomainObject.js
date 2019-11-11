@@ -1,5 +1,6 @@
 import { getWireFormat } from "./domain";
 import uuid from "uuid";
+import { observable } from "mobx";
 
 
 /**
@@ -11,18 +12,19 @@ import uuid from "uuid";
  */
 export default function createDomainObject(type, id = uuid.v4())
 {
-    const newObj = getWireFormat().classes[type];
+    const DomainClass = getWireFormat().classes[type];
 
-    if (!newObj)
+    if (!DomainClass)
     {
-        return {
+        return observable({
             _type: type,
             id
-        };
+        });
     }
     else
     {
-        newObj._type = type;
+        const newObj = new DomainClass();
         newObj.id = id;
+        return newObj;
     }
 }
