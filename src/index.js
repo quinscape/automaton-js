@@ -32,6 +32,7 @@ import query from "./query";
 import pickSchemaTypes from "./util/pickSchemaTypes";
 import Hub from "./message/Hub";
 import AssociationSelector from "./ui/AssociationSelector";
+import WorkingSet, { WorkingSetStatus } from "./WorkingSet";
 
 const AutomatonDevTools = "span";
 
@@ -203,5 +204,7 @@ export {
     pickSchemaTypes,
     getWireFormat,
     Hub,
-    AssociationSelector
+    AssociationSelector,
+    WorkingSet,
+    WorkingSetStatus
 }

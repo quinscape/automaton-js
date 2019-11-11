@@ -11,6 +11,8 @@ import SortLink from "./SortLink";
 import useObservableInput from "../../util/useObservableInput";
 import Column from "./Column";
 import RowSelector from "./RowSelector";
+import WorkingSet, { WorkingSetStatus } from "../../WorkingSet";
+import WorkingSetStatusComponent from "./WorkingSetStatus";
 
 
 function findColumn(columnStates, name)
@@ -33,11 +35,11 @@ const COLUMN_CONFIG_INPUT_OPTS = {
 
 
 /**
- * Data grid what works based on degenerified Paged<DomainObject> types.
+ * Data grid what works based on degenerified InteractiveQuery types.
  */
 const DataGrid = fnObserver(props => {
 
-    const { id, value, tableClassName, rowClasses, filterTimeout, children } = props;
+    const { id, value, tableClassName, rowClasses, filterTimeout, workingSet, children } = props;
 
     const { type, columnStates } = value;
 
@@ -121,7 +123,7 @@ const DataGrid = fnObserver(props => {
         [ type, columnStatesInput ]
     );
 
-    const { rows } = value;
+    const { rows, queryConfig } = value;
 
     return (
         <GridStateForm
@@ -134,7 +136,7 @@ const DataGrid = fnObserver(props => {
                 className={
                     cx(
                         // reduced bottom margin to visually connect pagination
-                        "table mt-3 mb-2",
+                        "data-grid table mt-3 mb-2",
                         tableClassName
                     )
                 }
@@ -163,12 +165,13 @@ const DataGrid = fnObserver(props => {
                 </thead>
                 <tbody>
                 {
-                    rows.map(
+                    workingSet && queryConfig.currentPage === 0 &&
+                    workingSet.newObjects.map(
                         (context, idx) => (
                             <tr
-                                key={idx}
+                                key={"ws" + idx}
                                 className={
-                                    cx("data", rowClasses ? rowClasses(context) : null)
+                                    cx("data", rowClasses ? rowClasses(context) : null, "new-object")
                                 }
                             >
                                 {
@@ -186,6 +189,53 @@ const DataGrid = fnObserver(props => {
                                 }
                             </tr>
                         )
+                    )
+                }
+                {
+                    rows.map(
+                        (context, idx) => {
+
+                            let workingSetClass = null;
+                            if (workingSet)
+                            {
+                                const entry = workingSet.lookup(context._type, context.id);
+                                if (entry)
+                                {
+                                    if (entry.status === WorkingSetStatus.DELETED)
+                                    {
+                                        workingSetClass = "deleted-object";
+                                    }
+                                    else
+                                    {
+                                        workingSetClass = "changed-object";
+                                        context = entry.domainObject;
+                                    }
+                                }
+                            }
+
+                            return (
+                                <tr
+                                    key={idx}
+                                    className={
+                                        cx("data", rowClasses ? rowClasses(context) : null, workingSetClass)
+                                    }
+                                >
+                                    {
+                                        React.Children.map(
+                                            children,
+                                            (col, idx) => columns[idx].enabled && (
+                                                React.cloneElement(
+                                                    col,
+                                                    {
+                                                        context
+                                                    }
+                                                )
+                                            )
+                                        )
+                                    }
+                                </tr>
+                            );
+                        }
                     )
                 }
                 {
@@ -211,7 +261,8 @@ const DataGrid = fnObserver(props => {
 
 DataGrid.defaultProps = {
     tableClassName: "table-hover table-striped table-bordered table-sm",
-    filterTimeout: 350
+    filterTimeout: 350,
+    workingSet: null
 };
 
 DataGrid.propTypes = {
@@ -227,14 +278,18 @@ DataGrid.propTypes = {
      * Timeout in milliseconds for the filter inputs. The actual update of the filter will be delayed until this many
      * milliseconds have passed since the last filter change.
      */
-    filterTimeout: PropTypes.number
+    filterTimeout: PropTypes.number,
+
+    /**
+     * Working set with in-memory objects to be mixed in
+     */
+    workingSet: PropTypes.instanceOf(WorkingSet)
 };
-
-
 
 
 DataGrid.Column = Column;
 DataGrid.RowSelector = RowSelector;
+DataGrid.WorkingSetStatus = WorkingSetStatusComponent;
 
 DataGrid.displayName = "IQueryGrid";
 
