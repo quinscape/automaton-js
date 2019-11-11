@@ -64,7 +64,7 @@ const SortLink = props => {
                 className: "d-block text-center text-dark",
             },
             heading,
-            <Icon
+            sortable && <Icon
                 className={
                     cx(
                         "float-right p-1 text-primary",
