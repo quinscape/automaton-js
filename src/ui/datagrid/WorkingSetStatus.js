@@ -4,12 +4,13 @@ import PropTypes from "prop-types"
 import { Icon } from "domainql-form";
 import i18n from "../../i18n";
 import WorkingSet, { WorkingSetStatus as StatusEnum} from "../../WorkingSet";
+import { observer as fnObserver } from "mobx-react-lite"
 import { toJS } from "mobx";
 
 /**
  * Helper component to display a status icon with a tooltip for a data grid with working set.
  */
-const WorkingSetStatus = (props) => {
+const WorkingSetStatus = fnObserver((props) => {
 
     const { currentObj, workingSet, iconClass, createdIcon, modifiedIcon, deletedIcon, createdTooltip, modifiedTooltip, deletedTooltip } = props;
     const entry = workingSet.lookup(currentObj._type, currentObj.id);
@@ -38,7 +39,7 @@ const WorkingSetStatus = (props) => {
         }
     }
     return false;
-};
+});
 
 WorkingSetStatus.defaultProps = {
     iconClass: "m-2",
@@ -49,6 +50,7 @@ WorkingSetStatus.defaultProps = {
     modifiedTooltip: i18n("WorkingSetStatus:Object modified"),
     deletedTooltip: i18n("WorkingSetStatus:Object deleted")
 };
+
 
 WorkingSetStatus.propTypes = {
 
@@ -97,5 +99,7 @@ WorkingSetStatus.propTypes = {
      */
     deletedTooltip: PropTypes.string
 };
+
+WorkingSetStatus.displayName = "WorkingSetStatus";
 
 export default WorkingSetStatus;
