@@ -24,6 +24,7 @@ export default function createDomainObject(type, id = uuid.v4())
     else
     {
         const newObj = new DomainClass();
+        newObj._type = type;
         newObj.id = id;
         return newObj;
     }
