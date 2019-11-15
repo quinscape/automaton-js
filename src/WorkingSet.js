@@ -2,6 +2,7 @@ import { action, computed, observable } from "mobx"
 import { getInputTypeName, lookupType } from "./util/type-utils";
 import GraphQLQuery from "./GraphQLQuery";
 import extractTypeData from "./extractTypeData";
+import { computedFn, createTransformer } from "mobx-utils";
 
 // language=GraphQL
 const PersistWorkingSetQuery = new GraphQLQuery(`
@@ -60,6 +61,17 @@ function extractTypeDataFromObjects(changes)
         )
     )
 }
+/**
+ * Returns the current new objects, optionally filtered by type
+ *
+ * @param {Map} changes
+ * @param {String} [type]   optional type
+ */
+const getNewObjects = computedFn((changes, type) => {
+    return [ ... changes.values()]
+        .filter(entry => entry.status === WorkingSetStatus.NEW && (!type || entry.domainObject._type === type))
+        .map( mapEntryToDomainObject );
+});
 
 /**
  * Encapsulates a current set of changes to domain objects not yet persisted to the server-side.
@@ -143,7 +155,6 @@ export default class WorkingSet
             }
         );
     }
-
 
     /**
      * Marks a domain object as deleted. Marking an object with the same domain type / id combination as new or
@@ -242,17 +253,17 @@ export default class WorkingSet
 
 
     /**
-     * Returns an array of new objects
+     * Returns an array of new objects of the given type. if no type is given, all new objects are returned.
+     *
+     * @param {String} [type]   domain type name
+     *
      * @returns {Array<Object>} array of domain objects
      */
-    @computed
-    get newObjects()
+    newObjects(type)
     {
-        return [ ... this[secret].changes.values()]
-            .filter(entry => entry.status === WorkingSetStatus.NEW)
-            .map( mapEntryToDomainObject );
+        return getNewObjects(this[secret].changes, type);
     }
-
+    
     /**
      * Returns the registered deletions in this working set.
      *

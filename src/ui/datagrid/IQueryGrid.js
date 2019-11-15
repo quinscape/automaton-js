@@ -166,7 +166,7 @@ const DataGrid = fnObserver(props => {
                 <tbody>
                 {
                     workingSet && queryConfig.currentPage === 0 &&
-                    workingSet.newObjects.map(
+                    workingSet.newObjects(type).map(
                         (context, idx) => (
                             <tr
                                 key={"ws" + idx}
