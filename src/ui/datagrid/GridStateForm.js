@@ -388,7 +388,8 @@ const GridStateForm = props => {
         <Form
             value={ filterState }
             options={{
-                layout: FormLayout.INLINE
+                layout: FormLayout.INLINE,
+                isolation: false
             }}
         >
             <FilterContext.Provider value={ filterState }>

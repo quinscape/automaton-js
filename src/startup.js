@@ -3,7 +3,7 @@ import ReactDOM from "react-dom"
 import { loadProcessDefinitions, onHistoryAction, renderProcess } from "./Process"
 import config, { DEFAULT_OPTS } from "./config"
 import Authentication from "./auth"
-import InputSchema from "domainql-form/lib/InputSchema"
+import { InputSchema, registerDomainObjectFactory } from "domainql-form"
 import { autorun } from "mobx"
 import uri from "./uri"
 import { serverSync, storageSync, syncFrom, syncFromStorage } from "./sync"
@@ -15,6 +15,7 @@ import InteractiveQuery from "./model/InteractiveQuery";
 
 import { createBrowserHistory } from "history"
 import { getWireFormat } from "./domain"
+import createDomainObject from "./createDomainObject";
 const SCOPES_MODULE_NAME = "./scopes.js";
 
 const pkgJSON = require("../package.json");
@@ -271,6 +272,9 @@ export function startup(ctx, initial, initFn)
 
                 // config now ready
                 registerSystemTypes();
+
+                registerDomainObjectFactory(createDomainObject);
+
                 loadDomainDefinitions(ctx);
 
                 loadProcessDefinitions(ctx);

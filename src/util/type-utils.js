@@ -1,6 +1,7 @@
 import config from "../config";
 import unwrapAll from "./unwrapAll";
 
+const {INPUT_OBJECT} = require("domainql-form/lib/kind");
 
 export function findNamed(array, name)
 {
@@ -44,7 +45,7 @@ export function lookupType(name, path)
     for (let i = 0; i < length; i++)
     {
         let segment = pathArray[i];
-        const fields = type.kind === "INPUT_OBJECT" ? type.inputFields : type.fields;
+        const fields = type.kind === INPUT_OBJECT ? type.inputFields : type.fields;
         const field = findNamed(fields, segment);
         if (!field)
         {

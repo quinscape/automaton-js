@@ -1,4 +1,6 @@
 import config from "./config"
+import { INPUT_OBJECT } from "domainql-form/lib/kind";
+
 
 export default function extractTypeData(typeName, obj)
 {
@@ -8,10 +10,8 @@ export default function extractTypeData(typeName, obj)
     {
         throw new Error("Cannot extract data of type '" + typeName + "': Type not found in schema.")
     }
-    
-    const isInputType = !!typeDef.inputFields;
 
-    const fields = isInputType ? typeDef.inputFields : typeDef.fields;
+    const fields = typeDef.kind === INPUT_OBJECT ? typeDef.inputFields : typeDef.fields;
 
     const out = {
         _type: typeName,

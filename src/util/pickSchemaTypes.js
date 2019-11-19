@@ -1,6 +1,8 @@
 import { findNamed } from "./type-utils"
 import unwrapAll from "./unwrapAll";
 
+import { SCALAR, INPUT_OBJECT, OBJECT} from "domainql-form/lib/kind"
+
 
 function followType(rawSchema, knownTypes, typeName)
 {
@@ -17,26 +19,29 @@ function followType(rawSchema, knownTypes, typeName)
         throw new Error("Type '" + typeName + "' not found");
     }
 
-    const fields = typeDef.kind === "INPUT_OBJECT" ? typeDef.inputFields : typeDef.fields;
-
-    for (let i = 0; i < fields.length; i++)
+    const fields = typeDef.kind === INPUT_OBJECT ? typeDef.inputFields : typeDef.fields;
+    if (fields)
     {
-        const field = fields[i];
-        const fieldTypeRef = unwrapAll(field.type);
+        for (let i = 0; i < fields.length; i++)
+        {
+            const field = fields[i];
+            const fieldTypeRef = unwrapAll(field.type);
 
-        if (fieldTypeRef.kind === "OBJECT" || fieldTypeRef.kind === "INPUT_OBJECT")
-        {
-            followType(rawSchema, knownTypes, fieldTypeRef.name);
-        }
-        else if (fieldTypeRef.kind === "SCALAR")
-        {
-            const typeDef = findNamed(rawSchema.types, fieldTypeRef.name);
-            if (typeDef != null && !knownTypes.has(fieldTypeRef.name))
+            if (fieldTypeRef.kind === OBJECT || fieldTypeRef.kind === INPUT_OBJECT)
             {
-                knownTypes.add(fieldTypeRef.name);
+                followType(rawSchema, knownTypes, fieldTypeRef.name);
+            }
+            else if (fieldTypeRef.kind === SCALAR)
+            {
+                const typeDef = findNamed(rawSchema.types, fieldTypeRef.name);
+                if (typeDef != null && !knownTypes.has(fieldTypeRef.name))
+                {
+                    knownTypes.add(fieldTypeRef.name);
+                }
             }
         }
     }
+
 }
 
 

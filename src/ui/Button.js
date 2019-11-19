@@ -23,7 +23,7 @@ const Button = props => {
     {
         const { context : contextFromProps } = props;
         // if no explicit context is set, use original form root (might be null)
-        return contextFromProps !== undefined ? contextFromProps : formConfig.root && formConfig.root.model;
+        return contextFromProps !== undefined ? contextFromProps : formConfig.root;
     };
 
     const onClick = ev => {
@@ -51,11 +51,7 @@ const Button = props => {
 
             if (formConfig.root)
             {
-                if (entry.discard)
-                {
-                    formConfig.root.reset();
-                }
-                else
+                if (!entry.discard)
                 {
                     formConfig.ctx.submit();
                 }

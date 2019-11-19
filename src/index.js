@@ -33,7 +33,6 @@ import pickSchemaTypes from "./util/pickSchemaTypes";
 import Hub from "./message/Hub";
 import AssociationSelector from "./ui/AssociationSelector";
 import WorkingSet, { WorkingSetStatus } from "./WorkingSet";
-import { clone, cloneList } from "./util/clone";
 
 const AutomatonDevTools = "span";
 
@@ -207,7 +206,5 @@ export {
     Hub,
     AssociationSelector,
     WorkingSet,
-    WorkingSetStatus,
-    clone,
-    cloneList
+    WorkingSetStatus
 }
