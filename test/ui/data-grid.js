@@ -221,7 +221,7 @@ describe("DataGrid", function () {
 
     });
 
-    it.skip("renders column filters", function (done) {
+    it("renders column filters", function (done) {
 
         const types = [
             "TYPE_A",
