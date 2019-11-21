@@ -29,6 +29,19 @@ export const DEFAULT_OPTS = {
 
     subProcessAsDialog: true,
 
+    /**
+     * Config for process dialogs
+     */
+    processDialog: {
+        /** props to apply to the <Modal/> component */
+        props: {
+            size: "lg",
+            fade: false
+        },
+        /** Additional classes for the <ModalBody/> component */
+        bodyClass: ""
+    },
+
     // standard scopes, might not exist in application
     [APP_SCOPE]: null,
     [USER_SCOPE]: null,
