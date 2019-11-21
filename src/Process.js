@@ -126,7 +126,7 @@ function getLayout(process, currentState)
     if (layout)
     {
         // if layout is not a react component
-        if ((!layout.prototype || !layout.prototype.isReactComponent) && currentState)
+        if (typeof layout !== "function" && currentState)
         {
             // use it as lookup map
             const component = layout[currentState];
