@@ -55,7 +55,8 @@ const UpdateAssociationsQuery = new GraphQLQuery(`
  * Deletes the given domain object with the given id.
  *
  * @param {String} type     domain type name
- * @param {String} id       id field
+ * @param {*} id            id field as string or number or generic scalar object. is converted into a generic scalar object
+ *                          if it is not one already
  *
  * @return {Promise<Boolean, Array>} resolves to a boolean that is true when exactly one row was deleted from the table.
  *                                   Rejects if the domain object couldn't be deleted -- either because it is still referenced
@@ -65,7 +66,7 @@ export function deleteDomainObject(type, id)
 {
     return DeleteQuery.execute({
         type,
-        id
+        id: wrapAsGenericScalar(id)
     });
 }
 
