@@ -1,15 +1,13 @@
 // language=GraphQL
 import GraphQLQuery from "./GraphQLQuery";
 import config from "./config";
-import { findNamed } from "./util/type-utils";
-import unwrapAll from "./util/unwrapAll";
 import { SCALAR } from "domainql-form/lib/kind";
 import { getFirstValue } from "./model/InteractiveQuery";
 
 // language=GraphQL
 const DeleteQuery = new GraphQLQuery(`
-    mutation deleteDomainObject($type: String!, $id: String!){
-        deleteDomainObject( type: $type, id: $id)
+    mutation deleteDomainObject($type: String!, $id: GenericScalar!, $cascade: [String]){
+        deleteDomainObject( type: $type, id: $id, cascade: $cascade)
     }`
 );
 
@@ -54,19 +52,21 @@ const UpdateAssociationsQuery = new GraphQLQuery(`
 /**
  * Deletes the given domain object with the given id.
  *
- * @param {String} type     domain type name
- * @param {*} id            id field as string or number or generic scalar object. is converted into a generic scalar object
- *                          if it is not one already
+ * @param {String} type                 domain type name
+ * @param {*} id                        id field as string or number or generic scalar object. is converted into a generic scalar object
+ *                                      if it is not one already
+ * @param {Array<String>} [cascade]     optional array of relation names to follow when deleting the domain object
  *
  * @return {Promise<Boolean, Array>} resolves to a boolean that is true when exactly one row was deleted from the table.
  *                                   Rejects if the domain object couldn't be deleted -- either because it is still referenced
  *                                   or because the table has no id field.
  */
-export function deleteDomainObject(type, id)
+export function deleteDomainObject(type, id, cascade = null)
 {
     return DeleteQuery.execute({
         type,
-        id: wrapAsGenericScalar(id)
+        id: wrapAsGenericScalar(id),
+        cascade
     });
 }
 
