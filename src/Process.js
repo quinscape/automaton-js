@@ -1,19 +1,17 @@
 import React from "react";
 import render from "./render";
-import { action, get, keys, set, observe } from "mobx";
+import { action, get, keys, set } from "mobx";
 
 import GraphQLQuery from "./GraphQLQuery";
-import { FormConfigProvider, WireFormat } from "domainql-form";
+import { FormConfigProvider } from "domainql-form";
 import config from "./config";
 import Transition from "./Transition";
 import uri from "./uri";
 import i18n from "./i18n";
 import ProcessDialog from "./ProcessDialog";
 import { getWireFormat } from "./domain";
-import ScopeObserver from "./ScopeObserver";
+import ProcessHistory from "./ProcessHistory";
 import matchPath from "./matchPath";
-import AutomatonDevTools from "./AutomatonDevTools";
-
 
 
 const secret = Symbol("ProcessSecret");
@@ -28,6 +26,7 @@ let processes = [];
 let processHistory = [];
 let currentHistoryPos = -1;
 
+let processIdCounter = 0;
 
 function ProcessEntry(definition)
 {
@@ -37,6 +36,7 @@ function ProcessEntry(definition)
 }
 
 const processDefinitions = {};
+
 
 
 /**
@@ -144,6 +144,17 @@ function getLayout(process, currentState)
     return config.layout;
 }
 
+function getParents(process)
+{
+    const parents = [];
+    do
+    {
+        parents.push(process);
+        process = process[secret].parent;
+    } while (process);
+    return parents.reverse();
+}
+
 
 function findRootProcess(process)
 {
@@ -203,18 +214,16 @@ function renderCurrentView()
         const SubProcessViewComponent = findViewComponent(process);
 
         dialogStack = (
-            <React.StrictMode>
-                <ProcessDialog process={ process }>
-                    <AutomatonEnv.Provider
-                        value={ subProcessEnv }
-                    >
-                        <SubProcessViewComponent env={ subProcessEnv }/>
-                        {
-                            dialogStack
-                        }
-                    </AutomatonEnv.Provider>
-                </ProcessDialog>
-            </React.StrictMode>
+            <ProcessDialog process={ process }>
+                <AutomatonEnv.Provider
+                    value={ subProcessEnv }
+                >
+                    <SubProcessViewComponent env={ subProcessEnv }/>
+                    {
+                        dialogStack
+                    }
+                </AutomatonEnv.Provider>
+            </ProcessDialog>
         );
 
         process = process[secret].parent;
@@ -324,6 +333,158 @@ function versionCurrent(name)
     return name.indexOf("current") === 0
 }
 
+let prevProcess;
+let prevState;
+let prevInputs;
+
+
+function findProcess(process)
+{
+    let current = currentProcess;
+    while (current)
+    {
+        if (current === process)
+        {
+            return true;
+        }
+        current = current[secret].parent;
+    }
+    return false;
+}
+
+
+
+
+/**
+ *
+ * @param {Process} process                 process
+ * @param {String} view                     view or "" for process effect
+ * @param {Object} effect                   effect object
+ * @param {function} effect.register        effect register function
+ * @param {function} effect.unregister      effect unregister function
+ * @param {function} effect.lastInput       result of last input evaluation
+ */
+function addEffect(process, view, effect)
+{
+
+    const { effects } = process[secret];
+
+
+    let array = effects.get(view);
+    if (!array)
+    {
+        array = [ effect ];
+        effects.set(view, array);
+    }
+    else
+    {
+        array.push(effect);
+    }
+
+}
+
+
+/**
+ * Compares the elements of two arrays with instance equality.
+ *
+ * @param {Array<*>} arrayA     Array a
+ * @param {Array<*>} arrayB     Array b
+ * @returns {boolean} true if the arrays are the same lengths and all elements are equal
+ */
+function isArrayEqual(arrayA, arrayB)
+{
+    console.log("isArrayEqual", arrayA, arrayB);
+
+
+    if (arrayA.length !== arrayB.length)
+    {
+        return false;
+    }
+
+    for (let i = 0; i < arrayA.length; i++)
+    {
+        if (arrayA[i] !== arrayB[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+const checkInputValue = __DEV && ((input) =>
+{
+    if (!Array.isArray(input))
+    {
+        throw new Error(`Effect error in ${process.name}.${nextState}: Input function must return array`);
+    }
+});
+
+
+function updateEffects(process, prevState, nextState)
+{
+    if (!prevState && !nextState)
+    {
+        throw new Error("One of prev state or next state must be given");
+    }
+
+    if (prevState === nextState)
+    {
+        const effects = process[secret].effects.get(prevState);
+        if (effects)
+        {
+            for (let i = 0; i < effects.length; i++)
+            {
+                const effect = effects[i];
+                const { inputFn, lastInput } = effect;
+
+                if (inputFn)
+                {
+                    const input = inputFn();
+
+                    if (__DEV)
+                    {
+                        checkInputValue(input);
+                    }
+
+                    if (!isArrayEqual(input, lastInput))
+                    {
+                        cancelEffect(effect);
+                        runEffect(effect, input);
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        if (prevState)
+        {
+            const effects = process[secret].effects.get(prevState);
+            if (effects)
+            {
+                for (let i = 0; i < effects.length; i++)
+                {
+                    cancelEffect(effects[i]);
+                }
+            }
+        }
+
+        if (nextState)
+        {
+            const effects = process[secret].effects.get(nextState);
+            if (effects)
+            {
+                for (let i = 0; i < effects.length; i++)
+                {
+                    runEffect(effects[i]);
+                }
+            }
+        }
+    }
+}
+
+
 /**
  * Process facade exposing a limited set of getters and methods as process API
  */
@@ -350,20 +511,21 @@ export class Process {
 
             subProcessPromise: null,
 
-            versioningStrategy: null,
-            scopeObserver: null,
+            versioningStrategy: versionCurrent,
+            history: null,
 
             initialized: false,
+            effects: new Map(),
 
             cleanup: () => {
-                // clean up scopeObserver
-                this[secret].scopeObserver.dispose();
-                this[secret].scopeObserver = null;
+                // clean up history
+                this[secret].history.dispose();
+                this[secret].history = null;
             }
         };
 
-        // correctly initialize versioningStrategy and scopeObserver
-        this.versioningStrategy = versionCurrent;
+        this[secret].history = new ProcessHistory(this);
+
         //console.log("PROCESS '" + name +"'", this);
     }
 
@@ -446,8 +608,6 @@ export class Process {
         }
 
         this[secret].versioningStrategy = strategy;
-        // we need to recreate the scope observer when the strategy changes
-        this[secret].scopeObserver = new ScopeObserver(strategy, this[secret].scope);
     }
 
     get input()
@@ -534,20 +694,27 @@ export class Process {
                     }
                     else
                     {
-                        const { target, isRecorded } = transition;
                         // --> transition
-                        //console.log("NEXT", { historyIndex, target, isRecorded} );
 
-                        if (target)
+                        const { target, isRecorded } = transition;
+
+                        const prevState = storage.currentState;
+
+                        const nextState = target || prevState;
+                        if (prevState !== nextState)
                         {
-                            storage.currentState = target;
+                            storage.currentState = nextState;
                         }
+                        updateEffects(this, prevState, nextState);
 
                         if (isRecorded)
                         {
                             pushProcessState();
+
+                            console.log(this.name, ": Changes after transition to  -> ", nextState, this[secret].history.changes)
                         }
                     }
+
                     return render(
                         renderCurrentView()
                     )
@@ -570,6 +737,32 @@ export class Process {
         return storage.states[storage.currentState][name] || null;
     }
 
+    addProcessEffect(fn)
+    {
+        addEffect(this, "",{
+            register: fn,
+            unregister: null
+        });
+    }
+
+    /**
+     * Adds an effect to the process
+     *
+     * @param {String} view       view in which the effect is active (can be left out)
+     * @param {function} fn         register function of the view. Can return an unregister function to clean up the effect.
+     *
+     * @param {Array<*>} inputFn    array of inputs for the effect
+     */
+    addEffect(view, fn, inputFn)
+    {
+        addEffect(this, view, {
+            register: fn,
+            inputFn,
+            unregister: null,
+            lastInput: null
+        });
+    }
+
 
     /**
      * Runs the process with the given name as sub-process.
@@ -584,14 +777,17 @@ export class Process {
         // create new promise that will resolve when the sub-process ends
         return new Promise(
             (resolve, reject) => fetchProcessInjections(config.appName, processName, input)
-                .then(injections => {
+                .then(
+                    injections => {
 
-                    //console.log("INJECTIONS", injections);
+                        //console.log("INJECTIONS", injections);
 
-                    return (
-                        renderSubProcess(processName, input, injections.injections)
-                    );
-                }, err => <ErrorView title="Error starting Process" info={ err } />)
+                        return (
+                            renderSubProcess(processName, input, injections.injections)
+                        );
+                    },
+                        err => <ErrorView title="Error starting Process" info={ err } />
+                )
                 .then(element => {
 
                     //console.log("RENDER SUB-PROCESS VIEW", elem);
@@ -605,8 +801,8 @@ export class Process {
 
                     return render(element);
                 })
-        )
-            .then(result => {
+            )
+            .then(output => {
 
                 pushProcessState();
 
@@ -614,7 +810,8 @@ export class Process {
                     renderCurrentView()
                 )
                 // make sure to resolve the sub-process result only after the parent view is restored.
-                    .then( () => result);
+                .then( () => output);
+
             })
             .catch(err => console.error("ERROR IN SUB-PROCESS", err))
     }
@@ -626,16 +823,19 @@ export class Process {
      */
     endSubProcess(output)
     {
-        const fns = subProcessPromiseFns(this);
+        unregisterProcessEffects(this);
+        updateEffects(this, this[secret].currentState, null);
 
+        const fns = subProcessPromiseFns(this);
         const storage = this[secret];
 
         currentProcess = storage.parent;
-        storage.cleanup();
+
+        // XXX: can't clean up, might be reactivated by history navigation
+        //storage.cleanup();
 
         fns.resolve(output);
     }
-
 
 
     /**
@@ -645,14 +845,19 @@ export class Process {
      */
     abortSubProcess(err)
     {
+        unregisterProcessEffects(this);
+        updateEffects(this, this[secret].currentState, null);
+
+        const fns = subProcessPromiseFns(this);
         const storage = this[secret];
 
         currentProcess = storage.parent;
-        storage.cleanup();
 
-        subProcessPromiseFns(this).reject(err);
+        // XXX: can't clean up, might be reactivated by history navigation
+        //storage.cleanup();
+
+        fns.reject(err);
     }
-
 }
 
 
@@ -715,6 +920,8 @@ function inject(scope, injections)
             const result = injections[graphQlQuery.query];
             if (result === undefined)
             {
+                debugger;
+
                 throw new Error("Could not find query for prop '" + name + "'");
             }
 
@@ -797,36 +1004,6 @@ export function fetchProcessInjections(appName, processName, input = {})
         });
 }
 
-
-/**
- * Returns true if the given view model contains changed keys that are also versioned according the process' versioning
- * strategy.
- *
- * @param viewModel     transition view model
- * @param process       process instance
- *
- * @return {boolean} true if any of the versioned properties are dirty
- */
-function anyVersionedFieldsDirty(viewModel, process)
-{
-    if (!viewModel.isDirty)
-    {
-        return false;
-    }
-
-    const names = keys(viewModel);
-    for (let i = 0; i < names.length; i++)
-    {
-        const name = names[i];
-        if (process.versioningStrategy(name) && viewModel.isPropertyDirty(name))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-
 /**
  * Wraps the given action function in a mobx action once or returns a previously wrapped mobx action
  *
@@ -883,9 +1060,9 @@ function executeTransition(name, actionFn, target, context, button)
 
     const mobxAction = actionFn && prepareMobXAction(storage, sourceState + "." + name, actionFn);
 
-    const { scopeObserver } = storage;
+    const { history } = storage;
 
-    scopeObserver.reset();
+    history.resetChanged();
 
     return new Promise(
         (resolve, reject) => {
@@ -915,8 +1092,8 @@ function executeTransition(name, actionFn, target, context, button)
                     transition.isRecorded = (
                         // the state changed
                         target !== sourceState ||
-                        // .. or if the scopeObserver recorded changes in versioned props
-                        scopeObserver.versionedPropsChanged
+                        // .. or if the history recorded changes in regards to our versioned props
+                        history.versionedPropsChanged
                     );
                 }
 
@@ -972,6 +1149,21 @@ function noViewState()
 }
 
 
+function findHistoryEntry(navigationId)
+{
+    const { length } = processHistory;
+    for (let i = 0; i < length; i++)
+    {
+        const entry = processHistory[i];
+        if (entry.id === navigationId)
+        {
+            return entry;
+        }
+    }
+    return null;
+}
+
+
 export function onHistoryAction(location, action)
 {
     const {state} = location;
@@ -984,7 +1176,7 @@ export function onHistoryAction(location, action)
             const { navigationId } = state;
 
 
-            const entry = processHistory[navigationId];
+            const entry = findHistoryEntry(navigationId);
 
             if (!entry)
             {
@@ -1012,30 +1204,21 @@ function getURIInfo(obj)
     return "";
 }
 
-
-/**
- * Extracts the versioned property of a process scope based on the versioning strategy registered in the process.
- *
- * @param process       process instance
- *
- * @return {object} object with versioned props
- */
-function getVersionedProps(process)
+function findProcessBase(processA, processB)
 {
-    const { scope, versioningStrategy } = process;
+    const parentsA = getParents(processA);
+    const parentsB = getParents(processB);
 
-    const out = {};
-    for (let name in scope)
+    const len = Math.min(parentsA.length, parentsB.length);
+
+    let pos = -1;
+    do
     {
-        if (scope.hasOwnProperty(name) && versioningStrategy(name))
-        {
-            out[name] = scope[name];
-        }
-    }
+        pos++;
+    } while (pos < len && parentsA[pos] === parentsB[pos]);
 
-    //console.log("getVersionedProps:", out);
 
-    return out;
+    return pos > 0 ? parentsA[pos - 1] : null;
 }
 
 
@@ -1051,17 +1234,50 @@ const renderRestoredView = action(
     "renderRestoredView",
     (historyEntry) => {
 
-        const { processId, state, versionedProps } = historyEntry;
+        const { processId, state: nextState, historyPos } = historyEntry;
 
-        //console.log("renderRestoredView", { processId, state, versionedProps });
+        //console.log("renderRestoredView", { processId, state, historyPos });
 
-        currentProcess = processes[processId];
+        const prevProcess = currentProcess;
+        const nextProcess = processes[processId];
+        const prevState = prevProcess[secret].currentState;
+        if (prevProcess !== nextProcess)
+        {
+            const processBase = findProcessBase(currentProcess, nextProcess);
 
-        currentProcess[secret].currentState = state;
+            console.log("PROCESS BASE", processBase);
 
-        const { scope } = currentProcess;
+            let process = currentProcess;
+            while (process && process !== processBase)
+            {
+                unregisterProcessEffects(process);
+                updateEffects(process, prevState, null);
+                process = process[secret].parent;
+            }
 
-        Object.assign(scope, versionedProps);
+            currentProcess = nextProcess;
+            process = nextProcess[secret].parent;
+            while (process)
+            {
+                registerProcessEffects(process);
+                updateEffects(currentProcess, null, process[secret].currentState);
+                process = process[secret].parent;
+
+            }
+
+            currentProcess[secret].history.navigateTo(historyPos);
+
+            updateEffects(currentProcess, null, nextState);
+        }
+        else
+        {
+            currentProcess[secret].history.navigateTo(historyPos);
+
+            updateEffects(currentProcess, prevState, nextState);
+        }
+
+
+        currentProcess[secret].currentState = nextState;
 
         return render(
             renderCurrentView()
@@ -1070,11 +1286,27 @@ const renderRestoredView = action(
 );
 
 
+function findReachableProcesses(start)
+{
+    const reachable = new Set();
+    const { length } = processHistory;
+    for (let i = start ; i < length ; i++)
+    {
+        const { processId } = processHistory[i];
+        let process = processes[processId];
+        while (process)
+        {
+            reachable.add(process[secret].id);
+            process = process[secret].parent;
+        }
+    }
+    return reachable;
+}
+
+
 function pushProcessState(replace = false)
 {
-    const { id, currentState } = currentProcess[secret];
-
-
+    const { id, currentState, history } = currentProcess[secret];
 
     //console.log("pushProcessState", {id, currentState});
 
@@ -1086,25 +1318,62 @@ function pushProcessState(replace = false)
         processHistory = processHistory.slice(0, navigationId);
     }
 
-    const versionedProps = getVersionedProps(currentProcess);
-    processHistory[navigationId] = {
+    //const versionedProps = getVersionedProps(currentProcess);
+    processHistory.push({
+        id: navigationId,
         processId: id,
         state: currentState,
-        versionedProps
-    };
+        historyPos: history.pos
+    });
+
+    const { navigationHistoryLimit } = config;
+
+    const { length } = processHistory;
+
+    if (length > navigationHistoryLimit)
+    {
+//        console.log("SHRINK", processHistory.map( e => e.processId));
+
+        const newStart = length - navigationHistoryLimit;
+        const reachableProcesses = findReachableProcesses(newStart);
+
+        for (let i=0; i < newStart; i++)
+        {
+            const { processId } = processHistory[i];
+
+            const isReachable = reachableProcesses.has(processId);
+            if (!isReachable)
+            {
+                const process = processes[processId];
+
+                console.log(`Unregistering effects on unreachable process #${processId}: `, process);
+
+                unregisterProcessEffects(process);
+                updateEffects(process, process.currentState, null);
+            }
+            // else
+            // {
+            //     console.log("Process #", processId, " is still reachable")
+            // }
+        }
+        processHistory = processHistory.slice(newStart);
+    }
+
 
     const op = replace ? "replace" : "push";
 
     //console.log("pushProcessState", op);
 
     config.history[op](
-        uri("/{appName}/{processName}/{stateName}/{info}",
+        uri(
+            "/{appName}/{processName}/{stateName}/{info}",
             {
                 appName: config.appName,
                 processName: currentProcess.name,
                 stateName: currentState,
                 info: getURIInfo()
-            }, true), {
+            }, true
+        ), {
             navigationId
         }
     );
@@ -1131,6 +1400,72 @@ function finishInitialization(process)
     storage.options = Object.freeze(options);
     storage.initialized = true;
 }
+
+
+function runEffect(effect, input = null)
+{
+    const { register, inputFn } = effect;
+
+    if (inputFn)
+    {
+        if (!input)
+        {
+            input = inputFn();
+            if (__DEV)
+            {
+                checkInputValue(input);
+            }
+        }
+        effect.lastInput = input;
+    }
+
+    const unregister = register();
+    if (typeof unregister === "function")
+    {
+        effect.unregister = unregister;
+    }
+}
+
+function cancelEffect(effect)
+{
+    const { unregister } = effect;
+    unregister && unregister();
+    effect.unregister = null;
+}
+
+function registerProcessEffects(process)
+{
+    const { effects } = process[secret];
+
+    const processEffects = effects.get("");
+
+    if (processEffects)
+    {
+        for (let i = 0; i < processEffects.length; i++)
+        {
+            runEffect(processEffects[i]);
+        }
+    }
+}
+
+
+
+function unregisterProcessEffects(process)
+{
+
+    const { effects } = process[secret];
+
+    const processEffects = effects.get("");
+
+    if (processEffects)
+    {
+        for (let i = 0; i < processEffects.length; i++)
+        {
+            cancelEffect(processEffects[i]);
+        }
+    }
+}
+
 
 
 /**
@@ -1167,7 +1502,8 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
         scope = null;
     }
 
-    const noPriorProcess = !currentProcess;
+    const prevProcess = currentProcess;
+    const noPriorProcess = !prevProcess;
     if (noPriorProcess)
     {
         if (asSubProcess)
@@ -1177,19 +1513,13 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
         config.rootProcess = processName;
     }
 
-    const processesLen = processes.length;
-    let newProcessId = 0;
-    if (!noPriorProcess)
-    {
-        newProcessId = currentProcess[secret].id + 1;
-        if (newProcessId < processesLen)
-        {
-            // if we are inserting below the maximum available
-            processes = processes.slice(0, newProcessId);
-        }
-    }
-
-    process = new Process(newProcessId, entry.definition, scope, input, asSubProcess ? currentProcess : null);
+    process = new Process(
+        processIdCounter++,
+        entry.definition,
+        scope,
+        input,
+        asSubProcess ? currentProcess : null
+    );
     processes.push(process);
 
     const storage = process[secret];
@@ -1208,7 +1538,6 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
                 storage.states = states;
 
                 finishInitialization(process);
-
                 currentProcess = process;
 
                 const startTransitionName = process.name + ".start";
@@ -1234,7 +1563,23 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
                     throw new Error("No initial state");
                 }
 
+                if (prevProcess && !asSubProcess)
+                {
+                    let process = prevProcess;
+                    do
+                    {
+                        unregisterProcessEffects(process);
+                        updateEffects(process, process.currentState, null);
+
+                        process = process[secret].parent;
+                    } while (process);
+                }
+                registerProcessEffects(currentProcess);
+
                 storage.currentState = target;
+
+                updateEffects(process, null, storage.currentState);
+
                 pushProcessState(noPriorProcess);
 
                 return renderCurrentView();

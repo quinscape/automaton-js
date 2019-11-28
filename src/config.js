@@ -29,6 +29,10 @@ export const DEFAULT_OPTS = {
 
     subProcessAsDialog: true,
 
+    //navigationHistoryLimit: 15,
+    // XXX: reset to above
+    navigationHistoryLimit: 4,
+
     /**
      * Config for process dialogs
      */
