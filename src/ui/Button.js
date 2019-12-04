@@ -1,19 +1,43 @@
 import React from "react"
 import PropTypes from "prop-types"
 import { useFormConfig } from "domainql-form"
-import Icon from "./Icon";
-import cx from "classnames"
 
 import { observer as fnObserver } from "mobx-react-lite"
 import useAutomatonEnv from "../useAutomatonEnv";
+import hasText from "../util/hasText";
 
+
+function getTextFromChildren(children)
+{
+    let text = "";
+    React.Children.forEach(children, kid => {
+
+        if (typeof kid === "string")
+        {
+            text += kid;
+        }
+    });
+    return text;
+}
+
+
+function ensureText(text)
+{
+    if (__DEV)
+    {
+        if (!hasText(text))
+        {
+        }
+    }
+    return text;
+}
 
 const Button = props => {
 
     const formConfig = useFormConfig();
     const env = useAutomatonEnv();
 
-    const { className, name, icon, text, transition, disabled } = props;
+    const { className, name, text, transition, disabled, children } = props;
     /**
      * Returns either the explicit context set as prop or the current form object model if present.
      *
@@ -98,31 +122,32 @@ const Button = props => {
         return isDisabled;
     };
 
-        return (
-            <button
-                type="button"
-                name={ name }
-                className={ className }
-                disabled={ isDisabled() }
-                onClick={ onClick }
-            >
-                {
-                    icon && (
-                        <Icon
-                            className={
-                                cx(
-                                    icon,
-                                    "pr-1"
-                                )
-                            }
-                        />
-                    )
-                }
-                {
-                    text
-                }
-            </button>
-        )
+    const textFromKids = getTextFromChildren(children);
+
+    if (__DEV)
+    {
+        if (!hasText(text) && !hasText(textFromKids))
+        {
+            // hard error might seem a little harsh, but it gives the best error description
+            // in terms of locating the offending button component
+            throw new Error("<Button/> is missing a textual description. Set the text prop to a meaningful text.");
+        }
+    }
+
+    return (
+        <button
+            type="button"
+            name={ name }
+            className={ className }
+            disabled={ isDisabled() }
+            aria-label={ text }
+            onClick={ onClick }
+        >
+            {
+                children
+            }
+        </button>
+    )
 };
 
 Button.propTypes = {
@@ -134,11 +159,6 @@ Button.propTypes = {
      * Additional button classes
      */
     className: PropTypes.string,
-    /**
-     * Icon class for the button
-     */
-    icon: PropTypes.string,
-
     /**
      * Text for the button
      */
