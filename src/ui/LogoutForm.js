@@ -1,7 +1,7 @@
 import React from "react"
 
 import config from "../config"
-import Icon from "./Icon";
+import { Icon } from "domainql-form"
 
 /**
  * A CSRF-protection-compliant Spring security log out-form

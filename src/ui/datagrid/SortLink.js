@@ -1,8 +1,7 @@
 import React from "react"
 import cx from "classnames"
-import Icon from "../Icon";
-import { operation, Type } from "../../FilterDSL";
-import compareConditions from "../../util/compareConditions";
+import { Icon } from "domainql-form"
+import { operation } from "../../FilterDSL";
 import findSort from "./findSort";
 
 

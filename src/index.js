@@ -11,7 +11,6 @@ import runProcess, { runProcessURI } from "./runProcess";
 import DataGrid from "./ui/DataGrid"
 import IQueryGrid from "./ui/datagrid/IQueryGrid"
 import Button from "./ui/Button"
-import Icon from "./ui/Icon"
 import Link from "./ui/Link"
 import CalendarField from "./ui/CalendarField"
 import ScrollTracker from "./ui/ScrollTracker"
@@ -170,7 +169,6 @@ export {
     Pagination,
     Button,
     Link,
-    Icon,
     ScrollTracker,
 
     GraphQLQuery,

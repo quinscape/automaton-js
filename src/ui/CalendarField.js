@@ -1,8 +1,7 @@
 import React, { useState, useCallback } from "react"
 import cx from "classnames"
 import PropTypes from "prop-types"
-import { Field, FormGroup, InputSchema, unwrapType, FieldMode } from "domainql-form"
-import Icon from "./Icon";
+import { Field, FormGroup, InputSchema, unwrapType, FieldMode, Icon } from "domainql-form"
 import i18n from "../i18n";
 import CalendarModal from "./CalendarModal";
 

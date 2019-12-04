@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import PropTypes from "prop-types"
 import { ButtonToolbar, ListGroup, ListGroupItem } from "reactstrap"
-import { FieldMode, FormGroup, useFormConfig } from "domainql-form"
+import { FieldMode, FormGroup, useFormConfig, Icon } from "domainql-form"
 import { action, observable } from "mobx";
 import { observer as fnObserver } from "mobx-react-lite";
 import toPath from "lodash.topath"
@@ -14,7 +14,6 @@ import { getFirstValue } from "../model/InteractiveQuery";
 import { getGenericType, INTERACTIVE_QUERY } from "../domain";
 
 import AssociationSelectorModal from "./AssociationSelectorModal";
-import Icon from "./Icon";
 import autoSubmitHack from "../util/autoSubmitHack";
 import { field, values } from "../FilterDSL";
 import { lookupType } from "../util/type-utils";

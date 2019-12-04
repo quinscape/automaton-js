@@ -12,7 +12,6 @@ action | func | Optional action function, receives the context as argument
 className | string | Additional button classes
 context | any | Explicitly sets the button context to the given object. If no context is given, the form base object of the surrounding form is used.
 disabled | func | Additional function to check for disabled status. The default behavior is to disable the button if the button has a transition which is not discarding and there are form errors. This check runs before that and can disable the button in any case.
-icon | string | Icon class for the button
 text | string | Text for the button
 transition | string | Transition reference. button must have either a `transition` or an `action` attribute.
 ## &lt;CalendarField/&gt;
@@ -34,17 +33,6 @@ mode | FieldMode value | Mode for this calendar field. If not set or set to null
 **name** (required) | string | Name / path for the calendar field value (e.g. "name", but also "foos.0.name")
 placeholder | string | Placeholder text to render for text inputs.
 tooltip | string | Tooltip / title attribute for the input element
-## &lt;Icon/&gt;
-
-Simple FontAwesome Icon component
-
-### Props
-
- Name | Type | Description 
-------|------|-------------
-brand | bool | true if icon is a brand icon
-**className** (required) | string | Fontawesome icon as class name
-title | string | Optional tooltip / title
 ## &lt;Link/&gt;
 
 Special automaton link that can do process changes within the current page context.
@@ -62,7 +50,7 @@ role | string | Optional role attribute
 title | string | Optional title attribute
 ## &lt;IQueryGrid/&gt;
 
-Data grid what works based on degenerified Paged<DomainObject> types.
+Data grid what works based on degenerified InteractiveQuery types.
 
 ### Props
 
@@ -71,6 +59,7 @@ Data grid what works based on degenerified Paged<DomainObject> types.
 filterTimeout | number | Timeout in milliseconds for the filter inputs. The actual update of the filter will be delayed until this many milliseconds have passed since the last filter change.
 rowClasses | func | Function to produce additional classes for each row ( context => classes )
 tableClassName | string | Additional classes to set on the table element. (default is "table-hover table-striped table-bordered")
+workingSet | instance of WorkingSet | Working set with in-memory objects to be mixed in
 # DataGrid Examples
 
 If we have an GraphQL query injection like this
@@ -217,7 +206,7 @@ Row-Selection checkbox helper
 
  Name | Type | Description 
 ------|------|-------------
-**id** (required) | string | Unique id string representing an object
+**id** (required) | any | Unique id string representing an object
 **selectedValues** (required) | custom or custom | External observable containing the currently selected values. Either an observable array or set.
 # Row Selection Example
 

@@ -8,7 +8,6 @@ const COMPONENTS = [
         components: [
             "../src/ui/Button.js",
             "../src/ui/CalendarField.js",
-            "../src/ui/Icon.js",
             "../src/ui/Link.js",
             "../src/ui/datagrid/IQueryGrid.js",
             "./snippets/GridExamples.md",

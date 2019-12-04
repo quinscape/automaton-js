@@ -3,9 +3,8 @@ import { action, observable } from "mobx"
 import i18n from "../i18n";
 
 import { ButtonToolbar, Container, Modal, ModalBody, ModalHeader } from "reactstrap"
-import { Field, Form } from "domainql-form"
+import { Field, Form, Icon } from "domainql-form"
 import Calendar from "react-calendar"
-import Icon from "./Icon";
 
 import set from "lodash.set"
 import autoSubmitHack from "../util/autoSubmitHack";

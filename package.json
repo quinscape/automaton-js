@@ -13,7 +13,7 @@
     "dependencies": {
         "classnames": "^2.2.6",
         "create-react-class": "^15.6.3",
-        "domainql-form": "^3.0.0",
+        "domainql-form": "^3.0.1",
         "graphql": "^14.5.8",
         "history": "^4.10.1",
         "lodash.set": "^4.3.2",
