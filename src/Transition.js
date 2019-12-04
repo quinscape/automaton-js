@@ -1,5 +1,3 @@
-import { action } from "mobx"
-
 const secret = Symbol("TransitionSecret");
 
 /**
@@ -123,40 +121,44 @@ export default class Transition {
      */
     back(n = 1)
     {
-
         const { processHistory, currentHistoryPos } = this[secret];
 
-        let historyIndex = -1;
+        let i, entry;
         if (typeof n === "function")
         {
-            for (let i = currentHistoryPos - 1; i >= 0; i--)
+            for (i = currentHistoryPos - 1; i >= 0; i--)
             {
-                const entry = processHistory[i];
+                const e = processHistory[i];
 
-                if (n(entry) === true)
+                if (n(e) === true)
                 {
-                    historyIndex = i;
+                    entry = e;
                     break;
                 }
             }
 
+            if (!entry)
+            {
+               throw new Error("No entry to navigate back to found.");
+            }
+
             //console.log("back(fn) : true for history index #", historyIndex, "=", processHistory[historyIndex]);
+        }
+        else if (typeof n === "number")
+        {
+            if (currentHistoryPos - n < 0 || currentHistoryPos - n >= processHistory.length)
+            {
+                throw new Error("Invalid history location: " + (currentHistoryPos - n));
+            }
+            entry = processHistory[currentHistoryPos - n];
         }
         else
         {
-            if (n <= currentHistoryPos)
-            {
-                historyIndex = currentHistoryPos - n;
-            }
+            throw new Error("Invalid argument passed to back(): " + n);
         }
 
-        if (historyIndex < 0 || historyIndex >= processHistory.length)
-        {
-            throw new Error("Could not go back ( n = " + String(n) + ")" );
-        }
 
-        this.isRecorded = false;
-        // remember history index to go back to
-        this[secret].historyIndex = historyIndex;
+        this.isRecorded = true;
+        this.target = entry.state;
     }
 }
