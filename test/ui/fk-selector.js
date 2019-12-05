@@ -310,6 +310,7 @@ describe("FKSelector", function () {
                     <FormConfigProvider schema={inputSchema}>
                         <TestForm
                             value={ formObj }
+                            options={{isolation: false}}
                         />
                     </FormConfigProvider>
                 ))
