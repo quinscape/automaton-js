@@ -27,6 +27,7 @@ import LogoutForm from "./ui/LogoutForm"
 import extractTypeData from "./extractTypeData"
 import FKSelector from "./ui/FKSelector"
 import Pagination from "./ui/Pagination"
+import StyleSwitcher from "./ui/StyleSwitcher"
 import query from "./query";
 import pickSchemaTypes from "./util/pickSchemaTypes";
 import Hub from "./message/Hub";
@@ -204,5 +205,6 @@ export {
     Hub,
     AssociationSelector,
     WorkingSet,
-    WorkingSetStatus
+    WorkingSetStatus,
+    StyleSwitcher
 }

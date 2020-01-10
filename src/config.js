@@ -42,6 +42,11 @@ export const DEFAULT_OPTS = {
         bodyClass: ""
     },
 
+    /**
+     * Optional information about alternate styles provided by
+     * de.quinscape.automaton.runtime.provider.AlternateStyleProvider if present
+     */
+    alternateStyles: null,
     // standard scopes, might not exist in application
     [APP_SCOPE]: null,
     [USER_SCOPE]: null,

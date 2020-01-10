@@ -50,6 +50,7 @@ function defaultInit(ctx, initial)
         csrfToken,
         processName,
         schema,
+        alternateStyles,
         [APP_SCOPE]: appScopeFromInitial,
         [USER_SCOPE]: userScopeFromInitial
     } = initial;
@@ -68,6 +69,8 @@ function defaultInit(ctx, initial)
     config.appName = appName;
     config.locale = locale;
     config.csrfToken = csrfToken;
+
+    config.alternateStyles = alternateStyles;
 
     config.rootProcess = processName;
 
