@@ -38,7 +38,6 @@ function setActiveStyleSheet(style)
     }
     const styleURI = uri(def.uri);
     const newLink = document.createElement("link");
-    newLink.setAttribute("id", STYLE_LINK_ID);
     newLink.setAttribute("type", "text/css");
     newLink.setAttribute("rel", "stylesheet");
     newLink.setAttribute("href", styleURI);
@@ -47,6 +46,7 @@ function setActiveStyleSheet(style)
         "load",
             ev => {
                 head.removeChild(link);
+                newLink.setAttribute("id", STYLE_LINK_ID);
         },
         true
     );
