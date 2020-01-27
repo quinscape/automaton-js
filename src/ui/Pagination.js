@@ -1,6 +1,6 @@
 import React from "react"
 import cx from "classnames"
-import { isObservable } from "mobx"
+import { isObservable, toJS } from "mobx"
 import { observer as fnObserver } from "mobx-react-lite"
 import i18n from "../i18n";
 
@@ -11,21 +11,6 @@ export const DEFAULT_PAGE_SIZES = [
     50,
     i18n("All Rows")
 ];
-
-function offsetLink(offset)
-{
-    return {
-        name: ctx => {
-            const page = ctx.currentPage + offset;
-            if (page < 0 || page >= ctx.numPages)
-            {
-                return "";
-            }
-            return String(page + 1)
-        },
-        fn: ctx => ctx.currentPage + offset
-    };
-}
 
 const BUTTON_FIRST = i18n("Pagination:First");
 const BUTTON_PREV = i18n("Pagination:Prev");
@@ -147,25 +132,30 @@ const Pagination = fnObserver(props => {
 
     const { iQuery, pageSizes, description, buttonConfig } = props;
 
-    const { queryConfig : { currentPage, pageSize }, rowCount } = iQuery;
+    const { queryConfig : { offset, pageSize }, rowCount } = iQuery;
+
+    if (typeof offset !== "number")
+    {
+        throw new Error("Offset not a number: " + offset)
+    }
 
     const numPages = Math.ceil(rowCount / pageSize);
 
     const navigate = ev => {
         ev.preventDefault();
-        const currentPage = +ev.target.dataset.page;
+        const offset = +ev.target.dataset.offset;
 
-        //console.log("Pagination.navigate", currentPage);
+        console.log("Pagination.navigate", offset);
 
         return iQuery.update({
-            currentPage
+            offset
         });
     };
 
     const changePageSize = ev => {
         ev.preventDefault();
         return iQuery.update({
-            currentPage: 0,
+            offset: 0,
             pageSize: +ev.target.value
         });
     };
@@ -196,6 +186,8 @@ const Pagination = fnObserver(props => {
 
                         const { name } = btn;
 
+                        const currentPage = (offset / pageSize)|0;
+
                         const page = getTargetPage(btn, currentPage, numPages);
 
                         // highlight current page if button not named
@@ -225,7 +217,7 @@ const Pagination = fnObserver(props => {
                                         {
                                             className: "page-link",
                                             href: isDisabled ? null : "#",
-                                            "data-page": page,
+                                            "data-offset": page * pageSize,
                                             onClick: navigate
                                         },
                                         name || String(page + 1)

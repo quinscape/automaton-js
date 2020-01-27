@@ -160,6 +160,7 @@ const TestForm = withForm(
 // creates a GraphQLQuery instance with mocked .execute method that returns a fixed result.
 function createMockedQuery(format, type, payload)
 {
+    console.log({payload})
 
     const converted = format.convert(
         {

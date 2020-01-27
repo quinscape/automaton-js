@@ -104,7 +104,7 @@ function SelectButtonAddon({modalTitle, mode, query, setModalState, left })
                                             cs => cs.name
                                         );
 
-                                    //console.log("COLUMNS", columns);
+                                    console.log(JSON.stringify(query.defaultVars, null, 4));
 
                                     setModalState({
                                         iQuery,
@@ -408,7 +408,8 @@ const FKSelector = fnObserver(props => {
             query.execute({
                 config: {
                     condition,
-                    pageSize: 2
+                    offset: 0,
+                    pageSize: 0
                 }
             }).then(result => {
                 const iQuery = getFirstValue(result);

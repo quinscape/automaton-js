@@ -34,7 +34,7 @@
     "queryConfig": {
         "id": null,
         "condition": null,
-        "currentPage": 0,
+        "offset": 0,
         "pageSize": 5,
         "sortFields": ["name"]
     },

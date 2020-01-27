@@ -92,7 +92,7 @@ export default class InteractiveQuery {
      *
      * ```js
      * // page to second page
-     * iQuery.update({currentPage: 1})
+     * iQuery.update({offset: 10})
      *
      * // sorty by name descending
      * iQuery.update({
@@ -227,7 +227,7 @@ export default class InteractiveQuery {
 
         return this.update({
             condition: newCondition,
-            currentPage: 0
+            offset: 0
         })
     }
 }

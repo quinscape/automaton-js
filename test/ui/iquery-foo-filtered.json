@@ -65,7 +65,7 @@
             "name": "and",
             "type": "Condition"
         },
-        "currentPage": 0,
+        "offset": 0,
         "pageSize": 5,
         "sortFields": ["name"]
     },

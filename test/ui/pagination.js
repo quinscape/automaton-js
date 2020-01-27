@@ -92,7 +92,7 @@ describe("Pagination", function () {
             assert(updateSpy.called);
             assert.deepEqual(updateSpy.args[0], [
                 {
-                    "currentPage": 1
+                    "offset": 1 * 5
                 }
             ]);
 
@@ -105,14 +105,14 @@ describe("Pagination", function () {
             assert(updateSpy.callCount === 2);
             assert.deepEqual(updateSpy.args[1], [
                 {
-                    "currentPage": 39
+                    "offset": 39 * 5
                 }
             ])
         }
 
         // update to second page
         {
-            runInAction( () => iQuery.queryConfig.currentPage = 1);
+            runInAction( () => iQuery.queryConfig.offset = 5);
 
             const first = getByText(container, "[First]");
             const prev = getByText(container, "[Prev]");
@@ -137,7 +137,7 @@ describe("Pagination", function () {
             assert(updateSpy.callCount === 3);
             assert.deepEqual(updateSpy.args[2], [
                 {
-                    "currentPage": 2
+                    "offset": 2 * 5
                 }
             ]);
 
@@ -148,14 +148,14 @@ describe("Pagination", function () {
             assert(updateSpy.callCount === 4);
             assert.deepEqual(updateSpy.args[3], [
                 {
-                    "currentPage": 0
+                    "offset": 0
                 }
             ]);
         }
 
         // update to second to last page
         {
-            runInAction( () => iQuery.queryConfig.currentPage = 38);
+            runInAction( () => iQuery.queryConfig.offset = 38 * 5);
 
             const first = getByText(container, "[First]");
             const prev = getByText(container, "[Prev]");
@@ -179,14 +179,14 @@ describe("Pagination", function () {
             assert(updateSpy.callCount === 5);
             assert.deepEqual(updateSpy.args[4], [
                 {
-                    "currentPage": 39
+                    "offset": 39 * 5
                 }
             ]);
         }
 
         // update to last page
         {
-            runInAction( () => iQuery.queryConfig.currentPage = 39);
+            runInAction( () => iQuery.queryConfig.offset = 39 * 5);
 
             const first = getByText(container, "[First]");
             const prev = getByText(container, "[Prev]");
@@ -206,7 +206,7 @@ describe("Pagination", function () {
         {
 
             runInAction( () => {
-                iQuery.queryConfig.currentPage = 0;
+                iQuery.queryConfig.offset = 0;
                 iQuery.queryConfig.pageSize = 50;
             });
 
@@ -231,7 +231,7 @@ describe("Pagination", function () {
             assert(updateSpy.callCount === 6);
             assert.deepEqual(updateSpy.args[5], [
                 {
-                    "currentPage": 3
+                    "offset": 150
                 }
             ])
 

@@ -47,7 +47,7 @@ const SortLink = props => {
                 descending(sort) :
                 sort
         ],
-        currentPage: 0
+        offset: 0
     });
 
     const sortIcon = sortable ?  SORT_ICONS[ findSort(sortFields, sort) ] : 0;

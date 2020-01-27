@@ -213,8 +213,8 @@
                     "deprecationReason": null
                 },
                 {
-                    "name": "currentPage",
-                    "description": "Current page within the paginated results",
+                    "name": "offset",
+                    "description": "Current offset within the paginated results",
                     "args": [],
                     "type": {
                         "kind": "SCALAR",

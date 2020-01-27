@@ -153,7 +153,7 @@ describe("DataGrid", function () {
         assert(updateSpy.called)
         assert.deepEqual(updateSpy.args[0], [
             {
-                "currentPage": 0,
+                "offset": 0,
                 "sortFields": [
                     "owner.login"
                 ]
@@ -212,7 +212,7 @@ describe("DataGrid", function () {
         // first click on column nevertheless sorts it by the column, ascending.
         assert.deepEqual(updateSpy.args[0], [
             {
-                "currentPage": 0,
+                "offset": 0,
                 "sortFields": [
                     "name"
                 ]
