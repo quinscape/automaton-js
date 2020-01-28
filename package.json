@@ -16,6 +16,7 @@
         "domainql-form": "^3.0.1",
         "graphql": "^14.5.8",
         "history": "^4.10.1",
+        "js-beautify": "^1.10.3",
         "js-cookie": "^2.2.1",
         "lodash.set": "^4.3.2",
         "mobx": "^5.15.0",
@@ -63,7 +64,7 @@
         "use-debounce": "^3.1.0"
     },
     "bin": {
-        "model-to-js": "./lib/modelToJs.js"
+        "model-to-js": "lib/model2js/modelToJs.js"
     },
     "scripts": {
         "prepublish": "cross-env NODE_ENV=production babel src --out-dir lib",
