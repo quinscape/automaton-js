@@ -12,11 +12,8 @@ import { observer as fnObserver } from "mobx-react-lite"
  */
 const Column = fnObserver(props => {
 
-
     const {name, context, children} = props;
 
-    const noneText = GlobalConfig.none();
-    
     if (typeof children === "function")
     {
         const result = children(context);
@@ -39,6 +36,14 @@ const Column = fnObserver(props => {
                 }
             </td>
         );
+    }
+
+    if (!name)
+    {
+        throw new Error(
+            "<DataGrid.Column/> must have a name attribute if it does not have a function as only child." +
+            "Either use <DataGrid.Column name=\"field\" ... /> or <DataGrid.Column>{ row => (...) }</DataGrid.Column>)"
+        )
     }
 
     //console.log("context[name] = ", context[name]);
