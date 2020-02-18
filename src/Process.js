@@ -455,6 +455,10 @@ export class Process {
         return this[secret].input;
     }
 
+    get isSubProcess()
+    {
+        return !!this[secret].parent;
+    }
 
     /**
      * Returns the composite component with the given name.
