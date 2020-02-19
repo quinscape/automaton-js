@@ -145,7 +145,7 @@ const Pagination = fnObserver(props => {
         ev.preventDefault();
         const offset = +ev.target.dataset.offset;
 
-        console.log("Pagination.navigate", offset);
+        //console.log("Pagination.navigate", offset);
 
         return iQuery.update({
             offset

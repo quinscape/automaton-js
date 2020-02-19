@@ -104,7 +104,7 @@ function SelectButtonAddon({modalTitle, mode, query, setModalState, left })
                                             cs => cs.name
                                         );
 
-                                    console.log(JSON.stringify(query.defaultVars, null, 4));
+                                    //console.log(JSON.stringify(query.defaultVars, null, 4));
 
                                     setModalState({
                                         iQuery,
