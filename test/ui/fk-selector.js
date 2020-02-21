@@ -2,16 +2,25 @@ import React from "react"
 import sinon from "sinon"
 import assert from "power-assert"
 import userEvent from "@testing-library/user-event";
-import { toJS } from "mobx"
 import { observer as fnObserver } from "mobx-react-lite"
-import { act, render, getByLabelText, waitForElement, waitForElementToBeRemoved, getByText, prettyDOM } from "@testing-library/react"
-import { Form, FormConfigProvider, InputSchema, WireFormat, withForm } from "domainql-form"
+import {
+    act,
+    getByLabelText,
+    getByText,
+    prettyDOM,
+    render,
+    waitForElement,
+    waitForElementToBeRemoved
+} from "@testing-library/react"
+import { FormConfigProvider, InputSchema, WireFormat, withForm } from "domainql-form"
 
 import config from "../../src/config"
 import InteractiveQuery from "../../src/model/InteractiveQuery"
 import FKSelector from "../../src/ui/FKSelector";
 import GraphQLQuery from "../../src/GraphQLQuery"
 import { field, value } from "../../src/FilterDSL"
+import { createMockedQuery } from "./createMockedQuery";
+
 
 const rawSchema = require("./fk-schema.json");
 
@@ -156,29 +165,6 @@ const TestForm = withForm(
         type: "QuxMainInput"
     }
 );
-
-// creates a GraphQLQuery instance with mocked .execute method that returns a fixed result.
-function createMockedQuery(format, type, payload)
-{
-    console.log({payload})
-
-    const converted = format.convert(
-        {
-            kind: "OBJECT",
-            name: type
-        },
-        payload,
-        true
-    );
-
-    const instance = new GraphQLQuery("", {});
-    instance.execute = () => {
-        return Promise.resolve({
-            testQuery: converted
-        });
-    };
-    return instance;
-}
 
 
 let Q_QuxA;

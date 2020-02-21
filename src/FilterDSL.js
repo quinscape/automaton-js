@@ -60,7 +60,7 @@ function buildOpFn(name, numArgs)
     }
 }
 
-const FIELD_CONDITIONS = {
+export const FIELD_CONDITIONS = {
     "greaterOrEqual":1,
     "lessOrEqual":1,
     "lt":1,
@@ -97,7 +97,7 @@ const FIELD_CONDITIONS = {
     "in" : 1
 };
 
-const CONDITION_METHODS = {
+export const CONDITION_METHODS = {
     "not":0,
     "or":1,
     "orNot":1,
@@ -105,7 +105,7 @@ const CONDITION_METHODS = {
     "andNot":1
 };
 
-const FIELD_OPERATIONS = {
+export const FIELD_OPERATIONS = {
     "bitNand":1,
     "mod":1,
     "div":1,

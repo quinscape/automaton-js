@@ -33,6 +33,11 @@ import pickSchemaTypes from "./util/pickSchemaTypes";
 import Hub from "./message/Hub";
 import AssociationSelector from "./ui/AssociationSelector";
 import WorkingSet, { WorkingSetStatus } from "./WorkingSet";
+import subscribeToTopic from "./message/subscribeToTopic";
+import publish from "./message/publish";
+import Tree from "./ui/tree/Tree";
+import compareConditions from "./util/compareConditions";
+import updateComponentCondition from "./util/updateComponentCondition";
 
 const AutomatonDevTools = "span";
 
@@ -206,5 +211,10 @@ export {
     AssociationSelector,
     WorkingSet,
     WorkingSetStatus,
-    StyleSwitcher
+    StyleSwitcher,
+    Tree,
+    subscribeToTopic,
+    publish,
+    compareConditions,
+    updateComponentCondition
 }

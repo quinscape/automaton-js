@@ -1,0 +1,65 @@
+{
+    "type": "Foo",
+    "columnStates": [
+        {
+            "name": "id",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "name",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "description",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "flag",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "type",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "owner.id",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "owner.login",
+            "enabled": true,
+            "sortable": true
+        }
+    ],
+    "queryConfig": {
+        "pageSize": 5,
+        "condition": null,
+        "sortFields": ["name"],
+        "id": null,
+        "offset": 5
+    },
+    "rows": [
+        {
+            "id": "c02282f1-82d8-4771-aa8b-4ae6313996ef",
+            "name": "Foo #7",
+            "description": "desc",
+            "flag": false,
+            "type": "TYPE_C",
+            "owner": {
+                "id": "af432487-a1b1-4f99-96d4-3b8e9796c95a",
+                "login": "anonymous"
+            }
+        }, {
+            "id": "01e78f62-9d89-4d7a-a495-2878e58c00ab",
+            "name": "Foo #8",
+            "description": "xxx",
+            "flag": true,
+            "type": "TYPE_A",
+            "owner": {
+                "id": "d7df0f2c-9aa8-4845-b2bf-1d02abd3666e",
+                "login": "admin"
+            }
+        }
+    ],
+    "rowCount": 7
+}

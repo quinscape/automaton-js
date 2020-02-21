@@ -1,0 +1,261 @@
+{
+    "type": "Node",
+    "columnStates": [
+        {
+            "name": "id",
+            "enabled": true,
+            "sortable": true
+        },
+        {
+            "name": "name",
+            "enabled": true,
+            "sortable": true
+        },
+        {
+            "name": "parent.name",
+            "enabled": true,
+            "sortable": true
+        },
+        {
+            "name": "type",
+            "enabled": true,
+            "sortable": true
+        }
+    ],
+    "queryConfig": {
+        "id": null,
+        "condition": null,
+        "offset": 0,
+        "pageSize": 10,
+        "sortFields": [
+            "name"
+        ]
+    },
+    "rows": [
+        {
+            "id": "e67fef00-5940-4449-9913-df9a00973c1b",
+            "name": "aardvark",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        },
+        {
+            "id": "5c36b60c-7dc7-4df1-a1cb-6e7199db62ba",
+            "name": "antelope",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        },
+        {
+            "id": "f8f97daa-3a5b-4b33-9309-cc2b4d2d6b26",
+            "name": "bass",
+            "parent": {
+                "name": "Fish"
+            },
+            "type": 2
+        },
+        {
+            "id": "ebfe89a0-dede-4282-9a32-5c3bc40d8bb6",
+            "name": "bear",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        },
+        {
+            "id": "df14e6dd-60f5-4c86-964a-502e231418a3",
+            "name": "boar",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        },
+        {
+            "id": "4cd72787-a783-4596-8d83-418157ebab65",
+            "name": "buffalo",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        },
+        {
+            "id": "309f63e8-5552-4b5e-8f68-cb504c9cdfe9",
+            "name": "calf",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        },
+        {
+            "id": "660a7bbe-d4a6-48a0-9c84-dc63c97861ed",
+            "name": "carp",
+            "parent": {
+                "name": "Fish"
+            },
+            "type": 2
+        },
+        {
+            "id": "f7dfe1f3-fad9-4e04-8d93-05748d09657f",
+            "name": "catfish",
+            "parent": {
+                "name": "Fish"
+            },
+            "type": 2
+        },
+        {
+            "id": "d0de582f-b6a2-41ba-9bb1-4993b835a9d1",
+            "name": "cavy",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        },
+        {
+            "id": "87f3eef0-ecb3-452a-a7f8-d41740430ca4",
+            "name": "cheetah",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        },
+        {
+            "id": "4462bb18-ac21-4139-b799-d9c2db0849b3",
+            "name": "chicken",
+            "parent": {
+                "name": "Bird"
+            },
+            "type": 2
+        },
+        {
+            "id": "43234a04-2c5c-4dba-8055-7b53f2a4d8d0",
+            "name": "chub",
+            "parent": {
+                "name": "Fish"
+            },
+            "type": 2
+        },
+        {
+            "id": "aa4c1b58-7fcc-4f6d-9a2e-f023dd894f9a",
+            "name": "clam",
+            "parent": {
+                "name": "Invertebrate"
+            },
+            "type": 2
+        },
+        {
+            "id": "33b8c445-1fe3-49d5-812d-e182a542bbc3",
+            "name": "crab",
+            "parent": {
+                "name": "Invertebrate"
+            },
+            "type": 2
+        },
+        {
+            "id": "53d03cf6-e974-4ffc-abbc-596729a1ef60",
+            "name": "crayfish",
+            "parent": {
+                "name": "Invertebrate"
+            },
+            "type": 2
+        },
+        {
+            "id": "16e8262a-76cf-49f0-8d22-db60c05d894b",
+            "name": "crow",
+            "parent": {
+                "name": "Bird"
+            },
+            "type": 2
+        },
+        {
+            "id": "1d821b7f-2406-4758-9c81-107680106f51",
+            "name": "deer",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        },
+        {
+            "id": "9cfda479-ec72-43c0-aac3-ba527a52b697",
+            "name": "dogfish",
+            "parent": {
+                "name": "Fish"
+            },
+            "type": 2
+        },
+        {
+            "id": "a8f0bc34-01a2-4f6c-8fc0-0467ffca6466",
+            "name": "dolphin",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        },
+        {
+            "id": "737ffc93-4331-428b-9cc3-bba4123ef25d",
+            "name": "dove",
+            "parent": {
+                "name": "Bird"
+            },
+            "type": 2
+        },
+        {
+            "id": "6c667069-235b-4521-a1fa-bb8f115143bf",
+            "name": "duck",
+            "parent": {
+                "name": "Bird"
+            },
+            "type": 2
+        },
+        {
+            "id": "f2bb9619-6cf5-4a8e-b0a6-763899377bac",
+            "name": "elephant",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        },
+        {
+            "id": "f948ec0c-e020-4ec9-83e8-7689fe16130c",
+            "name": "Escherichia Coli",
+            "parent": {
+                "name": "Bacteria"
+            },
+            "type": 2
+        },
+        {
+            "id": "512eea16-cab6-47dc-92d2-47d173bc8f66",
+            "name": "flamingo",
+            "parent": {
+                "name": "Bird"
+            },
+            "type": 2
+        },
+        {
+            "id": "3a705720-e397-474a-82dc-7b55ad8e98b7",
+            "name": "flea",
+            "parent": {
+                "name": "Bug"
+            },
+            "type": 2
+        },
+        {
+            "id": "195cab8d-ea24-4df5-b9f0-ccfee439a564",
+            "name": "frog",
+            "parent": {
+                "name": "Amphibian"
+            },
+            "type": 2
+        },
+        {
+            "id": "57565e3c-78be-4b41-b016-15fe53b7d2bb",
+            "name": "fruitbat",
+            "parent": {
+                "name": "Mammal"
+            },
+            "type": 2
+        }
+    ],
+    "rowCount": 28
+}

@@ -18,6 +18,7 @@
         "history": "^4.10.1",
         "js-beautify": "^1.10.3",
         "js-cookie": "^2.2.1",
+        "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
         "mobx": "^5.15.0",
         "mobx-react": "^6.1.4",
@@ -28,9 +29,11 @@
         "react": "^16.12.0",
         "react-calendar": "^2.19.2",
         "react-json-tree": "^0.11.2",
+        "react-popper": "^1.3.7",
         "reactstrap": "^8.2.0",
         "recursive-readdir": "^2.2.2",
         "simple-git": "^1.126.0",
+        "unicode-substring": "^1.0.0",
         "uuid": "^3.3.3"
     },
     "devDependencies": {
@@ -49,6 +52,7 @@
         "babel-plugin-transform-imports": "^2.0.0",
         "bignumber.js": "^9.0.0",
         "cross-env": "^6.0.3",
+        "ignore-styles": "^5.0.1",
         "jsdoc": "^3.6.3",
         "jsdoc-json": "^2.0.2",
         "jsdom": "^15.2.0",
