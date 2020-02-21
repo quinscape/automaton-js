@@ -1,6 +1,9 @@
 import { action, observable } from "mobx";
 import { component, condition, isLogicalCondition, Type } from "../FilterDSL";
 import compareConditions from "../util/compareConditions"
+import updateComponentCondition from "../util/updateComponentCondition";
+
+const NO_COMPONENT = null;
 
 export function getFirstValue(m)
 {
@@ -28,33 +31,6 @@ const updateFromResult = action("Update iQuery from Result", (iQuery, result) =>
 });
 
 
-const NO_COMPONENT = null;
-
-
-/**
- * Simplifies conditions of the form `and(component("example", null), ...)` to simply null
- * @param cond
- * @return {Object|null} condition
- */
-function simplifyCondition(cond)
-{
-    if (cond && cond.type === Type.CONDITION && cond.name === "and")
-    {
-        const { operands } = cond;
-        for (let i = 0; i < operands.length; i++)
-        {
-            const operand = operands[i];
-            if (operand.type !== Type.COMPONENT || operand.id !== null)
-            {
-                return cond;
-            }
-        }
-
-        // is and with null component nodes
-        return null;
-    }
-    return cond;
-}
 
 
 /**
@@ -128,8 +104,8 @@ export default class InteractiveQuery {
      *
      * If no component node is found, the current condition if present will be ANDed with the component condition
      *
-     * @param {Object} componentCondition       condition node
-     * @param {String} [componentId]            component id if none is given NO_COMPONENT (null) will be used
+     * @param {Object} componentCondition   condition node
+     * @param {String} [componentId]        component id if none is given NO_COMPONENT (null) will be used
      * @param {Boolean} [checkConditions]     check component condition before updating, don't update if identical
      * @return {Promise<* | never>}
      */
@@ -141,88 +117,16 @@ export default class InteractiveQuery {
     {
         let {condition: currentCondition} = this.queryConfig;
 
-        const newComponentNode = component(componentId);
-        newComponentNode.condition = componentCondition;
+        const newCondition = updateComponentCondition(
+            currentCondition,
+            componentCondition,
+            componentId,
+            checkConditions
+        );
 
-        let newCondition;
-        if (currentCondition === null)
+        if (newCondition === currentCondition)
         {
-            newCondition = condition("and");
-            newCondition.operands = [ newComponentNode ];
-        }
-        else
-        {
-            if (!isLogicalCondition(currentCondition))
-            {
-                throw new Error(
-                    "Invalid current condition in queryConfig, " +
-                    "root node must be a logical condition combining component conditions: " +
-                    JSON.stringify(currentCondition, null, 4)
-                );
-            }
-
-            const componentConditions = [];
-
-            const {operands} = currentCondition;
-
-            let found = false;
-            for (let i = 0; i < operands.length; i++)
-            {
-                const componentNode = operands[i];
-
-                if (componentNode.type !== Type.COMPONENT)
-                {
-                    throw new Error(
-                        "Invalid component condition structure: " +
-                        JSON.stringify(currentCondition, null, 4)
-                    );
-                }
-
-                // is it the id we're updating?
-                if (componentNode.id === componentId)
-                {
-                    if (
-                        checkConditions &&
-                        compareConditions(
-                            simplifyCondition(
-                                componentNode.condition,
-                            ),
-                            simplifyCondition(
-                                newComponentNode.condition
-                            ),
-                            true
-                        )
-                    )
-                    {
-                        //console.log("SKIP UPDATE");
-
-                        // component condition is actually the exact same as it was before, don't update
-                        return Promise.resolve(true);
-                    }
-
-                    componentConditions.push(
-                        newComponentNode
-                    );
-
-                    found = true;
-                }
-                else
-                {
-                    componentConditions.push(
-                        componentNode
-                    );
-                }
-            }
-
-            if (!found)
-            {
-                componentConditions.push(
-                    newComponentNode
-                )
-            }
-
-            newCondition = condition(currentCondition.name);
-            newCondition.operands = componentConditions;
+            return Promise.resolve(true);
         }
 
         return this.update({
@@ -230,4 +134,6 @@ export default class InteractiveQuery {
             offset: 0
         })
     }
+
+
 }
