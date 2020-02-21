@@ -15,6 +15,10 @@ const COMPONENTS = [
             "./snippets/CustomFilter.md",
             "../src/ui/datagrid/RowSelector.js",
             "./snippets/RowSelectorExample.md",
+            "../src/ui/tree/Tree.js",
+            "../src/ui/tree/Objects.js",
+            "../src/ui/tree/IndexedObjects.js",
+            "../src/ui/tree/Folder.js",
             "../src/ui/ScrollTracker.js",
         ]
     }
@@ -23,7 +27,7 @@ const COMPONENTS = [
 const BREAK = "\n";
 const DOUBLE_BREAK = "\n\n";
 
-function renderType(type)
+function renderType(type, shapes, propName)
 {
     if (!type)
     {
@@ -43,10 +47,14 @@ function renderType(type)
                 s += " or "
             }
 
-            s += renderType(value[i]);
+            s += renderType(value[i], shapes, propName);
         }
 
         return s;
+    }
+    else if (name === "arrayOf")
+    {
+        return "Array of " + renderType(value, shapes, propName);
     }
     else if (name === "enum" && value === "FieldMode.values()")
     {
@@ -60,9 +68,18 @@ function renderType(type)
     {
         return "instance of " + value;
     }
-    else if (name === "shape" && value === "import FORM_CONFIG_PROP_TYPES from \"./FormConfigPropTypes\"")
+    else if (name === "shape")
     {
-        return "Form options";
+        const newShape = {
+
+            name: propName,
+            props: value
+        };
+        //console.log("NEW SHAPE", newShape)
+
+        shapes.push(newShape);
+
+        return name;
     }
     else
     {
@@ -72,10 +89,15 @@ function renderType(type)
 
 function renderDescription(text)
 {
+    if (!text)
+    {
+        return "---";
+    }
+
     const result = text.replace(/\s+/g, " ");
 
     //console.log("DESC", result)
-    return result || "...";
+    return result || "---";
 }
 
 function endsWith(filename, s)
@@ -92,11 +114,40 @@ function renderComponentName(displayName)
     return  "&lt;" + displayName + "/&gt;";
 }
 
+
+function propTypesTable(props, shapes, fileName)
+{
+    let out = " Name | Type | Description " + BREAK +
+              "------|------|-------------" + BREAK;
+
+    const propNames = Object.keys(props);
+    propNames.sort();
+
+    for (let k = 0; k < propNames.length; k++)
+    {
+        const propName = propNames[k];
+
+        const { type, name, required, description } = props[propName];
+
+        if (!type && !name)
+        {
+            throw new Error("Error in " + fileName + ": Prop " + propName + " has default value, but no propType definition");
+        }
+        out += (required ? "**" + propName + "**" + " (required)" : propName) + " | " + renderType((type||{ name, value: "---"}), shapes, propName) + " | " + renderDescription(description) + BREAK;
+    }
+
+
+    return out;
+}
+
+
 function renderComponent(component)
 {
     // try
     // {
         let out = "";
+
+        let shapes = [];
 
         let fileName, content;
         if (typeof component === "function")
@@ -123,33 +174,24 @@ function renderComponent(component)
 
 
             const { props } = info;
+
             out += "### Props" + DOUBLE_BREAK;
 
             if (props)
             {
-
-                out += " Name | Type | Description " + BREAK;
-                out += "------|------|-------------" + BREAK;
-
-                const propNames = Object.keys(props);
-                propNames.sort();
-
-                for (let k = 0; k < propNames.length; k++)
-                {
-                    const propName = propNames[k];
-
-                    const { type, required, description } = props[propName];
-
-                    if (!type)
-                    {
-                        throw new Error("Error in " + fileName + ": Prop " + propName + " has default value, but no propType definition");
-                    }
-                    out += (required ? "**" + propName + "**" + " (required)" : propName) + " | " + renderType(type) + " | " + renderDescription(description) + BREAK;
-                }
+                out += propTypesTable(props, shapes, fileName);
             }
             else
             {
                 out += info.displayName + " has no props.";
+            }
+
+            for (let i = 0; i < shapes.length; i++)
+            {
+                const {name, props} = shapes[i];
+
+                out += "## " + name + " shape" + BREAK;
+                out += propTypesTable(props, shapes, fileName);
             }
 
             // console.log(

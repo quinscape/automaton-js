@@ -290,6 +290,69 @@ Then you use the `<DataGrid.RowSelector/>`
 </DataGrid>
 
 ```
+## &lt;Tree/&gt;
+
+Root tree component.
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+aria-labelledby | string | Pass-trough attribute for the aria-labelledby of the tree.
+id | string | Unique HTML element id for the tree
+options | shape | Tree options
+## options shape
+ Name | Type | Description 
+------|------|-------------
+popperModifiers | object | Propper modifiers condiguration for the context menu.
+small | bool | True if the tree should render small button variants.
+## &lt;Tree.Objects/&gt;
+
+Embeds a list of objects at the current level.
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+actions | Array of shape | Array of menu entries with label and action function. The first action is the default action that is also executed on item click.
+**render** (required) | func | Render function called once to render the item body for every row
+**values** (required) | instance of InteractiveQuery | Injected InteractiveQuery instance.
+## actions shape
+ Name | Type | Description 
+------|------|-------------
+**action** (required) | func | Action function for the action
+**label** (required) | string | Label for the action
+## &lt;Tree.IndexedObjects/&gt;
+
+
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+actions | Array of shape | Array of menu entries with label and action function. The first action is the default action that is also executed on item click.
+index | Array of string | Index containing all initial unicode characters of entries in an array
+nameField | string | Name field / path expression for the display name within the data rows. Default is "name"
+**render** (required) | func | Render prop for a data row. Receives the row and returns a react element tree or simple renderable values.
+renderIndex | func | Render prop for an index row. Receives the first unicode character and returns a react element tree or simple renderable values
+**values** (required) | instance of InteractiveQuery | iQuery document, either injected or loaded with a wrapping <Tree.Folder/>
+## actions shape
+ Name | Type | Description 
+------|------|-------------
+**action** (required) | func | Action function for the action
+**label** (required) | string | Label for the action
+## &lt;Tree.Folder/&gt;
+
+Renders a folder on the current level with a list of objects
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+children | func | The method expects a single function as children which receives the iQuery document result.
+**query** (required) | instance of GraphQLQuery | GraphQL query for this folder
+render | func | Render prop that renders the folder header. If not given, an invisible folder is rendered that immediately executes its query and renders the items received on the same level.
+variables | object | Query variables for the folder query.
 ## &lt;ScrollTracker/&gt;
 
 Tracks position changes of focused input elements to counter-act them by setting scroll values
