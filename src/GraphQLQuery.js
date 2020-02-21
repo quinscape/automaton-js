@@ -44,7 +44,7 @@ export default class GraphQLQuery {
      */
     execute(variables)
     {
-        //console.log("GraphQLQuery.execute", this, variables);
+        //console.log("GraphQLQuery.execute", this, JSON.stringify(variables, null, 4));
 
         return graphql(
             {
