@@ -16,8 +16,11 @@ const COMPONENTS = [
             "../src/ui/datagrid/RowSelector.js",
             "./snippets/RowSelectorExample.md",
             "../src/ui/tree/Tree.js",
+            "./snippets/tree-navigation.md",
             "../src/ui/tree/Objects.js",
+            "./snippets/tree-objects.md",
             "../src/ui/tree/IndexedObjects.js",
+            "./snippets/tree-indexed.md",
             "../src/ui/tree/Folder.js",
             "../src/ui/ScrollTracker.js",
         ]

@@ -1,4 +1,4 @@
-# Row Selection Example
+## Row Selection Example
 
 To select rows, we need an additional observable set scope variable which tracks the currently
 selected ids and can then be used in subsequent actions.

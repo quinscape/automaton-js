@@ -1,4 +1,4 @@
-# DataGrid Examples
+## DataGrid Examples
 
 If we have an GraphQL query injection like this
 

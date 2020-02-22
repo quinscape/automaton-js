@@ -13,7 +13,7 @@ import CaretButton from "./CaretButton";
 
 const LOADING = "LOADING";
 /**
- * Renders a folder on the current level with a list of objects
+ * Renders an initially closed folder that quries additional children on demand.
  */
 const Folder = ({render, query, variables, children}) => {
 

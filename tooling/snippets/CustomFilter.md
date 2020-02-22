@@ -1,4 +1,4 @@
-# Custom Filter
+## Custom Filter
 
 A client-side custom filter can be defined by giving a function to `filter`.  
 

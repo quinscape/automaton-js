@@ -60,7 +60,7 @@ filterTimeout | number | Timeout in milliseconds for the filter inputs. The actu
 rowClasses | func | Function to produce additional classes for each row ( context => classes )
 tableClassName | string | Additional classes to set on the table element. (default is "table-hover table-striped table-bordered")
 workingSet | instance of WorkingSet | Working set with in-memory objects to be mixed in
-# DataGrid Examples
+## DataGrid Examples
 
 If we have an GraphQL query injection like this
 
@@ -162,7 +162,7 @@ filter | string or func | Either a JOOQ / Filter DSL comparison name or a custom
 heading | string | Column heading
 name | string | Column name / path expression. (e.g. "name", but also "foo.owner.name")
 sort | string or object | Field expression string or field expression FilterDSL map
-# Custom Filter
+## Custom Filter
 
 A client-side custom filter can be defined by giving a function to `filter`.  
 
@@ -208,7 +208,7 @@ Row-Selection checkbox helper
 ------|------|-------------
 **id** (required) | any | Unique id string representing an object
 **selectedValues** (required) | custom or custom | External observable containing the currently selected values. Either an observable array or set.
-# Row Selection Example
+## Row Selection Example
 
 To select rows, we need an additional observable set scope variable which tracks the currently
 selected ids and can then be used in subsequent actions.
@@ -306,6 +306,33 @@ options | shape | Tree options
 ------|------|-------------
 popperModifiers | object | Propper modifiers condiguration for the context menu.
 small | bool | True if the tree should render small button variants.
+## Tree-Navigation
+
+The tree can be used with both mouse and keyboard.
+
+The care-buttons open and close tree groups and load additional data on demand.
+
+Clicking on the name of the item executes the default action or first action in the `actions` definition.
+
+( See [Tree.Objects](component-reference.md#treeobjects) and [Tree.IndexedObjects](component-reference.md#treeindexedobjects) )
+
+The context-menu can be opened by right-clicking the name or combining
+a normal click with either ctrl, shift or alt.
+
+### Keyboard navigation
+ 
+With the keyboard the menu can be opened by either pressing ctrl, shift
+or alt while pressing the return key or by tabbing onto a visually
+hidden context menu button with opens the same menu.
+
+Navigation within the tree works via cursor keys. Up and Down move the selection
+one item up or down. 'Home' and 'End' key select the first or last item in the tree.
+
+Cursor left closes the current tree group or jumps to the current parent if
+the group is already closed or the item has no descendants.
+
+Cursor right opens the current tree group or jumps to the first descendant 
+if the group is already open.
 ## &lt;Tree.Objects/&gt;
 
 Embeds a list of objects at the current level.
@@ -322,6 +349,48 @@ actions | Array of shape | Array of menu entries with label and action function.
 ------|------|-------------
 **action** (required) | func | Action function for the action
 **label** (required) | string | Label for the action
+## <Tree.Objects/> Example
+
+```js
+
+<h1 id="animal-tree-title" className="sr-only">Animals</h1>
+<Tree
+    id="animal-tree"
+    aria-labelledby="animal-tree-title"
+>
+    <Tree.Objects
+        values={ iQuery }
+        render={ (row,isSelected) => row.name }
+        actions={
+            [
+                {
+                    label: "Default Action",
+                    action: row => ...
+                },
+                {
+                    label: "Action 2",
+                    action: row => ...
+                }
+            ]
+        }
+    />
+</Tree>
+```
+
+Each row object within `iQuery` is rendered by calling the `render`
+function with the current row object and the current selection status.
+
+<Tree.Objects/> can have a render function child receiving the current
+row object. The render function can render the descendant tree objects
+for the row object.
+
+The `actions` prop receives an array of action entries. The action
+entries have a `label` and an `action` property. The `action` property
+is a function receiving the row object for which the action was
+triggered.
+
+The first action is the default action which is triggered when the user
+clicks on the name or presses return while the name is focused.
 ## &lt;Tree.IndexedObjects/&gt;
 
 
@@ -341,9 +410,45 @@ renderIndex | func | Render prop for an index row. Receives the first unicode ch
 ------|------|-------------
 **action** (required) | func | Action function for the action
 **label** (required) | string | Label for the action
+## <Tree.IndexedObjects/> Example
+
+IndexedObjects works very similar to Objects but it arranges the row
+values in groups by initial character.
+
+```js
+
+<Tree
+    id="animal-tree" aria-labelledby="animal-tree-title">
+    <Tree.IndexedObjects
+        values={ iQuery }
+        index={ indexArray }
+        render={(row, iSelected) => row.name }
+        renderIndex={letter => (<b>{letter + ":"}</b>)}
+        actions={
+            [
+                {
+                    label: "Default Action",
+                    action: row => ...
+                },
+                {
+                    label: "Action 2",
+                    action: row => ...
+                }
+            ]
+        }
+    />
+</Tree>
+```
+
+It receives and addition `index` prop which must be provided with an
+array of initial characters in sort order.
+
+The optional `renderIndex` render prop is used to render the initial
+letter tree group headers. Here we render it bold and add a colon.
+
 ## &lt;Tree.Folder/&gt;
 
-Renders a folder on the current level with a list of objects
+Renders an initially closed folder that quries additional children on demand.
 
 ### Props
 
