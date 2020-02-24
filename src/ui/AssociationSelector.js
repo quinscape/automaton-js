@@ -424,10 +424,8 @@ AssociationSelector.propTypes = {
 };
 
 AssociationSelector.defaultProps = {
-    targetField: "id",
     modalTitle: i18n("Select Associated Objects"),
     fade: false,
-    validationTimeout: 250,
     generateId: uuid.v4
 };
 

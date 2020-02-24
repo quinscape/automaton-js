@@ -467,3 +467,60 @@ Tracks position changes of focused input elements to counter-act them by setting
  Name | Type | Description 
 ------|------|-------------
 **formConfig** (required) | instance of FormConfig | Form config of form to track.
+## &lt;StyleSwitcher/&gt;
+
+Simple stylesheet switcher based on the server-side infrastructure around
+de.quinscape.automaton.runtime.provider.AlternateStyleProvider.
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+onChange | func | Optional change handler. If not set, the current selection is stored as cookie.
+## &lt;FKSelector/&gt;
+
+Renders the current value of foreign key references and allows changing of references via text-input and selection from
+modal grid.
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+autoFocus | bool | True to focus the fk selector input (See `validateInput` )
+display | string or func | Property to use as display value or render function for the current value ( formConfig => ReactElement ). Must be set if name is not set.
+fade | bool | Whether to do the modal fade animation on selection (default is true)
+formGroupClass | string | Additional HTML classes for the form group element.
+helpText | string | Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
+inputClass | string | Additional HTML classes for the display value.
+label | string | Label for the field. Must be defined if name is missing.
+labelClass | string | Additional HTML classes for the label element.
+modalTitle | string | Title for the modal dialog selecting the target object
+mode | FieldMode value | Mode for this foreign key selector. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
+name | string | Name / path for the foreign key value (e.g. "name", but also "foos.0.name"). Optional for this widget as it can also operate just by updating embedded objects. If name is not set, display and label must be set.
+onUpdate | func | Optional alternate handler for target selection. The default behavior can automatically update an embedded target object if
+placeholder | string | Placeholder for input (See `validateInput`)
+**query** (required) | instance of GraphQLQuery | iQuery GraphQL query to fetch the current list of target objects
+targetField | string | Name of the relation target field
+tooltip | string | Tooltip / title attribute for the input element
+validateInput | string or func | Field name or function returning a filter expression used to allow and validate text-input changes of the selected value. The field or filter must match exactly one element from the current `query`. (Function must be of the form `value => ...` and must return a Filter DSL condition.)
+validationTimeout | number | Timeout in ms after which the input will do the validation query ( default: 300).
+## &lt;AssociationSelector/&gt;
+
+Displays the currently associated entities of a many-to-many relationship as seen from one of the associated sides.
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+**display** (required) | string or func | Path to use as display value for associations or render function for assocations ( linkObj => ReactElement ).
+fade | bool | Whether to do the modal fade animation on selection (default is true)
+formGroupClass | string | Additional HTML classes for the form group element.
+generateId | func | Function to return a new id value for newly created associations. Note that you can use placeholder id values. Default is to create a new UUID (NPM "uuid" v4).
+helpText | string | Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
+label | string | Label for the field. Must be defined if name is missing.
+labelClass | string | Additional HTML classes for the label element.
+modalTitle | string | Title for the modal dialog selecting the target object
+mode | FieldMode value | Mode for this calendar field. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
+name | string | Name / path for the association selector field. In contrast to most normal fields this does not point to a scalar value but to list of associative entity / link table fields with embedded target objects
+**query** (required) | instance of GraphQLQuery | iQuery GraphQL query to fetch the current list of target objects
+value | string | Path to use as the representative value / id of the link

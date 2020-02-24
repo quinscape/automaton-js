@@ -23,6 +23,9 @@ const COMPONENTS = [
             "./snippets/tree-indexed.md",
             "../src/ui/tree/Folder.js",
             "../src/ui/ScrollTracker.js",
+            "../src/ui/StyleSwitcher.js",
+            "../src/ui/FKSelector.js",
+            "../src/ui/AssociationSelector.js",
         ]
     }
 ];

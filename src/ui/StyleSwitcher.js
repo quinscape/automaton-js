@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useMemo } from "react"
+import React, { useState } from "react"
 import PropTypes from "prop-types"
 import Cookies from "js-cookie"
-
 
 import i18n from "../i18n"
 import config from "../config"
 import uri from "../uri"
 import { findNamed } from "../util/type-utils";
+
 
 const STYLE_LINK_ID = "automaton-style-link";
 
@@ -66,6 +66,10 @@ function getDefaultStylesheet() {
 }
 
 
+/**
+ * Simple stylesheet switcher based on the server-side infrastructure around
+ * de.quinscape.automaton.runtime.provider.AlternateStyleProvider.
+ */
 const StyleSwitcher = ({onChange}) => {
 
     const { alternateStyles } = config;
