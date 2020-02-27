@@ -12,6 +12,7 @@ import { createMockedQuery } from "../createMockedQuery";
 import matchCondition, { matchPlaceholder } from "../../matchCondition";
 import { and, component, field } from "../../../src/FilterDSL";
 import getTreeSummary from "./getTreeSummary";
+import sleep from "../sleep";
 
 
 const rawSchema = require("./tree-test-schema.json");
@@ -420,6 +421,7 @@ describe("Tree.IndexedObjects", function () {
                     moreButton.click();
                 });
 
+                return sleep(5);
             })
 
             .then(() => {

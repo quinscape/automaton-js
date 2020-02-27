@@ -267,7 +267,7 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
     const [ dropDown, setDropDown ] = useState(-1);
 
     const [state, dispatch] = useReducer(reducer, null, () => createInitialState(index, values, nameField) );
-    const loadMore = letter => {
+    const loadMore = (letter, wasSelected) => {
 
         const { queryConfig, rowCount, _query: query } = values;
 
@@ -308,7 +308,7 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
 
                 // The "more" link is currently focused and is about to be replaced
                 // so we remember the list index of the current selected item.
-                const selectionIndex = ctx.findSelectionIndex(ctx.selected);
+                const selectionIndex = wasSelected && ctx.findSelectionIndex(ctx.selected);
 
                 if (newRows.rows.length < newRows.queryConfig.pageSize)
                 {
@@ -322,7 +322,7 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
                 appendRows(values, newRows, nameField, insertPos);
                 processRows(newRows, letter);
 
-                if (selectionIndex >= 0)
+                if (wasSelected && selectionIndex >= 0)
                 {
                     // we reselect the previous item index, selecting the item that has replaced
                     setTimeout(
@@ -528,7 +528,7 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
                                 {
                                     state[letter].loadState !== LoadState.DONE && (
                                         <MoreItem
-                                            onClick={ () => loadMore(letter) }
+                                            onMore={ wasSelected => loadMore(letter, wasSelected) }
                                         />
                                     )
                                 }

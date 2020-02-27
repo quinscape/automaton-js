@@ -19,7 +19,7 @@ const Objects = fnObserver(({render, values, actions, children}) => {
 
     const ctx = useContext(TreeContext);
 
-    const loadMore = () => {
+    const loadMore = wasSelected => {
 
         const { queryConfig, rowCount, _query : query } = values;
 
@@ -36,12 +36,12 @@ const Objects = fnObserver(({render, values, actions, children}) => {
 
             // The "more" link is currently focused and is about to be replaced
             // so we remember the list index of the current selected item.
-            const selectionIndex = ctx.findSelectionIndex(ctx.selected);
+            const selectionIndex = wasSelected && ctx.findSelectionIndex(ctx.selected);
 
             const newValues = getFirstValue(data);
             appendRows(values, newValues);
 
-            if (selectionIndex >= 0)
+            if (wasSelected && selectionIndex >= 0)
             {
                 // we reselect the previous item index, selecting the item that has replaced
                 setTimeout(
@@ -84,7 +84,7 @@ const Objects = fnObserver(({render, values, actions, children}) => {
             {
                 rows.length < rowCount && (
                     <MoreItem
-                        onClick={ loadMore }
+                        onMore={ wasSelected => loadMore(wasSelected) }
                     />
                 )
             }
