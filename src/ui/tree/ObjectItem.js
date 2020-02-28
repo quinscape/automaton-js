@@ -10,7 +10,9 @@ import ItemMenu from "./ItemMenu";
 import CaretButton from "./CaretButton";
 
 /**
- * Internally reused component for individual items holding the open/collapsed state.
+ * Renders a tree item based on a data row object.
+ *
+ * This is used in both <Tree.Objects/> and <Tree.IndexedObjects/>.
  */
 const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
 

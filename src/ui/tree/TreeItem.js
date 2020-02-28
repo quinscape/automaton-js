@@ -3,6 +3,10 @@ import cx from "classnames"
 import { TreeContext } from "./Tree";
 
 
+/**
+ * Internal helper component that renders the a11y friendly base tree item/<li>.
+ *
+ */
 const TreeItem = React.forwardRef(({ selectionId, children }, ref) => {
 
     const ctx = useContext(TreeContext);
