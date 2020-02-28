@@ -94,7 +94,6 @@ const Folder = ({render, query, variables, children}) => {
         <TreeItem
             ref={ ref }
             selectionId={ selectionId }
-            open={ open }
         >
             <CaretButton
                 open={open}

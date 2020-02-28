@@ -73,7 +73,6 @@ const IndexItem = ({letter, open, setOpen, render, children}) => {
         <TreeItem
             ref={ ref }
             selectionId={ selectionId }
-            open={ open }
         >
             <CaretButton
                 open={ open }

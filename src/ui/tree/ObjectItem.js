@@ -39,7 +39,6 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
         <TreeItem
             ref={ ref }
             selectionId={ selectionId }
-            open={ open }
         >
             {
                 hasKids && (
