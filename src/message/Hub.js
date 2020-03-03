@@ -1,10 +1,7 @@
 import i18n from "../i18n"
 
-let ws = null;
 
-let attempts = 0;
-let wasConnected = false;
-let preferFallback = false;
+let ws = null;
 
 let connectionId = null;
 
@@ -15,23 +12,21 @@ let notifiedAboutSessionLoss = false;
 const REQUEST_TIMEOUT = 30000;
 const NOT_REGISTERED = 4100;
 
+
 function createWebSocket(cid, resolve, reject)
 {
     const url = "ws://" + location.hostname + ":8080/automaton-ws?cid="+ cid;
-    ws = new WebSocket(url);
+    const webSocket = new WebSocket(url);
 
-    ws.onopen = function () {
+    webSocket.onopen = function () {
         //console.log("ws.onopen");
 
-        wasConnected = true;
-        attempts = 0;
         //start = new Date().getTime();
-
         console.log(`Connection ${cid} ready`);
 
         resolve(cid);
     };
-    ws.onclose = function (ev) {
+    webSocket.onclose = function (ev) {
 
         if (ev && ev.code === NOT_REGISTERED)
         {
@@ -45,24 +40,19 @@ function createWebSocket(cid, resolve, reject)
             return;
         }
 
-        if (!wasConnected || attempts > 2)
-        {
-            preferFallback = true;
-            ws = createWebSocket(cid, resolve, reject);
-        }
-        else
-        {
-            setTimeout(function () {
+        setTimeout(
+            () => {
                 ws = createWebSocket(cid, resolve, reject);
-            }, 1000);
-        }
+            },
+            2000
+        );
     };
-    ws.onerror = function (err) {
+    webSocket.onerror = function (err) {
         //console.log("ws.onerror");
-        ws.onclose();
+        webSocket.onclose();
         reject(err);
     };
-    ws.onmessage = ev => {
+    webSocket.onmessage = ev => {
         //console.log("ws.onMessage", ev);
         const data = JSON.parse(ev.data);
 
@@ -86,7 +76,7 @@ function createWebSocket(cid, resolve, reject)
         }
     };
 
-    return ws;
+    return webSocket;
 }
 
 function prepare(type, payload)
@@ -184,12 +174,13 @@ const Hub = {
         function (cid) {
             connectionId = cid;
 
-            return new Promise(function (resolve, reject) {
+            this.promise = new Promise(function (resolve, reject) {
 
                 ws = createWebSocket(cid, resolve, reject);
-
                 return cid;
             });
+
+            return this.promise;
         }
 };
 
@@ -198,7 +189,7 @@ Hub.register("ERROR", function (data) {
 });
 
 Hub.register("RESPONSE", function (reply) {
-    console.log("RESPONSE", reply);
+    //console.log("RESPONSE", reply);
 
     const promiseArray = lookupPromiseArray(reply.responseTo);
     const { payload } = reply;
