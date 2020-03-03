@@ -36,6 +36,8 @@ import WorkingSet, { WorkingSetStatus } from "./WorkingSet";
 import Tree from "./ui/tree/Tree";
 import compareConditions from "./util/compareConditions";
 import updateComponentCondition from "./util/updateComponentCondition";
+import subscribeToTopic from "./message/subscribeToTopic";
+import publish from "./message/publish";
 
 const AutomatonDevTools = "span";
 
@@ -212,5 +214,7 @@ export {
     StyleSwitcher,
     Tree,
     compareConditions,
+    publish,
+    subscribeToTopic,
     updateComponentCondition
 }
