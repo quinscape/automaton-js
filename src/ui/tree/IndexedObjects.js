@@ -575,8 +575,8 @@ IndexedObjects.propTypes = {
             label: PropTypes.string.isRequired,
             /** Action function for the action */
             action: PropTypes.func.isRequired
-        }).isRequired
-    ),
+        })
+    ).isRequired,
 
     /**
      * Name field / path expression for the display name within the data rows. Default is "name"

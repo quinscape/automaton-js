@@ -113,8 +113,8 @@ Objects.propTypes = {
             label: PropTypes.string.isRequired,
             /** Action function for the action */
             action: PropTypes.func.isRequired
-        }).isRequired
-    )
+        })
+    ).isRequired
 };
 
 Objects.displayName = "Tree.Objects";

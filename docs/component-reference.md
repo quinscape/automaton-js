@@ -341,7 +341,7 @@ Embeds a list of objects at the current level.
 
  Name | Type | Description 
 ------|------|-------------
-actions | Array of shape | Array of menu entries with label and action function. The first action is the default action that is also executed on item click.
+**actions** (required) | Array of shape | Array of menu entries with label and action function. The first action is the default action that is also executed on item click.
 **render** (required) | func | Render function called once to render the item body for every row
 **values** (required) | instance of InteractiveQuery | Injected InteractiveQuery instance.
 ## actions shape
@@ -399,7 +399,7 @@ clicks on the name or presses return while the name is focused.
 
  Name | Type | Description 
 ------|------|-------------
-actions | Array of shape | Array of menu entries with label and action function. The first action is the default action that is also executed on item click.
+**actions** (required) | Array of shape | Array of menu entries with label and action function. The first action is the default action that is also executed on item click.
 index | Array of string | Index containing all initial unicode characters of entries in an array
 nameField | string | Name field / path expression for the display name within the data rows. Default is "name"
 **render** (required) | func | Render prop for a data row. Receives the row and returns a react element tree or simple renderable values.
