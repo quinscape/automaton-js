@@ -53,7 +53,9 @@ function findLetter(rows, nameField, letter)
     return result;
 }
 
-const IndexItem = ({letter, open, setOpen, render, children}) => {
+const defaultAltText = letter => i18n("Toggle Items starting with {0}", letter);
+
+const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, children}) => {
 
     const ref = useRef(null);
     const selectionId = useMemo( nextSelectionId, []);
@@ -86,6 +88,7 @@ const IndexItem = ({letter, open, setOpen, render, children}) => {
                         type="button"
                         className={ cx("btn btn-link default", ctx.options.small && "btn-sm" ) }
                         tabIndex={-1}
+                        alt={ altText(letter) }
                         onClick={
                             () => setOpen(!open)
                         }
@@ -250,7 +253,7 @@ function renderIndexDefault(letter)
 }
 
 
-const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , values : valuesFromProps, index, actions, nameField = "name", children}) => {
+const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , values : valuesFromProps, index, actions, nameField = "name", altText, children}) => {
 
     const ctx = useContext(TreeContext);
 
@@ -508,6 +511,7 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
                                 open={ state[letter].open }
                                 setOpen={ open => toggleGroup(open, letter)}
                                 render={ renderIndex }
+                                altText={ altText }
                             >
 
                                 {
@@ -581,7 +585,15 @@ IndexedObjects.propTypes = {
     /**
      * Name field / path expression for the display name within the data rows. Default is "name"
      */
-    nameField: PropTypes.string
+    nameField: PropTypes.string,
+
+    /**
+     * Function that produces an alt-text for each index item given the initial letter ( letter => altText ).
+     *
+     * Default is using `i18n("Toggle Items starting with {0}", letter)`
+     *
+     */
+    altText: PropTypes.func
 };
 IndexedObjects.displayName = "Tree.IndexedObjects";
 
