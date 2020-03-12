@@ -181,7 +181,11 @@ const Hub = {
             });
 
             return this.promise;
-        }
+        },
+    getConnectionId: function ()
+    {
+        return connectionId;
+    }
 };
 
 Hub.register("ERROR", function (data) {

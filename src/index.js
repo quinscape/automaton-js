@@ -38,6 +38,10 @@ import compareConditions from "./util/compareConditions";
 import updateComponentCondition from "./util/updateComponentCondition";
 import subscribeToTopic from "./message/subscribeToTopic";
 import publish from "./message/publish";
+import useDomainMonitor from "./message/monitor/useDomainMonitor";
+import useEntity from "./message/monitor/useEntity";
+import mapIterator from "./util/mapIterator";
+import DomainActivityIndicator from "./ui/DomainActivityIndicator";
 
 const AutomatonDevTools = "span";
 
@@ -216,5 +220,10 @@ export {
     compareConditions,
     publish,
     subscribeToTopic,
-    updateComponentCondition
+    updateComponentCondition,
+
+    useDomainMonitor,
+    useEntity,
+    mapIterator,
+    DomainActivityIndicator
 }
