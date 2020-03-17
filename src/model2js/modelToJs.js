@@ -43,7 +43,7 @@ function handleSlashes(p) {
     return p.replace(new RegExp("\\" + path.sep, "g"), "/")
 }
 
-recursiveReadDir(MODEL_PATH, [], function (err, fileNames) {
+recursiveReadDir(MODEL_PATH, ["!*.json"], function (err, fileNames) {
 
     if (err) {
         console.error(err);
@@ -160,7 +160,7 @@ function convertMisc({ importDeclarations, userScope, query }, shortName) {
             if (err) throw err;
         })
     }
-    else { 
+    else if(userScope) {
         scripts += renderUserScopeScript(userScope)
         fs.writeFile(`${shortPath}/${shortName}.js`, scripts, (err) => {
             if (err) throw err;
