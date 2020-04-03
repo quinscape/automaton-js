@@ -58,7 +58,9 @@ const Folder = ({render, query, variables, children}) => {
 
     const isLoading = typeof objects === "string";
 
-    if (!render)
+    const renderResult = typeof render === "function" && render();
+
+    if (!renderResult)
     {
         // render invisible folder
         useEffect(
@@ -109,7 +111,7 @@ const Folder = ({render, query, variables, children}) => {
                         onClick={toggle}
                     >
                         {
-                            render()
+                            renderResult
                         }
                     </button>
                 </div>
