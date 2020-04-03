@@ -355,7 +355,7 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
             let insertPos = -1, prevLetter;
             let idx = findLetterIndex(index,letter);
 
-            if (idx ===  0)
+            if (!idx)
             {
                 // first not fetched, we insert at start
                 insertPos = 0;
@@ -367,7 +367,7 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
                 {
                     prevLetter = index[--idx];
                     
-                } while ( idx < 0 || state[prevLetter].loadState === LoadState.INITIAL)
+                } while ( idx > 0 || state[prevLetter].loadState === LoadState.INITIAL)
 
 
                 if (idx < 0)
@@ -404,8 +404,13 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
 
                     const newRows = getFirstValue(data);
 
-                    appendRows(values, newRows, nameField, insertPos);
-                    processRows(newRows, letter);
+                    //console.log("TOGGLE GROUP", newRows);
+
+                    if (newRows.rows.length)
+                    {
+                        appendRows(values, newRows, nameField, insertPos);
+                        processRows(newRows, letter);
+                    }
 
                     if (newRows.rows.length < newRows.queryConfig.pageSize)
                     {
@@ -487,7 +492,7 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
     return (
         <React.Fragment>
             {
-                index.length === 0 && (
+                (index.length === 0 || rows.length === 0) && (
                     <li className="tree-item">
                         <div className="text-muted small no-gutter">
                             {
@@ -498,6 +503,7 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
                 )
             }
             {
+                !!rows.length &&
                 index.map(
                     (letter, idx) => {
 
