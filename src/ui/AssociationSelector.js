@@ -228,8 +228,6 @@ const AssociationSelector = fnObserver(props => {
                         throw new Error("Result is no interactive query object");
                     }
 
-                    iQuery._query = query;
-
                     const columns = iQuery.columnStates
                         .filter(
                             cs => cs.enabled && cs.name !== "id"

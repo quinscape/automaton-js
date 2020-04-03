@@ -16,6 +16,7 @@ import InteractiveQuery from "./model/InteractiveQuery";
 import { createBrowserHistory } from "history"
 import { getWireFormat } from "./domain"
 import createDomainObject from "./createDomainObject";
+import { registerGenericGraphQLPostProcessor } from "./graphql";
 const SCOPES_MODULE_NAME = "./scopes.js";
 
 const pkgJSON = require("../package.json");
@@ -245,6 +246,13 @@ function setupScopeSynchronization()
 function registerSystemTypes()
 {
     registerGenericType(INTERACTIVE_QUERY, InteractiveQuery );
+
+    registerGenericGraphQLPostProcessor(INTERACTIVE_QUERY, (iQuery, query, params) => {
+
+        //console.log("REGISTER ", query, "on", iQuery);
+        iQuery._query = query;
+        return iQuery;
+    })
 }
 
 
