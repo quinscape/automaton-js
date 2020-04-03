@@ -15,7 +15,7 @@ const LOADING = "LOADING";
 /**
  * Renders an initially closed folder that quries additional children on demand.
  */
-const Folder = ({render, query, variables, children}) => {
+const Folder = ({render, query, variables, onLoad, children}) => {
 
     const ref = useRef(null);
 
@@ -30,18 +30,32 @@ const Folder = ({render, query, variables, children}) => {
     const toggle = ev => {
         if (!objects)
         {
-            query.execute(variables).then(
-                data => {
-                    setObjects(
-                        getFirstValue(data)
-                    );
-                    setOpen(!open);
+            let promise;
+            if (typeof onLoad === "function")
+            {
+                promise = Promise.resolve(
+                    onLoad()
+                )
+            }
+            else
+            {
+                promise = query.execute(variables)
+                    .then(getFirstValue)
+            }
 
-                    if (ev === undefined && !ctx.selected)
-                    {
-                        ctx.selectFirst();
-                    }
-                }
+            promise.then(
+                result => {
+                        setObjects(
+                            result
+                        );
+                        setOpen(!open);
+
+                        if (ev === undefined && !ctx.selected)
+                        {
+                            ctx.selectFirst();
+                        }
+                    },
+                err => console.error("Error fetching data for <Tree.Folder/>", err)
             );
             setObjects(LOADING);
         }
@@ -147,9 +161,19 @@ Folder.propTypes = {
     render: PropTypes.func,
 
     /**
-     * GraphQL query for this folder
+     * GraphQL query for this folder. Will be ignored if the onLoad prop is set.
      */
-    query: PropTypes.instanceOf(GraphQLQuery).isRequired,
+    query: PropTypes.instanceOf(GraphQLQuery),
+
+    /**
+     * Called when the folder data is loaded.
+     *
+     * This option is mutually exclusive with query/variables.
+     *
+     * The method must return a Promise or a sync value. The resolved value will be assigned to the internal storage.
+     * The exact same object will be fed to the children render function
+     */
+    onLoad: PropTypes.func,
 
     /**
      * Query variables for the folder query.
@@ -157,7 +181,8 @@ Folder.propTypes = {
     variables: PropTypes.object,
 
     /**
-     * The method expects a single function as children which receives the iQuery document result.
+     * The method expects a single function as children which receives the iQuery document result. If onLoad is set
+     * the received value can be of arbitrary structure.
      */
     children: PropTypes.func
 };

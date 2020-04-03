@@ -10,11 +10,14 @@ import { FormConfigProvider, InputSchema, WireFormat } from "domainql-form"
 import Tree from "../../../src/ui/tree/Tree";
 import { createMockedQuery } from "../createMockedQuery";
 import getTreeSummary from "./getTreeSummary";
+import sleep from "../sleep";
 
 
 const rawSchema = require("./tree-test-schema.json");
 
 const allNodes = require("./iquery-node.json");
+
+const nodeIndex = [ 'A', 'B', 'C', 'D', 'E', 'F' ];
 
 
 describe("Tree.Folder", function () {
@@ -101,7 +104,7 @@ describe("Tree.Folder", function () {
             folder.click();
         });
 
-        return Promise.resolve().then(
+        return sleep(5).then(
             () => {
 
                 const summary = getTreeSummary(container);
@@ -196,7 +199,7 @@ describe("Tree.Folder", function () {
         );
 
 
-        return Promise.resolve().then(
+        return sleep(5).then(
             () => {
 
                 const summary = getTreeSummary(container);
@@ -236,6 +239,112 @@ describe("Tree.Folder", function () {
                         "  flea",
                         "  frog",
                         "  fruitbat"
+                    ]
+                );
+            })
+    });
+
+    it("works with optional onLoad prop", function () {
+
+        const iQuery = format.convert(
+            {
+                kind: "OBJECT",
+                name: "InteractiveQueryNode"
+            },
+            allNodes,
+            true
+        );
+
+        iQuery._query = createMockedQuery(format, "InteractiveQueryNode", allNodes);
+
+        const defaultActionSpy = sinon.spy();
+        const extraActionSpy = sinon.spy();
+
+        const {container, debug} = render(
+            <FormConfigProvider schema={inputSchema}>
+                <Tree>
+                    <Tree.Folder
+                        onLoad={ () => {
+                            return ({
+                                        iQuery,
+                                        index: nodeIndex
+                                    })
+                        }}
+                    >
+                        {
+                            ({iQuery, index}) => (
+                                <Tree.IndexedObjects
+                                    values={ iQuery }
+                                    index={ index }
+                                    render={ row => ( row.name )}
+                                    actions={
+                                        [
+                                            {
+                                                label: "Open",
+                                                action: defaultActionSpy
+                                            },
+                                            {
+                                                label: "Extra",
+                                                action: extraActionSpy
+                                            }
+                                        ]
+                                    }
+                                />
+                            )
+                        }
+                    </Tree.Folder>
+                </Tree>
+            </FormConfigProvider>
+        );
+
+
+        return Promise.resolve().then(
+            () => {
+
+                const summary = getTreeSummary(container);
+
+                //console.log(JSON.stringify(summary, null, 4));
+
+                assert.deepEqual(
+                    summary,
+                    // Invisible Folder queries contents immediately (and ensures there's a selection in case the folder
+                    // was the only tree item before)
+                    [
+                        "*vA",
+                        "    aardvark",
+                        "    antelope",
+                        " vB",
+                        "    bass",
+                        "    bear",
+                        "    boar",
+                        "    buffalo",
+                        " vC",
+                        "    calf",
+                        "    carp",
+                        "    catfish",
+                        "    cavy",
+                        "    cheetah",
+                        "    chicken",
+                        "    chub",
+                        "    clam",
+                        "    crab",
+                        "    crayfish",
+                        "    crow",
+                        " vD",
+                        "    deer",
+                        "    dogfish",
+                        "    dolphin",
+                        "    dove",
+                        "    duck",
+                        " vE",
+                        "    elephant",
+                        "    Escherichia Coli",
+                        " vF",
+                        "    flamingo",
+                        "    flea",
+                        "    frog",
+                        "    fruitbat",
+                        "    [More]"
                     ]
                 );
             })
