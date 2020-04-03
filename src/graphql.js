@@ -1,6 +1,6 @@
 import config from "./config"
 import { observable } from "mobx";
-import { getWireFormat } from "./domain";
+import { getGenericType, getWireFormat, INTERACTIVE_QUERY } from "./domain";
 import GraphQLQuery from "./GraphQLQuery";
 import { getGraphQLMethodType } from "./Process";
 
@@ -68,6 +68,27 @@ export function formatGraphQLError(params, errors)
            "\n"
                )
            );
+}
+
+const postProcessedTypes = new Map();
+
+export function registerGraphQLPostProcessor(type, fn)
+{
+    postProcessedTypes.set(type, fn);
+}
+
+export function registerGenericGraphQLPostProcessor(type, fn)
+{
+    const { genericTypes } = config;
+
+    for (let i = 0; i < genericTypes.length; i++)
+    {
+        const gt = genericTypes[i];
+        if (gt.genericType === type)
+        {
+            postProcessedTypes.set(gt.type, fn);
+        }
+    }
 }
 
 
@@ -143,9 +164,15 @@ export default function graphql(params) {
                     return Promise.reject(err);
                 }
 
+                // console.log("GQL response", { ... data });
+
+                const postProcessed = [];
+
                 if (autoConvert)
                 {
                     const { methods, aliases } = queryDecl.getQueryDefinition();
+
+
                     for (let i = 0; i < methods.length; i++)
                     {
                         const methodName = methods[i];
@@ -160,10 +187,26 @@ export default function graphql(params) {
                             aliases,
                             methodName
                         );
+
+                        const fn = postProcessedTypes.get(typeRef.name);
+                        if (fn)
+                        {
+                            postProcessed.push({
+                                methodName,
+                                fn
+                            });
+                        }
                     }
                 }
 
-                return observable(data);
+                const result = observable(data);
+
+                for (let i = 0; i < postProcessed.length; i++)
+                {
+                    const { methodName, fn } = postProcessed[i];
+                    result[methodName] = fn(result[methodName], queryDecl, params);
+                }
+                return result;
             }
         )
     );

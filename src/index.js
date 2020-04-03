@@ -14,14 +14,14 @@ import Button from "./ui/Button"
 import Link from "./ui/Link"
 import CalendarField from "./ui/CalendarField"
 import ScrollTracker from "./ui/ScrollTracker"
-import graphql from "./graphql"
+import graphql, { registerGraphQLPostProcessor, registerGenericGraphQLPostProcessor } from "./graphql"
 //import AutomatonDevTools from "./AutomatonDevTools"
 import GraphQLQuery from "./GraphQLQuery"
 import { storeDomainObject, deleteDomainObject, storeDomainObjects, generateDomainObjectId, updateAssociations } from "./standard-queries"
 
 import { backToParent } from "./back-functions"
 import { registerGenericType, registerType, getGenericType, getWireFormat } from "./domain"
-import InteractiveQuery from "./model/InteractiveQuery"
+import InteractiveQuery, { getFirstValue } from "./model/InteractiveQuery"
 import createDomainObject from "./createDomainObject"
 import LogoutForm from "./ui/LogoutForm"
 import extractTypeData from "./extractTypeData"
@@ -42,6 +42,8 @@ import useDomainMonitor from "./message/monitor/useDomainMonitor";
 import useEntity from "./message/monitor/useEntity";
 import mapIterator from "./util/mapIterator";
 import DomainActivityIndicator from "./ui/DomainActivityIndicator";
+import equalsScalar, {registerScalarEquals} from "./util/equalsScalar";
+
 
 const AutomatonDevTools = "span";
 
@@ -202,6 +204,8 @@ export {
     registerType,
     getGenericType,
     InteractiveQuery,
+    getFirstValue,
+
 
     FilterDSL,
     CalendarField,
@@ -225,5 +229,12 @@ export {
     useDomainMonitor,
     useEntity,
     mapIterator,
-    DomainActivityIndicator
+    DomainActivityIndicator,
+
+    equalsScalar,
+    registerScalarEquals,
+
+    registerGraphQLPostProcessor,
+    registerGenericGraphQLPostProcessor
+
 }
