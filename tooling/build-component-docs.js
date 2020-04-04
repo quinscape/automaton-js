@@ -44,6 +44,10 @@ function renderType(type, shapes, propName)
 
     if (name === "union")
     {
+        if (typeof value === "string")
+        {
+            return value;
+        }
 
         let s = "";
         for (let i = 0; i < value.length; i++)
@@ -139,7 +143,7 @@ function propTypesTable(props, shapes, fileName)
         {
             throw new Error("Error in " + fileName + ": Prop " + propName + " has default value, but no propType definition");
         }
-        out += (required ? "**" + propName + "**" + " (required)" : propName) + " | " + renderType((type||{ name, value: "---"}), shapes, propName) + " | " + renderDescription(description) + BREAK;
+        out += (required ? "**" + propName + "**" + " (required)" : propName) + " | " + renderType((type|| (name === "union" ? props[propName] : { name, value: "---"})), shapes, propName) + " | " + renderDescription(description) + BREAK;
     }
 
 
