@@ -94,20 +94,20 @@ const ItemMenu = React.forwardRef(({style,placement,actions,scheduleUpdate,row, 
             role="menu"
         >
             {
-                actions.map((def,idx) => (
+                actions.map(({label, action},idx) => (
                     <button
-                        key={def.label}
+                        key={ idx }
                         type="button"
                         tabIndex="0"
                         role="menuitem"
                         className="dropdown-item button-sm"
                         data-idx={ idx }
                         onClick={
-                            () => { close(); def.action(row) }
+                            () => { close(); action(row) }
                         }
                     >
                         {
-                            idx === 0 ? <b>{def.label}</b> : def.label
+                            typeof label === "function" ? label() : idx === 0 ? <b>{ label }</b> : label
                         }
                     </button>
                 ))

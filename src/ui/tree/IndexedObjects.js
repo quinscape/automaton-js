@@ -581,8 +581,11 @@ IndexedObjects.propTypes = {
      */
     actions: PropTypes.arrayOf(
         PropTypes.shape({
-            /** Label for the action */
-            label: PropTypes.string.isRequired,
+            /** Label for the action for function to render a decorated label */
+            label: PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.func
+            ]).isRequired,
             /** Action function for the action */
             action: PropTypes.func.isRequired
         })

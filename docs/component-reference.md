@@ -348,7 +348,7 @@ Embeds a list of objects at the current level.
  Name | Type | Description 
 ------|------|-------------
 **action** (required) | func | Action function for the action
-**label** (required) | string | Label for the action
+**label** (required) | string or func | Label for the action for function to render a decorated label
 ## <Tree.Objects/> Example
 
 ```js
@@ -410,7 +410,7 @@ renderIndex | func | Render prop for an index row. Receives the first unicode ch
  Name | Type | Description 
 ------|------|-------------
 **action** (required) | func | Action function for the action
-**label** (required) | string | Label for the action
+**label** (required) | string or func | Label for the action for function to render a decorated label
 ## <Tree.IndexedObjects/> Example
 
 IndexedObjects works very similar to Objects but it arranges the row
@@ -455,8 +455,9 @@ Renders an initially closed folder that quries additional children on demand.
 
  Name | Type | Description 
 ------|------|-------------
-children | func | The method expects a single function as children which receives the iQuery document result.
-**query** (required) | instance of GraphQLQuery | GraphQL query for this folder
+children | func | The method expects a single function as children which receives the iQuery document result. If onLoad is set the received value can be of arbitrary structure.
+onLoad | func | Called when the folder data is loaded. This option is mutually exclusive with query/variables. The method must return a Promise or a sync value. The resolved value will be assigned to the internal storage. The exact same object will be fed to the children render function
+query | instance of GraphQLQuery | GraphQL query for this folder. Will be ignored if the onLoad prop is set.
 render | func | Render prop that renders the folder header. If not given, an invisible folder is rendered that immediately executes its query and renders the items received on the same level.
 variables | object | Query variables for the folder query.
 ## &lt;ScrollTracker/&gt;
