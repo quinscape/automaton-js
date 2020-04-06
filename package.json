@@ -52,6 +52,7 @@
         "babel-plugin-transform-imports": "^2.0.0",
         "bignumber.js": "^9.0.0",
         "cross-env": "^6.0.3",
+        "fetch-mock": "^9.3.1",
         "ignore-styles": "^5.0.1",
         "jsdoc": "^3.6.3",
         "jsdoc-json": "^2.0.2",

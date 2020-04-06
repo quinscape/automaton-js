@@ -1,6 +1,6 @@
 import config from "./config"
 import { observable } from "mobx";
-import { getGenericType, getWireFormat, INTERACTIVE_QUERY } from "./domain";
+import { getWireFormat } from "./domain";
 import GraphQLQuery from "./GraphQLQuery";
 import { getGraphQLMethodType } from "./Process";
 
@@ -74,7 +74,15 @@ const postProcessedTypes = new Map();
 
 export function registerGraphQLPostProcessor(type, fn)
 {
-    postProcessedTypes.set(type, fn);
+    const array = postProcessedTypes.get(type);
+    if (!array)
+    {
+        postProcessedTypes.set(type, [ fn ]);
+    }
+    else
+    {
+        array.push(fn);
+    }
 }
 
 export function registerGenericGraphQLPostProcessor(type, fn)
@@ -86,9 +94,28 @@ export function registerGenericGraphQLPostProcessor(type, fn)
         const gt = genericTypes[i];
         if (gt.genericType === type)
         {
-            postProcessedTypes.set(gt.type, fn);
+            registerGraphQLPostProcessor(gt.type, fn);
         }
     }
+}
+
+
+function postProcess(result, processors, queryDecl, params)
+{
+    for (let i = 0; i < processors.length; i++)
+    {
+        const { methodName, array } = processors[i];
+
+        let value = result[methodName];
+        for (let j = 0; j < array.length; j++)
+        {
+            const fn = array[j];
+            value = fn(value, queryDecl, params)
+        }
+        result[methodName] = value;
+    }
+
+    return result;
 }
 
 
@@ -166,7 +193,7 @@ export default function graphql(params) {
 
                 // console.log("GQL response", { ... data });
 
-                const postProcessed = [];
+                const processors = [];
 
                 if (autoConvert)
                 {
@@ -188,12 +215,12 @@ export default function graphql(params) {
                             methodName
                         );
 
-                        const fn = postProcessedTypes.get(typeRef.name);
-                        if (fn)
+                        const array = postProcessedTypes.get(typeRef.name);
+                        if (array)
                         {
-                            postProcessed.push({
+                            processors.push({
                                 methodName,
-                                fn
+                                array
                             });
                         }
                     }
@@ -201,12 +228,7 @@ export default function graphql(params) {
 
                 const result = observable(data);
 
-                for (let i = 0; i < postProcessed.length; i++)
-                {
-                    const { methodName, fn } = postProcessed[i];
-                    result[methodName] = fn(result[methodName], queryDecl, params);
-                }
-                return result;
+                return postProcess(result, processors, queryDecl, params);
             }
         )
     );
