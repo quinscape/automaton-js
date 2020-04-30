@@ -52,6 +52,7 @@ recursiveReadDir(MODEL_PATH, ["!*.json"], function (err, fileNames) {
 
     for (let i = 0; i < fileNames.length; i++) {
         const internalPath = toInternalPath(handleSlashes(fileNames[i]))
+        console.log(internalPath);
         if (internalPath === null) {
             continue;
         }
@@ -66,23 +67,33 @@ recursiveReadDir(MODEL_PATH, ["!*.json"], function (err, fileNames) {
         let fileName = fileNames[i]
         let fileData = fs.readFileSync(fileName, "utf8");
         let jsonData = JSON.parse(fileData);
+        let content ="";
+
+        //render the import statment for all files
+        content = convertImportStatment(jsonData,content)
+
+        let fileConfig = null;
 
         if (isDomain) {
-            convertDomainModel(jsonData, shortName);
-        } else if (processName != null) {
+            fileConfig= convertDomainModel(jsonData, shortName,content);
+        }
+        else if (processName != null) {
 
             if (isComposite) {
-                convertComposite(jsonData, processName, shortName);
+                fileConfig=convertComposite(jsonData, processName, shortName,content);
             } else {
-                convertProcessExport(jsonData, processName, shortName);
+                fileConfig=convertProcessExport(jsonData, processName, shortName,content);
             }
-        } else {
-            convertMisc(jsonData, shortName);
         }
-        //console.log({appName, domainName, processName, shortName, isComposite});
-        console.log({appName, processName, shortName, isComposite});
-    }
+        else {
+            fileConfig=convertMisc(jsonData, shortName,content);
+        }
 
+        //console.log({appName, processName,shortName, isComposite});
+        fs.writeFile(fileConfig.path, fileConfig.content, (err) => {
+            if (err) console.log("\x1b[41m",err,"\x1b[0m") ;
+        })
+    }
 });
 
 const shortPath = './src/main/js/apps/model-to-js'
@@ -94,7 +105,6 @@ function createProjectFolders(processName) {
     if (!fs.existsSync(`${shortPath}/queries`)) {
         fs.mkdirSync(`${shortPath}/queries`)
     }
-
     if (processName != null) {
         if (!fs.existsSync(`${shortPath}/processes`)) {
             fs.mkdirSync(`${shortPath}/processes`)
@@ -107,63 +117,92 @@ function createProjectFolders(processName) {
     }
 }
 
-function convertDomainModel({ importDeclarations, domain }, shortName) {
-    let scripts = "";
-    scripts += renderImportStatements(importDeclarations)
-    scripts += renderDomainScript(domain);
-    
-    fs.writeFile(`${shortPath}/domain/${shortName}.js`, scripts, (err) => {
-        if (err) throw err;
-    })
+function convertImportStatment({importDeclarations},content){
+    try {
+        content += renderImportStatements(importDeclarations);
+    }catch (err) {
+        console.error("\x1b[41m", `Error: something wrong`,err, "\x1b[0m")
+    }
+    return content
 }
 
-function convertComposite({ importDeclarations, export: componentName, composite, extraConstants }, processName, shortName) {
-    let scripts = "";
-    scripts += renderImportStatements(importDeclarations)
+function convertDomainModel({domain }, shortName,content) {
+    const path = `${shortPath}/domain/${shortName}.js`
+    try {
+        content += renderDomainScript(domain)
 
-    if (extraConstants) { scripts += renderExtraConstantsScript(extraConstants) }
-
-    if (composite) { scripts += renderCompositeScript(composite, shortName) };
-    
-    scripts += `export default ${componentName}`
-
-    fs.writeFile(`${shortPath}/processes/${processName}/composites/${shortName}.js`, scripts, (err) => {
-        if (err) throw err;
-    })
+    } catch(err){
+        console.error("\x1b[41m", `Error: ${path}`,err, "\x1b[0m")
+    }
+    return {
+        path,
+        content
+    };
 }
 
-function convertProcessExport({ importDeclarations, processExports, query }, processName, shortName) {
-    let scripts = "";
-    scripts += renderImportStatements(importDeclarations)
+function convertComposite({export: componentName, composite, extraConstants }, processName, shortName,content) {
+    const path = `${shortPath}/processes/${processName}/composites/${shortName}.js`
+    try {
+        if (extraConstants) {
+            content += renderExtraConstantsScript(extraConstants)
+        }
 
-    if (query) {
-        scripts += renderQueryScript(query)
-        fs.writeFile(`${shortPath}/processes/${processName}/queries/${shortName}.js`, scripts, (err) => {
-            if (err) throw err;
-        })
+        if (composite) {
+            content += renderCompositeScript(composite, shortName)
+        }
+        content += `export default ${componentName}`;
+
+    } catch (err) {
+        console.error("\x1b[41m", `Error: ${path}`,err, "\x1b[0m")
     }
-    else {
-        scripts += renderProcessExportScript(processExports)
-        fs.writeFile(`${shortPath}/processes/${processName}/${shortName}.js`, scripts, (err) => {
-            if (err) throw err;
-        })
-    }
+    return {
+        path,
+        content: content
+    };
 }
 
-function convertMisc({ importDeclarations, userScope, query }, shortName) {
-    let scripts = "";
-    scripts += renderImportStatements(importDeclarations)
-
-    if (query) { 
-        scripts += renderQueryScript(query) 
-        fs.writeFile(`${shortPath}/queries/${shortName}.js`, scripts, (err) => {
-            if (err) throw err;
-        })
+function convertProcessExport({processExports, query }, processName, shortName,content) {
+    let path ='' ;
+    try {
+        if (query) {
+            path = `${shortPath}/processes/${processName}/queries/${shortName}.js`
+            content += renderQueryScript(query)
+        }
+        else {
+            path = `${shortPath}/processes/${processName}/${shortName}.js`
+            content += renderProcessExportScript(processExports)
+        }
+    } catch (err) {
+        console.error("\x1b[41m", `Error: ${path}`,err, "\x1b[0m")
     }
-    else if(userScope) {
-        scripts += renderUserScopeScript(userScope)
-        fs.writeFile(`${shortPath}/${shortName}.js`, scripts, (err) => {
-            if (err) throw err;
-        })
+
+    return {
+        path,
+        content
+    };
+}
+
+function convertMisc({userScope, query }, shortName,content) {
+    let path ='';
+
+    try {
+        if (query) {
+            path = `${shortPath}/queries/${shortName}.js`
+            content += renderQueryScript(query)
+        }
+        else if(userScope) {
+            path = `${shortPath}/${shortName}.js`
+            content += renderUserScopeScript(userScope)
+        }
+        else {
+            throw new Error("queries or user scope are undefined")
+        }
+    }catch (err) {
+        console.error("\x1b[41m", `Error: ${path}`,err, "\x1b[0m")
+    }
+
+    return {
+        path,
+        content
     };
 }
