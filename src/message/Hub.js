@@ -1,4 +1,5 @@
 import i18n from "../i18n"
+import config from "../config"
 
 
 let ws = null;
@@ -15,7 +16,7 @@ const NOT_REGISTERED = 4100;
 
 function createWebSocket(cid, resolve, reject)
 {
-    const url = "ws://" + location.hostname + ":8080/automaton-ws?cid="+ cid;
+    const url = "ws://" + location.hostname + ":8080" + config.contextPath + "/automaton-ws?cid="+ cid;
     const webSocket = new WebSocket(url);
 
     webSocket.onopen = function () {
@@ -49,7 +50,7 @@ function createWebSocket(cid, resolve, reject)
     };
     webSocket.onerror = function (err) {
         //console.log("ws.onerror");
-        webSocket.onclose();
+        webSocket.onclose(null);
         reject(err);
     };
     webSocket.onmessage = ev => {
