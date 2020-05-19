@@ -11,6 +11,7 @@
     "author": "Quinscape GmbH",
     "license": "Apache-2.0",
     "dependencies": {
+        "ajv": "^6.12.2",
         "classnames": "^2.2.6",
         "create-react-class": "^15.6.3",
         "domainql-form": "^3.0.1",
@@ -18,6 +19,7 @@
         "history": "^4.10.1",
         "js-beautify": "^1.10.3",
         "js-cookie": "^2.2.1",
+        "json-source-map": "^0.6.1",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
         "mobx": "^5.15.0",
