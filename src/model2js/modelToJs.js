@@ -2,6 +2,7 @@
 import path from "path"
 import recursiveReadDir from "recursive-readdir"
 import matchPath from "../matchPath";
+import fs from  "fs"
 import {
     renderImportStatements,
     renderDomainScript,
@@ -9,9 +10,9 @@ import {
     renderUserScopeScript,
     renderProcessExportScript,
     renderCompositeScript,
-    renderExtraConstantsScript} from "./handleModelToJs"
+    renderExtraConstantsScript,
+    modelSchemaValidation} from "./handleModelToJs";
 
-const fs = require('fs');
 const MODEL_PATH = "./src/main/webapp/WEB-INF/automaton/apps";
 const APPS_INFIX = "/apps/";
 
@@ -43,7 +44,7 @@ function handleSlashes(p) {
     return p.replace(new RegExp("\\" + path.sep, "g"), "/")
 }
 
-recursiveReadDir(MODEL_PATH, ["!*.json"], function (err, fileNames) {
+recursiveReadDir(MODEL_PATH, ["!*.json","**/lisa-web/meta"], function (err, fileNames) {
 
     if (err) {
         console.error(err);
@@ -69,9 +70,15 @@ recursiveReadDir(MODEL_PATH, ["!*.json"], function (err, fileNames) {
         let jsonData = JSON.parse(fileData);
         let content ="";
 
+        //start schema validation
+        const isSchemaValid = modelSchemaValidation(jsonData)
+        if(!isSchemaValid){
+            continue
+        }
+
         //render the import statment for all files
         content = convertImportStatment(jsonData,content)
-
+        //render the rest content for all files
         let fileConfig = null;
 
         if (isDomain) {
