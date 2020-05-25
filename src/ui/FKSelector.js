@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo, useState } from "react"
 import cx from "classnames"
 import PropTypes from "prop-types"
-import { FieldMode, FormGroup, GlobalConfig, InputSchema, unwrapType, useFormConfig, Addon } from "domainql-form"
+import { Addon, FieldMode, FormGroup, GlobalConfig, InputSchema, unwrapType, useFormConfig } from "domainql-form"
 import i18n from "../i18n";
-import { action, toJS } from "mobx";
+import { action, observable } from "mobx";
 import { observer as fnObserver } from "mobx-react-lite";
 import GraphQLQuery from "../GraphQLQuery";
-import { getFirstValue } from "../model/InteractiveQuery";
+import InteractiveQuery, { getFirstValue } from "../model/InteractiveQuery";
 import config from "../config"
 
 import { getGenericType, INTERACTIVE_QUERY } from "../domain";
@@ -20,6 +20,7 @@ import { getOutputTypeName, lookupType } from "../util/type-utils"
 import { field, value } from "../FilterDSL"
 import { getGraphQLMethodType } from "../Process";
 import { isNonNull } from "domainql-form/lib/InputSchema";
+
 
 function toggleOpen(modalState)
 {
@@ -66,8 +67,12 @@ function isSelected(fieldValue)
 }
 
 
-function SelectButtonAddon({modalTitle, mode, query, setModalState, left })
+function SelectButtonAddon({modalTitle, mode, query: queryFromProps, setModalState, left })
 {
+    const query = queryFromProps instanceof GraphQLQuery ? queryFromProps : queryFromProps._query;
+    const iQueryDoc = queryFromProps instanceof InteractiveQuery ? queryFromProps : null;
+
+
     return (
         <span
             className={
@@ -82,9 +87,20 @@ function SelectButtonAddon({modalTitle, mode, query, setModalState, left })
                 aria-roledescription={modalTitle}
                 onClick={
                     () => {
-                        query.execute(
-                            query.defaultVars
-                        ).then(
+
+                        let promise;
+                        if (iQueryDoc)
+                        {
+                            promise = Promise.resolve({ iQueryDoc })
+
+                        }
+                        else
+                        {
+                            promise = queryFromProps.execute(
+                                queryFromProps.defaultVars
+                            );
+                        }
+                        promise.then(
                             result => {
                                 try
                                 {
@@ -137,11 +153,27 @@ const FKSelector = fnObserver(props => {
     const [modalState, setModalState] = useState(MODAL_STATE_CLOSED);
     const [ flag, setFlag ] = useState(false);
 
-    const { display, query, modalTitle, targetField, onUpdate, fade, validateInput, children } = props;
+    const { display, query : queryFromProps, modalTitle, targetField, onUpdate, fade, validateInput, validateInputJS, children } = props;
+
+    const haveUserInput = validateInput || validateInputJS;
 
     // FIELD PROPS
     const { id, name, mode: modeFromProps, helpText, tooltip, label: labelFromProps, inputClass, labelClass, formGroupClass, autoFocus, validationTimeout, placeholder } = props;
 
+
+    const query = useMemo(
+        () => {
+            if (queryFromProps instanceof GraphQLQuery)
+            {
+                return queryFromProps;
+            }
+            else if (queryFromProps instanceof InteractiveQuery)
+            {
+                return queryFromProps._query;
+            }
+        },
+        [queryFromProps]
+    )
 
     const getUpdateForEmbedded = (rowType, rowValue) => {
 
@@ -217,7 +249,7 @@ const FKSelector = fnObserver(props => {
             let effectiveMode = modeFromProps || formConfig.options.mode;
 
             let inputMode;
-            if (validateInput)
+            if (haveUserInput)
             {
                 inputMode = FieldMode.NORMAL;
             }
@@ -258,7 +290,7 @@ const FKSelector = fnObserver(props => {
                         isButtonAddon ? (
                                 <SelectButtonAddon
                                     key={ i }
-                                    query={ query }
+                                    query={ queryFromProps }
                                     modalTitle={ modalTitle }
                                     mode={ effectiveMode }
                                     setModalState={ setModalState }
@@ -279,7 +311,7 @@ const FKSelector = fnObserver(props => {
                         isButtonAddon ? (
                                 <SelectButtonAddon
                                     key={ i }
-                                    query={ query }
+                                    query={ queryFromProps }
                                     modalTitle={ modalTitle }
                                     mode={ effectiveMode }
                                     setModalState={ setModalState }
@@ -301,7 +333,7 @@ const FKSelector = fnObserver(props => {
                 rightAddons.push(
                     <SelectButtonAddon
                         key={ i }
-                        query={ query }
+                        query={ queryFromProps }
                         modalTitle={ modalTitle }
                         mode={ effectiveMode }
                         setModalState={ setModalState }
@@ -332,6 +364,7 @@ const FKSelector = fnObserver(props => {
 
     const errorMessages  = formConfig.getErrors(fkContext.fieldId);
 
+
     const getFieldValue = () => {
 
         let fieldValue;
@@ -348,7 +381,7 @@ const FKSelector = fnObserver(props => {
 
         if (!isSelected(fieldValue))
         {
-            fieldValue = validateInput ? "" : GlobalConfig.none();
+            fieldValue = haveUserInput ? "" : GlobalConfig.none();
         }
 
         return fieldValue;
@@ -381,35 +414,64 @@ const FKSelector = fnObserver(props => {
                 return;
             }
 
-            let condition;
-
-            if (typeof validateInput === "function")
-            {
-                condition = validateInput(val)
-            }
-            else
-            {
-                const typeRef = lookupType(iQueryType.name, "rows." + validateInput);
-                condition = field(validateInput)
-                    .eq(
-                        value(
-                            typeRef.name,
-                            val
-                        )
-                    );
-            }
 
             //console.log("FK-CONTEXT", fkContext);
             //console.log("QUERY", query);
 
+            let promise;
 
-            query.execute({
-                config: {
-                    condition,
-                    offset: 0,
-                    pageSize: 0
+            if (typeof validateInputJS === "function" && queryFromProps instanceof InteractiveQuery)
+            {
+                const filterDoc = new InteractiveQuery();
+                filterDoc._type = queryFromProps._type;
+                filterDoc.type = queryFromProps.type;
+                filterDoc.columnStates = queryFromProps.columnStates;
+                filterDoc.queryConfig = {
+                    config: {
+                        condition: null,
+                        offset: 0,
+                        pageSize: 0
+                    }
+                };
+
+                const filteredRows = queryFromProps.rows.filter(row => validateInputJS(row, val) );
+                filterDoc.rows = observable(
+                    filteredRows
+                );
+                filterDoc.rowCount = filteredRows.length;
+                //console.log({filterDoc: toJS(filterDoc)})
+
+                promise = Promise.resolve({filterDoc});
+            }
+            else
+            {
+                let condition;
+
+                if (typeof validateInput === "function")
+                {
+                    condition = validateInput(val)
                 }
-            }).then(result => {
+                else
+                {
+                    const typeRef = lookupType(iQueryType.name, "rows." + validateInput);
+                    condition = field(validateInput)
+                        .eq(
+                            value(
+                                typeRef.name,
+                                val
+                            )
+                        );
+                }
+
+                promise = query.execute({
+                    config: {
+                        condition,
+                        offset: 0,
+                        pageSize: 0
+                    }
+                });
+            }
+            promise.then(result => {
                 const iQuery = getFirstValue(result);
 
                 const { length } = iQuery.rows;
@@ -555,7 +617,10 @@ FKSelector.propTypes = {
     /**
      * iQuery GraphQL query to fetch the current list of target objects
      */
-    query: PropTypes.instanceOf(GraphQLQuery).isRequired,
+    query: PropTypes.oneOfType([
+        PropTypes.instanceOf(GraphQLQuery),
+        PropTypes.instanceOf(InteractiveQuery)
+    ]).isRequired,
 
     /**
      * Name of the relation target field 
@@ -636,6 +701,16 @@ FKSelector.propTypes = {
         PropTypes.string,
         PropTypes.func
     ]),
+
+    /**
+     * Provides a js validation function that is only used in one special case. Injected iQueries and textual user-input.
+     *
+     * If we use an InteractiveQuery that contains all the rows of that types, we can use this function to filter that
+     * injected Interactive query document via JavaScript instead of querying the server.
+     *
+     * If this prop is not set, the FKSelector will query the server in any case.
+     */
+    validateInputJS: PropTypes.func,
 
     /**
      * Timeout in ms after which the input will do the validation query ( default: 300).
