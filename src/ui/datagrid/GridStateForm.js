@@ -313,7 +313,7 @@ const GridStateForm = props => {
                                 field(
                                     columns[columnIndex].name
                                 ),
-                                ... values.map( v => value(v.type, toJS(v.value)))
+                                ... values.map( v => value(toJS(v.value), v.type))
                             ];
 
                         }

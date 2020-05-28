@@ -172,7 +172,7 @@ buildProto(Condition.prototype, CONDITION_METHODS, buildFn);
 
 /**
  * General Condition node. Useful for programmatically instantiating conditions. Not needed for fluent style conditions.
- * (e.g. `field("name").containsIgnoreCase(value("String", "abc"))` )
+ * (e.g. `field("name").containsIgnoreCase(value("abc"))` )
  * 
  * @param {String} name     condition name
  * @return {Condition}
@@ -236,17 +236,48 @@ function Values(type, values)
 }
 
 
+function getDefaultType(value)
+{
+    if (typeof value === "string")
+    {
+        return "String"
+    }
+    else if (typeof value === "number")
+    {
+        return "Int"
+    }
+    else if (typeof value === "boolean")
+    {
+        return "Boolean"
+    }
+    else if (value instanceof Date)
+    {
+        return "Timestamp"
+    }
+    else
+    {
+        throw new Error(
+            "Could not determine scalar type for value: " + value + ".\n" +
+            "Please define the correct scalar type as second argument to value()."
+        )
+    }
+}
+
+
 /**
  * Creates a new value node
  *
- * @param {String} type     scalar type name
  * @param {Object} value    scalar value of appropriate type
+ * @param {String} [type]   scalar type name if not given the type will be selected based on value type
  * @param {String} [name]   Field name
  *
  * @return {Value} value node
  */
-export function value(type, value, name)
+export function value(value, type = getDefaultType(value), name)
 {
+
+
+
     return new Value(type, value, name);
 }
 

@@ -90,7 +90,7 @@ const FilterDSL = {
     and,
     /**
      * General Condition node. Useful for programmatically instantiating conditions. Not needed for fluent style conditions.
-     * (e.g. `field("name").containsIgnoreCase(value("String", "abc"))` )
+     * (e.g. `field("name").containsIgnoreCase(value("abc"))` )
      *
      * @param {String} name     condition name
      * @return {Condition}

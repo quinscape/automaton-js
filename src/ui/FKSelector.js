@@ -457,8 +457,8 @@ const FKSelector = fnObserver(props => {
                     condition = field(validateInput)
                         .eq(
                             value(
-                                typeRef.name,
-                                val
+                                val,
+                                typeRef.name
                             )
                         );
                 }

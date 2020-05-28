@@ -8,7 +8,7 @@ describe("Filter DSL", function () {
     it("creates a serializable representations of JOOQ conditions", function () {
 
         const filter = field("name").equalIgnoreCase(
-            value("String", "abc")
+            value("abc")
         );
 
         assert.deepEqual(filter, {
@@ -32,10 +32,10 @@ describe("Filter DSL", function () {
     it("supports chained boolean logic", function () {
 
         const filter = field("name").eq(
-            value("String", "abc")
+            value("abc")
         ).and(
             field("num").eq(
-                value("Int", 12)
+                value( 12)
             )
         );
 
@@ -87,11 +87,11 @@ describe("Filter DSL", function () {
 
         const filter = and(
             field("name").eq(
-                value("String", "abc")
+                value("abc")
             ),
             or(
                 field("num").eq(
-                    value("Int", 12)
+                    value(12)
                 ),
                 not(
                     field("flag").isTrue(),
@@ -171,7 +171,7 @@ describe("Filter DSL", function () {
         const filter = field("numA").add(
                 field("numB")
             ).gt(
-                value("Int", 100)
+                value( 100)
             );
 
         //console.log(JSON.stringify(filter, null, 4))
@@ -217,14 +217,12 @@ describe("Filter DSL", function () {
                     field("name")
                         .containsIgnoreCase(
                             value(
-                                "String",
                                 "b"
                             )
                         ),
                     field("parent.name")
                         .containsIgnoreCase(
                             value(
-                                "String",
                                 "Fish"
                             )
                         )
@@ -289,9 +287,9 @@ describe("Filter DSL", function () {
     });
     it("organizes condition in component nodes", function () {
 
-        const val1 = value("String", "abc");
+        const val1 = value( "abc");
 
-        const val2 = value("Int", 12);
+        const val2 = value(12);
 
         const filter = component("test-component",
             and(

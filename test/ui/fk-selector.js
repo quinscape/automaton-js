@@ -145,7 +145,6 @@ const TestForm = withForm(
                             val => field("name")
                                 .eq(
                                     value(
-                                        "String",
                                         val
                                     )
                                 )

@@ -92,7 +92,7 @@ export class Monitor{
  * the
  * @param {Object} filter       Filter expression. (see src/main/java/de/quinscape/automaton/model/domainmon/DomainActivity.java in automaton)
  * @param {Array<*>} [deps]     Dependency array for values inside the filter. E.g. if you have something like
- *                              `field("id").eq(value("String",id))` as filter, you need `[id]` as dependency array
+ *                              `field("id").eq(value(id))` as filter, you need `[id]` as dependency array
  * @returns {[]|*[]}
  */
 export default function useDomainMonitor(filter, deps = [])

@@ -287,8 +287,8 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
             queryConfig.condition,
             field(nameField).greaterThan(
                 value(
-                    "String",
-                    letter
+                    letter,
+                    "String"
                 )
             ),
             ctx.id,
@@ -384,8 +384,8 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
                 queryConfig.condition,
                 field(nameField).greaterThan(
                     value(
-                        "String",
-                        letter
+                        letter,
+                        "String"
                     )
                 ),
                 ctx.id,
