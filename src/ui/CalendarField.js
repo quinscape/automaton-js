@@ -13,7 +13,7 @@ function toggleValue(open)
 
 const CalendarField = props => {
 
-    const { minDate, maxDate, ... fieldProps} = props;
+    const { minDate, maxDate, addonClass = "btn-outline-secondary", ... fieldProps} = props;
 
     const [ isOpen, setOpen] = useState(false);
 
@@ -71,7 +71,7 @@ const CalendarField = props => {
                                 />
                                 <span className="input-group-append">
                                     <button
-                                        className="btn btn-outline-secondary"
+                                        className={ cx("btn", addonClass) }
                                         type="button"
                                         title={ buttonTitle }
                                         disabled={ mode !== FieldMode.NORMAL }
@@ -154,7 +154,12 @@ CalendarField.propTypes = {
     /**
      * Additional HTML classes for the form group element.
      */
-    formGroupClass: PropTypes.string
+    formGroupClass: PropTypes.string,
+
+    /**
+     * Additional HTML classes for the calendar button addon
+     */
+    addonClass: PropTypes.string
 
 };
 
