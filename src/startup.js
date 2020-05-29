@@ -299,7 +299,7 @@ export function startup(ctx, initial, initFn)
 
                 if (__DEV)
                 {
-                    console.group("Automaton Startup v" + pkgJSON.version);
+                    console.group("Automaton v" + pkgJSON.version + " Startup");
 
                     console.info("INITIAL", {
                         ... initial,
