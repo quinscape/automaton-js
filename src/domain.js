@@ -1,6 +1,8 @@
 import { WireFormat } from "domainql-form"
 import config from "./config"
 import matchPath from "./matchPath";
+import { INPUT_OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";
+
 
 let domainClasses = {};
 
@@ -68,6 +70,90 @@ export function getGenericType(typeName)
     return null;
 }
 
+
+function createTypeRef(type)
+{
+    if (type[0] === "[")
+    {
+        return {
+            kind: LIST,
+            ofType: {
+                kind: SCALAR,
+                name: type.substr(1, type.length - 2)
+            }
+        }
+    }
+    return {
+        kind: SCALAR,
+        name: type
+    };
+}
+
+
+function createGenericScalarFromWire(wireFormat)
+{
+
+    return value => {
+
+        return {
+            type: value.type,
+            value: wireFormat.convert(
+                createTypeRef(value.type),
+                value.value,
+                true
+            )
+        };
+    }
+}
+
+
+function createGenericScalarToWire(wireFormat)
+{
+    return value => {
+
+        return {
+            type: value.type,
+            value: wireFormat.convert(
+                createTypeRef(value.type),
+                value.value,
+                false
+            )
+        };
+    }
+
+}
+
+
+function createDomainObjectFromWire(wireFormat)
+{
+    return value => {
+        return wireFormat.convert(
+            {
+                kind: INPUT_OBJECT,
+                name: value._type
+            },
+            value,
+            true
+        )
+    }
+}
+
+
+function createDomainObjectToWire(wireFormat)
+{
+    return value => {
+        return wireFormat.convert(
+            {
+                kind: OBJECT,
+                name: value._type
+            },
+            value,
+            false
+        )
+    }
+}
+
+
 export function loadDomainDefinitions(ctx)
 {
     const keys = ctx.keys();
@@ -91,6 +177,18 @@ export function loadDomainDefinitions(ctx)
         {
             wrapAsObservable: true
         }
+    );
+
+    wireFormat.registerConverter(
+        "GenericScalar",
+        createGenericScalarFromWire(wireFormat),
+        createGenericScalarToWire(wireFormat)
+    );
+
+    wireFormat.registerConverter(
+        "DomainObject",
+        createDomainObjectFromWire(wireFormat),
+        createDomainObjectToWire(wireFormat)
     );
 }
 
