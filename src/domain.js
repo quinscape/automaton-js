@@ -1,7 +1,7 @@
 import { WireFormat } from "domainql-form"
 import config from "./config"
 import matchPath from "./matchPath";
-import { INPUT_OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";
+import { INPUT_OBJECT, OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";
 
 
 let domainClasses = {};
@@ -142,14 +142,19 @@ function createDomainObjectFromWire(wireFormat)
 function createDomainObjectToWire(wireFormat)
 {
     return value => {
-        return wireFormat.convert(
+        const obj = wireFormat.convert(
             {
                 kind: OBJECT,
                 name: value._type
             },
             value,
             false
-        )
+        );
+
+        // we need the _type for DomainObject scalars
+        obj._type = value._type;
+
+        return obj
     }
 }
 
