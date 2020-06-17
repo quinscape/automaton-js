@@ -401,6 +401,7 @@ clicks on the name or presses return while the name is focused.
 ------|------|-------------
 **actions** (required) | Array of shape | Array of menu entries with label and action function. The first action is the default action that is also executed on item click.
 altText | func | Function that produces an alt-text for each index item given the initial letter ( letter => altText ). Default is using `i18n("Toggle Items starting with {0}", letter)`
+heading | string | Optional heading to display as separate item between main item and index item.
 index | Array of string | Index containing all initial unicode characters of entries in an array
 nameField | string | Name field / path expression for the display name within the data rows. Default is "name"
 **render** (required) | func | Render prop for a data row. Receives the row and returns a react element tree or simple renderable values.

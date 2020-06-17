@@ -53,14 +53,27 @@ function findLetter(rows, nameField, letter)
     return result;
 }
 
+
 const defaultAltText = letter => i18n("Toggle Items starting with {0}", letter);
 
-const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, children}) => {
+const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, heading, children}) => {
+
+    const ctx = useContext(TreeContext);
 
     const ref = useRef(null);
-    const selectionId = useMemo( nextSelectionId, []);
 
-    const ctx = useContext( TreeContext );
+    // selection id for the index item itself
+    const selectionId = useMemo(nextSelectionId, []);
+    const intermediarySelectionId = useMemo(nextSelectionId, []);
+
+    // selection id for the optional intermediary heading
+    const [ intermediaryOpen, setIntermediaryOpen ] = useState(true);
+    const toggleIntermediary = () => {
+
+        console.log("toggleIntermediary", intermediaryOpen)
+
+        return setIntermediaryOpen(!intermediaryOpen);
+    }
 
     const toggle = () => {
         const newState = !open;
@@ -70,6 +83,70 @@ const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, chi
             ctx.reselectHidden(ref.current, selectionId);
         }
     };
+
+    const nestedChildrenElements = (
+        children
+    );
+
+    let innerElements;
+
+    console.log("IndexItem", heading)
+
+    if (heading)
+    {
+        innerElements = (
+            <TreeItem
+                selectionId={ intermediarySelectionId }
+            >
+                <CaretButton
+                    open={ intermediaryOpen }
+                    onClick={
+                        toggleIntermediary
+                    }
+                />
+                <div className="wrapper">
+                    <div className={
+                        cx(
+                            "header",
+                            intermediarySelectionId === ctx.selected && "focus"
+                        )
+                    }>
+                        <button
+                            type="button"
+                            className={
+                                cx(
+                                    "btn btn-link default",
+                                    ctx.options.small && "btn-sm"
+                                )
+                            }
+                            tabIndex={ -1 }
+                            onClick={
+                                toggleIntermediary
+                            }
+                        >
+                            {
+                                heading
+                            }
+                        </button>
+                    </div>
+                    {
+                        intermediaryOpen && (
+                            <ul role="group">
+                                {
+                                    nestedChildrenElements
+                                }
+                            </ul>
+                        )
+                    }
+                </div>
+            </TreeItem>
+        )
+    }
+    else
+    {
+        innerElements = nestedChildrenElements;
+    }
+
 
     return (
         <TreeItem
@@ -83,14 +160,24 @@ const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, chi
                 }
             />
             <div className="wrapper">
-                <div className={ cx("header", selectionId === ctx.selected && "focus") }>
+                <div className={
+                        cx(
+                            "header",
+                            selectionId === ctx.selected && "focus"
+                        )
+                    }
+                >
                     <button
                         type="button"
-                        className={ cx("btn btn-link default", ctx.options.small && "btn-sm" ) }
-                        tabIndex={-1}
-                        alt={ altText(letter) }
+                        className={
+                            cx(
+                                "btn btn-link default",
+                                ctx.options.small && "btn-sm"
+                            )
+                        }
+                        tabIndex={ -1 }
                         onClick={
-                            () => setOpen(!open)
+                            toggleIntermediary
                         }
                     >
                         {
@@ -102,7 +189,7 @@ const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, chi
                     open && (
                         <ul role="group">
                             {
-                                children
+                                innerElements
                             }
                         </ul>
                     )
@@ -247,13 +334,14 @@ function findLetterIndex(index, letter)
     return null;
 }
 
+
 function renderIndexDefault(letter)
 {
     return letter;
 }
 
 
-const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , values : valuesFromProps, index, actions, nameField = "name", altText, children}) => {
+const IndexedObjects = fnObserver(({render, renderIndex = renderIndexDefault, values: valuesFromProps, index, actions, nameField = "name", altText, heading = "", children}) => {
 
     const ctx = useContext(TreeContext);
 
@@ -266,22 +354,21 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
         []
     );
 
-    const [ dropDown, setDropDown ] = useState(-1);
+    const [dropDown, setDropDown] = useState(-1);
 
-    const [state, dispatch] = useReducer(reducer, null, () => createInitialState(index, values, nameField) );
+    const [state, dispatch] = useReducer(reducer, null, () => createInitialState(index, values, nameField));
     const loadMore = (letter, wasSelected) => {
 
-        const { queryConfig, rowCount, _query: query } = values;
+        const {queryConfig, rowCount, _query: query} = values;
 
         //console.log("loadMore", toJS(queryConfig), "rowCount", rowCount);
 
-        const { count, insertPos } = findLetter(values.rows, nameField, letter);
+        const {count, insertPos} = findLetter(values.rows, nameField, letter);
 
         if (count === 0)
         {
             throw new Error("No rows with letter '" + letter + "' found (name field = '" + nameField + "'): " + JSON.stringify(rows));
         }
-
 
         const condition = updateComponentCondition(
             queryConfig.condition,
@@ -507,37 +594,37 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault , 
                 index.map(
                     (letter, idx) => {
 
-                        const rowsForLetter = rows.filter( row => unicodeSubstring(get(row, nameField), 0, 1).toLocaleUpperCase() === letter);
-
+                        const rowsForLetter = rows.filter(row => unicodeSubstring(get(row, nameField), 0, 1).toLocaleUpperCase() === letter);
 
                         return (
                             <IndexItem
-                                key={idx}
-                                letter={letter}
+                                key={ idx }
+                                letter={ letter }
                                 open={ state[letter].open }
-                                setOpen={ open => toggleGroup(open, letter)}
+                                setOpen={ open => toggleGroup(open, letter) }
                                 render={ renderIndex }
                                 altText={ altText }
+                                heading={ heading }
                             >
 
                                 {
-                                    rowsForLetter.map((row,idx) => (
+                                    rowsForLetter.map((row, idx) => (
                                         <ObjectItem
-                                            key={ idx }
-                                            index={ count++ }
-                                            render={ render }
-                                            actions={ actions }
-                                            row={ row }
-                                            dropDown={ dropDown }
-                                            setDropDown={ setDropDown }
-                                            renderKid={ children }
+                                            key={idx}
+                                            index={count++}
+                                            render={render}
+                                            actions={actions}
+                                            row={row}
+                                            dropDown={dropDown}
+                                            setDropDown={setDropDown}
+                                            renderKid={children}
                                         />
                                     ))
                                 }
                                 {
                                     state[letter].loadState !== LoadState.DONE && (
                                         <MoreItem
-                                            onMore={ wasSelected => loadMore(letter, wasSelected) }
+                                            onMore={wasSelected => loadMore(letter, wasSelected)}
                                         />
                                     )
                                 }
@@ -602,7 +689,12 @@ IndexedObjects.propTypes = {
      * Default is using `i18n("Toggle Items starting with {0}", letter)`
      *
      */
-    altText: PropTypes.func
+    altText: PropTypes.func,
+
+    /**
+     * Optional heading to display as separate item between main item and index item.
+     */
+    heading: PropTypes.string
 };
 IndexedObjects.displayName = "Tree.IndexedObjects";
 
