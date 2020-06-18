@@ -5,7 +5,6 @@ import { observer as fnObserver } from "mobx-react-lite"
 import get from "lodash.get";
 import InteractiveQuery, { getFirstValue } from "../../model/InteractiveQuery";
 import i18n from "../../i18n";
-import { toJS } from "mobx";
 import unicodeSubstring from "unicode-substring";
 
 import { field, value } from "../../FilterDSL"
@@ -14,9 +13,9 @@ import ObjectItem from "./ObjectItem";
 import updateComponentCondition from "../../util/updateComponentCondition";
 import config from "../../config";
 import TreeItem from "./TreeItem";
-import MetaItem from "./MetaItem";
 import MoreItem from "./MoreItem";
 import CaretButton from "./CaretButton";
+
 
 function firstLetter(name)
 {
@@ -56,7 +55,7 @@ function findLetter(rows, nameField, letter)
 
 const defaultAltText = letter => i18n("Toggle Items starting with {0}", letter);
 
-const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, heading, children}) => {
+const IndexItem = ({ letter, open, setOpen, render, altText = defaultAltText, heading, children }) => {
 
     const ctx = useContext(TreeContext);
 
@@ -64,17 +63,8 @@ const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, hea
 
     // selection id for the index item itself
     const selectionId = useMemo(nextSelectionId, []);
-    const intermediarySelectionId = useMemo(nextSelectionId, []);
 
-    // selection id for the optional intermediary heading
-    const [ intermediaryOpen, setIntermediaryOpen ] = useState(true);
-    const toggleIntermediary = () => {
-
-        console.log("toggleIntermediary", intermediaryOpen)
-
-        return setIntermediaryOpen(!intermediaryOpen);
-    }
-
+    // open/close state for the index item itself
     const toggle = () => {
         const newState = !open;
         setOpen(newState);
@@ -84,31 +74,32 @@ const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, hea
         }
     };
 
-    const nestedChildrenElements = (
-        children
-    );
+    // selection id for the optional intermediary heading
+    const headingSelectionId = useMemo(nextSelectionId, []);
+
+    // open/close state for the intermediary heading
+    const [ headingOpen, setHeadingOpen ] = useState(true);
+    const toggleHeading = () => setHeadingOpen(!headingOpen);
 
     let innerElements;
-
-    console.log("IndexItem", heading)
 
     if (heading)
     {
         innerElements = (
             <TreeItem
-                selectionId={ intermediarySelectionId }
+                selectionId={ headingSelectionId }
             >
                 <CaretButton
-                    open={ intermediaryOpen }
+                    open={ headingOpen }
                     onClick={
-                        toggleIntermediary
+                        toggleHeading
                     }
                 />
                 <div className="wrapper">
                     <div className={
                         cx(
                             "header",
-                            intermediarySelectionId === ctx.selected && "focus"
+                            headingSelectionId === ctx.selected && "focus"
                         )
                     }>
                         <button
@@ -121,7 +112,7 @@ const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, hea
                             }
                             tabIndex={ -1 }
                             onClick={
-                                toggleIntermediary
+                                toggleHeading
                             }
                         >
                             {
@@ -130,10 +121,10 @@ const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, hea
                         </button>
                     </div>
                     {
-                        intermediaryOpen && (
+                        headingOpen && (
                             <ul role="group">
                                 {
-                                    nestedChildrenElements
+                                    children
                                 }
                             </ul>
                         )
@@ -144,7 +135,9 @@ const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, hea
     }
     else
     {
-        innerElements = nestedChildrenElements;
+        innerElements = (
+            children
+        );
     }
 
 
@@ -177,7 +170,7 @@ const IndexItem = ({letter, open, setOpen, render, altText = defaultAltText, hea
                         }
                         tabIndex={ -1 }
                         onClick={
-                            toggleIntermediary
+                            toggleHeading
                         }
                     >
                         {
@@ -211,7 +204,7 @@ const LoadState = {
 
 function reducer(state, action)
 {
-    //console.log({state, action});
+    //console.log({ state, action });
 
     let newState;
 
@@ -264,7 +257,7 @@ function reducer(state, action)
 
 function createInitialState(index, values, nameField)
 {
-    //console.log("createInitialState", {index, values, nameField});
+    //console.log("createInitialState", { index, values, nameField });
 
     const state = {};
 
@@ -278,7 +271,7 @@ function createInitialState(index, values, nameField)
     }
 
     // injected or requested database rows, must be sorted by name field
-    const {rows} = values;
+    const { rows } = values;
     for (let i = 0; i < rows.length; i++)
     {
         const row = rows[i];
@@ -341,7 +334,7 @@ function renderIndexDefault(letter)
 }
 
 
-const IndexedObjects = fnObserver(({render, renderIndex = renderIndexDefault, values: valuesFromProps, index, actions, nameField = "name", altText, heading = "", children}) => {
+const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault, values: valuesFromProps, index, actions, nameField = "name", altText, heading = "", children }) => {
 
     const ctx = useContext(TreeContext);
 
@@ -359,11 +352,11 @@ const IndexedObjects = fnObserver(({render, renderIndex = renderIndexDefault, va
     const [state, dispatch] = useReducer(reducer, null, () => createInitialState(index, values, nameField));
     const loadMore = (letter, wasSelected) => {
 
-        const {queryConfig, rowCount, _query: query} = values;
+        const { queryConfig, rowCount, _query: query } = values;
 
         //console.log("loadMore", toJS(queryConfig), "rowCount", rowCount);
 
-        const {count, insertPos} = findLetter(values.rows, nameField, letter);
+        const { count, insertPos } = findLetter(values.rows, nameField, letter);
 
         if (count === 0)
         {
@@ -429,7 +422,7 @@ const IndexedObjects = fnObserver(({render, renderIndex = renderIndexDefault, va
 
         if (state[letter].loadState !== LoadState.INITIAL)
         {
-            dispatch({type: OPEN, open, letter});
+            dispatch({ type: OPEN, open, letter });
         }
         else
         {
@@ -610,21 +603,21 @@ const IndexedObjects = fnObserver(({render, renderIndex = renderIndexDefault, va
                                 {
                                     rowsForLetter.map((row, idx) => (
                                         <ObjectItem
-                                            key={idx}
-                                            index={count++}
-                                            render={render}
-                                            actions={actions}
-                                            row={row}
-                                            dropDown={dropDown}
-                                            setDropDown={setDropDown}
-                                            renderKid={children}
+                                            key={ idx }
+                                            index={ count++ }
+                                            render={ render }
+                                            actions={ actions }
+                                            row={ row }
+                                            dropDown={ dropDown }
+                                            setDropDown={ setDropDown }
+                                            renderKid={ children }
                                         />
                                     ))
                                 }
                                 {
                                     state[letter].loadState !== LoadState.DONE && (
                                         <MoreItem
-                                            onMore={wasSelected => loadMore(letter, wasSelected)}
+                                            onMore={ wasSelected => loadMore(letter, wasSelected) }
                                         />
                                     )
                                 }
