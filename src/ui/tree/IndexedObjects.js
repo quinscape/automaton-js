@@ -170,7 +170,7 @@ const IndexItem = ({ letter, open, setOpen, render, altText = defaultAltText, he
                         }
                         tabIndex={ -1 }
                         onClick={
-                            toggleHeading
+                            toggle
                         }
                     >
                         {
