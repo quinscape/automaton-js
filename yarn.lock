@@ -1575,7 +1575,7 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@^2.2.3, classnames@^2.2.5, classnames@^2.2.6:
+classnames@^2.2.3, classnames@^2.2.6:
   version "2.2.6"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.6.tgz#43935bffdd291f326dad0a205309b38d00f650ce"
   integrity sha512-JR/iSQOSt+LQIWwrwEzJ9uk0xfN3mTVYMwt1Ir5mUcSN6pU+V4zQFFaJsclJbPuAUQH+yfWef6tm7l1quW3C8Q==
@@ -1920,12 +1920,12 @@ dom-helpers@^3.4.0:
   dependencies:
     "@babel/runtime" "^7.1.2"
 
-domainql-form@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-3.0.1.tgz#36554a3dcde03d1951fa9442cc248a1db90d6fc4"
-  integrity sha512-Bax+KlFBHehuEjgipfcSv9Hvj5I1elVYnkaj3/dIEW7aID81zGM/e0ZR57RQ0EIsWBePTwdPwvR3Cug0wHjjqA==
+domainql-form@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-3.1.1.tgz#76c5e953095afd08ff41518c615c7c9e861135f6"
+  integrity sha512-jUAsdQQ+/kmFA6yF7u8zt11o+LPaNb9liEMtbn0X14fphLowkPI7+QOCGs6v7RIFVpEVBeA6UwSIKSY73eEODg==
   dependencies:
-    classnames "^2.2.5"
+    classnames "^2.2.6"
     lodash.debounce "^4.0.8"
     lodash.get "^4.4.2"
     lodash.isequal "^4.5.0"
