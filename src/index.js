@@ -44,6 +44,7 @@ import mapIterator from "./util/mapIterator";
 import DomainActivityIndicator from "./ui/DomainActivityIndicator";
 import equalsScalar, {registerScalarEquals} from "./util/equalsScalar";
 
+import { openDialog } from "./ui/Dialog"
 
 const AutomatonDevTools = "span";
 
@@ -235,6 +236,8 @@ export {
     registerScalarEquals,
 
     registerGraphQLPostProcessor,
-    registerGenericGraphQLPostProcessor
+    registerGenericGraphQLPostProcessor,
+
+    openDialog
 
 }

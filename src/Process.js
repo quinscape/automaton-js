@@ -12,6 +12,7 @@ import ProcessDialog from "./ProcessDialog";
 import { getWireFormat } from "./domain";
 import ProcessHistory from "./ProcessHistory";
 import matchPath from "./matchPath";
+import { renderImperativeDialogs } from "./ui/Dialog"
 
 
 const secret = Symbol("ProcessSecret");
@@ -249,6 +250,9 @@ function renderCurrentView()
                 </Layout>
                 {
                     dialogStack
+                }
+                {
+                    renderImperativeDialogs()
                 }
             </FormConfigProvider>
         </AutomatonEnv.Provider>
@@ -1633,5 +1637,3 @@ export function getCurrentProcess()
 {
     return currentProcess;
 }
-
-
