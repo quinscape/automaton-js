@@ -3,6 +3,13 @@
  */
 require("jsdom-global/register");
 
+const mobx = require("mobx");
+
+mobx.configure({
+    enforceActions: "observed"
+});
+
+
 // Allow Date to be accessed by window.Date for "wait-for-expect"
 window.Date = global.Date;
 
