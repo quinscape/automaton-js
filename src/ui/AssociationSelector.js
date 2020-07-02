@@ -3,11 +3,13 @@ import PropTypes from "prop-types"
 import { ButtonToolbar, ListGroup, ListGroupItem } from "reactstrap"
 import { FieldMode, FormGroup, useFormConfig, Icon } from "domainql-form"
 import { action, observable } from "mobx";
-import { observer as fnObserver } from "mobx-react-lite";
+import { observer as fnObserver, useLocalStore } from "mobx-react-lite";
 import toPath from "lodash.topath"
 import get from "lodash.get"
 import set from "lodash.set"
 import uuid from "uuid"
+
+import config from "../config";
 import i18n from "../i18n";
 import GraphQLQuery from "../GraphQLQuery";
 import { getFirstValue } from "../model/InteractiveQuery";
@@ -41,8 +43,6 @@ const removeLink = action(
     }
 );
 
-const INPUT = "Input";
-
 const MODAL_STATE_CLOSED = {
     iQuery: null,
     columns: null,
@@ -56,10 +56,55 @@ const MODAL_STATE_CLOSED = {
 let associationSelectorCount = 0;
 
 
-const updateLinksAction = action("update links", (root, name, newLinks) =>
+const updateLinksAction = action("AssociationSelector.updateLinks", (root, name, newLinks) =>
 {
     set(root, name, newLinks);
 });
+
+
+function createNewLink(generateId, valuePath, linkedObj, root, linkObjectsField)
+{
+    const type = root._type;
+    const targetField = valuePath[0];
+
+    const leftSideRelation = config.inputSchema.schema.relations.find(r => r.rightSideObjectName === linkObjectsField && r.targetType === type);
+    if (!leftSideRelation)
+    {
+        throw new Error("Could not find left side relation for type '" + type + "' and linked objects field '" + linkObjectsField  + "'");
+    }
+
+    const linkType = leftSideRelation.sourceType;
+
+    const rightSideRelation = config.inputSchema.schema.relations.find(r => r.sourceType === linkType && r.leftSideObjectName === targetField);
+    if (!rightSideRelation)
+    {
+        throw new Error("Could not find right side relation with source type '" + linkType + "' and left side object field '" + targetField + "'");
+    }
+
+    const newLink = {
+        _type: linkType,
+        id: generateId(),
+        [targetField]: linkedObj
+    };
+
+    if (leftSideRelation.sourceField === "OBJECT_AND_SCALAR" || leftSideRelation.sourceField === "SCALAR")
+    {
+        newLink[leftSideRelation.sourceFields[0]] = root.id;
+    }
+
+    if (leftSideRelation.targetField === "OBJECT_AND_SCALAR" || leftSideRelation.sourceField === "SCALAR")
+    {
+        newLink[leftSideRelation.sourceFields[0]] = root.id;
+    }
+
+    if (rightSideRelation.sourceField === "OBJECT_AND_SCALAR")
+    {
+        newLink[rightSideRelation.sourceFields[0]] = linkedObj.id;
+    }
+    
+    return newLink;
+}
+
 
 function updateLinks(root, name, modalState, selected, generateId)
 {
@@ -155,10 +200,8 @@ function updateLinks(root, name, modalState, selected, generateId)
             // create new links for new links ids
             for (let id of newLinkIds)
             {
-                const newObj = {
-                    id: generateId(),
-                    [valuePath[0]]: objectLookup.get(id)
-                };
+                const linkedObj = objectLookup.get(id);
+                const newObj = createNewLink(generateId, valuePath, linkedObj, root, name);
                 newLinks.push(newObj)
             }
             updateLinksAction(root, name, newLinks);
@@ -166,19 +209,6 @@ function updateLinks(root, name, modalState, selected, generateId)
     )
 }
 
-
-function createSelectedObservable(links, value)
-{
-    const valuePath = toPath(value);
-
-    const selected = new Set();
-    links.forEach(
-        link => selected.add(
-            get(link, valuePath)
-        )
-    );
-    return observable(selected);
-}
 
 
 function setsEqual(setA, setB)
@@ -198,6 +228,17 @@ function setsEqual(setA, setB)
 }
 
 
+const updateSelected = action("AssociationSelector.updateSelected", (selected, links, valuePath) => {
+    const newSelected = new Set();
+    links.forEach(
+        link => newSelected.add(
+            get(link, valuePath)
+        )
+    );
+
+    selected.replace(newSelected);
+})
+
 /**
  * Displays the currently associated entities of a many-to-many relationship as seen from one of the associated sides.
  */
@@ -213,7 +254,7 @@ const AssociationSelector = fnObserver(props => {
 
     const links = get(formConfig.root, name);
 
-    const [selected] = useState(() => createSelectedObservable(links, value));
+    const selected = useLocalStore(() => new Set());
 
     const openModal = () => {
         query.execute(
@@ -230,7 +271,7 @@ const AssociationSelector = fnObserver(props => {
 
                     const columns = iQuery.columnStates
                         .filter(
-                            cs => cs.enabled && cs.name !== "id"
+                            cs => cs.enabled && cs.name !== "id" && cs.name !== config.mergeOptions.versionField
                         )
                         .map(
                             cs => cs.name
@@ -238,6 +279,8 @@ const AssociationSelector = fnObserver(props => {
 
 
                     const valuePath = toPath(value);
+
+                    updateSelected(selected, links, valuePath);
 
                     const selectedBefore = new Set(selected);
 
@@ -352,7 +395,7 @@ const AssociationSelector = fnObserver(props => {
 
 AssociationSelector.propTypes = {
     /**
-     * Path to use as display value for associations or render function for assocations ( linkObj => ReactElement ).
+     * Path to use as display value for associations or render function for associations ( linkObj => ReactElement ).
      */
     display: PropTypes.oneOfType([
         PropTypes.string,

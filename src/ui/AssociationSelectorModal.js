@@ -4,7 +4,7 @@ import i18n from "../i18n";
 import { ButtonToolbar, Container, Modal, ModalBody, ModalHeader } from "reactstrap"
 import DataGrid from "./datagrid/IQueryGrid";
 import get from "lodash.get"
-import { observer as fnObserver, useObserver } from "mobx-react-lite";
+import { observer as fnObserver } from "mobx-react-lite";
 
 
 /**
