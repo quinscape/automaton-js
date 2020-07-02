@@ -43,8 +43,9 @@ import useEntity from "./message/monitor/useEntity";
 import mapIterator from "./util/mapIterator";
 import DomainActivityIndicator from "./ui/DomainActivityIndicator";
 import equalsScalar, {registerScalarEquals} from "./util/equalsScalar";
-
+import renderEntity, {registerEntityRenderer} from "./util/renderEntity";
 import { openDialog } from "./ui/Dialog"
+import { MergeOperation } from "./ui/ChangeConflictDialog";
 
 const AutomatonDevTools = "span";
 
@@ -238,6 +239,9 @@ export {
     registerGraphQLPostProcessor,
     registerGenericGraphQLPostProcessor,
 
-    openDialog
+    openDialog,
 
+    renderEntity,
+    registerEntityRenderer,
+    MergeOperation
 }

@@ -19,6 +19,11 @@ export const DEFAULT_OPTS = {
     locale: null,
     translations: {},
 
+    mergeOptions: {
+        versionField: "version",
+        allowAutoMerge: true
+    },
+
     layout: DefaultLayout,
     inputSchema: null,
     genericTypes: null,

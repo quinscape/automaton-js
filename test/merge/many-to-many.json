@@ -1,0 +1,421 @@
+{
+    "conflicts": [
+        {
+            "_type": "MergeConflict",
+            "decided": false,
+            "theirVersion": "1f245c77-e69b-4401-a452-2c17955cf331",
+            "deleted": false,
+            "id": {
+                "type": "String",
+                "value": "20bbb666-79d1-4a50-8b23-4442be8b615e"
+            },
+            "fields": [
+                {
+                    "_type": "MergeConflictField",
+                    "name": "modified",
+                    "theirs": {
+                        "type": "Timestamp",
+                        "value": "2020-06-26T11:20:57.983Z"
+                    },
+                    "informational": true,
+                    "ours": {
+                        "type": "Timestamp",
+                        "value": "2020-06-26T11:21:06.883Z"
+                    },
+                    "references": [],
+                    "status": "OURS"
+                },
+                {
+                    "_type": "MergeConflictField",
+                    "name": "corgeLinks",
+                    "theirs": {
+                        "type": "[DomainObject]",
+                        "value": [
+                            {
+                                "_type": "CorgeAssoc",
+                                "name": "Assoc #4",
+                                "description": null,
+                                "id": "af086502-27c0-4a07-8d8b-07568ecbc448",
+                                "version": "df49f6ec-2381-4e36-ace0-5898985a41a0",
+                                "num": 1004
+                            },
+                            {
+                                "_type": "CorgeAssoc",
+                                "name": "Assoc #1",
+                                "description": null,
+                                "id": "269fe0b9-4d22-4f2d-adc4-541bc9f719b3",
+                                "version": "98281330-e76a-4e6a-9696-c55e5d6121f8",
+                                "num": 1001
+                            },
+                            {
+                                "_type": "CorgeAssoc",
+                                "name": "Assoc #3",
+                                "description": null,
+                                "id": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                                "version": "851d8064-6564-4366-ac4c-f5d16b7d1b33",
+                                "num": 1003
+                            }
+                        ]
+                    },
+                    "informational": false,
+                    "ours": {
+                        "type": "[DomainObject]",
+                        "value": [
+                            {
+                                "_type": "CorgeAssoc",
+                                "name": "Assoc #3",
+                                "description": null,
+                                "id": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                                "version": "851d8064-6564-4366-ac4c-f5d16b7d1b33",
+                                "num": 1003
+                            },
+                            {
+                                "_type": "CorgeAssoc",
+                                "name": "Assoc #1",
+                                "description": "Description #1",
+                                "id": "269fe0b9-4d22-4f2d-adc4-541bc9f719b3",
+                                "version": "98281330-e76a-4e6a-9696-c55e5d6121f8",
+                                "num": 1001
+                            },
+                            {
+                                "_type": "CorgeAssoc",
+                                "name": "Assoc #2",
+                                "description": "Description #2",
+                                "id": "421869b0-5c98-448c-bd2f-2d1ecf002535",
+                                "version": "f9fef6c2-d7e3-49ef-b570-98ec6fdc02d0",
+                                "num": 1002
+                            }
+                        ]
+                    },
+                    "references": [
+                        {
+                            "_type": "EntityReference",
+                            "version": "8054f188-a286-4af4-886c-054c43bfe654",
+                            "id": {
+                                "type": "String",
+                                "value": "4cc0d383-8708-41cf-af04-cfa1d8eb1656"
+                            }
+                        },
+                        {
+                            "_type": "EntityReference",
+                            "version": "b7d97c97-36c8-4498-ba16-8c25d754d807",
+                            "id": {
+                                "type": "String",
+                                "value": "7c836876-1383-4896-9c7d-57ab6fbc41dc"
+                            }
+                        },
+                        {
+                            "_type": "EntityReference",
+                            "version": "ae42e310-86e4-4006-abf6-9c311f52f8a5",
+                            "id": {
+                                "type": "String",
+                                "value": "ecfe1e62-a3a5-4ea1-b29a-55351b692100"
+                            }
+                        }
+                    ],
+                    "status": "UNDECIDED"
+                }
+            ],
+            "type": "Corge"
+        }
+    ],
+    "workingSet": {
+        "changes": {
+            "Corge:20bbb666-79d1-4a50-8b23-4442be8b615e": {
+                "status": "MODIFIED",
+                "domainObject": {
+                    "_type": "Corge",
+                    "flag": false,
+                    "type2": "ec2ae4c3-6615-4c77-b07e-d1c879dc69cb",
+                    "created": "2020-03-19T15:16:31.945Z",
+                    "num": 1324,
+                    "description": "Description #1",
+                    "version": "9920a2aa-8554-4396-95ba-70ca9cb9bca1",
+                    "name": "Corge #1",
+                    "modified": "2020-06-26T11:21:06.883Z",
+                    "id": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                    "num2": 1447,
+                    "typeId": "ec2ae4c3-6615-4c77-b07e-d1c879dc69cb",
+                    "type": {
+                        "_type": "CorgeType",
+                        "name": "Type #1",
+                        "id": "ec2ae4c3-6615-4c77-b07e-d1c879dc69cb"
+                    },
+                    "ownerId": "d7df0f2c-9aa8-4845-b2bf-1d02abd3666e",
+                    "owner": {
+                        "_type": "AppUser",
+                        "login": "admin"
+                    },
+                    "corgeLinks": [
+                        {
+                            "_type": "CorgeLink",
+                            "id": "ecfe1e62-a3a5-4ea1-b29a-55351b692100",
+                            "version": "ae42e310-86e4-4006-abf6-9c311f52f8a5",
+                            "corgeId": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                            "assocId": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                            "assoc": {
+                                "_type": "CorgeAssoc",
+                                "name": "Assoc #3",
+                                "id": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                                "version": "851d8064-6564-4366-ac4c-f5d16b7d1b33",
+                                "num": 1003
+                            }
+                        },
+                        {
+                            "_type": "CorgeLink",
+                            "id": "14390c77-7e88-44e1-acc1-d6c16717011d",
+                            "corgeId": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                            "assocId": "269fe0b9-4d22-4f2d-adc4-541bc9f719b3",
+                            "assoc": {
+                                "_type": "CorgeAssoc",
+                                "name": "Assoc #1",
+                                "description": "Description #1",
+                                "id": "269fe0b9-4d22-4f2d-adc4-541bc9f719b3",
+                                "version": "98281330-e76a-4e6a-9696-c55e5d6121f8",
+                                "num": 1001
+                            }
+                        },
+                        {
+                            "_type": "CorgeLink",
+                            "id": "34d6078d-a9f4-4523-955a-f19a058634fa",
+                            "corgeId": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                            "assocId": "421869b0-5c98-448c-bd2f-2d1ecf002535",
+                            "assoc": {
+                                "_type": "CorgeAssoc",
+                                "name": "Assoc #2",
+                                "description": "Description #2",
+                                "id": "421869b0-5c98-448c-bd2f-2d1ecf002535",
+                                "version": "f9fef6c2-d7e3-49ef-b570-98ec6fdc02d0",
+                                "num": 1002
+                            }
+                        }
+                    ]
+                }
+            },
+            "CorgeType:ec2ae4c3-6615-4c77-b07e-d1c879dc69cb": {
+                "status": "MODIFIED",
+                "domainObject": {
+                    "_type": "CorgeType",
+                    "name": "Type #1",
+                    "id": "ec2ae4c3-6615-4c77-b07e-d1c879dc69cb"
+                }
+            },
+            "CorgeLink:ecfe1e62-a3a5-4ea1-b29a-55351b692100": {
+                "status": "MODIFIED",
+                "domainObject": {
+                    "_type": "CorgeLink",
+                    "id": "ecfe1e62-a3a5-4ea1-b29a-55351b692100",
+                    "version": "ae42e310-86e4-4006-abf6-9c311f52f8a5",
+                    "corgeId": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                    "assocId": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                    "assoc": {
+                        "_type": "CorgeAssoc",
+                        "name": "Assoc #3",
+                        "id": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                        "version": "851d8064-6564-4366-ac4c-f5d16b7d1b33",
+                        "num": 1003
+                    }
+                }
+            },
+            "CorgeAssoc:3a66eec3-2cea-4385-9205-c197e587b5c5": {
+                "status": "MODIFIED",
+                "domainObject": {
+                    "_type": "CorgeAssoc",
+                    "name": "Assoc #3",
+                    "id": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                    "version": "851d8064-6564-4366-ac4c-f5d16b7d1b33",
+                    "num": 1003
+                }
+            },
+            "CorgeLink:14390c77-7e88-44e1-acc1-d6c16717011d": {
+                "status": "NEW",
+                "domainObject": {
+                    "_type": "CorgeLink",
+                    "id": "14390c77-7e88-44e1-acc1-d6c16717011d",
+                    "corgeId": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                    "assocId": "269fe0b9-4d22-4f2d-adc4-541bc9f719b3",
+                    "assoc": {
+                        "_type": "CorgeAssoc",
+                        "name": "Assoc #1",
+                        "description": "Description #1",
+                        "id": "269fe0b9-4d22-4f2d-adc4-541bc9f719b3",
+                        "version": "98281330-e76a-4e6a-9696-c55e5d6121f8",
+                        "num": 1001
+                    }
+                }
+            },
+            "CorgeAssoc:269fe0b9-4d22-4f2d-adc4-541bc9f719b3": {
+                "status": "MODIFIED",
+                "domainObject": {
+                    "_type": "CorgeAssoc",
+                    "name": "Assoc #1",
+                    "description": "Description #1",
+                    "id": "269fe0b9-4d22-4f2d-adc4-541bc9f719b3",
+                    "version": "98281330-e76a-4e6a-9696-c55e5d6121f8",
+                    "num": 1001
+                }
+            },
+            "CorgeLink:34d6078d-a9f4-4523-955a-f19a058634fa": {
+                "status": "NEW",
+                "domainObject": {
+                    "_type": "CorgeLink",
+                    "id": "34d6078d-a9f4-4523-955a-f19a058634fa",
+                    "corgeId": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                    "assocId": "421869b0-5c98-448c-bd2f-2d1ecf002535",
+                    "assoc": {
+                        "_type": "CorgeAssoc",
+                        "name": "Assoc #2",
+                        "description": "Description #2",
+                        "id": "421869b0-5c98-448c-bd2f-2d1ecf002535",
+                        "version": "f9fef6c2-d7e3-49ef-b570-98ec6fdc02d0",
+                        "num": 1002
+                    }
+                }
+            },
+            "CorgeAssoc:421869b0-5c98-448c-bd2f-2d1ecf002535": {
+                "status": "MODIFIED",
+                "domainObject": {
+                    "_type": "CorgeAssoc",
+                    "name": "Assoc #2",
+                    "description": "Description #2",
+                    "id": "421869b0-5c98-448c-bd2f-2d1ecf002535",
+                    "version": "f9fef6c2-d7e3-49ef-b570-98ec6fdc02d0",
+                    "num": 1002
+                }
+            }
+        },
+        "bases": {
+            "Corge:20bbb666-79d1-4a50-8b23-4442be8b615e": {
+                "_type": "Corge",
+                "flag": false,
+                "type2": "ec2ae4c3-6615-4c77-b07e-d1c879dc69cb",
+                "created": "2020-03-19T15:16:31.945Z",
+                "modified": "2020-03-19T15:16:31.948Z",
+                "num": 1324,
+                "description": "Description #1",
+                "version": "9920a2aa-8554-4396-95ba-70ca9cb9bca1",
+                "name": "Corge #1",
+                "id": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                "num2": 1447,
+                "typeId": "ec2ae4c3-6615-4c77-b07e-d1c879dc69cb",
+                "type": {
+                    "_type": "CorgeType",
+                    "name": "Type #1",
+                    "id": "ec2ae4c3-6615-4c77-b07e-d1c879dc69cb"
+                },
+                "ownerId": "d7df0f2c-9aa8-4845-b2bf-1d02abd3666e",
+                "owner": {
+                    "_type": "AppUser",
+                    "login": "admin"
+                },
+                "corgeLinks": [
+                    {
+                        "_type": "CorgeLink",
+                        "id": "ecfe1e62-a3a5-4ea1-b29a-55351b692100",
+                        "version": "ae42e310-86e4-4006-abf6-9c311f52f8a5",
+                        "corgeId": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                        "assocId": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                        "assoc": {
+                            "_type": "CorgeAssoc",
+                            "name": "Assoc #3",
+                            "id": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                            "version": "851d8064-6564-4366-ac4c-f5d16b7d1b33",
+                            "num": 1003
+                        }
+                    }
+                ]
+            },
+            "CorgeType:ec2ae4c3-6615-4c77-b07e-d1c879dc69cb": {
+                "_type": "CorgeType",
+                "name": "Type #1",
+                "id": "ec2ae4c3-6615-4c77-b07e-d1c879dc69cb"
+            },
+            "CorgeLink:ecfe1e62-a3a5-4ea1-b29a-55351b692100": {
+                "_type": "CorgeLink",
+                "id": "ecfe1e62-a3a5-4ea1-b29a-55351b692100",
+                "version": "ae42e310-86e4-4006-abf6-9c311f52f8a5",
+                "corgeId": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                "assocId": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                "assoc": {
+                    "_type": "CorgeAssoc",
+                    "name": "Assoc #3",
+                    "id": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                    "version": "851d8064-6564-4366-ac4c-f5d16b7d1b33",
+                    "num": 1003
+                }
+            },
+            "CorgeAssoc:3a66eec3-2cea-4385-9205-c197e587b5c5": {
+                "_type": "CorgeAssoc",
+                "name": "Assoc #3",
+                "id": "3a66eec3-2cea-4385-9205-c197e587b5c5",
+                "version": "851d8064-6564-4366-ac4c-f5d16b7d1b33",
+                "num": 1003
+            },
+            "CorgeLink:14390c77-7e88-44e1-acc1-d6c16717011d": {
+                "_type": "CorgeLink",
+                "id": "14390c77-7e88-44e1-acc1-d6c16717011d",
+                "corgeId": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                "assocId": "269fe0b9-4d22-4f2d-adc4-541bc9f719b3",
+                "assoc": {
+                    "_type": "CorgeAssoc",
+                    "name": "Assoc #1",
+                    "description": "Description #1",
+                    "id": "269fe0b9-4d22-4f2d-adc4-541bc9f719b3",
+                    "version": "98281330-e76a-4e6a-9696-c55e5d6121f8",
+                    "num": 1001
+                }
+            },
+            "CorgeAssoc:269fe0b9-4d22-4f2d-adc4-541bc9f719b3": {
+                "_type": "CorgeAssoc",
+                "name": "Assoc #1",
+                "description": "Description #1",
+                "id": "269fe0b9-4d22-4f2d-adc4-541bc9f719b3",
+                "version": "98281330-e76a-4e6a-9696-c55e5d6121f8",
+                "num": 1001
+            },
+            "CorgeLink:34d6078d-a9f4-4523-955a-f19a058634fa": {
+                "_type": "CorgeLink",
+                "id": "34d6078d-a9f4-4523-955a-f19a058634fa",
+                "corgeId": "20bbb666-79d1-4a50-8b23-4442be8b615e",
+                "assocId": "421869b0-5c98-448c-bd2f-2d1ecf002535",
+                "assoc": {
+                    "_type": "CorgeAssoc",
+                    "name": "Assoc #2",
+                    "description": "Description #2",
+                    "id": "421869b0-5c98-448c-bd2f-2d1ecf002535",
+                    "version": "f9fef6c2-d7e3-49ef-b570-98ec6fdc02d0",
+                    "num": 1002
+                }
+            },
+            "CorgeAssoc:421869b0-5c98-448c-bd2f-2d1ecf002535": {
+                "_type": "CorgeAssoc",
+                "name": "Assoc #2",
+                "description": "Description #2",
+                "id": "421869b0-5c98-448c-bd2f-2d1ecf002535",
+                "version": "f9fef6c2-d7e3-49ef-b570-98ec6fdc02d0",
+                "num": 1002
+            }
+        },
+        "mergeConfig": {
+            "typeConfigs": [
+                {
+                    "name": "Corge",
+                    "mergeGroups": [
+                        {
+                            "fields": [
+                                "num",
+                                "num2"
+                            ]
+                        }
+                    ],
+                    "ignored": [
+                        "modified"
+                    ]
+                }
+            ],
+            "allowDiscard": true,
+            "allowApply": true,
+            "logMergeScenarios" : false
+        }
+    }
+}

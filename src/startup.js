@@ -52,6 +52,7 @@ function defaultInit(ctx, initial)
         processName,
         schema,
         alternateStyles,
+        mergeOptions,
         [APP_SCOPE]: appScopeFromInitial,
         [USER_SCOPE]: userScopeFromInitial
     } = initial;
@@ -74,6 +75,8 @@ function defaultInit(ctx, initial)
     config.alternateStyles = alternateStyles;
 
     config.rootProcess = processName;
+
+    config.mergeOptions = mergeOptions;
 
     let promises = [];
 
