@@ -22,6 +22,7 @@ transition | string | Transition reference. button must have either a `transitio
 
  Name | Type | Description 
 ------|------|-------------
+addonClass | string | Additional HTML classes for the calendar button addon
 formGroupClass | string | Additional HTML classes for the form group element.
 helpText | string | Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
 inputClass | string | Additional HTML classes for the input element.
@@ -502,10 +503,11 @@ mode | FieldMode value | Mode for this foreign key selector. If not set or set t
 name | string | Name / path for the foreign key value (e.g. "name", but also "foos.0.name"). Optional for this widget as it can also operate just by updating embedded objects. If name is not set, display and label must be set.
 onUpdate | func | Optional alternate handler for target selection. The default behavior can automatically update an embedded target object if
 placeholder | string | Placeholder for input (See `validateInput`)
-**query** (required) | instance of GraphQLQuery | iQuery GraphQL query to fetch the current list of target objects
+**query** (required) | instance of GraphQLQuery or instance of InteractiveQuery | iQuery GraphQL query to fetch the current list of target objects
 targetField | string | Name of the relation target field
 tooltip | string | Tooltip / title attribute for the input element
 validateInput | string or func | Field name or function returning a filter expression used to allow and validate text-input changes of the selected value. The field or filter must match exactly one element from the current `query`. (Function must be of the form `value => ...` and must return a Filter DSL condition.)
+validateInputJS | func | Provides a js validation function that is only used in one special case. Injected iQueries and textual user-input. If we use an InteractiveQuery that contains all the rows of that types, we can use this function to filter that injected Interactive query document via JavaScript instead of querying the server. If this prop is not set, the FKSelector will query the server in any case.
 validationTimeout | number | Timeout in ms after which the input will do the validation query ( default: 300).
 ## &lt;AssociationSelector/&gt;
 
@@ -515,7 +517,7 @@ Displays the currently associated entities of a many-to-many relationship as see
 
  Name | Type | Description 
 ------|------|-------------
-**display** (required) | string or func | Path to use as display value for associations or render function for assocations ( linkObj => ReactElement ).
+**display** (required) | string or func | Path to use as display value for associations or render function for associations ( linkObj => ReactElement ).
 fade | bool | Whether to do the modal fade animation on selection (default is true)
 formGroupClass | string | Additional HTML classes for the form group element.
 generateId | func | Function to return a new id value for newly created associations. Note that you can use placeholder id values. Default is to create a new UUID (NPM "uuid" v4).
