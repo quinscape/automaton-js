@@ -90,10 +90,15 @@ function createTypeRef(type)
 }
 
 
-function createGenericScalarFromWire(wireFormat)
+export function createGenericScalarFromWire(wireFormat)
 {
 
     return value => {
+
+        if (value === null)
+        {
+            return null;
+        }
 
         return {
             type: value.type,
@@ -107,9 +112,14 @@ function createGenericScalarFromWire(wireFormat)
 }
 
 
-function createGenericScalarToWire(wireFormat)
+export function createGenericScalarToWire(wireFormat)
 {
     return value => {
+
+        if (value === null)
+        {
+            return null;
+        }
 
         return {
             type: value.type,
@@ -195,6 +205,11 @@ export function loadDomainDefinitions(ctx)
         createDomainObjectFromWire(wireFormat),
         createDomainObjectToWire(wireFormat)
     );
+}
+
+export function __setWireFormatForTest(wf)
+{
+    wireFormat = wf;
 }
 
 export function getWireFormat()
