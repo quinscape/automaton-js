@@ -5,6 +5,14 @@ import updateComponentCondition from "../util/updateComponentCondition";
 
 const NO_COMPONENT = null;
 
+
+/**
+ * Returns the first value from an object.
+ * 
+ * @param {object} m    js object
+ *
+ * @returns {*}
+ */
 export function getFirstValue(m)
 {
     for (let key in m)
