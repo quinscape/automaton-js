@@ -1,7 +1,5 @@
 import config from "../config";
-import unwrapAll from "./unwrapAll";
-
-const {INPUT_OBJECT} = require("domainql-form/lib/kind");
+import { LIST, SCALAR, INPUT_OBJECT, NON_NULL } from "domainql-form/lib/kind";
 
 export function findNamed(array, name)
 {
@@ -17,6 +15,16 @@ export function findNamed(array, name)
 }
 
 
+/**
+ * Returns an array of fields for the given type. Supports both input types and output types.
+ * @param {Object} type     GraphQL type definition
+ *
+ * @returns {array<object>} array of fields
+ */
+export function getFields(type)
+{
+    return type.kind === INPUT_OBJECT ? type.inputFields : type.fields;
+}
 
 
 /**
@@ -45,7 +53,7 @@ export function lookupType(name, path)
     for (let i = 0; i < length; i++)
     {
         let segment = pathArray[i];
-        const fields = type.kind === INPUT_OBJECT ? type.inputFields : type.fields;
+        const fields = getFields(type);
         const field = findNamed(fields, segment);
         if (!field)
         {
@@ -109,3 +117,44 @@ function endsWithInput(s)
 {
     return s.lastIndexOf(INPUT) === s.length - INPUT.length;
 }
+
+export function unwrapAll(type) {
+    if (type.kind === NON_NULL || type.kind === LIST)
+    {
+        return unwrapAll(type.ofType);
+    }
+    return type;
+}
+
+export function unwrapNonNull(type)
+{
+    if (type.kind === NON_NULL)
+    {
+        return type.ofType;
+    }
+    return type;
+}
+
+/**
+ * Returns true if the given type definition is a list or non-null list.
+ *
+ * @param {Object} type     GraphQL type definition
+ * @returns {boolean}   true if list
+ */
+export function isListType(type)
+{
+    return unwrapNonNull(type).kind === LIST;
+}
+
+
+/**
+ * Returns true if the given type definition is, after unwrapping all non-null and list types, is a scalar type.
+ *
+ * @param {Object} type     GraphQL type definition
+ * @returns {boolean}   true if (wrapped) scalar
+ */
+export function isWrappedScalarType(type)
+{
+    return unwrapAll(type).kind === SCALAR;
+}
+
