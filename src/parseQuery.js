@@ -32,6 +32,11 @@ function transformType(inputSchema, type)
 
         const typeDef = inputSchema.getType(name);
 
+        if (!typeDef)
+        {
+            throw new Error("Could not find type '" + name + "'in schema");
+        }
+
         return {
             kind: typeDef.kind === KIND_SCALAR ? KIND_SCALAR : KIND_OBJECT,
             name
