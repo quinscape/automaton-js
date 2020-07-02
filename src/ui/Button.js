@@ -21,17 +21,6 @@ function getTextFromChildren(children)
 }
 
 
-function ensureText(text)
-{
-    if (__DEV)
-    {
-        if (!hasText(text))
-        {
-        }
-    }
-    return text;
-}
-
 const Button = props => {
 
     const formConfig = useFormConfig();
