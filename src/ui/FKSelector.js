@@ -420,7 +420,15 @@ const FKSelector = fnObserver(props => {
 
             let promise;
 
-            if (typeof validateInputJS === "function" && queryFromProps instanceof InteractiveQuery)
+            // we do a JS filter if
+            if (
+                // we have a js filter function and
+                typeof validateInputJS === "function" &&
+                // we have the injected iQuery document and
+                queryFromProps instanceof InteractiveQuery &&
+                // it contains all of the data for that type/condition.
+                queryFromProps.rowCount === queryFromProps.rows.length
+            )
             {
                 const filterDoc = new InteractiveQuery();
                 filterDoc._type = queryFromProps._type;
@@ -428,6 +436,7 @@ const FKSelector = fnObserver(props => {
                 filterDoc.columnStates = queryFromProps.columnStates;
                 filterDoc.queryConfig = {
                     config: {
+                        // XXX: hope this doesn't give us problems
                         condition: null,
                         offset: 0,
                         pageSize: 0
