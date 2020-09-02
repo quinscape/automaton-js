@@ -46,8 +46,14 @@ import equalsScalar, {registerScalarEquals} from "./util/equalsScalar";
 import renderEntity, {registerEntityRenderer} from "./util/renderEntity";
 import { openDialog } from "./ui/Dialog"
 import { MergeOperation } from "./ui/ChangeConflictDialog";
+import AttachmentField from "./ui/AttachmentField";
+import AttachmentLink from "./ui/AttachmentLink";
+import uploadAttachment from "./uploadAttachment";
+import deleteAttachment from "./deleteAttachment";
 
 const AutomatonDevTools = "span";
+
+import Attachments from "./Attachments"
 
 import {
     Type,
@@ -243,5 +249,12 @@ export {
 
     renderEntity,
     registerEntityRenderer,
-    MergeOperation
+    MergeOperation,
+
+    AttachmentField,
+    AttachmentLink,
+    uploadAttachment,
+    deleteAttachment,
+
+    Attachments
 }
