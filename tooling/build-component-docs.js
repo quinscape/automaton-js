@@ -26,6 +26,8 @@ const COMPONENTS = [
             "../src/ui/StyleSwitcher.js",
             "../src/ui/FKSelector.js",
             "../src/ui/AssociationSelector.js",
+            "../src/ui/AttachmentField.js",
+            "../src/ui/AttachmentLink.js"
         ]
     }
 ];

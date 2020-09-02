@@ -529,3 +529,33 @@ mode | FieldMode value | Mode for this calendar field. If not set or set to null
 name | string | Name / path for the association selector field. In contrast to most normal fields this does not point to a scalar value but to list of associative entity / link table fields with embedded target objects
 **query** (required) | instance of GraphQLQuery | iQuery GraphQL query to fetch the current list of target objects
 value | string | Path to use as the representative value / id of the link
+## &lt;AttachmentField/&gt;
+
+Attachment form field allowing the user to upload attachments and remove attachments.
+
+Storage of the attachments has to be done with the Attachments API.
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+addons | array | Array of addons as props instead of as children. Only useful if you're writing a component wrapping Field and want to render your addons as field addons while using the render function form.
+deleteRemoved | bool | If true, delete removed attachments from the database, otherwise just de-reference them. (default is true)
+formGroupClass | string | Additional HTML classes for the form group element.
+helpText | string | Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
+label | string | Label for the field.
+labelClass | string | Additional HTML classes for the label element.
+mode | FieldMode value | Mode for this field. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
+**name** (required) | string | Name / path for this field (e.g. "name", but also "foos.0.name")
+tooltip | string | Tooltip / title attribute for the input element
+## &lt;AttachmentLink/&gt;
+
+Renders a link to an attachment
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+attachment | object | An App_Attachment structure / observable
+className | string | Additional HTML classes for the attachment link.
+disabled | bool | True if the attachment link should be disabled
