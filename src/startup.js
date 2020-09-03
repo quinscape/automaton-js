@@ -10,13 +10,14 @@ import { serverSync, storageSync, syncFrom, syncFromStorage } from "./sync"
 
 import { APP_SCOPE, LOCAL_SCOPE, SESSION_SCOPE, USER_SCOPE } from "./scopeNames"
 
-import { INTERACTIVE_QUERY, loadDomainDefinitions, registerGenericType } from "./domain";
+import { getWireFormat, INTERACTIVE_QUERY, loadDomainDefinitions, registerGenericType } from "./domain";
 import InteractiveQuery from "./model/InteractiveQuery";
 
 import { createBrowserHistory } from "history"
-import { getWireFormat } from "./domain"
 import createDomainObject from "./createDomainObject";
 import { registerGenericGraphQLPostProcessor } from "./graphql";
+
+
 const SCOPES_MODULE_NAME = "./scopes.js";
 
 const pkgJSON = require("../package.json");
@@ -260,6 +261,30 @@ function registerSystemTypes()
 
 
 /**
+ * Execute late-phase initialization functionality that requires other infrastructure to be already initialized.
+ *
+ * @param initial   initial data-block
+ */
+function performFinalInitialization(initial)
+{
+
+    config.userInfo = getWireFormat().convert(
+        {
+            kind: "OBJECT",
+            name: initial.userInfo.type
+        },
+        initial.userInfo.info,
+        {
+            fromWire: true,
+            withType: true,
+            noWrapping: true
+        }
+    );
+
+}
+
+
+/**
  * Entry point to the automaton client-side process engine
  *
  * @param ctx                   require.context with all .js files
@@ -292,6 +317,8 @@ export function startup(ctx, initial, initFn)
                 loadDomainDefinitions(ctx);
 
                 loadProcessDefinitions(ctx);
+
+                performFinalInitialization(initial);
 
                 // AUTOMATON RUNTIME PHASE
                 setupScopeSynchronization();
