@@ -61,6 +61,8 @@ export const DEFAULT_OPTS = {
     [USER_SCOPE]: null,
     [SESSION_SCOPE]: null,
     [LOCAL_SCOPE]: null,
+
+    userInfo: {}
 };
 
 
