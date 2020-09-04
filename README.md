@@ -7,6 +7,7 @@ Contains common functionality referenced in the generated code.
 ## Documentation
 
  * ["automaton-js" API](./docs/api.md)
+ * [Automaton Config](./docs/config.md)
  * [Automaton Component Reference](./docs/component-reference.md)
  * [Websocket Hub Documentation](./docs/Hub.md)
  
