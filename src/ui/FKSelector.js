@@ -406,7 +406,7 @@ const FKSelector = fnObserver(props => {
                     return;
                 }
 
-                const genericTypes = config.genericTypes.filter(
+                const genericTypes = config.inputSchema.schema.genericTypes.filter(
                     genericType => genericType.type === "InteractiveQueryQuxD"
                 );
                 const type = genericTypes[0].typeParameters[0];

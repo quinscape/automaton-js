@@ -17,7 +17,7 @@ let wireFormat;
  */
 export function registerGenericType(genericType, DomainClass)
 {
-    const { genericTypes } = config;
+    const { genericTypes } = config.inputSchema.schema;
 
     const typesForGenericType = genericTypes.filter(ref => ref.genericType === genericType);
 
@@ -57,7 +57,7 @@ export const INTERACTIVE_QUERY = "de.quinscape.automaton.model.data.InteractiveQ
  */
 export function getGenericType(typeName)
 {
-    const { genericTypes } = config;
+    const { genericTypes } = config.inputSchema.schema;
 
     for (let i = 0; i < genericTypes.length; i++)
     {

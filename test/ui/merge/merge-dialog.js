@@ -30,7 +30,6 @@ describe("<MergeDialog/>", function () {
         inputSchema = new InputSchema(rawSchema);
 
         config.inputSchema = inputSchema;
-        config.genericTypes = inputSchema.genericTypes;
 
         wireFormat = new WireFormat(inputSchema, {
             InteractiveQueryCorge: InteractiveQuery

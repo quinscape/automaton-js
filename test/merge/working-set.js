@@ -28,7 +28,6 @@ describe("WorkingSet Merge", function () {
         inputSchema = new InputSchema(rawSchema);
 
         config.inputSchema = inputSchema;
-        config.genericTypes = inputSchema.genericTypes;
 
         format = new WireFormat(inputSchema, {
             InteractiveQueryCorge : InteractiveQuery
