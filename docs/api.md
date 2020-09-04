@@ -9,32 +9,7 @@ internal "automaton-js" library.
 
 configuration object for automaton. Global constant client-side configuration is kept here. 
 
-Configuration key | Description                                    
-------------------|----------------------------------------------------------------------------------------------
-layout            | Default Layout Component
-locale            | Current locale code
-translations      | Map of translation tags to translated messages for the current locale. You can register function values that can be used for dynamic transation.
-contextPath       | Servlet context path under which the application is deployed. Must be inserted into every local URI. uri() does this automatically
-scopeSyncTimeout  | Number of milliseconds that have to pass without further changes before a persistent scope is synchronized. Can be an object map with standard cope names to configure the values per scope.
-
-```js
-    config.layout = Layout;
-    config.translations = {
-        ... config.translations,
-        "CustomKey" : function(tag, args)
-        {
-            const [ num ] = args;
-            if (num === 0 || num > 1)
-            {
-                return num + " custom keys"
-            }
-            else
-            {
-                return "a custom key";
-            }
-        }
-    };
-```
+[See 'Automaton Configuration' for details](./config.md)
 
 ### startup
 
