@@ -205,41 +205,56 @@ export const renderCompositeScript = (composite, shortName) => {
                     })
                 }
             }
+            const commonRoot = (nameOfRoot, attrsOfRoot,kidsOfRoot, code) =>{
+                if (nameOfRoot) {
+                    componentScript += `(
+                    <${nameOfRoot}`
+                    if (attrsOfRoot && attrsOfRoot.length > 0) {
+                        commonAttrs(attrsOfRoot)
+                    }
+                    if (kidsOfRoot && kidsOfRoot.length > 0) {
+                        componentScript += `>`
+                        commonKid(kidsOfRoot)
+                        componentScript += `
+                    </${nameOfRoot}>
+                        )
+                }`
+                    } else {
+                        componentScript += `/>
+                )
+                }`
+                    }
+                }
+                else if (code) {
+                    componentScript += `${code}
+                    }`
+                }
+            }
 
-            kids.map(({ name, attrs, value, code, root, params, kids }) => {
+            kids.map(({ name, attrs, value, code, root, params, kids,html }) => {
 
-                if (root) {
-                    const { name: nameOfRoot, attrs: attrsOfRoot, kids, code } = root
+                if ( root ) {
+
                     componentScript += `
                     {`
+
                     params.map(({ name: nameOfParams }) => {
                         componentScript += `
                     ${nameOfParams} => `
                     })
-                    if (nameOfRoot) {
-                        componentScript += `(
-                        <${nameOfRoot}`
-                        if (attrsOfRoot && attrsOfRoot.length > 0) {
-                            commonAttrs(attrsOfRoot)
-                        }
-                        if (kids && kids.length > 0) {
-                            componentScript += `>`
-                            commonKid(kids)
-                            componentScript += `
-                        </${nameOfRoot}>
-                            )
-                    }`
-                        } else {
-                            componentScript += `/>
-                    )
-                    }`
-                        }
-                    }
-                    else if (code) {
-                        componentScript += `${code}
-                        }`
+
+                    if ( root.length >=1 ){
+                        root.map(({ name: nameOfRoot, attrs: attrsOfRoot, kids:kidsOfRoot, code })=>{
+
+                            commonRoot(nameOfRoot, attrsOfRoot,kidsOfRoot, code)
+                        })
+                    } else {
+                        const { name: nameOfRoot, attrs: attrsOfRoot, kids:kidsOfRoot, code } = root
+
+                        commonRoot(nameOfRoot, attrsOfRoot,kidsOfRoot, code)
                     }
                 }
+
                 if (name) {
                     kids && kids.length >= 1 ? componentScript += `
                 ` : componentScript += `
@@ -255,21 +270,45 @@ export const renderCompositeScript = (composite, shortName) => {
                         kids && kids.length >= 1 ? componentScript += `>` : componentScript += `/>`
                     }
                 }
+
                 if (value) {
                     componentScript += `
                     ${value}`
                 }
+
                 if (code) {
                     componentScript += `
                     ${code}`
                 }
+
+                if(html){
+
+                    if (attrs && attrs.length >= 1) {
+
+                        renderedIf(attrs)
+
+                        componentScript +=`
+                    <React.Fragment>
+                        ${html}
+                    </React.Fragment>`
+
+                    } else {
+
+                        componentScript +=`
+                    ${html}`
+
+                    }
+                }
+
                 if (kids && kids.length >= 1) {
                     commonKid(kids)
                     componentScript += `</${name}>`
                 }
+
                 if(attrs && attrs.length >=1){
                     endOfRenderedIf(attrs)
                 }
+                
                 componentScript += `
                 `
             })
