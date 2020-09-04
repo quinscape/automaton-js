@@ -67,7 +67,6 @@ function defaultInit(ctx, initial)
 
     config.auth = new Authentication(authentication);
     config.inputSchema = new InputSchema(schema);
-    config.genericTypes = schema.genericTypes;
 
     config.appName = appName;
     config.locale = locale;

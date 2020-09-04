@@ -26,7 +26,6 @@ export const DEFAULT_OPTS = {
 
     layout: DefaultLayout,
     inputSchema: null,
-    genericTypes: null,
 
     history: null,
 

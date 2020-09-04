@@ -183,7 +183,7 @@ describe("FKSelector", function () {
 
         config.inputSchema = inputSchema;
 
-        config.genericTypes = [
+        inputSchema.schema.genericTypes = [
             {
                 "type": "InteractiveQueryQuxD",
                 "typeParameters": [
