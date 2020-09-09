@@ -308,7 +308,7 @@ export const renderCompositeScript = (composite, shortName) => {
                 if(attrs && attrs.length >=1){
                     endOfRenderedIf(attrs)
                 }
-                
+
                 componentScript += `
                 `
             })
@@ -414,11 +414,29 @@ export default class ${name} {
     `
         });
 
-        helpers.map((helper)=>{
-            processScript += `  
-        ${helper.name} = ${helper.defaultValue}
-            `
-        })
+        if(helpers && helpers.length >= 1){
+
+            helpers.map((helper)=>{
+                const {name, defaultValue, code} = helper
+                processScript += `  
+            ${name} =`
+
+                if( defaultValue ){
+
+                    processScript += ` ${defaultValue}
+                `
+                }
+
+                if(code){
+                    console.log(code)
+
+                    processScript += ` () => {
+                    ${code}
+                }
+                `
+                }
+            })
+        }
 
         actions.map((action) => {
             const params = action.params.length === 1 ? action.params : action.params.join(', ')
@@ -466,10 +484,10 @@ export default query(
         const { pageSize, sortFields } = variables.config
         queryScript += `,{
             "config": {
-                pageSize: ${pageSize}`
+                pageSize: ${pageSize},`
         if(sortFields){
             queryScript +=`
-                sortFields: ["${sortFields}"]`
+                sortFields: ["${sortFields}"],`
         }
         queryScript +=`
             }
