@@ -50,6 +50,7 @@ import AttachmentField from "./ui/AttachmentField";
 import AttachmentLink from "./ui/AttachmentLink";
 import uploadAttachment from "./uploadAttachment";
 import deleteAttachment from "./deleteAttachment";
+import conditionBuilder from "./conditionBuilder";
 
 const AutomatonDevTools = "span";
 
@@ -256,5 +257,7 @@ export {
     uploadAttachment,
     deleteAttachment,
 
-    Attachments
+    Attachments,
+
+    conditionBuilder
 }
