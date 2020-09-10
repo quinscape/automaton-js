@@ -267,7 +267,7 @@ function registerSystemTypes()
 function performFinalInitialization(initial)
 {
 
-    config.userInfo = getWireFormat().convert(
+    config.userInfo = initial.userInfo && getWireFormat().convert(
         {
             kind: "OBJECT",
             name: initial.userInfo.type
