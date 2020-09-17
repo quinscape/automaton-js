@@ -32,7 +32,15 @@ function print(out, element)
     switch (element.tagName)
     {
         case "I":
-            out.push(element.classList.contains("fa-check") ? "V" : "X")
+            if (element.classList.contains("fa-check"))
+            {
+                out.push("V");
+            }
+            if (element.classList.contains("fa-bolt"))
+            {
+                out.push("X");
+            }
+
             break;
         case "LABEL":
             if (!element.classList.contains("sr-only"))
