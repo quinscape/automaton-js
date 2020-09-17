@@ -8,8 +8,7 @@ import {
     FieldMode,
     FormGroup,
     Icon,
-    InputSchema,
-    unwrapType
+    renderStaticField
 } from "domainql-form";
 
 import config from "../config";
@@ -51,160 +50,145 @@ const removeAttachment = action(
  *
  * Storage of the attachments has to be done with the Attachments API.
  */
-const AttachmentField = ({ deleteRemoved = true, children, ... fieldProps}) => {
+const AttachmentField = React.forwardRef(
+    ({ deleteRemoved = true, children, ... fieldProps}, ref) => {
 
-    const [ original, setOriginal ] = useState(false);
-    const [ isNew, setIsNew ] = useState(null);
+        const [ original, setOriginal ] = useState(false);
+        const [ isNew, setIsNew ] = useState(null);
 
-    const { name } = fieldProps;
+        const { name } = fieldProps;
 
-    const attachmentPath = useMemo(
-        () => {
+        const attachmentPath = useMemo(
+            () => {
 
-            const relations = config.inputSchema.schema.relations.filter(r => r.targetType === "AppAttachment" && r.sourceFields[0] === name );
-            if (!relations.length)
-            {
-                throw new Error("Could not find attachment relation using '" + name + "' as source field");
-            }
+                const relations = config.inputSchema.schema.relations.filter(r => r.targetType === "AppAttachment" && r.sourceFields[0] === name );
+                if (!relations.length)
+                {
+                    throw new Error("Could not find attachment relation using '" + name + "' as source field");
+                }
 
-            const attachmentRelation = relations[0];
-            if (!attachmentRelation.leftSideObjectName)
-            {
-                throw new Error("No attachment object field in '" + attachmentRelation.sourceType + "");
-            }
+                const attachmentRelation = relations[0];
+                if (!attachmentRelation.leftSideObjectName)
+                {
+                    throw new Error("No attachment object field in '" + attachmentRelation.sourceType + "");
+                }
 
-            const attachmentPath = [ ... toPath(name)];
-            attachmentPath[attachmentPath.length - 1] = attachmentRelation.leftSideObjectName;
-            return attachmentPath;
-        },
-        [ name ]
-    )
+                const attachmentPath = [ ... toPath(name)];
+                attachmentPath[attachmentPath.length - 1] = attachmentRelation.leftSideObjectName;
+                return attachmentPath;
+            },
+            [ name ]
+        )
 
-    const fileInputRef = useRef(null);
+        const fileInputRef = useRef(null);
 
-    return (
-        <Field
-            { ...fieldProps }
-            addons={ Addon.filterAddons(children) }
-        >
-            {
-                (formConfig, fieldContext) => {
-                    
-                    const { fieldId, fieldType, tooltip, mode, qualifiedName, path, handleChange, handleBlur } = fieldContext;
+        return (
+            <Field
+                { ...fieldProps }
+                addons={ Addon.filterAddons(children) }
+            >
+                {
+                    (formConfig, fieldContext) => {
 
-                    const errorMessages = formConfig.getErrors(path);
+                        const { fieldId, tooltip, mode, qualifiedName, path } = fieldContext;
 
-                    // The id of the attachment is our field value
-                    const attachmentId = InputSchema.scalarToValue(unwrapType(fieldType).name, formConfig.getValue(path, errorMessages));
+                        const errorMessages = formConfig.getErrors(qualifiedName);
 
-                    const isPlainText = mode === FieldMode.PLAIN_TEXT;
+                        // The id of the attachment is our field value
+                        const attachmentId = Field.getValue(formConfig, fieldContext, errorMessages);
 
-                    const attachment = get(formConfig.root, attachmentPath);
+                        const isPlainText = mode === FieldMode.PLAIN_TEXT;
 
-                    const handleFileChange = ev => {
+                        const attachment = get(formConfig.root, attachmentPath);
 
-                        if (original === false)
-                        {
-                            setOriginal(attachment);
-                        }
+                        const handleFileChange = ev => {
 
-                        const { files } = fileInputRef.current;
-
-                        if (files.length)
-                        {
-                            // if we already had uploaded a new file
-                            if (isNew)
+                            if (original === false)
                             {
-                                // cancel that
+                                setOriginal(attachment);
+                            }
+
+                            const { files } = ( ref || fileInputRef).current;
+
+                            if (files.length)
+                            {
+                                // if we already had uploaded a new file
+                                if (isNew)
+                                {
+                                    // cancel that
+                                    Attachments.clearActionsFor(formConfig.root, attachmentId);
+                                }
+
+                                const file = files[0];
+                                const newAttachment = {
+                                    id: uuid.v4(),
+                                    type: file.type,
+                                    description: file.name,
+                                    url: null
+                                };
+                                setAttachment(formConfig.root, path, attachmentPath,newAttachment);
+                                Attachments.markAttachmentAsNew(formConfig.root, newAttachment, file);
+                                setIsNew(true);
+                            }
+                        };
+
+                        const removeCurrent = () => {
+
+                            if (original === false)
+                            {
+                                setOriginal(attachment);
+                            }
+
+                            removeAttachment(formConfig.root, path, attachmentPath);
+                            if (deleteRemoved)
+                            {
+                                Attachments.markAttachmentDeleted(formConfig.root, attachmentId);
+                            }
+                        };
+
+                        const resetField = () => {
+                            const elem = (ref || fileInputRef).current;
+
+                            if (attachmentId)
+                            {
                                 Attachments.clearActionsFor(formConfig.root, attachmentId);
                             }
 
-                            const file = files[0];
-                            const newAttachment = {
-                                id: uuid.v4(),
-                                type: file.type,
-                                description: file.name,
-                                url: null
-                            };
-                            setAttachment(formConfig.root, path, attachmentPath,newAttachment);
-                            Attachments.markAttachmentAsNew(formConfig.root, newAttachment, file);
-                            setIsNew(true);
-                        }
-                    };
+                            if (original)
+                            {
+                                Attachments.clearActionsFor(formConfig.root, original.id);
+                            }
+                            setAttachment(formConfig.root, path, attachmentPath, original);
 
-                    const removeCurrent = () => {
+                            elem.value = null;
 
-                        if (original === false)
+                            setIsNew(false);
+                            setOriginal(false);
+                        };
+
+
+                        let fieldElem;
+                        if (isPlainText)
                         {
-                            setOriginal(attachment);
+                            fieldElem = (
+                                <span
+                                    id={ fieldId }
+                                    data-name={ qualifiedName }
+                                    className="form-control-plaintext"
+                                >
+                                    <AttachmentLink
+                                        attachment={ attachment }
+                                    />
+                                </span>
+                            );
                         }
-
-                        removeAttachment(formConfig.root, path, attachmentPath);
-                        if (deleteRemoved)
+                        else
                         {
-                            Attachments.markAttachmentDeleted(formConfig.root, attachmentId);
-                        }
-                    };
-
-                    const resetField = () => {
-                        const elem = fileInputRef.current;
-
-                        if (attachmentId)
-                        {
-                            Attachments.clearActionsFor(formConfig.root, attachmentId);
-                        }
-
-                        if (original)
-                        {
-                            Attachments.clearActionsFor(formConfig.root, original.id);
-                        }
-                        setAttachment(formConfig.root, path, attachmentPath, original);
-
-                        elem.value = null;
-
-                        setIsNew(false);
-                        setOriginal(false);
-                    };
-
-
-                    let fieldElem;
-                    if (isPlainText)
-                    {
-                        fieldElem = (
-                            <AttachmentLink
-                                className="form-control-plaintext"
-                                attachment={ attachment }
-                            />
-                        );
-                    }
-                    else
-                    {
-                        fieldElem =(
-                            Addon.renderWithAddons(
-                                <div className="input-group">
-                                    <div className="input-group-prepend">
-                                        <AttachmentLink
-                                            className="border"
-                                            attachment={ attachment }
-                                            disabled={ isNew }
-                                        />
-                                        <button
-                                            type="button"
-                                            className="btn btn-light border"
-                                            disabled={ mode !== FieldMode.NORMAL || !attachment || isNew }
-                                            aria-label={ i18n("Remove attachment") }
-                                            title={ i18n("Remove attachment") }
-                                            onClick={ removeCurrent }
-                                        >
-                                            <Icon className="fa-eraser text-danger mr-1"/>
-                                            {
-                                                i18n("Remove")
-                                            }
-                                        </button>
-                                    </div>
+                            fieldElem =(
+                                Addon.renderWithAddons(
                                     <input
                                         id={ fieldId }
-                                        ref={ fileInputRef }
+                                        ref={ ref || fileInputRef }
                                         type="file"
                                         className={
                                             cx(
@@ -217,46 +201,69 @@ const AttachmentField = ({ deleteRemoved = true, children, ... fieldProps}) => {
                                         onChange={ handleFileChange }
                                         disabled={ mode === FieldMode.DISABLED }
                                         readOnly={ mode === FieldMode.READ_ONLY }
-                                    />
-                                    <div className="input-group-append">
-                                        {
-                                            original !== false ? (
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-light border"
-                                                    disabled={ mode !== FieldMode.NORMAL }
-                                                    aria-label={ i18n("Reset Attachment Field") }
-                                                    title={ i18n("Reset Attachment Field") }
-                                                    onClick={ resetField }
-                                                >
-                                                    <Icon className="fa-times mr-1"/>
-                                                    {
-                                                        i18n("Reset")
-                                                    }
-                                                </button>
-                                            ) : false
-                                        }
-                                    </div>
-                                </div>
-                                ,fieldContext.addons)
-                        );
+                                    />,
+                                    [
+                                        ... fieldContext.addons,
+                                        <Addon placement={ Addon.LEFT }>
+                                            <AttachmentLink
+                                                className="border"
+                                                attachment={ attachment }
+                                                disabled={ isNew }
+                                            />
+                                            <button
+                                                type="button"
+                                                className="btn btn-light border"
+                                                disabled={ mode !== FieldMode.NORMAL || !attachment || isNew }
+                                                aria-label={ i18n("Remove attachment") }
+                                                title={ i18n("Remove attachment") }
+                                                onClick={ removeCurrent }
+                                            >
+                                                <Icon className="fa-eraser text-danger mr-1"/>
+                                                {
+                                                    i18n("Remove")
+                                                }
+                                            </button>
+                                        </Addon>,
+                                        <Addon placement={ Addon.RIGHT }>
+                                            {
+                                                original !== false ? (
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-light border"
+                                                        disabled={ mode !== FieldMode.NORMAL }
+                                                        aria-label={ i18n("Reset Attachment Field") }
+                                                        title={ i18n("Reset Attachment Field") }
+                                                        onClick={ resetField }
+                                                    >
+                                                        <Icon className="fa-times mr-1"/>
+                                                        {
+                                                            i18n("Reset")
+                                                        }
+                                                    </button>
+                                                ) : false
+                                            }
+                                        </Addon>
+                                    ]
+                                )
+                            );
+                        }
+                        return (
+                            <FormGroup
+                                { ...fieldContext }
+                                formConfig={ formConfig }
+                                errorMessages={ errorMessages }
+                            >
+                                {
+                                    fieldElem
+                                }
+                            </FormGroup>
+                        )
                     }
-                    return (
-                        <FormGroup
-                            { ...fieldContext }
-                            formConfig={ formConfig }
-                            errorMessages={ errorMessages }
-                        >
-                            {
-                                fieldElem
-                            }
-                        </FormGroup>
-                    )
                 }
-            }
-        </Field>
-    );
-};
+            </Field>
+        );
+    }
+);
 
 AttachmentField.propTypes = {
     /**

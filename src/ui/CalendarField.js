@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from "react"
 import cx from "classnames"
 import PropTypes from "prop-types"
-import { Field, FormGroup, InputSchema, unwrapType, FieldMode, Icon } from "domainql-form"
+import get from "lodash.get"
+import { Field, FormGroup, InputSchema, unwrapType, FieldMode, Icon, Addon } from "domainql-form"
 import i18n from "../i18n";
 import CalendarModal from "./CalendarModal";
 
@@ -13,7 +14,7 @@ function toggleValue(open)
 
 const CalendarField = props => {
 
-    const { minDate, maxDate, addonClass = "btn-outline-secondary", ... fieldProps} = props;
+    const { minDate, maxDate, addonClass = "btn-outline-secondary", children, ... fieldProps} = props;
 
     const [ isOpen, setOpen] = useState(false);
 
@@ -26,18 +27,20 @@ const CalendarField = props => {
     return (
         <Field
             {... fieldProps}
+            addons={ Addon.filterAddons(children)}
         >
             {
 
                 (formConfig, ctx) => {
 
-                    const { fieldType, mode, fieldId, inputClass, tooltip, path, qualifiedName, placeholder } = ctx;
+                    const { fieldType, mode, fieldId, inputClass, tooltip, path, qualifiedName, placeholder, addons } = ctx;
 
                     const errorMessages = formConfig.getErrors(qualifiedName);
                     const scalarType = unwrapType(fieldType).name;
 
-                    const timestamp = formConfig.getValue(path, errorMessages);
-                    const fieldValue = InputSchema.scalarToValue(scalarType, timestamp);
+                    const timestamp = get(formConfig.root, path);
+
+                    const fieldValue = Field.getValue(formConfig, ctx, errorMessages);
 
                     //console.log("checkbox value = ", fieldValue);
 
@@ -46,53 +49,58 @@ const CalendarField = props => {
 
                     const buttonTitle = i18n("Open calendar");
 
+                    const fieldElement = (
+                        <input
+                            id={ fieldId }
+                            name={ qualifiedName }
+                            className={
+                                cx(
+                                    inputClass,
+                                    "form-control"
+                                )
+                            }
+                            type="text"
+                            placeholder={ placeholder }
+                            disabled={ inputMode === FieldMode.DISABLED }
+                            title={ tooltip }
+                            readOnly={ inputMode === FieldMode.READ_ONLY }
+                            value={ fieldValue }
+                        />
+                    );
+
                     return (
                         <FormGroup
                             { ... ctx }
                             formConfig={ formConfig }
                             errorMessages={ errorMessages }
                         >
-                            <div className="input-group mb-3">
-                                <input
-                                    id={ fieldId }
-                                    name={ qualifiedName }
-                                    className={
-                                        cx(
-                                            inputClass,
-                                            "form-control"
-                                        )
-                                    }
-                                    type="text"
-                                    placeholder={ placeholder }
-                                    disabled={ inputMode === FieldMode.DISABLED }
-                                    title={ tooltip }
-                                    readOnly={ inputMode === FieldMode.READ_ONLY }
-                                    value={ fieldValue }
-                                />
-                                <span className="input-group-append">
-                                    <button
-                                        className={ cx("btn", addonClass) }
-                                        type="button"
-                                        title={ buttonTitle }
-                                        disabled={ mode !== FieldMode.NORMAL }
-                                        aria-roledescription={ buttonTitle }
-                                        onClick={ () => setOpen(true) }
-                                    >
-                                        <Icon className="fa-calendar-check"/>
-                                    </button>
-                                </span>
-                                <CalendarModal
-                                    ctx={ ctx }
-                                    formConfig={ formConfig }
-                                    isOpen={ isOpen }
-                                    toggle={ toggle }
-                                    name={ qualifiedName }
-                                    value={ timestamp }
-                                    scalarType={ scalarType }
-                                    minDate={ minDate }
-                                    maxDate={ maxDate }
-                                />
-                            </div>
+                            {
+                                Addon.renderWithAddons(fieldElement, addons.concat(
+                                    <Addon placement={ Addon.RIGHT }>
+                                        <button
+                                            className={ cx("btn", addonClass) }
+                                            type="button"
+                                            title={ buttonTitle }
+                                            disabled={ mode !== FieldMode.NORMAL }
+                                            aria-roledescription={ buttonTitle }
+                                            onClick={ () => setOpen(true) }
+                                        >
+                                            <Icon className="fa-calendar-check"/>
+                                        </button>
+                                    </Addon>
+                                ))
+                            }
+                            <CalendarModal
+                                ctx={ ctx }
+                                formConfig={ formConfig }
+                                isOpen={ isOpen }
+                                toggle={ toggle }
+                                name={ qualifiedName }
+                                value={ timestamp }
+                                scalarType={ scalarType }
+                                minDate={ minDate }
+                                maxDate={ maxDate }
+                            />
                         </FormGroup>
                     );
                 }

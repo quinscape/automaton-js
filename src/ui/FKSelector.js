@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react"
 import cx from "classnames"
 import PropTypes from "prop-types"
-import { Addon, FieldMode, FormGroup, GlobalConfig, InputSchema, unwrapType, useFormConfig } from "domainql-form"
+import { Addon, Field, FieldMode, FormGroup, GlobalConfig, InputSchema, unwrapType, useFormConfig } from "domainql-form"
 import i18n from "../i18n";
 import { action, observable } from "mobx";
 import { observer as fnObserver } from "mobx-react-lite";
@@ -362,7 +362,7 @@ const FKSelector = fnObserver(props => {
         [ formConfig.type, name ]
     );
 
-    const errorMessages  = formConfig.getErrors(fkContext.fieldId);
+    const errorMessages  = formConfig.getErrors(fkContext.qualifiedName);
 
 
     const getFieldValue = () => {
@@ -375,7 +375,8 @@ const FKSelector = fnObserver(props => {
         else
         {
             const scalarType = unwrapType(fkContext.fieldType).name;
-            fieldValue = formConfig.getValue(fkContext.path, errorMessages);
+
+            fieldValue = Field.getValue(formConfig, fkContext, errorMessages);
             fieldValue = fieldValue !== null ? InputSchema.scalarToValue(scalarType, fieldValue) : "";
         }
 
@@ -574,7 +575,7 @@ const FKSelector = fnObserver(props => {
                 }
                 <input
                     id={fieldId}
-                    name={fieldId}
+                    name={qualifiedName}
                     className={
                         cx(
                             inputClass,
