@@ -53,6 +53,7 @@ import deleteAttachment from "./deleteAttachment";
 import conditionBuilder from "./conditionBuilder";
 import registerBigDecimalConverter from "./registerBigDecimalConverter";
 import DecimalField from "./ui/DecimalField";
+import URLField from "./ui/URLField";
 
 const AutomatonDevTools = "span";
 
@@ -264,5 +265,8 @@ export {
     conditionBuilder,
 
     registerBigDecimalConverter,
-    DecimalField
+
+    DecimalField,
+
+    URLField
 }
