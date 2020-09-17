@@ -6,7 +6,16 @@ import { INPUT_OBJECT, OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";
 
 let domainClasses = {};
 
-let wireFormat;
+const earlyConverters = [];
+
+let wireFormat = {
+
+    // allow for startup init function registration of converters before the actual wireformat is created.
+    registerConverter: function (type, fromWire, toWire)
+    {
+        earlyConverters.push([type,fromWire,toWire]);
+    }
+};
 
 
 /**
@@ -205,6 +214,13 @@ export function loadDomainDefinitions(ctx)
         createDomainObjectFromWire(wireFormat),
         createDomainObjectToWire(wireFormat)
     );
+
+    for (let i = 0; i < earlyConverters.length; i++)
+    {
+        const entry = earlyConverters[i];
+        wireFormat.registerConverter( ... entry);
+    }
+
 }
 
 export function __setWireFormatForTest(wf)
