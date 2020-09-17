@@ -21,7 +21,7 @@ import sleep from "../sleep";
 
 const TEST_CASE_ID = "20bbb666-79d1-4a50-8b23-4442be8b615e";
 
-describe("<MergeDialog/>", function () {
+describe("<ChangeConflictDialog/>", function () {
 
     let inputSchema, wireFormat;
 
