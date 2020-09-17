@@ -51,6 +51,7 @@ import AttachmentLink from "./ui/AttachmentLink";
 import uploadAttachment from "./uploadAttachment";
 import deleteAttachment from "./deleteAttachment";
 import conditionBuilder from "./conditionBuilder";
+import FieldMetaButton from "./ui/FieldMetaButton";
 import registerBigDecimalConverter from "./registerBigDecimalConverter";
 import DecimalField from "./ui/DecimalField";
 import URLField from "./ui/URLField";
@@ -263,6 +264,8 @@ export {
     Attachments,
 
     conditionBuilder,
+
+    FieldMetaButton,
 
     registerBigDecimalConverter,
 
