@@ -54,6 +54,7 @@ function defaultInit(ctx, initial)
         schema,
         alternateStyles,
         mergeOptions,
+        decimalPrecision,
         [APP_SCOPE]: appScopeFromInitial,
         [USER_SCOPE]: userScopeFromInitial
     } = initial;
@@ -77,6 +78,8 @@ function defaultInit(ctx, initial)
     config.rootProcess = processName;
 
     config.mergeOptions = mergeOptions;
+
+    config.decimalPrecision = decimalPrecision;
 
     let promises = [];
 
