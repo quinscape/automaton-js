@@ -41,17 +41,18 @@ const Button = props => {
 
     const onClick = ev => {
 
-        // double check for safety
-        if (isDisabled(formConfig))
-        {
-            return;
-        }
 
         const { action } = props;
         //console.log("BUTTON-CLICK", { action, transition, context, env })
 
         if (typeof action === "function")
         {
+            // double check for safety
+            if (isDisabled(formConfig))
+            {
+                return;
+            }
+
             action(getContext())
         }
         else
@@ -67,6 +68,12 @@ const Button = props => {
                 if (!entry.discard)
                 {
                     formConfig.ctx.submit();
+
+                    // double check for safety
+                    if (isDisabled(formConfig))
+                    {
+                        return;
+                    }
                 }
             }
 
