@@ -4,6 +4,7 @@ import i18n from "./i18n";
 import config from "./config";
 import { useMemo } from "react";
 import { getWireFormat } from "./domain";
+import { getOutputTypeName } from "./util/type-utils";
 
 
 const DEFAULT_OPTIONS = {
@@ -97,11 +98,11 @@ function getPrecision(ctx, opts)
 
     if (pathLength === 1)
     {
-        type = rootType;
+        type = getOutputTypeName(rootType);
     }
     else
     {
-        type = inputSchema.resolveType(rootType, path.slice(0, -1))
+        type = getOutputTypeName(inputSchema.resolveType(rootType, path.slice(0, -1)))
     }
 
     for (let i = 0; i < decimalPrecision.length; i++)
