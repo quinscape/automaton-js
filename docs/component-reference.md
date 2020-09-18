@@ -13,6 +13,7 @@ className | string | Additional button classes
 context | any | Explicitly sets the button context to the given object. If no context is given, the form base object of the surrounding form is used.
 disabled | func | Additional function to check for disabled status. The default behavior is to disable the button if the button has a transition which is not discarding and there are form errors. This check runs before that and can disable the button in any case.
 text | string | Text for the button
+tooltip | string | Text for the button
 transition | string | Transition reference. button must have either a `transition` or an `action` attribute.
 ## &lt;CalendarField/&gt;
 
@@ -559,3 +560,47 @@ Renders a link to an attachment
 attachment | object | An App_Attachment structure / observable
 className | string | Additional HTML classes for the attachment link.
 disabled | bool | True if the attachment link should be disabled
+## &lt;DecimalField/&gt;
+
+
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+addons | array | Array of addons as props instead of as children. Only useful if you're writing a component wrapping Field and want to render your addons as field addons while using the render function form.
+autoFocus | bool | Pass-through autoFocus attribute for text inputs
+formGroupClass | string | Additional HTML classes for the form group element.
+helpText | string | Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
+inputClass | string | Additional HTML classes for the input element.
+label | string | Label for the field.
+labelClass | string | Additional HTML classes for the label element.
+mode | FieldMode value | Mode for this field. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
+**name** (required) | string | Name / path for this field (e.g. "name", but also "foos.0.name")
+onBlur | func | Optional blur handler to use
+onChange | func | Optional change handler to use
+placeholder | string | Placeholder text to render for text inputs.
+precision | number | Numerical precision for big decimal fields. (e.g. 123.45 has a scale of 5)
+scale | number | Numerical scale / number of fractional digits for big decimal fields
+tooltip | string | Tooltip / title attribute for the input element
+## &lt;URLField/&gt;
+
+
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+addons | array | Array of addons as props instead of as children. Only useful if you're writing a component wrapping Field and want to render your addons as field addons while using the render function form.
+autoFocus | bool | Pass-through autoFocus attribute for text inputs
+formGroupClass | string | Additional HTML classes for the form group element.
+helpText | string | Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
+inputClass | string | Additional HTML classes for the input element.
+label | string | Label for the field.
+labelClass | string | Additional HTML classes for the label element.
+mode | FieldMode value | Mode for this field. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
+**name** (required) | string | Name / path for this field (e.g. "name", but also "foos.0.name")
+onBlur | func | Optional blur handler to use
+onChange | func | Optional change handler to use
+placeholder | string | Placeholder text to render for text inputs.
+tooltip | string | Tooltip / title attribute for the input element

@@ -27,7 +27,9 @@ const COMPONENTS = [
             "../src/ui/FKSelector.js",
             "../src/ui/AssociationSelector.js",
             "../src/ui/AttachmentField.js",
-            "../src/ui/AttachmentLink.js"
+            "../src/ui/AttachmentLink.js",
+            "../src/ui/DecimalField.js",
+            "../src/ui/URLField.js"
         ]
     }
 ];

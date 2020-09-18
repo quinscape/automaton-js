@@ -26,7 +26,7 @@ const Button = props => {
     const formConfig = useFormConfig();
     const env = useAutomatonEnv();
 
-    const { className, name, text, transition, disabled, children } = props;
+    const { className, name, text, transition, disabled, tooltip, children } = props;
     /**
      * Returns either the explicit context set as prop or the current form object model if present.
      *
@@ -136,6 +136,7 @@ const Button = props => {
             name={ name }
             className={ className }
             disabled={ isDisabled() }
+            title={ tooltip }
             aria-label={ text }
             onClick={ onClick }
         >
@@ -159,6 +160,10 @@ Button.propTypes = {
      * Text for the button
      */
     text: PropTypes.string,
+    /**
+     * Text for the button
+     */
+    tooltip: PropTypes.string,
     /**
      * Additional function to check for disabled status. The default behavior is to disable the button if the button has
      * a transition which is not discarding and there are form errors.
