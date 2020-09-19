@@ -9,6 +9,15 @@ function format(tag, args)
 }
 
 
+function wrap(s)
+{
+    if (config.markUntranslated)
+    {
+        return "[" + s + "]";
+    }
+    return s;
+}
+
 /**
  * Returns a translation of the given translation key with additional optional arguments
  * @param {string} key translation tag/key
@@ -36,7 +45,7 @@ export default function (key, ...args) {
 
     if (args.length > 0)
     {
-        return "[" + format(key, args) + "]"
+        return wrap(format(key, args))
     }
-    return "[" + key + "]";
+    return wrap(key);
 };

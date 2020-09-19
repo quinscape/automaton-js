@@ -18,6 +18,7 @@ export const DEFAULT_OPTS = {
 
     locale: null,
     translations: {},
+    markUntranslated: true,
 
     mergeOptions: {
         versionField: "version",
