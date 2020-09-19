@@ -24,7 +24,7 @@ function wrap(s)
  * @param {...string} args optional translation parameters
  * @returns {string}
  */
-export default function (key, ...args) {
+export default function i18n(key, ...args) {
     const result = config.translations[key];
 
     if (typeof result === "function")
@@ -37,10 +37,11 @@ export default function (key, ...args) {
         return format(result, args);
     }
 
-    const colonPos = key.indexOf(":");
+    const colonPos = key.lastIndexOf(":");
     if (colonPos >= 0)
     {
         key = key.substr(colonPos + 1);
+        return i18n(key, ... args);
     }
 
     if (args.length > 0)
