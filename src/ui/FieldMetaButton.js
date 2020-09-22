@@ -37,7 +37,8 @@ const FieldMetaButton = ({
          subProcess,
          icon="fa-cog",
          label = i18n("Configure Field"),
-         mini = true
+         mini = true,
+         dialogOptions = null
     }) => {
 
     const ref = useRef(null)
@@ -60,7 +61,8 @@ const FieldMetaButton = ({
                         processName,
                         state,
                         fieldName
-                    }
+                    },
+                    dialogOptions
                 )
             }}
         >
@@ -91,7 +93,12 @@ FieldMetaButton.propTypes = {
     /**
      * If false, use label in button, otherwise just use aria-label
      */
-    mini: PropTypes.bool
+    mini: PropTypes.bool,
+
+    /**
+     * Process dialog options for the invoked subprocess.
+     */
+    dialogOptions: PropTypes.object
 
 }
 

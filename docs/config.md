@@ -98,10 +98,18 @@ Contains the number of process states that are kept within the process history. 
 
 ### `config.processDialog`
 
-Contains configuration options for process dialogs
+Default configuration options for process dialogs. These options can be overriden by providing the third argument to
+`process.runSubProcess(name, input, opts)`. 
 
 ```js 
     processDialog: {
+
+        /**
+         * Function to produce the dialog header title or a constant header title string. If the title is an empty string,
+         * the header is not rendered.
+         */
+        title: name => i18n("Sub-Process {0}", name),
+
         /** props to apply to the <Modal/> component */
         props: {
             size: "lg",

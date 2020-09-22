@@ -1,7 +1,4 @@
 import React, { useCallback } from "react"
-
-import i18n from "./i18n"
-import config from "./config"
 import { Container, Modal, ModalBody, ModalHeader } from "reactstrap"
 
 
@@ -14,20 +11,29 @@ const ProcessDialog = props => {
         [ process ]
     );
 
+    const { dialogOptions } = process;
+
+    //console.log("ProcessDialog", dialogOptions)
+
+    const effectiveTitle = typeof dialogOptions.title === "function" ? dialogOptions.title(process.name) : dialogOptions.title;
     return (
         <Modal
-            { ... config.processDialog.props }
+            { ... dialogOptions.props }
             isOpen={ true }
             toggle={ close }
         >
-            <ModalHeader
-                toggle={ close }
-            >
-                {
-                    i18n("Sub-Process {0}", process.name)
-                }
-            </ModalHeader>
-            <ModalBody className={ config.processDialog.bodyClass }>
+            {
+                effectiveTitle && (
+                    <ModalHeader
+                        toggle={ close }
+                    >
+                        {
+                            effectiveTitle
+                        }
+                    </ModalHeader>
+                )
+            }
+            <ModalBody className={ dialogOptions.bodyClass }>
                 <Container fluid={ true }>
                     {
                         children

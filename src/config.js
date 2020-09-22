@@ -6,6 +6,7 @@ import {
     SESSION_SCOPE,
     USER_SCOPE
 } from "./scopeNames";
+import i18n from "./i18n";
 
 export const DEFAULT_OPTS = {
 
@@ -40,6 +41,13 @@ export const DEFAULT_OPTS = {
      * Config for process dialogs
      */
     processDialog: {
+
+        /**
+         * Function to produce the dialog header title or a constant header title string. If the title is an empty string,
+         * the header is not rendered.
+         */
+        title: name => i18n("Sub-Process {0}", name),
+        
         /** props to apply to the <Modal/> component */
         props: {
             size: "lg",

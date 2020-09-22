@@ -13,6 +13,7 @@ import { getWireFormat } from "./domain";
 import ProcessHistory from "./ProcessHistory";
 import matchPath from "./matchPath";
 import { renderImperativeDialogs } from "./ui/Dialog"
+import PropTypes from "prop-types";
 
 
 const secret = Symbol("ProcessSecret");
@@ -322,7 +323,9 @@ const PROCESS_DEFAULT_OPTIONS = {
     /**
      * If `true` force the process to be used as a sub-process. Throw an error if it is used as root process.
      */
-    forceSubProcess: false
+    forceSubProcess: false,
+
+    dialog: {}
 };
 
 
@@ -493,7 +496,7 @@ function updateEffects(process, prevState, nextState)
  * Process facade exposing a limited set of getters and methods as process API
  */
 export class Process {
-    constructor(id, definition, scope, input, parent)
+    constructor(id, definition, scope, input, parent, dialogOpts)
     {
         const { name } = definition;
 
@@ -511,6 +514,11 @@ export class Process {
             options: {
                 ... PROCESS_DEFAULT_OPTIONS,
                 asDialog:  parent ? config.subProcessAsDialog : false
+            },
+
+            dialogOpts: {
+                ... config.processDialog,
+                ... dialogOpts
             },
 
             subProcessPromise: null,
@@ -564,6 +572,11 @@ export class Process {
     get options()
     {
         return this[secret].options;
+    }
+
+    get dialogOptions()
+    {
+        return this[secret].dialogOpts;
     }
 
 
@@ -773,11 +786,18 @@ export class Process {
      *
      * @param {String} processName     process name
      * @param {Object} [input]         input object for the sub-process
-     *
+     * @param {Object} [opts]          process dialog options
      * @return {Promise<any>} resolves to the sub-process result or is rejected when the sub-process is aborted.
      */
-    runSubProcess(processName, input)
+    runSubProcess(processName, input, opts)
     {
+        opts = {
+            ... this[secret].dialogOpts,
+            ... opts
+        };
+
+        //console.log("runSubProcess", opts);
+
         // create new promise that will resolve when the sub-process ends
         return new Promise(
             (resolve, reject) => fetchProcessInjections(config.appName, processName, input)
@@ -787,7 +807,7 @@ export class Process {
                         //console.log("INJECTIONS", injections);
 
                         return (
-                            renderSubProcess(processName, input, injections.injections)
+                            renderSubProcess(processName, input, injections.injections, opts)
                         );
                     },
                         err => <ErrorView title="Error starting Process" info={ err } />
@@ -1249,7 +1269,7 @@ const renderRestoredView = action(
         {
             const processBase = findProcessBase(currentProcess, nextProcess);
 
-            console.log("PROCESS BASE", processBase);
+            //console.log("PROCESS BASE", processBase);
 
             let process = currentProcess;
             while (process && process !== processBase)
@@ -1350,7 +1370,7 @@ function pushProcessState(replace = false)
             {
                 const process = processes[processId];
 
-                console.log(`Unregistering effects on unreachable process #${processId}: `, process);
+                //console.log(`Unregistering effects on unreachable process #${processId}: `, process);
 
                 unregisterProcessEffects(process);
                 updateEffects(process, process.currentState, null);
@@ -1397,7 +1417,7 @@ function finishInitialization(process)
     {
         if (!PROCESS_DEFAULT_OPTIONS.hasOwnProperty(keys[i]))
         {
-            throw new Error("'" + process.name + ": '" + name + "' is not a valid process option");
+            throw new Error("'" + process.name + ": '" + keys[i] + "' is not a valid process option");
         }
     }
 
@@ -1479,9 +1499,10 @@ function unregisterProcessEffects(process)
  * @param {object} input            input map
  * @param {object} injections       injections maps
  * @param {boolean} asSubProcess    launch process as sub-process
+ * @param {Object} processOpts      options for (sub)process
  * @return {Promise<React.Element>}
  */
-function renderProcessInternal(processName, input, injections, asSubProcess)
+function renderProcessInternal(processName, input, injections, asSubProcess, processOpts = null)
 {
 
     let process;
@@ -1522,7 +1543,8 @@ function renderProcessInternal(processName, input, injections, asSubProcess)
         entry.definition,
         scope,
         input,
-        asSubProcess ? currentProcess : null
+        asSubProcess ? currentProcess : null,
+        processOpts
     );
     processes.push(process);
 
@@ -1624,13 +1646,14 @@ export function renderProcess(processName, input, injections)
  *
  * @param {String} processName      name of process to start as sub-process
  * @param {object} input            input data
- * @param {object} injections                injections for the sub-process
+ * @param {object} injections       injections for the sub-process
  *
+ * @param {object} opts             process options
  * @return {Promise<React.Element>}   rendered elements of the first view.
  */
-export function renderSubProcess(processName, input, injections)
+export function renderSubProcess(processName, input, injections, opts)
 {
-    return renderProcessInternal(processName, input, injections, true)
+    return renderProcessInternal(processName, input, injections, true, opts)
 }
 
 export function getCurrentProcess()
