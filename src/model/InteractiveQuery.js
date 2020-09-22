@@ -1,5 +1,5 @@
 import { action, observable } from "mobx";
-import { component, condition, isLogicalCondition, Type } from "../FilterDSL";
+import { component, condition, isConditionObject, isLogicalCondition, Type } from "../FilterDSL";
 import compareConditions from "../util/compareConditions"
 import updateComponentCondition from "../util/updateComponentCondition";
 
@@ -91,12 +91,29 @@ export default class InteractiveQuery {
         queryConfig
     )
     {
-        const vars = {
-            config: queryConfig ? {
-                ...this.queryConfig,
-                ...queryConfig
-            } : this.queryConfig
-        };
+        let vars;
+        if (queryConfig)
+        {
+            vars = {
+                config: {
+                    ... this.queryConfig,
+                    ... queryConfig
+                }
+            };
+
+            // safety-check for optional conditions without and() / or() or not()
+            // if we receive a condition that is not an object, we substitute null
+            if (!isConditionObject(vars.config.condition))
+            {
+                vars.config.condition = null;
+            }
+        }
+        else
+        {
+            vars = {
+                config: this.queryConfig
+            };
+        }
 
         //console.log("InteractiveQuery.update", JSON.stringify(vars));
 

@@ -235,52 +235,46 @@ describe("Filter DSL", function () {
         assert.deepEqual(
             condition,
             {
-                "operands": [
-                    {
-                        "condition": {
+                "condition": {
+                    "operands": [
+                        {
                             "operands": [
                                 {
-                                    "operands": [
-                                        {
-                                            "name": "name",
-                                            "type": "Field"
-                                        },
-                                        {
-                                            "name": null,
-                                            "scalarType": "String",
-                                            "type": "Value",
-                                            "value": "b"
-                                        }
-                                    ],
-                                    "name": "containsIgnoreCase",
-                                    "type": "Condition"
+                                    "name": "name",
+                                    "type": "Field"
                                 },
                                 {
-                                    "operands": [
-                                        {
-                                            "name": "parent.name",
-                                            "type": "Field"
-                                        },
-                                        {
-                                            "name": null,
-                                            "scalarType": "String",
-                                            "type": "Value",
-                                            "value": "Fish"
-                                        }
-                                    ],
-                                    "name": "containsIgnoreCase",
-                                    "type": "Condition"
+                                    "name": null,
+                                    "scalarType": "String",
+                                    "type": "Value",
+                                    "value": "b"
                                 }
                             ],
-                            "name": "and",
+                            "name": "containsIgnoreCase",
                             "type": "Condition"
                         },
-                        "id": "animals-grid",
-                        "type": "Component"
-                    }
-                ],
-                "name": "and",
-                "type": "Condition"
+                        {
+                            "operands": [
+                                {
+                                    "name": "parent.name",
+                                    "type": "Field"
+                                },
+                                {
+                                    "name": null,
+                                    "scalarType": "String",
+                                    "type": "Value",
+                                    "value": "Fish"
+                                }
+                            ],
+                            "name": "containsIgnoreCase",
+                            "type": "Condition"
+                        }
+                    ],
+                    "name": "and",
+                    "type": "Condition"
+                },
+                "id": "animals-grid",
+                "type": "Component"
             }
         )
 
@@ -348,4 +342,176 @@ describe("Filter DSL", function () {
 
     });
 
+    it("allows for optional conditions", function () {
+
+        // XXX: by ignoring non-object arguments, we allow for easy conditional expression building
+        //      like
+        //      and(
+        //          option && field("a")
+        //              .eq(
+        //                  value(b)
+        //              )
+        //          )
+
+        assert(
+            and() === null
+        )
+        assert(
+            and(null) === null
+        )
+        assert(
+            and(false) === null
+        )
+        assert(
+            and(true) === null
+        )
+        assert(
+            and("aaa") === null
+        )
+
+        assert.deepEqual(
+            and(field("aaa").eq(value("bbb"))),
+            {
+                "name": "eq",
+                "operands": [
+                    {
+                        "name": "aaa",
+                        "type": "Field"
+                    },
+                    {
+                        "name": null,
+                        "scalarType": "String",
+                        "type": "Value",
+                        "value": "bbb"
+                    }
+                ],
+                "type": "Condition"
+            }
+        )
+
+        assert.deepEqual(
+            and(
+                field("aaa").eq(value("bbb")),
+                field("ccc").lt(value("ddd"))
+            ),
+            {
+                "name": "and",
+                "operands": [
+                    {
+                        "name": "eq",
+                        "operands": [
+                            {
+                                "name": "aaa",
+                                "type": "Field"
+                            },
+                            {
+                                "name": null,
+                                "scalarType": "String",
+                                "type": "Value",
+                                "value": "bbb",
+                            }
+                        ],
+                        "type": "Condition"
+                    },
+                    {
+                        "name": "lt",
+                        "operands": [
+                            {
+                                "name": "ccc",
+                                "type": "Field"
+                            },
+                            {
+                                "name": null,
+                                "scalarType": "String",
+                                "type": "Value",
+                                "value": "ddd"
+                            }
+                        ],
+                        "type": "Condition"
+                    }
+                ],
+                "type": "Condition"
+            })
+
+//////////////////////////////////
+        assert(
+            or() === null
+        )
+        assert(
+            or(null) === null
+        )
+        assert(
+            or(false) === null
+        )
+        assert(
+            or(true) === null
+        )
+        assert(
+            or("aaa") === null
+        )
+
+        assert.deepEqual(
+            or(field("aaa").eq(value("bbb"))),
+            {
+                "name": "eq",
+                "operands": [
+                    {
+                        "name": "aaa",
+                        "type": "Field"
+                    },
+                    {
+                        "name": null,
+                        "scalarType": "String",
+                        "type": "Value",
+                        "value": "bbb"
+                    }
+                ],
+                "type": "Condition"
+            }
+        )
+
+        assert.deepEqual(
+            or(
+                field("aaa").eq(value("bbb")),
+                field("ccc").lt(value("ddd"))
+            ),
+            {
+                "name": "or",
+                "operands": [
+                    {
+                        "name": "eq",
+                        "operands": [
+                            {
+                                "name": "aaa",
+                                "type": "Field"
+                            },
+                            {
+                                "name": null,
+                                "scalarType": "String",
+                                "type": "Value",
+                                "value": "bbb",
+                            }
+                        ],
+                        "type": "Condition"
+                    },
+                    {
+                        "name": "lt",
+                        "operands": [
+                            {
+                                "name": "ccc",
+                                "type": "Field"
+                            },
+                            {
+                                "name": null,
+                                "scalarType": "String",
+                                "type": "Value",
+                                "value": "ddd"
+                            }
+                        ],
+                        "type": "Condition"
+                    }
+                ],
+                "type": "Condition"
+            })
+    })
 });

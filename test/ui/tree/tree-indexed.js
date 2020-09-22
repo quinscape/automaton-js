@@ -65,12 +65,10 @@ describe("Tree.IndexedObjects", function () {
 
             const {offset, condition} = vars.config;
             const letter = matchCondition(
-                and(
-                    component(
-                        "tree",
-                        field("name").greaterThan(
-                            matchPlaceholder("letter", "String")
-                        )
+                component(
+                    "tree",
+                    field("name").greaterThan(
+                        matchPlaceholder("letter", "String")
                     )
                 ),
                 condition

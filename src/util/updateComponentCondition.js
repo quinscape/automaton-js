@@ -27,6 +27,46 @@ function simplifyCondition(cond)
     return cond;
 }
 
+const UNCHANGED = "UNCHANGED";
+const CHANGED = "CHANGED";
+const NO_MATCH = "NO_MATCH";
+
+function processComponentCondition(compositeCondition, componentNode, newComponentNode, compareUpdate)
+{
+    if (componentNode.type !== Type.COMPONENT)
+    {
+        throw new Error(
+            "Invalid component condition structure: " +
+            JSON.stringify(compositeCondition, null, 4)
+        );
+    }
+
+    // is it the id we're updating?
+    if (componentNode.id === newComponentNode.id)
+    {
+        if (
+            compareUpdate &&
+            compareConditions(
+                simplifyCondition(
+                    componentNode.condition,
+                ),
+                simplifyCondition(
+                    newComponentNode.condition
+                ),
+                true
+            )
+        )
+        {
+            //console.log("SKIP UPDATE");
+
+            // component condition is actually the exact same as it was before, return the original object
+            return UNCHANGED;
+        }
+        return CHANGED;
+    }
+    return NO_MATCH;
+}
+
 
 /**
  * Updates a logical condition composed of component conditions with a new condition for one of the components.
@@ -51,12 +91,36 @@ export default function updateComponentCondition(
     let newCondition;
     if (compositeCondition === null)
     {
-        newCondition = condition("and");
-        newCondition.operands = [ newComponentNode ];
+        newCondition = newComponentNode;
     }
     else
     {
-        if (!isLogicalCondition(compositeCondition))
+        if (compositeCondition.type === Type.COMPONENT)
+        {
+            const result = processComponentCondition(compositeCondition, compositeCondition, newComponentNode, compareUpdate);
+
+            if (result === UNCHANGED)
+            {
+                // we found the component with our id, but it's the exact same component expression, so we just
+                // return the original condition instance
+                return compositeCondition;
+            }
+            else if (result === CHANGED)
+            {
+                // the id matched and the condition actually changed
+                return newComponentNode;
+            }
+            else
+            {
+                // id did not match, we join both conditions to a new composite condition
+                newCondition = condition("and");
+                newCondition.operands = [ compositeCondition, newComponentNode ];
+
+                return newCondition;
+            }
+
+        }
+        else if (!isLogicalCondition(compositeCondition))
         {
             throw new Error(
                 "Invalid current condition in queryConfig, " +
@@ -69,46 +133,23 @@ export default function updateComponentCondition(
 
         const {operands} = compositeCondition;
 
-        let found = false;
         for (let i = 0; i < operands.length; i++)
         {
             const componentNode = operands[i];
 
-            if (componentNode.type !== Type.COMPONENT)
+            const result = processComponentCondition(compositeCondition, componentNode, newComponentNode, compareUpdate);
+
+            if (result === UNCHANGED)
             {
-                throw new Error(
-                    "Invalid component condition structure: " +
-                    JSON.stringify(compositeCondition, null, 4)
-                );
+                // we found the component with our id, but it's the exact same component expression, so we just
+                // return the original condition instance
+                return compositeCondition;
             }
-
-            // is it the id we're updating?
-            if (componentNode.id === componentId)
+            else if (result === CHANGED)
             {
-                if (
-                    compareUpdate &&
-                    compareConditions(
-                        simplifyCondition(
-                            componentNode.condition,
-                        ),
-                        simplifyCondition(
-                            newComponentNode.condition
-                        ),
-                        true
-                    )
-                )
-                {
-                    //console.log("SKIP UPDATE");
-
-                    // component condition is actually the exact same as it was before, return the original object
-                    return compositeCondition;
-                }
-
                 componentConditions.push(
                     newComponentNode
                 );
-
-                found = true;
             }
             else
             {
@@ -117,14 +158,7 @@ export default function updateComponentCondition(
                 );
             }
         }
-
-        if (!found)
-        {
-            componentConditions.push(
-                newComponentNode
-            )
-        }
-
+        
         newCondition = condition(compositeCondition.name);
         newCondition.operands = componentConditions;
     }

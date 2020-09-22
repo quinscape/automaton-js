@@ -17,29 +17,64 @@ export const Type = {
  *
  * @type {function(...Condition): Condition}
  */
-export const not = buildGlobal("not", 1);
+export function not(operand)
+{
+    if (isConditionObject(operand))
+    {
+        const cond = new Condition("not");
+        cond.operands = [ operand ];
+        return cond;
+    }
+
+    const cond = new Condition("false");
+    cond.operands = [];
+    return cond;
+}
+
 /**
  * Logical or condition.
  *
  * @type {function(...Condition): Condition}
  */
-export const or = buildGlobal("or");
+export const or = buildLogical("or");
 /**
  * Logical and condition.
  *
  * @type {function(...Condition): Condition}
  */
-export const and = buildGlobal("and");
+export const and = buildLogical("and");
 
-function buildGlobal(name, numArgs)
+function buildLogical(name)
 {
     return function (... args) {
+
+        const operands = [];
+
+        const len = args.length
+
+        for (let i = 0; i < len; i++)
+        {
+            const condition = args[i];
+            if (isConditionObject(condition))
+            {
+                operands.push(condition);
+            }
+        }
+
+        if (operands.length === 0)
+        {
+            return null;
+        }
+        if (operands.length === 1)
+        {
+            return operands[0];
+        }
+
         const cond = new Condition(name);
-        cond.operands = numArgs !== undefined ? args.slice(0, numArgs) : args;
+        cond.operands = operands;
         return cond;
     }
 }
-
 
 function buildFn(name, numArgs)
 {
@@ -170,17 +205,26 @@ function Condition(name)
 buildProto(Condition.prototype, CONDITION_METHODS, buildFn);
 
 
+export function isConditionObject(value)
+{
+    return value && typeof value === "object";
+}
+
 /**
  * General Condition node. Useful for programmatically instantiating conditions. Not needed for fluent style conditions.
  * (e.g. `field("name").containsIgnoreCase(value("abc"))` )
  * 
- * @param {String} name     condition name
+ * @param {String} name                 condition name
+ * @param {Array<Object>} operands      operands
  * @return {Condition}
  */
-export function condition(name)
+export function condition(name, operands = [])
 {
-    return new Condition(name);
+    const condition = new Condition(name);
+    condition.operands = operands
+    return condition;
 }
+
 export function operation(name, operands)
 {
     const op = new Field(name);
