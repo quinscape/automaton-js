@@ -149,11 +149,28 @@ export default function registerBigDecimalConverter(opts) {
         ...opts
     };
 
-    getWireFormat().registerConverter("BigDecimal", value => new BigNumber(value), value => value.toPrecision())
+    getWireFormat().registerConverter("BigDecimal", value => {
+        if (value === null)
+        {
+            return null;
+        }
+
+        return new BigNumber(value);
+    }, value => {
+        if (value === null)
+        {
+            return null;
+        }
+        return value.toPrecision();
+    })
 
     registerCustomConverter(
         "BigDecimal",
         (value, ctx) => {
+            if (value === null)
+            {
+                return null;
+            }
             const p = getPrecision(ctx, opts);
             const num = defaultParser(value, opts);
             if (num.isNaN())
@@ -179,6 +196,12 @@ export default function registerBigDecimalConverter(opts) {
             return scalar.toFormat(p.scale);
         },
         value => {
+
+            if (!value)
+            {
+                return null;
+            }
+
             return defaultParser(value, opts);
         }
     )
