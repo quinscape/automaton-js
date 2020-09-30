@@ -129,6 +129,22 @@ export const renderCompositeScript = (composite, shortName) => {
                         })
                         properties.length === 0 ? constant += `${keys} = ${init}` : constant += `{${keys}} = ${init}`
                     }
+                    if (id.type === 'ListPattern') {
+                        const { properties } = id
+                        const map = Array.prototype.map
+                        const keys = map.call(properties, function (item) {
+                            return item.key;
+                        })
+                        properties.length === 0 ? constant += `${keys} = ${init}` : constant += `[${keys}] = ${init}`
+                    }
+                    if (id.type === 'FunctionPattern') {
+                        const { properties } = id
+                        const map = Array.prototype.map
+                        const keys = map.call(properties, function (item) {
+                            return item.key;
+                        })
+                        constant += `${keys} = ${init}`
+                    }
                     if (id.type === 'ArrayPattern') {
                         const {elements} = id
                         const map = Array.prototype.map
@@ -428,7 +444,6 @@ export default class ${name} {
                 }
 
                 if(code){
-                    console.log(code)
 
                     processScript += ` () => {
                     ${code}
