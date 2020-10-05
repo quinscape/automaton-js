@@ -54,6 +54,7 @@ import FieldMetaButton from "./ui/FieldMetaButton";
 import registerBigDecimalConverter from "./registerBigDecimalConverter";
 import DecimalField from "./ui/DecimalField";
 import URLField from "./ui/URLField";
+import registerDateTimeConverters from "./registerDateTimeConverters";
 
 const AutomatonDevTools = "span";
 
@@ -73,6 +74,8 @@ import {
     isLogicalCondition,
     findComponentNode
 } from "./FilterDSL"
+
+import printSchema from "./util/printSchema"
 
 // improves auto-completion for DSL members
 const FilterDSL = {
@@ -268,5 +271,12 @@ export {
 
     DecimalField,
 
-    URLField
+    URLField,
+
+    registerDateTimeConverters,
+
+    printSchema
 }
+
+
+
