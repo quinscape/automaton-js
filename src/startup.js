@@ -22,6 +22,10 @@ const SCOPES_MODULE_NAME = "./scopes.js";
 
 const pkgJSON = require("../package.json");
 
+const DO_NOT_NULL_FIELDS = {
+    nullFields: false
+}
+
 let disposers = [];
 /**
  * Deregisters the necessary handlers and shuts down the running automaton app.
@@ -287,6 +291,19 @@ function performFinalInitialization(initial)
 
 
 /**
+ * Standard automaton domain object factory used for wire format conversion.
+ *
+ * @param type
+ * @param id
+ * @return {{_type: String, id: *} & IObservableObject}
+ */
+export function automatonDomainObjectFactory(type, id) {
+
+    // we need to convert without nulling fields
+    return createDomainObject(type, id, DO_NOT_NULL_FIELDS)
+}
+
+/**
  * Entry point to the automaton client-side process engine
  *
  * @param ctx                   require.context with all .js files
@@ -314,7 +331,7 @@ export function startup(ctx, initial, initFn)
                 // config now ready
                 registerSystemTypes();
 
-                registerDomainObjectFactory(createDomainObject);
+                registerDomainObjectFactory( automatonDomainObjectFactory );
 
                 loadDomainDefinitions(ctx);
 

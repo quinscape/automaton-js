@@ -5,16 +5,38 @@ import { observable } from "mobx";
 import { getFields, unwrapNonNull } from "./util/type-utils";
 import { LIST } from "domainql-form/lib/kind";
 
+const DEFAULT_OPTIONS = {
+    /**
+     * if true, null all existing scalar fields and set an empty array to for list fields
+     */
+    nullFields: true
+    
+};
 
 /**
  * Creates a new domain object with a new UUID.
  *
- * @param {String} type      domain type name
- * @param {*} [id]           id for the new object (default creates a new UUID)
+ * @param {String} type                 domain type name
+ * @param {*} [id]                      id for the new object (default creates a new UUID)
+ * @param {Object} [opts]               Options object
+ * @param {boolean} [opts.nullFields]   if true, null all existing scalar fields and set an empty array to for list fields (default is true)
  * @return {object}  domain object
  */
-export default function createDomainObject(type, id = uuid.v4())
+export default function createDomainObject(type, id = uuid.v4(), opts )
 {
+
+    if (opts)
+    {
+        opts = {
+            ... DEFAULT_OPTIONS,
+            ... opts
+        };
+    }
+    else
+    {
+        opts = DEFAULT_OPTIONS;
+    }
+
     const typeRef = config.inputSchema.getType(type);
 
     if (typeRef === null)
@@ -23,7 +45,6 @@ export default function createDomainObject(type, id = uuid.v4())
     }
 
     const DomainClass = getWireFormat().classes[type];
-
 
     let instance;
     if (!DomainClass)
@@ -40,21 +61,24 @@ export default function createDomainObject(type, id = uuid.v4())
         instance.id = id;
     }
 
-    const fields = getFields(typeRef);
-
-    for (let i = 0; i < fields.length; i++)
+    if (opts.nullFields)
     {
-        const { name, type } = fields[i];
+        const fields = getFields(typeRef);
 
-        if (name !== "id")
+        for (let i = 0; i < fields.length; i++)
         {
-            if (unwrapNonNull(type).kind === LIST)
+            const { name, type } = fields[i];
+
+            if (name !== "id")
             {
-                instance[name] = [];
-            }
-            else
-            {
-                instance[name] = null;
+                if (unwrapNonNull(type).kind === LIST)
+                {
+                    instance[name] = [];
+                }
+                else
+                {
+                    instance[name] = null;
+                }
             }
         }
     }
