@@ -143,7 +143,7 @@ export function createGenericScalarToWire(wireFormat)
 }
 
 
-function createDomainObjectFromWire(wireFormat)
+function createDomainObjectFromWireFunction(wireFormat)
 {
     return value => {
         return wireFormat.convert(
@@ -158,7 +158,7 @@ function createDomainObjectFromWire(wireFormat)
 }
 
 
-function createDomainObjectToWire(wireFormat)
+function createDomainObjectToWireFunction(wireFormat)
 {
     return value => {
         const obj = wireFormat.convert(
@@ -211,8 +211,8 @@ export function loadDomainDefinitions(ctx)
 
     wireFormat.registerConverter(
         "DomainObject",
-        createDomainObjectFromWire(wireFormat),
-        createDomainObjectToWire(wireFormat)
+        createDomainObjectFromWireFunction(wireFormat),
+        createDomainObjectToWireFunction(wireFormat)
     );
 
     for (let i = 0; i < earlyConverters.length; i++)
