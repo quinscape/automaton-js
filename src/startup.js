@@ -16,6 +16,7 @@ import InteractiveQuery from "./model/InteractiveQuery";
 import { createBrowserHistory } from "history"
 import createDomainObject from "./createDomainObject";
 import { registerGenericGraphQLPostProcessor } from "./graphql";
+import i18n from "./i18n";
 
 
 const SCOPES_MODULE_NAME = "./scopes.js";
@@ -34,7 +35,25 @@ export function shutdown()
 {
     disposers.forEach( disposer => disposer());
     disposers = [];
-    ReactDOM.render( false, document.getElementById("root"));
+    const description = i18n("Application Shutdown Desc");
+    ReactDOM.render(
+        <div>
+            <h1>
+                { i18n("Application Shutdown") }
+                <br/>
+                {
+                    description && (
+                        <span className="muted">
+                            {
+                                description
+                            }
+                        </span>
+                    )
+                }
+            </h1>
+        </div>,
+        document.getElementById("root")
+    );
 }
 
 /**
