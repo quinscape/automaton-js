@@ -702,8 +702,10 @@ export default class WorkingSet {
      *
      * @param {object} domainObject             domain object to register the base version of. Can be a complex GraphQL output graph.
      * @param {boolean} [followRelations]       if true, follow the relations of the domain object to connected objects and register those, too. Default is true
+     * @param {boolean} [trackChanges]          if true (default), not only register the base version of the object, but also track the same
+     *                                          object for changes
      */
-    registerBaseVersion(domainObject, followRelations = true)
+    registerBaseVersion(domainObject, followRelations = true, trackChanges = true)
     {
         const { _type, id } = domainObject;
 
@@ -739,6 +741,11 @@ export default class WorkingSet {
             {
                 this.registerRelations(domainObject);
             }
+        }
+
+        if (trackChanges)
+        {
+            this.addChanges(domainObject, followRelations);
         }
     }
 
