@@ -70,6 +70,16 @@ const DecimalField = ({precision, scale, children, ...restProps}) => {
         >
         <Field
             ref={ref}
+            fieldContext={ ctx => {
+                if (precision !== undefined)
+                {
+                    ctx.precision = precision;
+                }
+                if (scale !== undefined)
+                {
+                    ctx.scale = scale;
+                }
+            }}
             onChange={(/*newFieldContext, value*/) => {
 
 
