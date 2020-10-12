@@ -7,7 +7,7 @@ const redoChanges = action("ProcessHistory.redoChanges", (scope, changes, from, 
     {
         const change = changes[i];
 
-        console.log("REDO CHANGE", scope, change);
+        //console.log("REDO CHANGE", scope, change);
 
         const { type, name } = change;
 
@@ -29,7 +29,7 @@ const undoChanges = action("ProcessHistory.undoChanges", (scope, changes, from, 
     {
         const change = changes[i];
 
-        console.log("UNDO CHANGE", scope, change);
+        //console.log("UNDO CHANGE", scope, change);
 
         const { type, name } = change;
 
