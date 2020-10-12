@@ -123,7 +123,7 @@ export default class Transition {
     {
         const { processHistory, currentHistoryPos } = this[secret];
 
-        let i, entry;
+        let i, entry, historyIndex ;
         if (typeof n === "function")
         {
             for (i = currentHistoryPos - 1; i >= 0; i--)
@@ -132,6 +132,7 @@ export default class Transition {
 
                 if (n(e) === true)
                 {
+                    historyIndex = i;
                     entry = e;
                     break;
                 }
@@ -158,7 +159,7 @@ export default class Transition {
         }
 
 
-        this.isRecorded = true;
-        this.target = entry.state;
+        this.isRecorded = false;
+        this[secret].historyIndex = historyIndex;
     }
 }
