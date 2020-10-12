@@ -2,6 +2,7 @@ import { WireFormat } from "domainql-form"
 import config from "./config"
 import matchPath from "./matchPath";
 import { INPUT_OBJECT, OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";
+import registerDateTimeConverters from "./registerDateTimeConverters";
 
 
 let domainClasses = {};
@@ -214,6 +215,8 @@ export function loadDomainDefinitions(ctx)
         createDomainObjectFromWireFunction(wireFormat),
         createDomainObjectToWireFunction(wireFormat)
     );
+
+    registerDateTimeConverters();
 
     for (let i = 0; i < earlyConverters.length; i++)
     {

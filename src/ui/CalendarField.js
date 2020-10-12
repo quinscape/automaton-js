@@ -2,9 +2,11 @@ import React, { useState, useCallback } from "react"
 import cx from "classnames"
 import PropTypes from "prop-types"
 import get from "lodash.get"
-import { Field, FormGroup, InputSchema, unwrapType, FieldMode, Icon, Addon } from "domainql-form"
+import { Field, FormGroup, unwrapType, FieldMode, Icon, Addon, GlobalConfig, renderStaticField } from "domainql-form"
 import i18n from "../i18n";
 import CalendarModal from "./CalendarModal";
+import { DateTime } from "luxon";
+import { DEFAULT_DATE_FORMAT, DEFAULT_TIMESTAMP_FORMAT } from "../registerDateTimeConverters";
 
 
 function toggleValue(open)
@@ -14,7 +16,7 @@ function toggleValue(open)
 
 const CalendarField = props => {
 
-    const { minDate, maxDate, addonClass = "btn-outline-secondary", children, ... fieldProps} = props;
+    const { minDate, maxDate, addonClass = "btn-outline-secondary", autoFocus, children, dateFormat = DEFAULT_DATE_FORMAT, timestampFormat = DEFAULT_TIMESTAMP_FORMAT,... fieldProps} = props;
 
     const [ isOpen, setOpen] = useState(false);
 
@@ -23,10 +25,13 @@ const CalendarField = props => {
         []
     );
 
-
     return (
         <Field
             {... fieldProps}
+            fieldContext={ ctx => {
+                ctx.dateFormat = dateFormat;
+                ctx.timestampFormat = timestampFormat;
+            }}
             addons={ Addon.filterAddons(children)}
         >
             {
@@ -42,31 +47,73 @@ const CalendarField = props => {
 
                     const fieldValue = Field.getValue(formConfig, ctx, errorMessages);
 
-                    //console.log("checkbox value = ", fieldValue);
-
-                    // if the mode is DISABLED, we keep that, otherwise we set it to READ_ONLY for the input
-                    const inputMode = mode !== FieldMode.DISABLED ? FieldMode.READ_ONLY : FieldMode.DISABLED;
+                    //console.log("CalendarField value = ", fieldValue);
 
                     const buttonTitle = i18n("Open calendar");
 
-                    const fieldElement = (
-                        <input
-                            id={ fieldId }
-                            name={ qualifiedName }
-                            className={
-                                cx(
-                                    inputClass,
-                                    "form-control"
-                                )
-                            }
-                            type="text"
-                            placeholder={ placeholder }
-                            disabled={ inputMode === FieldMode.DISABLED }
-                            title={ tooltip }
-                            readOnly={ inputMode === FieldMode.READ_ONLY }
-                            value={ fieldValue }
-                        />
-                    );
+                    let fieldElement;
+
+                    if (mode === FieldMode.PLAIN_TEXT)
+                    {
+                        // we don't use renderStaticField to have the correct timestamp/date formatting
+                        fieldElement = (
+                            <span
+                                id={ fieldId }
+                                data-name={ qualifiedName }
+                                className={
+                                    cx(
+                                        inputClass,
+                                        "form-control-plaintext"
+                                    )
+                                }
+                            >
+                                {
+                                    fieldValue || GlobalConfig.none()
+                                }
+                            </span>
+                        );
+                    }
+                    else
+                    {
+                        fieldElement = Addon.renderWithAddons(
+                            <input
+                                id={fieldId}
+                                name={qualifiedName}
+                                className={
+                                    cx(
+                                        inputClass,
+                                        "form-control",
+                                        errorMessages.length > 0 && "is-invalid"
+                                    )
+                                }
+                                type="text"
+                                placeholder={placeholder || scalarType === "Date" ?
+                                    i18n("Date Format {0}", dateFormat) :
+                                    i18n("Timestamp Format {0}", timestampFormat)}
+                                disabled={mode === FieldMode.DISABLED}
+                                title={tooltip}
+                                readOnly={mode === FieldMode.READ_ONLY}
+                                value={fieldValue}
+                                onChange={ctx.handleChange}
+                                onBlur={ctx.handleBlur}
+                                autoFocus={autoFocus ? true : null}
+                            />,
+                            addons.concat(
+                                <Addon placement={ Addon.RIGHT }>
+                                    <button
+                                        className={ cx("btn", addonClass) }
+                                        type="button"
+                                        title={ buttonTitle }
+                                        disabled={ mode !== FieldMode.NORMAL }
+                                        aria-roledescription={ buttonTitle }
+                                        onClick={ () => setOpen(true) }
+                                    >
+                                        <Icon className="fa-calendar-check"/>
+                                    </button>
+                                </Addon>
+                            )
+                        );
+                    }
 
                     return (
                         <FormGroup
@@ -75,20 +122,7 @@ const CalendarField = props => {
                             errorMessages={ errorMessages }
                         >
                             {
-                                Addon.renderWithAddons(fieldElement, addons.concat(
-                                    <Addon placement={ Addon.RIGHT }>
-                                        <button
-                                            className={ cx("btn", addonClass) }
-                                            type="button"
-                                            title={ buttonTitle }
-                                            disabled={ mode !== FieldMode.NORMAL }
-                                            aria-roledescription={ buttonTitle }
-                                            onClick={ () => setOpen(true) }
-                                        >
-                                            <Icon className="fa-calendar-check"/>
-                                        </button>
-                                    </Addon>
-                                ))
+                                fieldElement
                             }
                             <CalendarModal
                                 ctx={ ctx }
@@ -114,11 +148,11 @@ CalendarField.propTypes = {
     /**
      * Minimum date the user can select
      */
-    minDate: PropTypes.instanceOf(Date),
+    minDate: PropTypes.instanceOf(DateTime),
     /**
      * Maximum date the user can select
      */
-    maxDate: PropTypes.instanceOf(Date),
+    maxDate: PropTypes.instanceOf(DateTime),
 
     // FIELD PROP TYPES
 
@@ -144,6 +178,7 @@ CalendarField.propTypes = {
      * Label for the field.
      */
     label: PropTypes.string,
+
     /**
      * Placeholder text to render for text inputs.
      */
@@ -167,8 +202,22 @@ CalendarField.propTypes = {
     /**
      * Additional HTML classes for the calendar button addon
      */
-    addonClass: PropTypes.string
+    addonClass: PropTypes.string,
 
+    /**
+     * Date format string to use for "Date" typed fields.
+     */
+    dateFormat: PropTypes.string,
+
+    /**
+     * Pass-through autoFocus attribute for the Calendar input field
+     */
+    autoFocus: PropTypes.bool,
+
+    /**
+     * Date format string to use for "Timestamp" typed fields.
+     */
+    timestampFormat: PropTypes.string
 };
 
 export default CalendarField;

@@ -17,6 +17,7 @@ import { openDialog, renderImperativeDialogs } from "../../../src/ui/Dialog";
 import { getTableSummary } from "./table-summary";
 import userEvent from "@testing-library/user-event";
 import sleep from "../sleep";
+import registerDateTimeConverters from "../../../src/registerDateTimeConverters";
 
 
 const TEST_CASE_ID = "20bbb666-79d1-4a50-8b23-4442be8b615e";
@@ -42,6 +43,8 @@ describe("<ChangeConflictDialog/>", function () {
         );
 
         __setWireFormatForTest(wireFormat)
+
+        registerDateTimeConverters();
 
     })
 
@@ -217,7 +220,7 @@ V        | [description] | <[${expected    }]>  | Description #11 | ${buttonStat
                     assert(res.fields[0].informational === false)
 
                     assert(res.fields[1].name === "modified")
-                    assert(res.fields[1].value.value.toISOString() === "2020-06-26T21:26:47.137Z")
+                    assert(res.fields[1].value.value.toUTC().toISO() === "2020-06-26T21:26:47.137Z")
                     assert(res.fields[1].status === FieldStatus.OURS)
                     assert(res.fields[1].fieldType === FieldType.FIELD)
                     assert(res.fields[1].informational === true)
@@ -330,7 +333,7 @@ V        | [type]  | ${eNam} | Type #2       | ${ buttonState } |
                     assert(res.version === "0a89dba7-4450-49a0-8545-3890ffe41307")
 
                     assert(res.fields[0].name === "modified")
-                    assert(res.fields[0].value.value.toISOString() === "2020-06-25T21:31:37.924Z")
+                    assert(res.fields[0].value.value.toUTC().toISO() === "2020-06-25T21:31:37.924Z")
                     assert(res.fields[0].status === FieldStatus.OURS)
                     assert(res.fields[0].fieldType === FieldType.FIELD)
                     assert(res.fields[0].informational === true)
@@ -505,7 +508,7 @@ V        | [corgeLinks] | ${ expectedSelection } | Assoc #4Assoc #1Assoc #3 | ${
                     assert(res.version === "1f245c77-e69b-4401-a452-2c17955cf331")
 
                     assert(res.fields[0].name === "modified")
-                    assert(res.fields[0].value.value.toISOString() === "2020-06-26T11:21:06.883Z")
+                    assert(res.fields[0].value.value.toUTC().toISO() === "2020-06-26T11:21:06.883Z")
                     assert(res.fields[0].status === FieldStatus.OURS)
                     assert(res.fields[0].fieldType === FieldType.FIELD)
                     assert(res.fields[0].informational === true)
@@ -541,10 +544,10 @@ V        | [corgeLinks] | ${ expectedSelection } | Assoc #4Assoc #1Assoc #3 | ${
 
         assert.deepEqual(
             summary, `
-[Status] | [Field]       | [Value]                                          | [Their Value]                                 | [Action]          |
----------+---------------+--------------------------------------------------+-----------------------------------------------+-------------------+
-X        | [description] | <[Description #12]>                              | Description #11                               | [Ours] [Theirs]   |
-V        | [modified]    | 'Fri Jun 26 2020 23:26:47 GMT+0200 (GMT+02:00)'  | Fri Jun 26 2020 23:26:41 GMT+0200 (GMT+02:00) | V [Ours] [Theirs] |
+[Status] | [Field]       | [Value]                     | [Their Value]          | [Action]          |
+---------+---------------+-----------------------------+------------------------+-------------------+
+X        | [description] | <[Description #12]>         | Description #11        | [Ours] [Theirs]   |
+V        | [modified]    | <[26.6.2020 23:26:47.137]>  | 26.6.2020 23:26:41.803 | V [Ours] [Theirs] |
 `
         )
 

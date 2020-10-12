@@ -8,6 +8,7 @@ import Calendar from "react-calendar"
 
 import set from "lodash.set"
 import autoSubmitHack from "../util/autoSubmitHack";
+import { DateTime } from "luxon";
 
 
 const changeOuterFormValue = action(
@@ -26,15 +27,7 @@ const TIME_REGEX = /[0-9]+-[0-9]+-[0-9]+T(.*)\./;
 const CalendarModal = props =>  {
 
     const { ctx, formConfig, name, value : valueFromProps, isOpen, toggle, scalarType, minDate, maxDate } = props;
-
-    const formObj = useMemo(
-        () =>
-            observable({
-                time: valueFromProps ? TIME_REGEX.exec(valueFromProps.toISOString())[1] : "12:00"
-            }),
-        [ valueFromProps ]
-    );
-
+    
     const [ value, setValue ] = useState(valueFromProps);
 
     const isTimeStamp = scalarType === "Timestamp";
@@ -43,35 +36,27 @@ const CalendarModal = props =>  {
 
         if (value !== null)
         {
-            const { time } = formObj;
+            // // correct date to reflect local time
+            // const tzCorrected = new Date(value);
+            // tzCorrected.setUTCMinutes(tzCorrected.getUTCMinutes() - tzCorrected.getTimezoneOffset());
+            //
+            // // new date object with time-zone corrected date and new time part
+            // const composite = new Date();
+            // composite.setUTCFullYear(tzCorrected.getUTCFullYear(), tzCorrected.getUTCMonth(), tzCorrected.getUTCDate());
+            // composite.setUTCHours(tmp.getUTCHours(), tmp.getUTCMinutes(), tmp.getUTCSeconds(),tmp.getUTCMilliseconds());
+            //
+            // // correct back to UTC
+            // composite.setUTCMinutes(composite.getUTCMinutes() + composite.getTimezoneOffset())
+            //
+            // //console.log("DATE", tzCorrected, "TIME", time, "=>", composite);
 
-            const tmp = new Date("2019-01-01T" + time + "Z");
+            const dt = DateTime.fromJSDate(value);
 
-            if (isNaN(tmp.getTime()))
-            {
-                alert("Invalid time");
-            }
-            else
-            {
-                // correct date to reflect local time
-                const tzCorrected = new Date(value);
-                tzCorrected.setUTCMinutes(tzCorrected.getUTCMinutes() - tzCorrected.getTimezoneOffset());
+            //console.log("CalendarModal.choose", dt.toISO());
 
+            changeOuterFormValue(formConfig.root, name, dt);
 
-                // new date object with time-zone corrected date and new time part
-                const composite = new Date();
-                composite.setUTCFullYear(tzCorrected.getUTCFullYear(), tzCorrected.getUTCMonth(), tzCorrected.getUTCDate());
-                composite.setUTCHours(tmp.getUTCHours(), tmp.getUTCMinutes(), tmp.getUTCSeconds(),tmp.getUTCMilliseconds());
-
-                // correct back to UTC
-                composite.setUTCMinutes(composite.getUTCMinutes() + composite.getTimezoneOffset())
-
-                //console.log("DATE", tzCorrected, "TIME", time, "=>", composite);
-
-                changeOuterFormValue(formConfig.root, name, composite);
-
-                autoSubmitHack(formConfig);
-            }
+            autoSubmitHack(formConfig);
         }
 
         toggle();
@@ -90,50 +75,35 @@ const CalendarModal = props =>  {
             </ModalHeader>
             <ModalBody>
                 <Container fluid={ true }>
-                    <Form
-                        value={ formObj }
-                        options={{
-                            autoCommit: true
-                        }}
-                    >
-                        <Calendar
-                            activeStartDate={ valueFromProps }
-                            value={ valueFromProps }
-                            minDate={ minDate }
-                            maxDate={ maxDate }
-                            onChange={ setValue }
-                        />
-                        {
-                            isTimeStamp && (
-                                <Field
-                                    name="time"
-                                    type="String!"
-                                />
-                            )
-                        }
-                        <ButtonToolbar>
-                            <button
-                                type="button"
-                                className="btn btn-secondary mr-1"
-                                onClick={ toggle }
-                            >
-                                <Icon className="fa-cancel"/>
-                                {
-                                    i18n("Cancel")
-                                }
-                            </button>
-                            <button
-                                type="button"
-                                className="btn btn-primary mr-1"
-                                onClick={ choose }
-                            >
-                                <Icon className="fa-ok"/>
-                                {
-                                    i18n("Choose")
-                                }
-                            </button>
-                        </ButtonToolbar>
-                    </Form>
+                    <Calendar
+                        activeStartDate={ valueFromProps && valueFromProps.toJSDate() }
+                        value={ valueFromProps && valueFromProps.toJSDate() }
+                        minDate={ minDate }
+                        maxDate={ maxDate }
+                        onChange={ setValue }
+                    />
+                    <ButtonToolbar>
+                        <button
+                            type="button"
+                            className="btn btn-secondary mr-1"
+                            onClick={ toggle }
+                        >
+                            <Icon className="fa-cancel"/>
+                            {
+                                i18n("Cancel")
+                            }
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-primary mr-1"
+                            onClick={ choose }
+                        >
+                            <Icon className="fa-ok"/>
+                            {
+                                i18n("Choose")
+                            }
+                        </button>
+                    </ButtonToolbar>
                 </Container>
             </ModalBody>
         </Modal>
