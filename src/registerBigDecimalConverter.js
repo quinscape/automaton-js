@@ -48,18 +48,6 @@ function defaultParser(value, opts)
     return new BigNumber(cleaned);
 }
 
-function scalarToValueFixed(scalar)
-{
-    return scalar.toFixed();
-}
-
-
-function scalarToValueString(scalar)
-{
-    return scalar.toString();
-}
-
-
 const precisions = new WeakMap();
 
 function getPrecision(ctx, opts)
@@ -84,7 +72,6 @@ function getPrecision(ctx, opts)
     // are both precision and scale specified on the field
     if (precision !== undefined && scale !== undefined)
     {
-        // use those values, potentially overriding precision / scale from the domain type
         p = {
             precision,
             scale
