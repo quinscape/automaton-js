@@ -18,11 +18,10 @@ function identityEquals(a, b)
  *
  * @returns {boolean}   true if a equals b
  */
-function dateEquals(a, b)
+function dateTimeEquals(a, b)
 {
-    const timeA = a ? a.getTime() : -1;
-    const timeB = b ? b.getTime() : -1;
-    return timeA === timeB;
+    // quick comparison by milliseconds
+    return +a === +b;
 }
 
 
@@ -41,8 +40,8 @@ const equalsImpls = {
     "BigInteger": identityEquals,
     "BigDecimal": identityEquals,
     "Char": identityEquals,
-    "Timestamp": dateEquals,
-    "Date": dateEquals
+    "Timestamp": dateTimeEquals,
+    "Date": dateTimeEquals
 };
 
 
