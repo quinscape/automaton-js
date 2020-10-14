@@ -214,7 +214,7 @@ function getFieldChanges(changesMap, bases, mergePlan)
 
         const isNew = status === WorkingSetStatus.NEW;
 
-        const { _type: typeName, id, version } = domainObject;
+        const { _type: typeName, id, version = null } = domainObject;
 
         const key = changeKey(typeName, id);
         const base = bases.get(key);
@@ -233,7 +233,7 @@ function getFieldChanges(changesMap, bases, mergePlan)
             {
                 const { name, type } = fieldsOfGroup[j];
 
-                const baseValue = base[name];
+                const baseValue = base && base[name];
                 const currValue = domainObject[name];
 
                 changesForGroup.push({
@@ -260,25 +260,24 @@ function getFieldChanges(changesMap, bases, mergePlan)
         {
             const { name, type } = scalarFields[i];
 
-            const baseValue = base[name];
+            const currValue = domainObject[name];
 
             if (isNew)
             {
-                if (baseValue !== undefined)
+                if (currValue !== undefined)
                 {
                     changesForEntity.push({
                         field: name,
                         value: {
                             type,
-                            value: baseValue
+                            value: currValue
                         }
                     });
                 }
-
             }
             else
             {
-                const currValue = domainObject[name];
+                const baseValue = base[name];
                 if (!equalsScalar(type, baseValue, currValue))
                 {
                     changesForEntity.push({
@@ -532,6 +531,8 @@ const CHANGE_TO_JS_OPTS = {
     fromWire: false,
     withType: true
 };
+
+
 
 /**
  * Encapsulates a current set of changes to domain objects not yet persisted to the server-side.
@@ -851,7 +852,7 @@ export default class WorkingSet {
             null
         );
 
-        this.registerRelations(domainObject);
+        this.addRelationChanges(domainObject);
     }
 
 
@@ -922,12 +923,7 @@ export default class WorkingSet {
 
         const key = changeKey(_type, id);
         const base = this[secret].bases.get(key);
-
-        if (!base)
-        {
-            throw new Error(`No base version registered for type='${ _type }, id=${ id }`);
-        }
-
+        
         const { embedded } = mergePlan.getInfo(_type);
 
         for (let i = 0; i < embedded.length; i++)
@@ -944,9 +940,8 @@ export default class WorkingSet {
                 // that that object is new
 
                 const elements = domainObject[name];
-                const assocs = [];
 
-                const baseElements = base[name];
+                const baseElements = base && base[name];
                 if (baseElements)
                 {
                     for (let j = 0; j < baseElements.length; j++)
@@ -987,7 +982,6 @@ export default class WorkingSet {
                                 if (leftSideObject && leftSideObject.id)
                                 {
                                     this.addChanges(leftSideObject, true, true);
-                                    assocs.push(leftSideObject);
                                 }
                             }
                         }
@@ -1367,6 +1361,8 @@ export default class WorkingSet {
      */
     merge(attempt = 1)
     {
+        this._updateRelationChanges();
+
         const {changes: changesMap, bases, mergePlan} = this[secret];
 
         if (typeof mergePlan.mergeConfig.beforeMerge === "function")
@@ -1479,6 +1475,25 @@ export default class WorkingSet {
     get mergeConfig()
     {
         return this[secret].mergePlan.mergeConfig;
+    }
+
+
+    _updateRelationChanges()
+    {
+        const {changes: changesMap} = this[secret];
+
+        for (let entry of changesMap.values())
+        {
+            const {domainObject, status} = entry;
+
+            if (status === WorkingSetStatus.DELETED || status === WorkingSetStatus.REGISTERED)
+            {
+                continue;
+            }
+
+            this.addRelationChanges(domainObject);
+        }
+
     }
 }
 
