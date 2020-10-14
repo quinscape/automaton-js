@@ -179,6 +179,24 @@ function createDomainObjectToWireFunction(wireFormat)
 }
 
 
+export function registerAutomatonConverters()
+{
+    wireFormat.registerConverter(
+        "GenericScalar",
+        createGenericScalarFromWire(wireFormat),
+        createGenericScalarToWire(wireFormat)
+    );
+
+    wireFormat.registerConverter(
+        "DomainObject",
+        createDomainObjectFromWireFunction(wireFormat),
+        createDomainObjectToWireFunction(wireFormat)
+    );
+
+    registerDateTimeConverters();
+}
+
+
 export function loadDomainDefinitions(ctx)
 {
     const keys = ctx.keys();
@@ -204,19 +222,7 @@ export function loadDomainDefinitions(ctx)
         }
     );
 
-    wireFormat.registerConverter(
-        "GenericScalar",
-        createGenericScalarFromWire(wireFormat),
-        createGenericScalarToWire(wireFormat)
-    );
-
-    wireFormat.registerConverter(
-        "DomainObject",
-        createDomainObjectFromWireFunction(wireFormat),
-        createDomainObjectToWireFunction(wireFormat)
-    );
-
-    registerDateTimeConverters();
+    registerAutomatonConverters();
 
     for (let i = 0; i < earlyConverters.length; i++)
     {

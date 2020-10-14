@@ -20,7 +20,7 @@ import GraphQLQuery from "./GraphQLQuery"
 import { storeDomainObject, deleteDomainObject, storeDomainObjects, generateDomainObjectId, updateAssociations } from "./standard-queries"
 
 import { backToParent } from "./back-functions"
-import { registerGenericType, registerType, getGenericType, getWireFormat } from "./domain"
+import { registerGenericType, registerType, getGenericType, getWireFormat, registerAutomatonConverters } from "./domain"
 import InteractiveQuery, { getFirstValue } from "./model/InteractiveQuery"
 import createDomainObject from "./createDomainObject"
 import LogoutForm from "./ui/LogoutForm"
@@ -54,7 +54,7 @@ import FieldMetaButton from "./ui/FieldMetaButton";
 import registerBigDecimalConverter from "./registerBigDecimalConverter";
 import DecimalField from "./ui/DecimalField";
 import URLField from "./ui/URLField";
-import registerDateTimeConverters from "./registerDateTimeConverters";
+
 
 const AutomatonDevTools = "span";
 
@@ -273,7 +273,7 @@ export {
 
     URLField,
 
-    registerDateTimeConverters,
+    registerAutomatonConverters,
 
     printSchema
 }

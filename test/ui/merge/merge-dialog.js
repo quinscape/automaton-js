@@ -10,14 +10,18 @@ import rawSchema from "../../merge/merge-schema.json"
 import config from "../../../src/config";
 import InteractiveQuery from "../../../src/model/InteractiveQuery";
 import { FormConfigProvider, InputSchema, WireFormat } from "domainql-form";
-import { __setWireFormatForTest, createGenericScalarFromWire, createGenericScalarToWire } from "../../../src/domain";
+import {
+    __setWireFormatForTest,
+    createGenericScalarFromWire,
+    createGenericScalarToWire,
+    registerAutomatonConverters
+} from "../../../src/domain";
 import ChangeConflictDialog, { FieldStatus, FieldType, MergeOperation } from "../../../src/ui/ChangeConflictDialog";
 import { loadScenario } from "../../merge/loadScenario";
 import { openDialog, renderImperativeDialogs } from "../../../src/ui/Dialog";
 import { getTableSummary } from "./table-summary";
 import userEvent from "@testing-library/user-event";
 import sleep from "../sleep";
-import registerDateTimeConverters from "../../../src/registerDateTimeConverters";
 
 
 const TEST_CASE_ID = "20bbb666-79d1-4a50-8b23-4442be8b615e";
@@ -44,7 +48,7 @@ describe("<ChangeConflictDialog/>", function () {
 
         __setWireFormatForTest(wireFormat)
 
-        registerDateTimeConverters();
+        registerAutomatonConverters();
 
     })
 
