@@ -1359,6 +1359,7 @@ export default class WorkingSet {
      *
      * @returns {Promise<*>} Promise resolving with the merge-result
      */
+    @action
     merge(attempt = 1)
     {
         this._updateRelationChanges();
