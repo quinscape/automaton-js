@@ -1090,7 +1090,7 @@ function executeTransition(name, actionFn, target, context, button)
 
     const { history } = storage;
 
-    history.resetChanged();
+    const historyPosBeforeTransition = history.getCurrentPos();
 
     return new Promise(
         (resolve, reject) => {
@@ -1121,7 +1121,7 @@ function executeTransition(name, actionFn, target, context, button)
                         // the state changed
                         target !== sourceState ||
                         // .. or if the history recorded changes in regards to our versioned props
-                        history.versionedPropsChanged
+                        history.getCurrentPos() !== historyPosBeforeTransition
                     );
                 }
 
@@ -1351,7 +1351,7 @@ function pushProcessState(replace = false)
         id: navigationId,
         processId: id,
         state: currentState,
-        historyPos: history.pos
+        historyPos: history.getCurrentPos()
     });
 
     const { navigationHistoryLimit } = config;

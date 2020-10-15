@@ -71,10 +71,8 @@ export default class ProcessHistory {
             }
             this.dispose = observe(scope, change => {
 
-                if (!this.versionedPropsChanged && versioningStrategy(change.name))
+                if (versioningStrategy(change.name))
                 {
-                    this.versionedPropsChanged = true;
-
                     const { changes } = this;
 
                     changes[this.pos++] = change;
@@ -105,13 +103,11 @@ export default class ProcessHistory {
         this.changes = [];
         this.pos = 0;
         this.changesEnd = 0;
-
-        this.resetChanged();
     }
 
-    resetChanged()
+    getCurrentPos()
     {
-        this.versionedPropsChanged = false;
+        return this.pos;
     }
 
     navigateTo(newPos)
