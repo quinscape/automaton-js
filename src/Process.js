@@ -13,7 +13,7 @@ import { getWireFormat } from "./domain";
 import ProcessHistory from "./ProcessHistory";
 import matchPath from "./matchPath";
 import { renderImperativeDialogs } from "./ui/Dialog"
-import PropTypes from "prop-types";
+import { backToHistoryId } from "./back-functions";
 
 
 const secret = Symbol("ProcessSecret");
@@ -734,7 +734,7 @@ export class Process {
                         {
                             pushProcessState();
 
-                            console.log(this.name, ": Changes after transition to  -> ", nextState, this[secret].history.changes)
+                            //console.log(this.name, ": Changes after transition to  -> ", nextState, this[secret].history.changes)
                         }
                     }
 
@@ -792,7 +792,11 @@ export class Process {
      *
      * @param {String} processName     process name
      * @param {Object} [input]         input object for the sub-process
-     * @param {Object} [opts]          process dialog options
+     *
+     * @param {Object} [opts]                   process dialog options
+     * @param {String|function} [opts.title]    Title for the subprocess modal or a function to produce the title from the subprocess name
+     * @param {boolean} [opts.nukeOnExit]       true if the process states are to be removed from browser memory on exit
+     *
      * @return {Promise<any>} resolves to the sub-process result or is rejected when the sub-process is aborted.
      */
     runSubProcess(processName, input, opts)
@@ -803,6 +807,8 @@ export class Process {
         };
 
         //console.log("runSubProcess", opts);
+
+        const historyId = this.getCurrentHistoryId();
 
         // create new promise that will resolve when the sub-process ends
         return new Promise(
@@ -822,9 +828,7 @@ export class Process {
 
                     //console.log("RENDER SUB-PROCESS VIEW", elem);
 
-                    // store for subProcessPromiseFns
-                    const storage = currentProcess[secret];
-                    storage.subProcessPromise = {
+                    currentProcess[secret].subProcessPromise = {
                         resolve,
                         reject
                     };
@@ -834,18 +838,45 @@ export class Process {
             )
             .then(output => {
 
-                pushProcessState();
+                const { nukeOnExit } = opts;
+                const backIndex = findBackStateIndex( backToHistoryId(historyId));
 
-                return render(
-                    renderCurrentView()
-                )
-                // make sure to resolve the sub-process result only after the parent view is restored.
-                .then( () => output);
+                if (nukeOnExit)
+                {
+                    const { history } = this[secret];
+
+                    const historyPos = history.getCurrentPos();
+
+                    // to nuke all states of our sub process, we move one entry back further and replace that entry
+                    // with the current state. This automatically prunes the forward states from the browser
+                    resetHistoryTo(
+                        backIndex - 1
+                    );
+
+                    // restore view props
+                    history.navigateTo(historyPos);
+                    pushProcessState();
+                }
+                else
+                {
+                    // without nuking, we just return to the original state
+                    resetHistoryTo(backIndex);
+                }
+                return output;
 
             })
             .catch(err => console.error("ERROR IN SUB-PROCESS", err))
     }
 
+    getCurrentHistoryId()
+    {
+        return processHistory[currentHistoryPos].id;
+    }
+
+    history()
+    {
+        return { processHistory, currentHistoryPos };
+    }
 
     /**
      * Ends the sub-process successfully and returns the given output object

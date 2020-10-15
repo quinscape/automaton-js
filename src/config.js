@@ -47,6 +47,11 @@ export const DEFAULT_OPTS = {
          * the header is not rendered.
          */
         title: name => i18n("Sub-Process {0}", name),
+
+        /**
+         * If set to true, remove all sub process states from the browser history on exit.
+         */
+        nukeOnExit: false,
         
         /** props to apply to the <Modal/> component */
         props: {
