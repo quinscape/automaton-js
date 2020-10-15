@@ -1111,7 +1111,7 @@ function executeTransition(name, actionFn, target, context, button)
         .then(
             () => {
 
-                const { target, isRecorded } = transition;
+                const { target = sourceState, isRecorded } = transition;
 
                 // if isRecorded hasn't been explicitly defined
                 if (isRecorded === null)
