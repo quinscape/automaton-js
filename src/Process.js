@@ -492,6 +492,15 @@ function updateEffects(process, prevState, nextState)
 }
 
 
+function resetHistoryTo(historyIndex)
+{
+    const oldIndex = currentHistoryPos;
+    currentHistoryPos = historyIndex;
+
+    config.history.go(currentHistoryPos - oldIndex);
+}
+
+
 /**
  * Process facade exposing a limited set of getters and methods as process API
  */
@@ -703,10 +712,7 @@ export class Process {
                     if (historyIndex >= 0)
                     {
                         //console.log("RESTORE HISTORY", historyIndex);
-                        const oldIndex = currentHistoryPos;
-                        currentHistoryPos = historyIndex;
-
-                        config.history.go(currentHistoryPos - oldIndex);
+                        resetHistoryTo(historyIndex);
                         return false;
                     }
                     else
