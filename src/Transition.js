@@ -1,18 +1,22 @@
+import { findBackStateIndex } from "./Process";
+
+
 const secret = Symbol("TransitionSecret");
+
+
+
 
 /**
  * Encapsulates a runtime transition within a process.
  */
 export default class Transition {
-    constructor(process, source, target, context, processHistory, currentHistoryPos, button)
+    constructor(process, source, target, context, button)
     {
         this[secret] = {
             process,
             source,
             target,
             context,
-            processHistory,
-            currentHistoryPos,
             historyIndex: -1,
             button
         };
@@ -121,43 +125,7 @@ export default class Transition {
      */
     back(n = 1)
     {
-        const { processHistory, currentHistoryPos } = this[secret];
-
-        let i, entry, historyIndex ;
-        if (typeof n === "function")
-        {
-            for (i = currentHistoryPos - 1; i >= 0; i--)
-            {
-                const e = processHistory[i];
-
-                if (n(e) === true)
-                {
-                    historyIndex = i;
-                    entry = e;
-                    break;
-                }
-            }
-
-            if (!entry)
-            {
-               throw new Error("No entry to navigate back to found.");
-            }
-
-            //console.log("back(fn) : true for history index #", historyIndex, "=", processHistory[historyIndex]);
-        }
-        else if (typeof n === "number")
-        {
-            if (currentHistoryPos - n < 0 || currentHistoryPos - n >= processHistory.length)
-            {
-                throw new Error("Invalid history location: " + (currentHistoryPos - n));
-            }
-            entry = processHistory[currentHistoryPos - n];
-        }
-        else
-        {
-            throw new Error("Invalid argument passed to back(): " + n);
-        }
-
+        const historyIndex = findBackStateIndex(n)
 
         this.isRecorded = false;
         this[secret].historyIndex = historyIndex;

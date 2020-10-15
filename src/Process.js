@@ -1083,8 +1083,6 @@ function executeTransition(name, actionFn, target, context, button)
         sourceState,
         target,
         context,
-        processHistory,
-        currentHistoryPos,
         button
     );
 
@@ -1665,4 +1663,52 @@ export function renderSubProcess(processName, input, injections, opts)
 export function getCurrentProcess()
 {
     return currentProcess;
+}
+
+
+/**
+ * Find the history index for the given back function / number of back steps.
+ *
+ * @param {Number|Function} n   back function or number of steps to go back.
+ *
+ * @return {number} history index
+ */
+export function findBackStateIndex(n)
+{
+    let i, entry, historyIndex ;
+    if (typeof n === "function")
+    {
+        for (i = currentHistoryPos - 1; i >= 0; i--)
+        {
+            const e = processHistory[i];
+
+            if (n(e) === true)
+            {
+                historyIndex = i;
+                entry = e;
+                break;
+            }
+        }
+
+        if (!entry)
+        {
+            throw new Error("No entry to navigate back to found.");
+        }
+
+        //console.log("back(fn) : true for history index #", historyIndex, "=", processHistory[historyIndex]);
+    }
+    else if (typeof n === "number")
+    {
+        if (currentHistoryPos - n < 0 || currentHistoryPos - n >= processHistory.length)
+        {
+            throw new Error("Invalid history location: " + (currentHistoryPos - n));
+        }
+        historyIndex = currentHistoryPos - n;
+    }
+    else
+    {
+        throw new Error("Invalid argument passed to back(): " + n);
+    }
+
+    return historyIndex;
 }
