@@ -436,7 +436,7 @@ function findManyToManyObjectName(mergePlan, type, name)
         {
             if (!e.rightSideRelation)
             {
-                console.log("No rightSideRelation for", type, name)
+                //console.log("No rightSideRelation for", type, name)
                 return null;
             }
 
@@ -781,6 +781,7 @@ export default class WorkingSet {
                         this.registerBaseVersion(
                             elements[j],
                             // we special case many-to-many handling here, so we don't want to follow relations for this object
+                            false,
                             false
                         );
                     }
@@ -799,7 +800,7 @@ export default class WorkingSet {
                                 const leftSideObject = element[leftSideObjectName];
                                 if (leftSideObject && leftSideObject.id)
                                 {
-                                    this.registerBaseVersion(leftSideObject);
+                                    this.registerBaseVersion(leftSideObject, true, false);
                                 }
                             }
                         }
@@ -811,7 +812,7 @@ export default class WorkingSet {
                 const targetObj = domainObject[name];
                 if (targetObj && targetObj.id)
                 {
-                    this.registerBaseVersion(targetObj)
+                    this.registerBaseVersion(targetObj, true, false)
                 }
             }
         }
@@ -1005,9 +1006,9 @@ export default class WorkingSet {
                     const existing = changes.get(key);
                     if (!existing)
                     {
-                        this.registerBaseVersion(targetObj);
+                        this.registerBaseVersion(targetObj, true, false);
                     }
-                    else
+                    else if (existing.status !== WorkingSetStatus.REGISTERED)
                     {
                         this.addChanges(targetObj, true, true)
                     }
@@ -1362,9 +1363,9 @@ export default class WorkingSet {
     @action
     merge(attempt = 1)
     {
-        this._updateRelationChanges();
-
         const {changes: changesMap, bases, mergePlan} = this[secret];
+
+        this._updateRelationChanges();
 
         if (typeof mergePlan.mergeConfig.beforeMerge === "function")
         {

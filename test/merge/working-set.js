@@ -20,7 +20,7 @@ describe("WorkingSet", function () {
     before(() => {
         inputSchema = new InputSchema(rawSchema);
 
-        console.log(printSchema(rawSchema));
+        //console.log(printSchema(rawSchema));
 
         config.inputSchema = inputSchema;
 
@@ -451,7 +451,7 @@ describe("WorkingSet", function () {
             ]
         }, (changes, deletions) => {
 
-            console.log(JSON.stringify(changes, null, 4));
+            //console.log(JSON.stringify(changes, null, 4));
 
             assert.deepEqual(changes, [
                     {
