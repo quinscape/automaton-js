@@ -262,31 +262,33 @@ function getFieldChanges(changesMap, bases, mergePlan)
 
             const currValue = domainObject[name];
 
-            if (isNew)
+            // XXX: We ignore all undefined values so clearing a former existing value with undefined won't work.
+            //      Use null in that case
+            if (currValue !== undefined)
             {
-                if (currValue !== undefined)
+                if (isNew)
                 {
-                    changesForEntity.push({
-                        field: name,
-                        value: {
-                            type,
-                            value: currValue
-                        }
-                    });
+                        changesForEntity.push({
+                            field: name,
+                            value: {
+                                type,
+                                value: currValue
+                            }
+                        });
                 }
-            }
-            else
-            {
-                const baseValue = base[name];
-                if (!equalsScalar(type, baseValue, currValue))
+                else
                 {
-                    changesForEntity.push({
-                        field: name,
-                        value: {
-                            type,
-                            value: currValue
-                        }
-                    });
+                    const baseValue = base[name];
+                    if (!equalsScalar(type, baseValue, currValue))
+                    {
+                        changesForEntity.push({
+                            field: name,
+                            value: {
+                                type,
+                                value: currValue
+                            }
+                        });
+                    }
                 }
             }
         }
