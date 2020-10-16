@@ -20,8 +20,11 @@ function identityEquals(a, b)
  */
 function dateTimeEquals(a, b)
 {
+    a = a ? +a : null;
+    b = b ? +b : null;
+
     // quick comparison by milliseconds
-    return +a === +b;
+    return a === b;
 }
 
 
