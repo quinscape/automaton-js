@@ -15,7 +15,7 @@ import FkSelectorModal from "./FkSelectorModal";
 import { useDebouncedCallback } from "use-debounce"
 import toPath from "lodash.topath"
 import get from "lodash.get"
-import { getOutputTypeName, lookupType } from "../util/type-utils"
+import { getIQueryPayloadType, getOutputTypeName, lookupType } from "../util/type-utils"
 
 import { field, value } from "../FilterDSL"
 import { getGraphQLMethodType } from "../Process";
@@ -409,10 +409,7 @@ const FKSelector = fnObserver(props => {
                     return;
                 }
 
-                const genericTypes = config.inputSchema.schema.genericTypes.filter(
-                    genericType => genericType.type === "InteractiveQueryQuxD"
-                );
-                const type = genericTypes[0].typeParameters[0];
+                const type = getIQueryPayloadType(iQueryType);
                 selectRow(type, null);
                 return;
             }

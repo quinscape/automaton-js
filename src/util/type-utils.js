@@ -158,3 +158,23 @@ export function isWrappedScalarType(type)
     return unwrapAll(type).kind === SCALAR;
 }
 
+
+/**
+ * Looks up the payload type for a given iQuery type
+ *
+ * @param {String} iQueryType   type of the iQuery container
+ * 
+ * @return {string} payload type
+ */
+export function getIQueryPayloadType(iQueryType)
+{
+    const genericTypes = config.inputSchema.schema.genericTypes.filter(
+        genericType => genericType.type === iQueryType
+    );
+
+    if (genericTypes.length === 0)
+    {
+        throw new Error("Could not find generic type info for " + iQueryType);
+    }
+    return genericTypes[0].typeParameters[0];
+}
