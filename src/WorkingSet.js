@@ -188,6 +188,182 @@ function findChange(changes, typeName, id)
 }
 
 
+function getFieldChangesForObject(status, domainObject, bases, mergePlan)
+{
+    //console.log({ status, domainObject: toJS(domainObject) });
+    const changes = [];
+
+
+    if (status === WorkingSetStatus.DELETED || status === WorkingSetStatus.REGISTERED)
+    {
+        // no changes
+        return changes;
+    }
+
+    const isNew = status === WorkingSetStatus.NEW;
+
+    const {_type: typeName, id, version = null} = domainObject;
+
+    const key = changeKey(typeName, id);
+    const base = bases.get(key);
+
+    const changesForEntity = [];
+
+    const {scalarFields, groupFields} = mergePlan.getInfo(typeName);
+
+    let addGroup = false;
+    for (let i = 0; i < groupFields.length; i++)
+    {
+        const fieldsOfGroup = groupFields[i];
+
+        const changesForGroup = [];
+        for (let j = 0; j < fieldsOfGroup.length; j++)
+        {
+            const {name, type} = fieldsOfGroup[j];
+
+            const baseValue = base && base[name];
+            const currValue = domainObject[name];
+
+            changesForGroup.push({
+                field: name,
+                value: {
+                    type,
+                    value: currValue
+                }
+            });
+
+            if (isNew || !equalsScalar(type, baseValue, currValue))
+            {
+                addGroup = true;
+            }
+        }
+
+        if (addGroup)
+        {
+            changesForEntity.push(...changesForGroup);
+        }
+    }
+
+    for (let i = 0; i < scalarFields.length; i++)
+    {
+        const {name, type} = scalarFields[i];
+
+        const currValue = domainObject[name];
+
+        // XXX: We ignore all undefined values so clearing a former existing value with undefined won't work.
+        //      Use null in that case
+        if (currValue !== undefined)
+        {
+            if (isNew)
+            {
+                changesForEntity.push({
+                    field: name,
+                    value: {
+                        type,
+                        value: currValue
+                    }
+                });
+            }
+            else
+            {
+                const baseValue = base[name];
+                if (!equalsScalar(type, baseValue, currValue))
+                {
+                    changesForEntity.push({
+                        field: name,
+                        value: {
+                            type,
+                            value: currValue
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    const {idType} = mergePlan.getInfo(typeName);
+
+    /**
+     * We record a change for the entity only if we have field changes
+     */
+    if (changesForEntity.length)
+    {
+        changes.push({
+            id: {
+                type: idType,
+                value: id
+            },
+            version,
+            type: typeName,
+            changes: changesForEntity,
+            new: isNew
+        })
+    }
+
+    return changes;
+}
+
+function hasFieldChanges(status, domainObject, bases, mergePlan)
+{
+
+    if (status === WorkingSetStatus.DELETED || status === WorkingSetStatus.REGISTERED)
+    {
+        // no changes
+        return false;
+    }
+
+    const isNew = status === WorkingSetStatus.NEW;
+
+    const {_type: typeName, id } = domainObject;
+
+    const key = changeKey(typeName, id);
+    const base = bases.get(key);
+
+    const {scalarFields, groupFields} = mergePlan.getInfo(typeName);
+
+    for (let i = 0; i < groupFields.length; i++)
+    {
+        const fieldsOfGroup = groupFields[i];
+
+        for (let j = 0; j < fieldsOfGroup.length; j++)
+        {
+            const {name, type} = fieldsOfGroup[j];
+
+            const baseValue = base && base[name];
+            const currValue = domainObject[name];
+
+            if (isNew || !equalsScalar(type, baseValue, currValue))
+            {
+                return true;
+            }
+        }
+    }
+
+    for (let i = 0; i < scalarFields.length; i++)
+    {
+        const {name, type} = scalarFields[i];
+
+        const currValue = domainObject[name];
+
+        if (currValue !== undefined)
+        {
+            if (isNew)
+            {
+                return true;
+            }
+            else
+            {
+                const baseValue = base[name];
+                if (!equalsScalar(type, baseValue, currValue))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 /**
  * Gets the changes to scalar
  *
@@ -199,119 +375,13 @@ function findChange(changes, typeName, id)
  */
 function getFieldChanges(changesMap, bases, mergePlan)
 {
-    const changes = [];
+    let changes = [];
 
     for (let entry of changesMap.values())
     {
         const { domainObject, status } = entry;
 
-        if (status === WorkingSetStatus.DELETED || status === WorkingSetStatus.REGISTERED)
-        {
-            continue;
-        }
-
-        //console.log({ status, domainObject: toJS(domainObject) });
-
-        const isNew = status === WorkingSetStatus.NEW;
-
-        const { _type: typeName, id, version = null } = domainObject;
-
-        const key = changeKey(typeName, id);
-        const base = bases.get(key);
-
-        const changesForEntity = [];
-
-        const { scalarFields, groupFields } = mergePlan.getInfo(typeName);
-
-        let addGroup = false;
-        for (let i = 0; i < groupFields.length; i++)
-        {
-            const fieldsOfGroup = groupFields[i];
-
-            const changesForGroup = [];
-            for (let j = 0; j < fieldsOfGroup.length; j++)
-            {
-                const { name, type } = fieldsOfGroup[j];
-
-                const baseValue = base && base[name];
-                const currValue = domainObject[name];
-
-                changesForGroup.push({
-                    field: name,
-                    value: {
-                        type,
-                        value: currValue
-                    }
-                });
-
-                if (isNew || !equalsScalar(type, baseValue, currValue))
-                {
-                    addGroup = true;
-                }
-            }
-
-            if (addGroup)
-            {
-                changesForEntity.push(...changesForGroup);
-            }
-        }
-
-        for (let i = 0; i < scalarFields.length; i++)
-        {
-            const { name, type } = scalarFields[i];
-
-            const currValue = domainObject[name];
-
-            // XXX: We ignore all undefined values so clearing a former existing value with undefined won't work.
-            //      Use null in that case
-            if (currValue !== undefined)
-            {
-                if (isNew)
-                {
-                        changesForEntity.push({
-                            field: name,
-                            value: {
-                                type,
-                                value: currValue
-                            }
-                        });
-                }
-                else
-                {
-                    const baseValue = base[name];
-                    if (!equalsScalar(type, baseValue, currValue))
-                    {
-                        changesForEntity.push({
-                            field: name,
-                            value: {
-                                type,
-                                value: currValue
-                            }
-                        });
-                    }
-                }
-            }
-        }
-
-        const { idType } = mergePlan.getInfo(typeName);
-
-        /**
-         * We record this as a change if either any of the properties have changed
-         * or if we recorded a change in a many-to-many relation concerning the current entity
-         */
-        if (changesForEntity.length)
-        {
-            changes.push({
-                id: {
-                    type: idType,
-                    value: id
-                },
-                version,
-                type: typeName,
-                changes: changesForEntity,
-                new: isNew
-            })
-        }
+        changes = changes.concat(getFieldChangesForObject(status, domainObject, bases, mergePlan));
     }
 
     return changes;
@@ -321,25 +391,26 @@ function getFieldChanges(changesMap, bases, mergePlan)
 /**
  * Adds changes for many-to-many fields to the given list of changes.
  *
- * @param {Array<Object>} changes   list of existing changes
- * @param {Map} changesMap          map of current objects keyed by change key ("<type>:<id>")
- * @param {MergePlan} mergePlan     merge plan instance
+ * @param {Array<Object>} changesAndDeletions   list of existing changes
+ * @param {Map} changesMap                      map of current objects keyed by change key ("<type>:<id>")
+ * @param {MergePlan} mergePlan                 merge plan instance
  */
-function getManyToManyChanges(changes, changesMap, mergePlan)
+function getManyToManyChanges(changesAndDeletions, changesMap, mergePlan)
 {
     const manyToManyLookup = new Map();
     const manyToManyChanges = [];
 
-    for (let i = 0; i < changes.length; i++)
+    for (let i = 0; i < changesAndDeletions.length; i++)
     {
-        const change = changes[i];
-
-        // get the full object for the change
-        const { domainObject: linkInstance } = changesMap.get(changeKey(change.type, change.id.value))
+        const change = changesAndDeletions[i];
 
         const linkTypes = mergePlan.linkTypes.get(change.type);
+        // is the change or deletion for a link type representing a many-to-many relation?
         if (linkTypes)
         {
+            // get the full object for the change
+            const { domainObject: linkInstance } = changesMap.get(changeKey(change.type, change.id.value))
+
             for (let j = 0; j < linkTypes.length; j++)
             {
                 const { targetType, relation } = linkTypes[j];
@@ -398,7 +469,7 @@ function getManyToManyChanges(changes, changesMap, mergePlan)
                     }
                 };
 
-                const existing = findChange(changes, targetTypeName, domainObject.id);
+                const existing = findChange(changesAndDeletions, targetTypeName, domainObject.id);
                 if (existing)
                 {
                     existing.changes.push(fieldChange);
@@ -426,6 +497,60 @@ function getManyToManyChanges(changes, changesMap, mergePlan)
     return manyToManyChanges;
 }
 
+
+/**
+ * Checks for virtual many-to-many changes relating to a single entity
+ *
+ * @param {String} entityType       Domain type
+ * @param {*} entityId              entity id
+ * @param {Map} changesMap          map of current objects keyed by change key ("<type>:<id>")
+ * @param {MergePlan} mergePlan     merge plan instance
+ */
+function hasManyToManyChanges(entityType, entityId, changesMap, mergePlan)
+{
+    for (let entry of changesMap.values())
+    {
+        const { status, domainObject: linkInstance } = entry;
+
+        // the only changes that lead to virtual many-to-many changes on the connected entity are NEW and DELETE operations
+        // on the link type, just changing potential fields within the link changes nothing for the connected entity.
+        if (status === WorkingSetStatus.NEW || status === WorkingSetStatus.DELETED)
+        {
+            const linkTypes = mergePlan.linkTypes.get(linkInstance._type);
+            if (linkTypes)
+            {
+                for (let j = 0; j < linkTypes.length; j++)
+                {
+                    const { targetType, relation } = linkTypes[j];
+
+                    const prefix = targetType + ":";
+
+                    for (let [key, { domainObject, status }] of changesMap.entries())
+                    {
+                        let associatedObjects;
+                        const manyToManyField = relation.rightSideObjectName;
+                        if (
+                            // if the object is of the target type
+                            key.indexOf(prefix) === 0 &&
+                            // and has an actual change
+                            status !== WorkingSetStatus.REGISTERED &&
+                            // the many-to-many field was selected
+                            (associatedObjects = domainObject[manyToManyField]) &&
+                            // and the type matches our type
+                            entityType === relation.targetType &&
+                            // and the id matches our id
+                            domainObject.id === linkInstance[relation.sourceFields[0]]
+                        )
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
 
 function findManyToManyObjectName(mergePlan, type, name)
 {
@@ -926,7 +1051,7 @@ export default class WorkingSet {
 
         const key = changeKey(_type, id);
         const base = this[secret].bases.get(key);
-        
+
         const { embedded } = mergePlan.getInfo(_type);
 
         for (let i = 0; i < embedded.length; i++)
@@ -1290,10 +1415,40 @@ export default class WorkingSet {
      */
     lookup(type, id)
     {
-
         return this[secret].changes.get(changeKey(type, id));
     }
 
+
+    /**
+     * Returns true, if there are actual modifications for the given entity, that is either one of its fields changed or
+     * a many-to-many connected entity changed
+
+     * @param {Object} entity      entity object
+     *
+     * @returns true if the entity was modified
+     */
+    isModified(entity)
+    {
+        const {_type: type, id} = entity;
+
+        const key = changeKey(type, id);
+
+        const { status, domainObject } = this[secret].changes.get(key)
+
+        if (status === WorkingSetStatus.NEW)
+        {
+            return true;
+        }
+
+        if (status !== WorkingSetStatus.MODIFIED)
+        {
+            return false;
+        }
+
+        const {changes: changesMap, bases, mergePlan} = this[secret];
+
+        return hasFieldChanges(status, domainObject, bases, mergePlan) || hasManyToManyChanges(type, id, changesMap, mergePlan);
+    }
 
     /**
      * Looks up the base object for an given entity
@@ -1377,7 +1532,7 @@ export default class WorkingSet {
             }
         }
 
-        const changes = getFieldChanges(changesMap, bases, mergePlan);
+        let changes = getFieldChanges(changesMap, bases, mergePlan);
 
         const deletions = this.deletions.map(
             ({_type: type, version, id}) => ({
@@ -1396,11 +1551,11 @@ export default class WorkingSet {
         ];
 
         // second pass to add changes for many-to-many relations
-        changes.push(...getManyToManyChanges(changesAndDeletions, changesMap, mergePlan));
+        changes = changes.concat(getManyToManyChanges(changesAndDeletions, changesMap, mergePlan));
 
         const vars = {
             mergeConfig: mergePlan.mergeConfig,
-            changes,
+            changes: changes.filter(c => c.changes.length > 0),
             deletions
         };
 
@@ -1499,5 +1654,6 @@ export default class WorkingSet {
         }
 
     }
+
 }
 

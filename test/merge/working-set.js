@@ -120,6 +120,7 @@ describe("WorkingSet", function () {
             ]
         }, (changes, deletions) => {
 
+            assert(workingSet.isModified(instance))
 
             assert.deepEqual(changes, [
                 {
@@ -164,6 +165,8 @@ describe("WorkingSet", function () {
         });
 
         workingSet.registerBaseVersion(instance);
+
+        assert(!workingSet.isModified(instance))
 
         runInAction(() => {
             instance.name = "Changed Name";
@@ -330,6 +333,8 @@ describe("WorkingSet", function () {
         }, (changes, deletions) => {
 
             //console.log(JSON.stringify(changes, null, 4));
+            assert(workingSet.isModified(instance))
+
 
             assert.deepEqual(changes, [
                     {
@@ -401,6 +406,8 @@ describe("WorkingSet", function () {
 
         workingSet.registerBaseVersion(instance);
 
+        assert(!workingSet.isModified(instance))
+
 
         runInAction(() => {
 
@@ -428,6 +435,124 @@ describe("WorkingSet", function () {
 
         return workingSet.merge();
     });
+    it("handles deleting many-to-many relations", () => {
+
+        const assocId = "5aed6f07-cab8-433b-b4bb-2733e7f64dec"
+        const corgeLinkId = "8e6c6506-e39e-4101-a3fd-de5eb6a017b9";
+        const corgeLinkVersion = "913984ed-b1a3-425a-8a6e-3581fd20bf94";
+        const assocVersion = "853351f4-f224-437e-979a-967ad5ad0ffe";
+
+        const corgeId = "1df03525-e3d0-4d7a-90d6-e1f4e0fc3878";
+        const instance = observable({
+            _type: "Corge",
+            // DB column 'id'
+            id: corgeId,
+            version: "93cb71c7-8a7b-4fc5-a18b-199ae392486f",
+            // DB column 'name'
+            name: "Test Corge",
+            // DB column 'num'
+            num: 1000,
+            num2: 2000,
+            // Many-to-many objects from corge_link.corge_id
+            corgeLinks: [{
+                _type: "CorgeLink",
+                id: corgeLinkId,
+                version: corgeLinkVersion,
+
+                // DB foreign key column 'assoc_id'
+                assocId,
+
+                // Target of 'assoc_id'
+                assoc: {
+                    _type: "CorgeAssoc",
+                    id: assocId,
+                    version: assocVersion,
+                    // DB column 'name'
+                    name: "Corge Assoc #23",
+                    // DB column 'num'
+                    num: 23
+                },
+                corgeId
+            }],
+            // DB column 'flag'
+            flag: true,
+            // DB column 'created'
+            created: DateTime.fromISO("2020-09-01T12:00:40.151Z"),
+            // DB column 'modified'
+            modified: DateTime.fromISO("2020-09-01T14:10:40.210Z")
+        })
+
+        const workingSet = mockedWorkingSet({
+            typeConfigs: [
+                {
+                    name: "Corge",
+                    mergeGroups: [
+                        {
+                            fields: ["num", "num2"]
+                        }
+                    ],
+                    ignored: ["modified"]
+                }
+            ]
+        }, (changes, deletions) => {
+
+            // console.log(JSON.stringify(changes, null, 4));
+            // console.log(JSON.stringify(deletions, null, 4));
+
+            assert(workingSet.isModified(instance))
+
+            assert.deepEqual(changes, [
+                    {
+                        "changes": [
+                            {
+                                "field": "corgeLinks",
+                                "value": {
+                                    "type": "[DomainObject]",
+                                    "value": []
+                                }
+                            }
+                        ],
+                        "new": false,
+                        "id": {
+                            "type": "String",
+                            "value": "1df03525-e3d0-4d7a-90d6-e1f4e0fc3878"
+                        },
+                        "type": "Corge",
+                        "version": "93cb71c7-8a7b-4fc5-a18b-199ae392486f"
+                    }
+                ]
+            )
+
+            assert.deepEqual(
+                deletions, [
+                    {
+                        "type": "CorgeLink",
+                        "version": "913984ed-b1a3-425a-8a6e-3581fd20bf94",
+                        "id": {
+                            "type": "String",
+                            "value": "8e6c6506-e39e-4101-a3fd-de5eb6a017b9"
+                        }
+                    }
+                ]
+
+            )
+
+        });
+
+        workingSet.registerBaseVersion(instance);
+
+        assert(!workingSet.isModified(instance))
+
+
+        runInAction(() => {
+
+            workingSet.markDeleted(instance.corgeLinks[0])
+
+            instance.corgeLinks = [];
+        })
+
+        return workingSet.merge();
+    });
 
     it("handles many-to-many relations on new objects", () => {
 
@@ -436,6 +561,8 @@ describe("WorkingSet", function () {
         const corgeLinkId = "8e6c6506-e39e-4101-a3fd-de5eb6a017b9";
         const corgeLinkVersion = "913984ed-b1a3-425a-8a6e-3581fd20bf94";
         const assocVersion = "853351f4-f224-437e-979a-967ad5ad0ffe";
+
+        let instance;
 
         const workingSet = mockedWorkingSet({
             typeConfigs: [
@@ -573,7 +700,7 @@ describe("WorkingSet", function () {
 
         runInAction(() => {
 
-            const instance = observable({
+            instance = observable({
                 _type: "Corge",
                 // DB column 'id'
                 id: corgeId,
@@ -613,6 +740,10 @@ describe("WorkingSet", function () {
             })
 
             workingSet.addNew(instance)
+
+            // We consider new instances as modified, too
+            assert(workingSet.isModified(instance))
+
         })
 
         return workingSet.merge();

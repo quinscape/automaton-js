@@ -1437,6 +1437,55 @@
             "interfaces": [],
             "enumValues": null,
             "possibleTypes": null
+        },
+        {
+            "kind": "INPUT_OBJECT",
+            "name": "EntityDeletionInput",
+            "description": "Encapsulates the type and id of on object deletion in a working set.",
+            "fields": null,
+            "inputFields": [
+                {
+                    "name": "type",
+                    "description": "Domain type of deleted object",
+                    "type": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                            "kind": "SCALAR",
+                            "name": "String",
+                            "ofType": null
+                        }
+                    },
+                    "defaultValue": null
+                },
+                {
+                    "name": "version",
+                    "description": null,
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                    },
+                    "defaultValue": null
+                },
+                {
+                    "name": "id",
+                    "description": "Id of deleted object as generic scalar.",
+                    "type": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                            "kind": "SCALAR",
+                            "name": "GenericScalar",
+                            "ofType": null
+                        }
+                    },
+                    "defaultValue": null
+                }
+            ],
+            "interfaces": null,
+            "enumValues": null,
+            "possibleTypes": null
         }
     ],
     "relations": [

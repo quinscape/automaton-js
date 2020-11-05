@@ -13,7 +13,11 @@ import { toJS } from "mobx";
 const WorkingSetStatus = fnObserver((props) => {
 
     const { currentObj, workingSet, iconClass, createdIcon, modifiedIcon, deletedIcon, createdTooltip, modifiedTooltip, deletedTooltip } = props;
-    const entry = workingSet.lookup(currentObj._type, currentObj.id);
+
+    const entityType = currentObj._type;
+    const entityId = currentObj.id;
+
+    const entry = workingSet.lookup( entityType, entityId);
 
     //console.log("WorkingSetStatus", toJS(entry));
 
@@ -25,7 +29,7 @@ const WorkingSetStatus = fnObserver((props) => {
                 <Icon className={ cx(iconClass, createdIcon) } tooltip={ createdTooltip }/>
             )
         }
-        else if (entry.status === StatusEnum.MODIFIED)
+        else if (entry.status === StatusEnum.MODIFIED && workingSet.isModified(currentObj))
         {
             return (
                 <Icon className={ cx(iconClass, modifiedIcon) } tooltip={ modifiedTooltip }/>

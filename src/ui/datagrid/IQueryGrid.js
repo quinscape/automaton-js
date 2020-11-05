@@ -205,7 +205,7 @@ const DataGrid = fnObserver(props => {
                                     {
                                         workingSetClass = "deleted-object";
                                     }
-                                    else
+                                    else if (workingSet.isModified(context))
                                     {
                                         workingSetClass = "changed-object";
                                         context = entry.domainObject;
