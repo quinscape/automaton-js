@@ -136,20 +136,23 @@ export default class MergePlan {
                     // manyToManyLinkTypes.push(linkTypeName);
                     // manyToManyRelations.push(config.inputSchema.schema.relations.find(r => r.sourceType === linkTypeName && r.targetType === typeName))
 
-                    const linkType = {
-                        fieldName: name,
-                        targetType: typeName,
-                        relation: leftSideRelation.rightSideObjectName && leftSideRelation,
-                    };
+                    if (leftSideRelation.rightSideObjectName)
+                    {
+                        const linkType = {
+                            fieldName: name,
+                            targetType: typeName,
+                            relation: leftSideRelation,
+                        };
 
-                    const array = this.linkTypes.get(linkTypeName);
-                    if (!array)
-                    {
-                        this.linkTypes.set(linkTypeName, [ linkType ])
-                    }
-                    else
-                    {
-                        array.push(linkType);
+                        const array = this.linkTypes.get(linkTypeName);
+                        if (!array)
+                        {
+                            this.linkTypes.set(linkTypeName, [ linkType ])
+                        }
+                        else
+                        {
+                            array.push(linkType);
+                        }
                     }
                 }
                 else
