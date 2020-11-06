@@ -78,41 +78,44 @@ function getPrecision(ctx, opts)
         };
     }
 
-    const { inputSchema, decimalPrecision } = config;
-
-    let type;
-    const { length: pathLength } = path;
-
-    if (pathLength === 1)
+    if (!p)
     {
-        type = getOutputTypeName(rootType);
-    }
-    else
-    {
-        type = getOutputTypeName(inputSchema.resolveType(rootType, path.slice(0, -1)))
-    }
+        const { inputSchema, decimalPrecision } = config;
 
-    for (let i = 0; i < decimalPrecision.length; i++)
-    {
-        const { domainType, fieldName, precision, scale } = decimalPrecision[i];
+        let type;
+        const { length: pathLength } = path;
 
-        if (type === domainType && fieldName === path[pathLength - 1])
+        if (pathLength === 1)
         {
-            p = {
-                precision,
-                scale
-            }
+            type = getOutputTypeName(rootType);
+        }
+        else
+        {
+            type = getOutputTypeName(inputSchema.resolveType(rootType, path.slice(0, -1)))
         }
 
-    }
+        for (let i = 0; i < decimalPrecision.length; i++)
+        {
+            const { domainType, fieldName, precision, scale } = decimalPrecision[i];
 
-    if (p === null)
-    {
-        throw new Error(
-            "Could not find precision/scale for " + type + "." + path + ", " +
-            "information is missing from config.decimalPrecision. " +
-            "Either include the values for that field or define precision and scale as <DecimalField/> prop"
-        );
+            if (type === domainType && fieldName === path[pathLength - 1])
+            {
+                p = {
+                    precision,
+                    scale
+                }
+            }
+
+        }
+
+        if (p === null)
+        {
+            throw new Error(
+                "Could not find precision/scale for " + type + "." + path + ", " +
+                "information is missing from config.decimalPrecision. " +
+                "Either include the values for that field or define precision and scale as <DecimalField/> prop"
+            );
+        }
     }
 
     precisions.set(ctx, p);
