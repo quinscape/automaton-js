@@ -78,6 +78,7 @@ function defaultInit(ctx, initial)
         alternateStyles,
         mergeOptions,
         decimalPrecision,
+        fieldLengths,
         [APP_SCOPE]: appScopeFromInitial,
         [USER_SCOPE]: userScopeFromInitial
     } = initial;
@@ -103,6 +104,8 @@ function defaultInit(ctx, initial)
     config.mergeOptions = mergeOptions;
 
     config.decimalPrecision = decimalPrecision;
+    
+    config.fieldLengths = fieldLengths;
 
     let promises = [];
 

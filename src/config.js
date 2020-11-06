@@ -75,7 +75,8 @@ export const DEFAULT_OPTS = {
 
     userInfo: null,
 
-    decimalPrecision: []
+    decimalPrecision: [],
+    fieldLengths: []
 };
 
 

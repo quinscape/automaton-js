@@ -1,8 +1,10 @@
-import { WireFormat } from "domainql-form"
+import { registerCustomConverter, WireFormat } from "domainql-form"
 import config from "./config"
 import matchPath from "./matchPath";
 import { INPUT_OBJECT, OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";
-import registerDateTimeConverters from "./registerDateTimeConverters";
+import registerDateTimeConverters, { DEFAULT_TIMESTAMP_FORMAT } from "./registerDateTimeConverters";
+import i18n from "./i18n";
+import { getOutputTypeName } from "./util/type-utils";
 
 
 let domainClasses = {};
@@ -178,6 +180,88 @@ function createDomainObjectToWireFunction(wireFormat)
     }
 }
 
+const fieldLengths = new WeakMap();
+
+function getMaxLength(ctx)
+{
+    if (!ctx)
+    {
+        return 0;
+    }
+
+    let maxLength = fieldLengths.get(ctx);
+    if (maxLength !== undefined)
+    {
+        return maxLength;
+    }
+
+    const {path, rootType, maxLength : maxLengthFromCtx} = ctx;
+
+    // are both precision and scale specified on the field
+    if (maxLengthFromCtx !== undefined)
+    {
+        maxLength = maxLengthFromCtx;
+    }
+
+    if (maxLength === undefined && rootType)
+    {
+        const { inputSchema, fieldLengths } = config;
+
+        let type;
+        const { length: pathLength } = path;
+
+        if (pathLength === 1)
+        {
+            type = getOutputTypeName(rootType);
+        }
+        else
+        {
+            type = getOutputTypeName(inputSchema.resolveType(rootType, path.slice(0, -1)))
+        }
+
+        for (let i = 0; i < fieldLengths.length; i++)
+        {
+            const { domainType, fieldName, length } = fieldLengths[i];
+            if (type === domainType && fieldName === path[pathLength - 1])
+            {
+                maxLength = length
+            }
+        }
+    }
+
+    if (maxLength === undefined)
+    {
+        // default to no maximum length limitation
+        maxLength = 0;
+    }
+
+
+    fieldLengths.set(ctx, maxLength);
+    return maxLength;
+}
+
+/**
+ * Redefines the String validate function to enable automatic field length checks based on config.fieldLengths
+ */
+function registerFieldLengthValidator()
+{
+    registerCustomConverter(
+        "String",
+
+
+        (value, ctx) => {
+            const maxLength = getMaxLength(ctx);
+            if (maxLength > 0 && value.length > maxLength)
+            {
+                return "Value too long";
+            }
+            return null;
+        },
+        false,
+        false
+    );
+}
+
 
 export function registerAutomatonConverters()
 {
@@ -192,6 +276,8 @@ export function registerAutomatonConverters()
         createDomainObjectFromWireFunction(wireFormat),
         createDomainObjectToWireFunction(wireFormat)
     );
+
+    registerFieldLengthValidator();
 
     registerDateTimeConverters();
 }
