@@ -410,6 +410,10 @@ const FKSelector = fnObserver(props => {
                 }
 
                 const type = getIQueryPayloadType(iQueryType);
+                if (!type)
+                {
+                    throw new Error("Could not determine payload type of " + iQueryType + ". It does not seem to be an InteractiveQuery-based class.");
+                }
                 selectRow(type, null);
                 return;
             }

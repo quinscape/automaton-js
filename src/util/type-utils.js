@@ -1,5 +1,6 @@
 import config from "../config";
 import { LIST, SCALAR, INPUT_OBJECT, NON_NULL } from "domainql-form/lib/kind";
+import { INTERACTIVE_QUERY } from "../domain";
 
 export function findNamed(array, name)
 {
@@ -164,7 +165,7 @@ export function isWrappedScalarType(type)
  *
  * @param {String} iQueryType   type of the iQuery container
  * 
- * @return {string} payload type
+ * @return {String} payload type
  */
 export function getIQueryPayloadType(iQueryType)
 {
@@ -172,9 +173,10 @@ export function getIQueryPayloadType(iQueryType)
         genericType => genericType.type === iQueryType
     );
 
-    if (genericTypes.length === 0)
+    if (genericTypes.length && genericTypes[0].genericType === INTERACTIVE_QUERY)
     {
-        throw new Error("Could not find generic type info for " + iQueryType);
+        return genericTypes[0].typeParameters[0];
     }
-    return genericTypes[0].typeParameters[0];
+
+    return null;
 }
