@@ -936,7 +936,7 @@ function getFieldTypeByName(fields, gqlMethod)
 }
 
 
-export function getGraphQLMethodType(gqlMethod)
+export function getGraphQLMethodType(gqlMethod, queriesOnly = false)
 {
     if (!gqlMethod)
     {
@@ -951,12 +951,15 @@ export function getGraphQLMethodType(gqlMethod)
         return queryFieldType;
     }
 
-    const mutationType = config.inputSchema.getType("MutationType");
-
-    const mutationFieldType = getFieldTypeByName(mutationType.fields, gqlMethod);
-    if (mutationFieldType)
+    if (!queriesOnly)
     {
-        return mutationFieldType;
+        const mutationType = config.inputSchema.getType("MutationType");
+
+        const mutationFieldType = getFieldTypeByName(mutationType.fields, gqlMethod);
+        if (mutationFieldType)
+        {
+            return mutationFieldType;
+        }
     }
 
     throw new Error("Could not find type of GraphQL method '" + gqlMethod + "'");
