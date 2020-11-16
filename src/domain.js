@@ -59,6 +59,7 @@ export function registerType(name, DomainClass)
 }
 
 export const INTERACTIVE_QUERY = "de.quinscape.automaton.model.data.InteractiveQuery";
+export const INTERACTIVE_QUERY_DEFINITION = "de.quinscape.automaton.model.data.InteractiveQueryDefinition";
 
 
 /**

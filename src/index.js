@@ -76,6 +76,8 @@ import {
 } from "./FilterDSL"
 
 import printSchema from "./util/printSchema"
+import InteractiveQueryEditor from "./ui/iqed/InteractiveQueryEditor";
+import InteractiveQueryDefinition from "./model/InteractiveQueryDefinition.js"
 
 // improves auto-completion for DSL members
 const FilterDSL = {
@@ -171,6 +173,7 @@ const FilterDSL = {
      */
     findComponentNode
 };
+
 
 
 // noinspection JSUnusedGlobalSymbols
@@ -275,7 +278,10 @@ export {
 
     registerAutomatonConverters,
 
-    printSchema
+    printSchema,
+
+    InteractiveQueryEditor,
+    InteractiveQueryDefinition
 }
 
 

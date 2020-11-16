@@ -10,13 +10,20 @@ import { serverSync, storageSync, syncFrom, syncFromStorage } from "./sync"
 
 import { APP_SCOPE, LOCAL_SCOPE, SESSION_SCOPE, USER_SCOPE } from "./scopeNames"
 
-import { getWireFormat, INTERACTIVE_QUERY, loadDomainDefinitions, registerGenericType } from "./domain";
+import {
+    getWireFormat,
+    INTERACTIVE_QUERY,
+    INTERACTIVE_QUERY_DEFINITION,
+    loadDomainDefinitions,
+    registerGenericType, registerType
+} from "./domain";
 import InteractiveQuery from "./model/InteractiveQuery";
 
 import { createBrowserHistory } from "history"
 import createDomainObject from "./createDomainObject";
 import { registerGenericGraphQLPostProcessor } from "./graphql";
 import i18n from "./i18n";
+import InteractiveQueryDefinition from "./model/InteractiveQueryDefinition";
 
 
 const SCOPES_MODULE_NAME = "./scopes.js";
@@ -285,6 +292,8 @@ function registerSystemTypes()
         iQuery._query = query;
         return iQuery;
     })
+
+    registerType(INTERACTIVE_QUERY_DEFINITION, InteractiveQueryDefinition);
 }
 
 
