@@ -43,8 +43,33 @@ const DecimalField = ({precision, scale, children, ...restProps}) => {
 
     const [sel, setSel] = useState(-1);
 
-    const handleDecimalSeparator = ev => {
-        const { decimalSeparator } = BigNumber.config().FORMAT;
+    /**
+     * Special case handling for usability edge cases
+     */
+    const onKeyDown = ev => {
+        const { decimalSeparator, groupSeparator } = BigNumber.config().FORMAT;
+
+        //console.log("handleDecimalSeparator", ev.key);
+
+        if (ev.key === "Delete"){
+
+            const { selectionStart, value } = ref.current;
+            if (
+                selectionStart < value.length - 1 && (value[selectionStart] === groupSeparator || value[selectionStart] === decimalSeparator)
+            )
+            {
+                ref.current.setSelectionRange(selectionStart + 1, selectionStart + 1);
+                ev.preventDefault();
+            }
+            if (
+                selectionStart === 0 && value.indexOf("0" + decimalSeparator) === 0
+            )
+            {
+                ref.current.setSelectionRange(selectionStart + 2, selectionStart + 2);
+                ev.preventDefault();
+            }
+        }
+
         if (ev.key === decimalSeparator){
 
             const {selectionStart, value } = ref.current;
@@ -59,6 +84,8 @@ const DecimalField = ({precision, scale, children, ...restProps}) => {
                 ev.preventDefault();
             }
         }
+
+
     };
 
     const addons = Addon.filterAddons( children );
@@ -66,7 +93,7 @@ const DecimalField = ({precision, scale, children, ...restProps}) => {
 
     return (
         <span
-            onKeyDownCapture={ handleDecimalSeparator }
+            onKeyDownCapture={ onKeyDown }
         >
         <Field
             ref={ref}
