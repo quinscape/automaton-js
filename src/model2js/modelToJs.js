@@ -15,6 +15,7 @@ import {
 
 const MODEL_PATH = "./src/main/webapp/WEB-INF/automaton/apps";
 const APPS_INFIX = "/apps/";
+const shortPath = './src/main/js/apps/model-to-js'
 
 function toInternalPath(fileName) {
     const pos = fileName.indexOf(APPS_INFIX);
@@ -43,6 +44,26 @@ function getFirstSegment(path) {
 function handleSlashes(p) {
     return p.replace(new RegExp("\\" + path.sep, "g"), "/")
 }
+
+//delete main folder always before start the process
+let deleteFolderRecursive;
+
+(deleteFolderRecursive = function (path) {
+    if (fs.existsSync(path)) {
+        fs.readdirSync(path).map((fileName) => {
+            let curPath = path + "/" + fileName
+
+            if (fs.lstatSync(curPath).isDirectory()) {
+                //delete subdirectory
+                deleteFolderRecursive(curPath)
+            } else {
+                //delete file
+                fs.unlinkSync(curPath)
+            }
+        })
+        fs.rmdirSync(path)
+    }
+})(shortPath)
 
 recursiveReadDir(MODEL_PATH, ["!*.json","**/lisa-web/meta"], function (err, fileNames) {
 
@@ -103,9 +124,12 @@ recursiveReadDir(MODEL_PATH, ["!*.json","**/lisa-web/meta"], function (err, file
     }
 });
 
-const shortPath = './src/main/js/apps/model-to-js'
 
 function createProjectFolders(processName) {
+
+    if (!fs.existsSync(`${shortPath}`)) {
+        fs.mkdirSync(`${shortPath}`)
+    }
     if (!fs.existsSync(`${shortPath}/domain`)) {
         fs.mkdirSync(`${shortPath}/domain`)
     }
