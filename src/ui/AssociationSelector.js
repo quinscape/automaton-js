@@ -62,7 +62,7 @@ const updateLinksAction = action("AssociationSelector.updateLinks", (root, name,
 });
 
 
-function createNewLink(generateId, valuePath, linkedObj, root, linkObjectsField)
+function createNewLink(generateId, valuePath, linkedObj, root, linkObjectsField, onNew)
 {
     const type = root._type;
     const targetField = valuePath[0];
@@ -97,11 +97,16 @@ function createNewLink(generateId, valuePath, linkedObj, root, linkObjectsField)
         newLink[rightSideRelation.sourceFields[0]] = linkedObj.id;
     }
 
+    if (typeof onNew === "function")
+    {
+        onNew(newLink);
+    }
+
     return newLink;
 }
 
 
-function updateLinks(root, name, modalState, selected, generateId)
+function updateLinks(root, name, modalState, selected, generateId, onNew)
 {
 
     const { iQuery, valuePath } = modalState;
@@ -196,7 +201,13 @@ function updateLinks(root, name, modalState, selected, generateId)
             for (let id of newLinkIds)
             {
                 const linkedObj = objectLookup.get(id);
-                const newObj = createNewLink(generateId, valuePath, linkedObj, root, name);
+
+                if (!linkedObj)
+                {
+                    throw new Error("No linked object for id " + id);
+                }
+
+                const newObj = createNewLink(generateId, valuePath, linkedObj, root, name, onNew);
                 newLinks.push(newObj)
             }
             updateLinksAction(root, name, newLinks);
@@ -239,7 +250,7 @@ const updateSelected = action("AssociationSelector.updateSelected", (selected, l
  */
 const AssociationSelector = fnObserver(props => {
 
-    const { name, value, display, mode: modeFromProps, label, query, modalTitle, fade, helpText, labelClass, formGroupClass, generateId } = props;
+    const { name, value, display, mode: modeFromProps, label, query, modalTitle, fade, helpText, labelClass, formGroupClass, generateId, onNew } = props;
 
     const [elementId] = useState("assoc-selector-" + (++associationSelectorCount));
 
@@ -306,7 +317,7 @@ const AssociationSelector = fnObserver(props => {
         if (!setsEqual(selected, selectedBefore))
         {
             autoSubmitHack(formConfig);
-            updateLinks(formConfig.root, name, modalState, selected, generateId)
+            updateLinks(formConfig.root, name, modalState, selected, generateId, onNew)
         }
 
     };
@@ -455,7 +466,14 @@ AssociationSelector.propTypes = {
      *
      * Default is to create a new UUID (NPM "uuid" v4).
      */
-    generateId: PropTypes.func
+    generateId: PropTypes.func,
+
+    /**
+     * Optional callback function that is called for every newly created association link and allows to modify
+     * properties on that new link. ( link => ... )
+     *
+     */
+    onNew: PropTypes.func
 
 };
 

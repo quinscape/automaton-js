@@ -1,0 +1,52 @@
+{
+    "type": "BazValue",
+    "columnStates": [
+        {
+            "name": "id",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "name",
+            "enabled": true,
+            "sortable": true
+        }
+    ],
+    "queryConfig": {
+        "id": null,
+        "condition": null,
+        "offset": 0,
+        "pageSize": 5,
+        "sortFields": ["name"]
+    },
+    "rows": [
+        {
+            "id": "cf6269ac-b81c-4ff8-ba96-1b1353131ded",
+            "name": "Baz Value #1"
+        }, {
+            "id": "999da2fe-ce63-46c5-8ba6-de4fd1b127d4",
+            "name": "Baz Value #10"
+        }, {
+            "id": "c9b56f67-cffb-4749-a57d-9da81896ee31",
+            "name": "Baz Value #2"
+        }, {
+            "id": "2ee5f199-e23f-46ab-9c4c-277883f5d1af",
+            "name": "Baz Value #3"
+        }, {
+            "id": "bf71a28c-deaf-43df-a523-f23de48d8913",
+            "name": "Baz Value #4"
+        }, {
+            "id": "28d4a034-e2b6-4c89-9f32-8c7188b7c1d3",
+            "name": "Baz Value #5"
+        }, {
+            "id": "c5aa38f4-c02f-43da-bd49-2171be9ed06f",
+            "name": "Baz Value #66"
+        }, {
+            "id": "4fb0652f-4771-4160-948f-e8eff60df69d",
+            "name": "Baz Value #7"
+        }, {
+            "id": "210e203f-48bf-45a6-ab7f-e0a8975c6cf1",
+            "name": "Baz Value #9"
+        }
+    ],
+    "rowCount": 9
+}
