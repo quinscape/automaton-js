@@ -91,17 +91,12 @@ function createNewLink(generateId, valuePath, linkedObj, root, linkObjectsField)
     {
         newLink[leftSideRelation.sourceFields[0]] = root.id;
     }
-
-    if (leftSideRelation.targetField === "OBJECT_AND_SCALAR" || leftSideRelation.sourceField === "SCALAR")
-    {
-        newLink[leftSideRelation.sourceFields[0]] = root.id;
-    }
-
+    
     if (rightSideRelation.sourceField === "OBJECT_AND_SCALAR")
     {
         newLink[rightSideRelation.sourceFields[0]] = linkedObj.id;
     }
-    
+
     return newLink;
 }
 
