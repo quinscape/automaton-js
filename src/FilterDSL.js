@@ -1,3 +1,5 @@
+import { DateTime } from "luxon";
+
 /**
  * Node type constants.
  * 
@@ -294,7 +296,7 @@ function getDefaultType(value)
     {
         return "Boolean"
     }
-    else if (value instanceof Date)
+    else if (value instanceof DateTime)
     {
         return "Timestamp"
     }
