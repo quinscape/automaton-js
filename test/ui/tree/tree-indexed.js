@@ -88,7 +88,7 @@ describe("Tree.IndexedObjects", function () {
 
             //console.log(result)
 
-            return {result};
+            return result;
 
         });
 
