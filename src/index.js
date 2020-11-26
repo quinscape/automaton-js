@@ -54,6 +54,7 @@ import FieldMetaButton from "./ui/FieldMetaButton";
 import registerBigDecimalConverter from "./registerBigDecimalConverter";
 import DecimalField from "./ui/DecimalField";
 import URLField from "./ui/URLField";
+import filterTransformer, { FieldResolver } from "./util/filterTransformer";
 
 
 const AutomatonDevTools = "span";
@@ -281,7 +282,10 @@ export {
     printSchema,
 
     InteractiveQueryEditor,
-    InteractiveQueryDefinition
+    InteractiveQueryDefinition,
+
+    filterTransformer,
+    FieldResolver
 }
 
 
