@@ -78,8 +78,8 @@ const CalendarModal = props =>  {
                     <Calendar
                         activeStartDate={ valueFromProps && valueFromProps.toJSDate() }
                         value={ valueFromProps && valueFromProps.toJSDate() }
-                        minDate={ minDate }
-                        maxDate={ maxDate }
+                        minDate={ minDate && minDate.toJSDate() }
+                        maxDate={ maxDate && maxDate.toJSDate() }
                         onChange={ setValue }
                     />
                     <ButtonToolbar>
