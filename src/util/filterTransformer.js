@@ -399,7 +399,7 @@ function transform(condition, resolverFactory)
                         // the non-functions operands are toLowerCase()d once above
                         if (!aIsFunction && !bIsFunction)
                         {
-                            return () => fn(a,b)
+                            return fn(a,b)
                         }
                         else if (!aIsFunction && bIsFunction)
                         {
@@ -431,7 +431,7 @@ function transform(condition, resolverFactory)
                         // the non-functions operands are toLowerCase()d once above
                         if (!aIsFunction && !bIsFunction)
                         {
-                            return () => fn(a,b)
+                            return fn(a,b)
                         }
                         else if (!aIsFunction && bIsFunction)
                         {
@@ -460,7 +460,7 @@ function transform(condition, resolverFactory)
 
                     if (!aIsFunction && !bIsFunction && !cIsFunction)
                     {
-                        return () => fn(a, b, c);
+                        return fn(a, b, c);
                     }
                     else if (!aIsFunction && !bIsFunction && cIsFunction)
                     {
