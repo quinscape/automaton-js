@@ -19,7 +19,7 @@ import InteractiveQuery from "../../src/model/InteractiveQuery"
 import FKSelector from "../../src/ui/FKSelector";
 import GraphQLQuery from "../../src/GraphQLQuery"
 import { field, value } from "../../src/FilterDSL"
-import { createMockedQuery } from "./createMockedQuery";
+import { createMockedQuery } from "../../src/util/createMockedQuery";
 
 
 const rawSchema = require("./fk-schema.json");

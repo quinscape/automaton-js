@@ -56,6 +56,7 @@ import DecimalField from "./ui/DecimalField";
 import URLField from "./ui/URLField";
 import filterTransformer, { FieldResolver } from "./util/filterTransformer";
 
+import  { createMockedQuery, createFilteredMockQuery} from "./util/createMockedQuery"
 
 const AutomatonDevTools = "span";
 
@@ -285,7 +286,10 @@ export {
     InteractiveQueryDefinition,
 
     filterTransformer,
-    FieldResolver
+    FieldResolver,
+
+    createMockedQuery,
+    createFilteredMockQuery
 }
 
 

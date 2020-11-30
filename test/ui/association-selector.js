@@ -6,7 +6,7 @@ import { Field, Form, FormConfigProvider, InputSchema, WireFormat } from "domain
 
 import config from "../../src/config"
 import InteractiveQuery from "../../src/model/InteractiveQuery"
-import { createFilteredMockQuery } from "./createMockedQuery";
+import { createFilteredMockQuery } from "../../src/util/createMockedQuery";
 import { __setWireFormatForTest } from "../../src/domain";
 import { observable } from "mobx";
 import { AssociationSelector } from "../../src";
