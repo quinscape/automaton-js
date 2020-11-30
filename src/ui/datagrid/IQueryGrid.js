@@ -13,6 +13,9 @@ import Column from "./Column";
 import RowSelector from "./RowSelector";
 import WorkingSet, { WorkingSetStatus } from "../../WorkingSet";
 import WorkingSetStatusComponent from "./WorkingSetStatus";
+import { FieldResolver } from "../..";
+import filterTransformer from "../../util/filterTransformer";
+import { toJS } from "mobx";
 
 
 function findColumn(columnStates, name)
@@ -125,6 +128,11 @@ const DataGrid = fnObserver(props => {
 
     const { rows, queryConfig } = value;
 
+    const fieldResolver = useMemo(
+        () => new FieldResolver(),
+        []
+    );
+
     return (
         <GridStateForm
             iQuery={ value }
@@ -165,31 +173,46 @@ const DataGrid = fnObserver(props => {
                 </thead>
                 <tbody>
                 {
-                    workingSet && queryConfig.offset === 0 &&
-                    workingSet.newObjects(type).map(
-                        (context, idx) => (
-                            <tr
-                                key={"ws" + idx}
-                                className={
-                                    cx("data", rowClasses ? rowClasses(context) : null, "new-object")
-                                }
-                            >
-                                {
-                                    React.Children.map(
-                                        children,
-                                        (col,idx) => columns[idx].enabled && (
-                                            React.cloneElement(
-                                                col,
-                                                {
-                                                    context
-                                                }
-                                            )
-                                        )
+                    workingSet && queryConfig.offset === 0 && (function () {
+
+                        const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
+
+                        const newObjects = workingSet.newObjects(type);
+                        const filtered = workingSet.newObjects(type).filter( obj => {
+                            fieldResolver.current = obj;
+                            return filterFn();
+                        });
+
+                        //console.log(id, "newObjects, filtered",newObjects, filtered);
+
+                        return (
+                            filtered
+                                .map(
+                                    (context, idx) => (
+                                        <tr
+                                            key={"ws" + idx}
+                                            className={
+                                                cx("data", rowClasses ? rowClasses(context) : null, "new-object")
+                                            }
+                                        >
+                                            {
+                                                React.Children.map(
+                                                    children,
+                                                    (col,idx) => columns[idx].enabled && (
+                                                        React.cloneElement(
+                                                            col,
+                                                            {
+                                                                context
+                                                            }
+                                                        )
+                                                    )
+                                                )
+                                            }
+                                        </tr>
                                     )
-                                }
-                            </tr>
+                                )
                         )
-                    )
+                    })()
                 }
                 {
                     rows.map(
