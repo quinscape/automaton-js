@@ -8,7 +8,7 @@ import config from "../../../src/config"
 import InteractiveQuery from "../../../src/model/InteractiveQuery"
 import { FormConfigProvider, InputSchema, WireFormat } from "domainql-form"
 import Tree, { findParentLink } from "../../../src/ui/tree/Tree";
-import { createMockedQuery } from "../createMockedQuery";
+import { createMockedQuery } from "../../../src/util/createMockedQuery";
 import matchCondition, { matchPlaceholder } from "../../matchCondition";
 import { and, component, field } from "../../../src/FilterDSL";
 import getTreeSummary from "./getTreeSummary";

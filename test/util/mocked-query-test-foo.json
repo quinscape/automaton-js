@@ -1,0 +1,72 @@
+{
+    "iQueryFoo": {
+        "type": "Foo",
+        "queryConfig": {
+            "id": null,
+            "condition": null,
+            "offset": 0,
+            "pageSize": 10,
+            "sortFields": ["id"]
+        },
+        "rows": [
+            {
+                "id": "13a4ad86-e2c3-4979-81e2-a8f102b501c1",
+                "name": "Foo #1",
+                "num": 1234,
+                "description": "K\u0307",
+                "owner": {
+                    "login": "admin"
+                }
+            }, {
+                "id": "51cb3a62-92a6-446d-94ae-5d5d844ea5b5",
+                "name": "Foo #6",
+                "num": 123,
+                "description": "",
+                "owner": {
+                    "login": "anonymous"
+                }
+            }, {
+                "id": "8513369a-9605-42cf-ad4f-80e94e050954",
+                "name": "Foo #8",
+                "num": 123,
+                "description": "",
+                "owner": {
+                    "login": "user_a"
+                }
+            }, {
+                "id": "c3e89a90-b616-43c7-b6a0-0fe937898985",
+                "name": "Foo #4",
+                "num": 104,
+                "description": "xxx",
+                "owner": {
+                    "login": "anonymous"
+                }
+            }, {
+                "id": "c45b5ab6-dabf-400e-982f-27f3f4a5291a",
+                "name": "Foo #22",
+                "num": 222,
+                "description": "xxx",
+                "owner": {
+                    "login": "admin"
+                }
+            }, {
+                "id": "d57dec43-350d-417a-a374-813770eb06af",
+                "name": "Foo #33",
+                "num": 103,
+                "description": "desc 333",
+                "owner": {
+                    "login": "admin"
+                }
+            }, {
+                "id": "db181d0e-b78c-4d81-8f75-4138777028fe",
+                "name": "Foo #7",
+                "num": 123,
+                "description": "",
+                "owner": {
+                    "login": "admin"
+                }
+            }
+        ],
+        "rowCount": 7
+    }
+}

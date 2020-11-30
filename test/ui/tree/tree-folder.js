@@ -8,7 +8,7 @@ import config from "../../../src/config"
 import InteractiveQuery from "../../../src/model/InteractiveQuery"
 import { FormConfigProvider, InputSchema, WireFormat } from "domainql-form"
 import Tree from "../../../src/ui/tree/Tree";
-import { createMockedQuery } from "../createMockedQuery";
+import { createMockedQuery } from "../../../src/util/createMockedQuery";
 import getTreeSummary from "./getTreeSummary";
 import sleep from "../sleep";
 
