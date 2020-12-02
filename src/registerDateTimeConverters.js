@@ -1,11 +1,9 @@
 import React from "react"
+import config from "./config";
 import { getWireFormat } from "./domain";
 import { DateTime } from "luxon";
 import i18n from "./i18n";
 import { registerCustomConverter, GlobalConfig } from "domainql-form";
-
-export const DEFAULT_TIMESTAMP_FORMAT = "d.M.yyyy H:mm:ss.SSS";
-export const DEFAULT_DATE_FORMAT = "d.M.yyyy";
 
 export default function registerDateTimeConverters()
 {
@@ -57,7 +55,7 @@ export default function registerDateTimeConverters()
                 return null;
             }
 
-            const timestampFormat = (ctx && ctx.timestampFormat) || DEFAULT_TIMESTAMP_FORMAT;
+            const timestampFormat = (ctx && ctx.timestampFormat) || config.timestampFormat;
             const dt = DateTime.fromFormat(value, timestampFormat);
 
             return dt.isValid ? null : i18n("Invalid Date: Does not match {0}, {1}", timestampFormat, dt.invalidReason)
@@ -69,7 +67,7 @@ export default function registerDateTimeConverters()
                 return "";
             }
 
-            const timestampFormat = (ctx && ctx.timestampFormat) || DEFAULT_TIMESTAMP_FORMAT;
+            const timestampFormat = (ctx && ctx.timestampFormat) || config.timestampFormat;
             return scalar.toFormat(timestampFormat);
         },
         (value, ctx) => {
@@ -79,7 +77,7 @@ export default function registerDateTimeConverters()
                 return null;
             }
 
-            const timestampFormat = (ctx && ctx.timestampFormat) || DEFAULT_TIMESTAMP_FORMAT;
+            const timestampFormat = (ctx && ctx.timestampFormat) || config.timestampFormat;
             return DateTime.fromFormat(value, timestampFormat);
         }
     )
@@ -104,7 +102,7 @@ export default function registerDateTimeConverters()
                 return "";
             }
 
-            const dateFormat = (ctx && ctx.dateFormat) || DEFAULT_DATE_FORMAT;
+            const dateFormat = (ctx && ctx.dateFormat) || config.timestampFormat;
             return scalar.toFormat(dateFormat);
         },
         (value, ctx) => {
@@ -114,7 +112,7 @@ export default function registerDateTimeConverters()
                 return null;
             }
 
-            const dateFormat = (ctx && ctx.dateFormat) || DEFAULT_DATE_FORMAT;
+            const dateFormat = (ctx && ctx.dateFormat) || config.dateFormat;
             return DateTime.fromFormat(value, dateFormat);
         }
     )
@@ -123,7 +121,7 @@ export default function registerDateTimeConverters()
         "Timestamp",
             dt => (
                 <span className="static-timestamp">{
-                    dt.toFormat(DEFAULT_TIMESTAMP_FORMAT)
+                    dt.toFormat(config.timestampFormat)
                 }
                 </span>
             )
@@ -133,9 +131,8 @@ export default function registerDateTimeConverters()
             dt => (
                 <span className="static-date">
                     {
-                        dt.toFormat(DEFAULT_DATE_FORMAT)
+                        dt.toFormat(config.dateFormat)
                     }
                 </span>
             ) )
-
 }

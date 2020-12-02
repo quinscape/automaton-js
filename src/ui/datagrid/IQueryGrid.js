@@ -178,7 +178,7 @@ const DataGrid = fnObserver(props => {
                         const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
 
                         const newObjects = workingSet.newObjects(type);
-                        const filtered = workingSet.newObjects(type).filter( obj => {
+                        const filtered = newObjects.filter( obj => {
                             fieldResolver.current = obj;
                             return filterFn();
                         });

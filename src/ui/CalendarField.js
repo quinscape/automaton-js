@@ -3,11 +3,10 @@ import cx from "classnames"
 import PropTypes from "prop-types"
 import get from "lodash.get"
 import { Field, FormGroup, unwrapType, FieldMode, Icon, Addon, GlobalConfig, renderStaticField } from "domainql-form"
+import config from "../config";
 import i18n from "../i18n";
 import CalendarModal from "./CalendarModal";
 import { DateTime } from "luxon";
-import { DEFAULT_DATE_FORMAT, DEFAULT_TIMESTAMP_FORMAT } from "../registerDateTimeConverters";
-
 
 function toggleValue(open)
 {
@@ -16,7 +15,7 @@ function toggleValue(open)
 
 const CalendarField = props => {
 
-    const { minDate, maxDate, addonClass = "btn-outline-secondary", autoFocus, children, dateFormat = DEFAULT_DATE_FORMAT, timestampFormat = DEFAULT_TIMESTAMP_FORMAT,... fieldProps} = props;
+    const { minDate, maxDate, addonClass = "btn-outline-secondary", autoFocus, children, dateFormat = config.dateFormat, timestampFormat = config.timestampFormat,... fieldProps} = props;
 
     const [ isOpen, setOpen] = useState(false);
 

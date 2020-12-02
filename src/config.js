@@ -76,7 +76,10 @@ export const DEFAULT_OPTS = {
     userInfo: null,
 
     decimalPrecision: [],
-    fieldLengths: []
+    fieldLengths: [],
+
+    timestampFormat: "d.M.yyyy H:mm:ss.SSS",
+    dateFormat: "d.M.yyyy"
 };
 
 
