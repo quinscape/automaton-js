@@ -2,7 +2,7 @@ import { registerCustomConverter, WireFormat } from "domainql-form"
 import config from "./config"
 import matchPath from "./matchPath";
 import { INPUT_OBJECT, OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";
-import registerDateTimeConverters, { DEFAULT_TIMESTAMP_FORMAT } from "./registerDateTimeConverters";
+import registerDateTimeConverters from "./registerDateTimeConverters";
 import i18n from "./i18n";
 import { getOutputTypeName } from "./util/type-utils";
 
