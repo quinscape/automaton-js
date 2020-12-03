@@ -112,7 +112,7 @@ const Button = props => {
             }
 
             // .. and we're not discarding and we have errors, then disable button
-            isDisabled = !entry.discard && formConfig.hasErrors();
+            isDisabled = !entry.discard && (formConfig.hasErrors() || !formConfig.root);
         }
 
         return isDisabled;
