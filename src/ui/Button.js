@@ -118,10 +118,10 @@ const Button = props => {
         return isDisabled;
     };
 
-    const textFromKids = getTextFromChildren(children);
 
     if (__DEV)
     {
+        const textFromKids = getTextFromChildren(children);
         if (!hasText(text) && !hasText(textFromKids))
         {
             // hard error might seem a little harsh, but it gives the best error description
@@ -137,7 +137,7 @@ const Button = props => {
             className={ className }
             disabled={ isDisabled() }
             title={ tooltip }
-            aria-label={ text }
+            aria-label={ text || null }
             onClick={ onClick }
         >
             {
