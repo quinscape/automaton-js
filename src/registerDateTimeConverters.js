@@ -3,7 +3,9 @@ import config from "./config";
 import { getWireFormat } from "./domain";
 import { DateTime } from "luxon";
 import i18n from "./i18n";
-import { registerCustomConverter, GlobalConfig } from "domainql-form";
+import { registerCustomConverter, GlobalConfig, resolveStaticRenderer } from "domainql-form";
+
+export const NO_DEFAULT = { default: false };
 
 export default function registerDateTimeConverters()
 {
@@ -117,22 +119,30 @@ export default function registerDateTimeConverters()
         }
     )
 
-    GlobalConfig.registerStaticRenderer(
-        "Timestamp",
+    if (!resolveStaticRenderer("Timestamp", NO_DEFAULT))
+    {
+        GlobalConfig.registerStaticRenderer(
+            "Timestamp",
             dt => (
                 <span className="static-timestamp">{
                     dt.toFormat(config.timestampFormat)
                 }
                 </span>
             )
-    )
-    GlobalConfig.registerStaticRenderer(
-        "Date",
+        )
+    }
+
+
+    if (!resolveStaticRenderer("Date", NO_DEFAULT))
+    {
+        GlobalConfig.registerStaticRenderer(
+            "Date",
             dt => (
                 <span className="static-date">
                     {
                         dt.toFormat(config.dateFormat)
                     }
                 </span>
-            ) )
+            ))
+    }
 }
