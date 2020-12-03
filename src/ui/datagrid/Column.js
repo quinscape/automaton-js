@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
-import React from "react"
+import React, { useMemo } from "react"
 import get from "lodash.get"
 import { GlobalConfig } from "domainql-form"
 import { observer as fnObserver } from "mobx-react-lite"
+import { lookupType, unwrapNonNull } from "../../util/type-utils";
 
 
 
@@ -12,7 +13,25 @@ import { observer as fnObserver } from "mobx-react-lite"
  */
 const Column = fnObserver(props => {
 
-    const {name, context, children} = props;
+    const { name, context, className, children} = props;
+
+    const scalarType = useMemo(
+        () => {
+
+            if (!name)
+            {
+                return null;
+            }
+
+            const type = lookupType(context._type, name);
+            if (!type)
+            {
+                throw new Error("Could not resolve type for <Column name=\"" + name + "\"/> for row: " + JSON.stringify(context))
+            }
+            return unwrapNonNull(type).name;
+        },
+        [ name ]
+    )
 
     if (typeof children === "function")
     {
@@ -55,7 +74,9 @@ const Column = fnObserver(props => {
                 className="form-control-plaintext"
             >
                 {
-                    GlobalConfig.valueOrNone(value)
+                    value === null || value === undefined || value === "" ?
+                        GlobalConfig.none() :
+                        GlobalConfig.renderStatic(scalarType, value)
                 }
             </p>
         </td>
