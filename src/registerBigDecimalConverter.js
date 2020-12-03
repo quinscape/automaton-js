@@ -1,10 +1,12 @@
+import React from "react";
 import BigNumber from "bignumber.js";
-import { registerCustomConverter } from "domainql-form/lib/InputSchema";
+import { registerCustomConverter, GlobalConfig, resolveStaticRenderer } from "domainql-form";
+
 import i18n from "./i18n";
 import config from "./config";
-import { useMemo } from "react";
 import { getWireFormat } from "./domain";
 import { getOutputTypeName } from "./util/type-utils";
+import { NO_DEFAULT } from "./registerDateTimeConverters";
 
 
 const DEFAULT_OPTIONS = {
@@ -195,4 +197,20 @@ export default function registerBigDecimalConverter(opts) {
             return defaultParser(value, opts);
         }
     )
+
+    const staticRenderer = resolveStaticRenderer("BigDecimal", NO_DEFAULT);
+
+    if (!staticRenderer)
+    {
+        GlobalConfig.registerStaticRenderer(
+            "BigDecimal",
+            bd => (
+                <span className="bd-wrapper">
+                    <span className="bd-inner">{
+                        bd.toFormat(getPrecision(null, opts).scale)
+                    }</span>
+                </span>
+            )
+        )
+    }
 }
