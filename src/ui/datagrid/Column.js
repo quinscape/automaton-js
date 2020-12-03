@@ -33,6 +33,8 @@ const Column = fnObserver(props => {
         [ name ]
     )
 
+    const effectiveClass = typeof className === "function" ? className(context) : className;
+
     if (typeof children === "function")
     {
         const result = children(context);
@@ -40,7 +42,9 @@ const Column = fnObserver(props => {
         //console.log("FN-RESULT", result);
 
         return (
-            <td>
+            <td
+                className={ effectiveClass }
+            >
                 {
                     React.isValidElement(result) ?
                         result : (
@@ -69,7 +73,9 @@ const Column = fnObserver(props => {
 
     const value = get(context, name);
     return (
-        <td>
+        <td
+            className={ effectiveClass }
+        >
             <p
                 className="form-control-plaintext"
             >
@@ -88,6 +94,16 @@ Column.propTypes = {
      * Column name / path expression. (e.g. "name", but also "foo.owner.name")
      */
     name: PropTypes.string,
+
+    /**
+     * Additional classes to add to the cells for this column. Can be either string to apply to all columns or a function
+     * that produces classes given the row object ( row => classes ) 
+     */
+    className: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.func
+    ]),
+
     /**
      * Column heading
      */
@@ -100,7 +116,7 @@ Column.propTypes = {
         PropTypes.string,
         PropTypes.func
     ]),
-    
+
     /**
      * Field expression string or field expression FilterDSL map
      */
