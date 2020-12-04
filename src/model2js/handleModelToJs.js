@@ -433,7 +433,9 @@ export default class ${name} {
         if(helpers && helpers.length >= 1){
 
             helpers.map((helper)=>{
-                const {name, defaultValue, code} = helper
+                const {name, defaultValue, code, params} = helper
+                if(params) { params.length === 1 ? params : params.join(', ') }
+
                 processScript += `  
             ${name} =`
 
@@ -443,12 +445,17 @@ export default class ${name} {
                 `
                 }
 
-                if(code){
+                if(code && params){
 
-                    processScript += ` () => {
+                    processScript += ` (${params}) => {
                     ${code}
                 }
                 `
+                } else if (code){
+                    processScript += ` () => {
+                        ${code}
+                    }
+                    `
                 }
             })
         }
