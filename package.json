@@ -14,7 +14,7 @@
         "ajv": "^6.12.2",
         "classnames": "^2.2.6",
         "create-react-class": "^15.6.3",
-        "domainql-form": "^3.3.3",
+        "domainql-form": "^3.3.4",
         "downshift": "^6.0.6",
         "graphql": "^14.5.8",
         "history": "^4.10.1",
