@@ -120,7 +120,9 @@ describe("WorkingSet", function () {
             ]
         }, (changes, deletions) => {
 
+            // XXX: those two are equivalent
             assert(workingSet.isModified(instance))
+            assert(workingSet.isModified(instance._type, instance.id))
 
             assert.deepEqual(changes, [
                 {
@@ -166,7 +168,9 @@ describe("WorkingSet", function () {
 
         workingSet.registerBaseVersion(instance);
 
+        // XXX: those two are equivalent
         assert(!workingSet.isModified(instance))
+        assert(!workingSet.isModified(instance._type, instance.id))
 
         runInAction(() => {
             instance.name = "Changed Name";
