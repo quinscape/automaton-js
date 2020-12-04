@@ -1423,15 +1423,27 @@ export default class WorkingSet {
      * Returns true, if there are actual modifications for the given entity, that is either one of its fields changed or
      * a many-to-many connected entity changed
 
-     * @param {Object} entity      entity object
+     * @param {Object|String} entity    entity object or domain type
+     * @param {String} [id]             id value if the first argument is a type name.
      *
      * @returns true if the entity was modified
      */
-    isModified(entity)
+    isModified(entity, id)
     {
-        const {_type: type, id} = entity;
+        let type, entityId;
 
-        const key = changeKey(type, id);
+        if (id !== undefined)
+        {
+            type = entity;
+            entityId = id;
+        }
+        else
+        {
+            type = entity._type;
+            entityId = entity.id;
+        }
+
+        const key = changeKey(type, entityId);
 
         const { status, domainObject } = this[secret].changes.get(key)
 
@@ -1447,7 +1459,7 @@ export default class WorkingSet {
 
         const {changes: changesMap, bases, mergePlan} = this[secret];
 
-        return hasFieldChanges(status, domainObject, bases, mergePlan) || hasManyToManyChanges(type, id, changesMap, mergePlan);
+        return hasFieldChanges(status, domainObject, bases, mergePlan) || hasManyToManyChanges(type, entityId, changesMap, mergePlan);
     }
 
     /**

@@ -12,10 +12,35 @@ import { toJS } from "mobx";
  */
 const WorkingSetStatus = fnObserver((props) => {
 
-    const { currentObj, workingSet, iconClass, createdIcon, modifiedIcon, deletedIcon, createdTooltip, modifiedTooltip, deletedTooltip } = props;
+    const { currentObj, type : typeFromProps, id: idFromProps, workingSet, iconClass, createdIcon, modifiedIcon, deletedIcon, createdTooltip, modifiedTooltip, deletedTooltip } = props;
 
-    const entityType = currentObj._type;
-    const entityId = currentObj.id;
+    let entityType;
+    let entityId;
+
+    if (currentObj)
+    {
+        entityType = currentObj._type;
+        entityId = currentObj.id;
+
+        if (!entityType)
+        {
+            throw new Error("WorkingSetStatus: No _type property on " + JSON.stringify(currentObj));
+        }
+        if (!entityId)
+        {
+            throw new Error("WorkingSetStatus: No id property on " + JSON.stringify(currentObj));
+        }
+    }
+    else
+    {
+        entityType = typeFromProps;
+        entityId = idFromProps;
+
+        if (!entityType || !entityId)
+        {
+            throw new Error("WorkingSetStatus: You need to either set the currentObj prop or both type and id props");
+        }
+    }
 
     const entry = workingSet.lookup( entityType, entityId);
 
@@ -29,7 +54,7 @@ const WorkingSetStatus = fnObserver((props) => {
                 <Icon className={ cx(iconClass, createdIcon) } tooltip={ createdTooltip }/>
             )
         }
-        else if (entry.status === StatusEnum.MODIFIED && workingSet.isModified(currentObj))
+        else if (entry.status === StatusEnum.MODIFIED && workingSet.isModified(entityType, entityId))
         {
             return (
                 <Icon className={ cx(iconClass, modifiedIcon) } tooltip={ modifiedTooltip }/>
