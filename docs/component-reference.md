@@ -24,16 +24,19 @@ transition | string | Transition reference. button must have either a `transitio
  Name | Type | Description 
 ------|------|-------------
 addonClass | string | Additional HTML classes for the calendar button addon
+autoFocus | bool | Pass-through autoFocus attribute for the Calendar input field
+dateFormat | string | Date format string to use for "Date" typed fields.
 formGroupClass | string | Additional HTML classes for the form group element.
 helpText | string | Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
 inputClass | string | Additional HTML classes for the input element.
 label | string | Label for the field.
 labelClass | string | Additional HTML classes for the label element.
-maxDate | instance of Date | Maximum date the user can select
-minDate | instance of Date | Minimum date the user can select
+maxDate | instance of DateTime | Maximum date the user can select
+minDate | instance of DateTime | Minimum date the user can select
 mode | FieldMode value | Mode for this calendar field. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
 **name** (required) | string | Name / path for the calendar field value (e.g. "name", but also "foos.0.name")
 placeholder | string | Placeholder text to render for text inputs.
+timestampFormat | string | Date format string to use for "Timestamp" typed fields.
 tooltip | string | Tooltip / title attribute for the input element
 ## &lt;Link/&gt;
 
@@ -160,10 +163,30 @@ DataGrid column component
 
  Name | Type | Description 
 ------|------|-------------
+className | string or func | Additional classes to add to the cells for this column. Can be either string to apply to all columns or a function that produces classes given the row object ( row => classes )
 filter | string or func | Either a JOOQ / Filter DSL comparison name or a custom filter function (see below)
 heading | string | Column heading
 name | string | Column name / path expression. (e.g. "name", but also "foo.owner.name")
 sort | string or object | Field expression string or field expression FilterDSL map
+## &lt;WorkingSetStatus/&gt;
+
+Helper component to display a status icon with a tooltip for a data grid with working set.
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+createdIcon | string | Icon to show for CREATED status (default "fa-asterisk")
+createdTooltip | string | Tooltip to display for the CREATED icon
+currentObj | object | Current data-grid row object. You should define either the currentObj prop or a pair of type and id prop.
+deletedIcon | string | Icon to show for DELETED status (default "fa-trash-alt")
+deletedTooltip | string | Tooltip to display for the DELETED icon
+iconClass | string | Additional classes for all icons (default "m-2")
+id | string | Id of the current object (alternative to defining the complete object via currentObj)
+modifiedIcon | string | Icon to show for MODIFIED status (default "fa-edit")
+modifiedTooltip | string | Tooltip to display for the MODIFIED icon
+type | string | Type of the current object (alternative to defining the complete object via currentObj)
+workingSet | instance of WorkingSet | Working set
 ## Custom Filter
 
 A client-side custom filter can be defined by giving a function to `filter`.  
@@ -528,6 +551,7 @@ labelClass | string | Additional HTML classes for the label element.
 modalTitle | string | Title for the modal dialog selecting the target object
 mode | FieldMode value | Mode for this calendar field. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
 name | string | Name / path for the association selector field. In contrast to most normal fields this does not point to a scalar value but to list of associative entity / link table fields with embedded target objects
+onNew | func | Optional callback function that is called for every newly created association link and allows to modify properties on that new link. ( link => ... )
 **query** (required) | instance of GraphQLQuery | iQuery GraphQL query to fetch the current list of target objects
 value | string | Path to use as the representative value / id of the link
 ## &lt;AttachmentField/&gt;

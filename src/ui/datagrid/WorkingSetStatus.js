@@ -84,9 +84,19 @@ WorkingSetStatus.defaultProps = {
 WorkingSetStatus.propTypes = {
 
     /**
-     * Current data-grid row object
+     * Current data-grid row object. You should define either the currentObj prop or a pair of type and id prop.
      */
     currentObj: PropTypes.object,
+
+    /**
+     *  Type of the current object (alternative to defining the complete object via currentObj)
+     */
+    type: PropTypes.string,
+
+    /**
+     *  Id of the current object (alternative to defining the complete object via currentObj)
+     */
+    id: PropTypes.string,
 
     /**
      * Working set

@@ -12,6 +12,7 @@ const COMPONENTS = [
             "../src/ui/datagrid/IQueryGrid.js",
             "./snippets/GridExamples.md",
             "../src/ui/datagrid/Column.js",
+            "../src/ui/datagrid/WorkingSetStatus.js",
             "./snippets/CustomFilter.md",
             "../src/ui/datagrid/RowSelector.js",
             "./snippets/RowSelectorExample.md",
