@@ -285,6 +285,76 @@ describe("AssociationSelector", function () {
                     )
                 }
             )
+            .then(
+                () => {
+                    act(
+                        () => {
+                            const button = getByText(container, "Select");
+                            button.click();
+                        }
+                    )
+                }
+
+            )
+            .then(
+                () => {
+                    assert(!isCheckedInTable("Baz Value #1"));
+                    assert(!isCheckedInTable("Baz Value #10"));
+                    assert(isCheckedInTable("Baz Value #2"));
+                    assert(!isCheckedInTable("Baz Value #3"));
+                    assert(!isCheckedInTable("Baz Value #4"));
+
+                    act(
+                        () => {
+                            toggleSelection("Baz Value #1")
+                            toggleSelection("Baz Value #4")
+                        }
+                    )
+                }
+            )
+            .then(
+                () => {
+                    assert(isCheckedInTable("Baz Value #1"));
+                    assert(!isCheckedInTable("Baz Value #10"));
+                    assert(isCheckedInTable("Baz Value #2"));
+                    assert(!isCheckedInTable("Baz Value #3"));
+                    assert(isCheckedInTable("Baz Value #4"));
+
+                    act(
+                        () => {
+                            // close modal
+                            const button = getByText(document.body, "[Unselect All]");
+                            button.click();
+                        }
+                    )
+                }
+            )
+            .then (
+                () => {
+                    assert(!isCheckedInTable("Baz Value #1"));
+                    assert(!isCheckedInTable("Baz Value #10"));
+                    assert(!isCheckedInTable("Baz Value #2"));
+                    assert(!isCheckedInTable("Baz Value #3"));
+                    assert(!isCheckedInTable("Baz Value #4"));
+
+                    act(
+                        () => {
+                            // close modal
+                            const button = getByText(document.body, "[Close]");
+                            button.click();
+                        }
+                    )
+                }
+            )
+            .then (
+                () => {
+
+                    //console.log(JSON.stringify(formObj, null, 4));
+
+                    assert(!formObj.bazLinks.length)
+
+                }
+            )
 
     });
 
