@@ -12,7 +12,7 @@ import { createMockedQuery } from "../../../src/util/createMockedQuery";
 
 
 const rawSchema = require("./tree-test-schema.json");
-const rawFooQuery = require("../iquery-foo.json");
+const rawFooQuery = require("./iquery-tree-foo.json");
 
 let updateSpy;
 let updateConditionSpy;
