@@ -268,7 +268,7 @@ function transform(condition, resolverFactory)
         }
 
         case Type.COMPONENT:
-            return transform(condition.condition, resolverFactory);
+            return condition.condition ? transform(condition.condition, resolverFactory) : true;
 
         case Type.CONDITION:
         case Type.OPERATION:
