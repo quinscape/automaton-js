@@ -27,6 +27,7 @@ let processes = [];
 
 let processHistory = [];
 let currentHistoryPos = -1;
+let historyCounter = -1;
 
 let processIdCounter = 0;
 
@@ -875,7 +876,7 @@ export class Process {
 
     history()
     {
-        return { processHistory, currentHistoryPos };
+        return { processHistory, currentHistoryPos, historyCounter };
     }
 
     /**
@@ -1228,7 +1229,7 @@ function findHistoryEntry(navigationId)
 
 export function onHistoryAction(location, action)
 {
-    const {state} = location;
+    const { state } = location;
     if (action === "POP")
     {
         if (state)
@@ -1246,16 +1247,14 @@ export function onHistoryAction(location, action)
                     noViewState()
                 )
             }
+            else
+            {
+                currentHistoryPos = navigationId;
 
-            currentHistoryPos = navigationId;
-
-            // noinspection JSIgnoredPromiseFromCall
-            renderRestoredView(entry);
+                // noinspection JSIgnoredPromiseFromCall
+                renderRestoredView(entry);
+            }
         }
-        // else
-        // {
-        //     console.log("POP no state");
-        // }
     }
 }
 
@@ -1372,7 +1371,8 @@ function pushProcessState(replace = false)
 
     //console.log("pushProcessState", {id, currentState});
 
-    const navigationId = ++currentHistoryPos;
+    const navigationId = ++historyCounter;
+    currentHistoryPos = navigationId;
 
     if (navigationId < processHistory.length)
     {
@@ -1710,9 +1710,12 @@ export function getCurrentProcess()
 export function findBackStateIndex(n)
 {
     let i, entry, historyIndex ;
+
+    const pos = processHistory.length;
+
     if (typeof n === "function")
     {
-        for (i = currentHistoryPos - 1; i >= 0; i--)
+        for (i = pos - 1; i >= 0; i--)
         {
             const e = processHistory[i];
 
@@ -1733,11 +1736,11 @@ export function findBackStateIndex(n)
     }
     else if (typeof n === "number")
     {
-        if (currentHistoryPos - n < 0 || currentHistoryPos - n >= processHistory.length)
+        if (pos - n < 0 || pos - n >= processHistory.length)
         {
-            throw new Error("Invalid history location: " + (currentHistoryPos - n));
+            throw new Error("Invalid history location: " + (pos - n));
         }
-        historyIndex = currentHistoryPos - n;
+        historyIndex = pos - n;
     }
     else
     {
