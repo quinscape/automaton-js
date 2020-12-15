@@ -482,16 +482,39 @@ export default class ${name} {
 export const renderUserScopeScript = (userScope) => {
     let userScopeScript = ''
     const {name, observables, actions, computeds, helpers} = userScope
+
     userScopeScript += `
-    export class ${name}
-    {`
+export class ${name}
+ {`
+
     observables.forEach(observable => {
         const {name, defaultValue} = observable
-        userScopeScript += `
-        @observable ${name} = ${defaultValue}
-    }`
+    userScopeScript += `
+    @observable ${name} = ${defaultValue};`
     })
-    return beautify(userScopeScript)
+
+    userScopeScript +=`
+ }`
+    return userScopeScript
+}
+
+export const renderSessionScopeScript = (sessionScope) => {
+    let sessionScopeScript = ''
+    const { name, observables, actions, computeds, helpers } = sessionScope
+
+    sessionScopeScript += `
+export class ${name}
+ {`
+
+    observables.forEach(observable => {
+        const { name, defaultValue } = observable
+    sessionScopeScript += `
+    @observable ${name} = ${defaultValue};`
+    })
+
+    sessionScopeScript += `
+ }`
+    return sessionScopeScript
 }
 
 export const renderQueryScript = (query) => {

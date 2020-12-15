@@ -8,6 +8,7 @@ import {
     renderDomainScript,
     renderQueryScript,
     renderUserScopeScript,
+    renderSessionScopeScript,
     renderProcessExportScript,
     renderCompositeScript,
     renderExtraConstantsScript,
@@ -213,7 +214,7 @@ function convertProcessExport({processExports, query }, processName, shortName,c
     };
 }
 
-function convertMisc({userScope, query }, shortName,content) {
+function convertMisc({userScope, query, sessionScope }, shortName,content) {
     let path ='';
 
     try {
@@ -224,6 +225,10 @@ function convertMisc({userScope, query }, shortName,content) {
         else if(userScope) {
             path = `${shortPath}/${shortName}.js`
             content += renderUserScopeScript(userScope)
+        }
+        else if(sessionScope) {
+            path = `${shortPath}/${shortName}.js`
+            content += renderSessionScopeScript(sessionScope)
         }
         else {
             throw new Error("queries or user scope are undefined")
