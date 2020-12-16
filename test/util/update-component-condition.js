@@ -1,7 +1,7 @@
 import { before, describe, it } from "mocha"
 import assert from "power-assert"
 import updateComponentCondition from "../../src/util/updateComponentCondition";
-import { and, or, not, field, value, component } from "../../src/FilterDSL";
+import { and, or, not, field, value, component, condition } from "../../src/FilterDSL";
 
 function dump(value)
 {
@@ -13,6 +13,7 @@ describe("updateComponentCondition", function () {
 
     it("updates component conditions within a composite condition", function () {
 
+        // no condition + component
         assert.deepEqual(
             updateComponentCondition(
                 null,
@@ -43,6 +44,7 @@ describe("updateComponentCondition", function () {
             }
         )
 
+        // existing component replaced
         assert.deepEqual(
             (
                 updateComponentCondition(
@@ -101,6 +103,7 @@ describe("updateComponentCondition", function () {
             }
         )
 
+        // replace existing component
         assert.deepEqual(
             (
                 updateComponentCondition(
@@ -133,6 +136,7 @@ describe("updateComponentCondition", function () {
             }
         )
 
+        // test shortcutting behavior with compareUpdate = true and equal conditions
         const instance = component("test-824",field("a").eq(value(1)));
 
         // with compareUpdate set, updating a component expression with an expression that is structurally equal to the previous
@@ -147,6 +151,67 @@ describe("updateComponentCondition", function () {
 
                 ) === instance
         );
+
+        // existing component with AND + other component
+        assert.deepEqual(
+            (
+                updateComponentCondition(
+                    // XXX: this is the way the condition comes from the server. If we use a simple and(), the FilterDSL
+                    //      will remove it (hence the condition("and", [... ]) workaround
+                    condition("and", [component("test-12", field("b").eq(value(2)))]),
+                    field("a").eq(value(1)),
+                    "test-824",
+                    true
+
+                )
+            ),
+            {
+                "type": "Condition",
+                "name": "and",
+                "operands": [
+                    {
+                        "type": "Component",
+                        "id": "test-12",
+                        "condition": {
+                            "type": "Condition",
+                            "name": "eq",
+                            "operands": [
+                                {
+                                    "type": "Field",
+                                    "name": "b"
+                                },
+                                {
+                                    "type": "Value",
+                                    "scalarType": "Int",
+                                    "value": 2,
+                                    "name": null
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "Component",
+                        "id": "test-824",
+                        "condition": {
+                            "type": "Condition",
+                            "name": "eq",
+                            "operands": [
+                                {
+                                    "type": "Field",
+                                    "name": "a"
+                                },
+                                {
+                                    "type": "Value",
+                                    "scalarType": "Int",
+                                    "value": 1,
+                                    "name": null
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        )
 
     })
 });

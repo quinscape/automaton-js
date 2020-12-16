@@ -133,11 +133,12 @@ export default function updateComponentCondition(
 
         const {operands} = compositeCondition;
 
+        let found = false;
         for (let i = 0; i < operands.length; i++)
         {
-            const componentNode = operands[i];
+            const existingNode = operands[i];
 
-            const result = processComponentCondition(compositeCondition, componentNode, newComponentNode, compareUpdate);
+            const result = processComponentCondition(compositeCondition, existingNode, newComponentNode, compareUpdate);
 
             if (result === UNCHANGED)
             {
@@ -150,13 +151,21 @@ export default function updateComponentCondition(
                 componentConditions.push(
                     newComponentNode
                 );
+                found = true;
             }
             else
             {
                 componentConditions.push(
-                    componentNode
+                    existingNode
                 );
             }
+        }
+
+        if (!found)
+        {
+            componentConditions.push(
+                newComponentNode
+            );
         }
         
         newCondition = condition(compositeCondition.name);
