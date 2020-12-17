@@ -1,12 +1,15 @@
 import React, { useEffect, useMemo, useReducer, useRef } from "react"
 import PropTypes from "prop-types"
 import { Manager } from "react-popper";
-import { action } from "mobx";
+import { action, computed, observable } from "mobx";
 import Objects from "./Objects";
 import get from "lodash.get";
 import IndexedObjects from "./IndexedObjects";
 import Folder from "./Folder";
 import MetaItem from "./MetaItem";
+import { observer as fnObserver, useLocalStore } from "mobx-react-lite";
+import InteractiveQuery from "../../model/InteractiveQuery";
+import { field } from "../../FilterDSL";
 
 
 export const TreeContext = React.createContext({
@@ -107,55 +110,6 @@ export const MOVEMENT_KEYS = {
     38: -1
 };
 
-const SELECT = "SELECT";
-const MENU = "MENU";
-
-function reducer(state,action)
-{
-    let newState;
-    switch (action.type)
-    {
-        case SELECT:
-        {
-            const { selectionId } = action;
-
-            newState = {
-                ... state,
-                selected: selectionId
-            };
-            break;
-        }
-
-        case MENU:
-        {
-            const { selectionId } = action;
-
-            newState = {
-                ... state,
-                menu: selectionId
-            };
-            if (selectionId)
-            {
-                newState.selected = selectionId;
-            }
-            break;
-        }
-
-    }
-
-    //console.log("Tree reducer", state, action, "\n  =>", newState);
-
-    return newState;
-}
-
-const DEFAULT_STATE = {
-    /** Currently selected selection id string or null */
-    selected: null,
-    /** Selection-id for which the context-menu is rendered */
-    menu: null
-};
-
-
 export function findParentLink(target)
 {
     let current = target.parentNode;
@@ -185,95 +139,179 @@ const DEFAULT_OPTIONS = {
     small: false
 };
 
+
+function createInConditionForRows(rows)
+{
+    if (!rows.length)
+    {
+
+    }
+
+
+    return field("id").in(
+        values(
+            "String",
+            rows.map( row => row.id)
+        )
+    )
+}
+
+const treeContexts = new Map();
+
+class TreeState
+{
+    /**
+     * Tree HTML id
+     */
+    id = null;
+
+    /** Currently selected selection id string or null */
+    @observable
+    selected = null;
+    /** Selection-id for which the context-menu is rendered */
+    @observable
+    menu = null;
+
+    options = null;
+    treeRef = null;
+
+    collections = new Map();
+
+    constructor(id, treeRef, options)
+    {
+        this.id = id;
+        this.treeRef = treeRef;
+        this.options = {
+            ... DEFAULT_OPTIONS,
+            ... options
+        };
+
+        console.log("Register TreeState/Contextg for ", id, this);
+
+        treeContexts.set(id, this);
+    }
+
+
+    /**
+     *
+     * @param {String} componentId      component id of the collection component ( <Folder/>, <Objects/> or <IndexedObjects/> )
+     * @param {Function} fn             callback function to call on update
+     */
+    register(componentId, fn)
+    {
+        console.log("TreeState: register", componentId, fn);
+
+        const { collections } = this;
+
+        if (typeof fn !== "function")
+        {
+            throw new Error("Registered value must be a callback function" + fn);
+        }
+
+        collections.set(componentId, fn);
+    }
+
+
+    /**
+     * Updates the data relating to the given component id by calling the registered update function
+     *
+     * @param {String} componentId      component id
+     *
+     * @return {Promise} Promise that resolves once the update is done
+     */
+    update(componentId)
+    {
+        const fn = this.collections.get(componentId);
+        if (fn)
+        {
+            return fn();
+        }
+        return Promise.resolve();
+    }
+
+
+    @computed
+    get menuElem()
+    {
+        return document.querySelector(`li[data-sel='${this.menu}'] .default`)
+    }
+
+
+    @action
+    select(selectionId)
+    {
+        if (this.selected !== selectionId)
+        {
+            this.selected = selectionId;
+        }
+    }
+
+    @action
+    updateMenu(selectionId) {
+
+        this.menu = selectionId;
+    }
+
+
+    @action
+    reselectHidden(container, selectionId)
+    {
+
+        const current = container.querySelector(`[data-sel='${this.selected}']`);
+        console.log("reselectHidden: current, this.selected, selectionId", current, this.selected, selectionId);
+        if (current && current.dataset.sel !== selectionId)
+        {
+            console.log("reselectHidden", selectionId);
+            this.select(selectionId);
+        }
+    }
+
+    findSelectionIndex(selectionId)
+    {
+        const items = findTreeItems(this.treeRef.current);
+        return findItemIndex(items, selectionId);
+    }
+
+    selectByIndex(index)
+    {
+        const items = findTreeItems(this.treeRef.current);
+
+        if (index <0 || index >= items.length)
+        {
+            throw new Error(`Invalid tree item index: ${index}`)
+        }
+
+        items[index].focus();
+    }
+
+    selectFirst()
+    {
+        const firstItem = this.treeRef.current.querySelector("li[role='treeitem']");
+        if (firstItem)
+        {
+            const firstId = firstItem.dataset.sel;
+            //console.log(`Select first id '${firstId}'`);
+            this.select(firstId);
+        }
+    }
+}
+
+
 /**
  * Root tree component.
  */
-const Tree = ({id = "tree", "aria-labelledby" : labelledBy, options, children}) => {
+const Tree = fnObserver(({id = "tree", "aria-labelledby" : labelledBy, options, children}) => {
 
     const treeRef = useRef(null);
 
-    /** Tree state */
-    const [state, dispatch] = useReducer(reducer, DEFAULT_STATE);
+    //console.log("Tree: selected = ", state.selected)
 
-    /** Memoized Tree ctx */
-    const ctx = useMemo(
-        () =>
-            ({
-                id,
-                ...state,
-
-                menuElem: document.querySelector(`li[data-sel='${state.menu}'] .default`),
-
-                options: {
-                    ... DEFAULT_OPTIONS,
-                    ... options
-                },
-
-                select: selectionId => {
-                    if (state.selected !== selectionId)
-                    {
-                        dispatch(
-                            {
-                                type: SELECT,
-                                selectionId
-                            }
-                        );
-                    }
-                },
-
-                updateMenu: selectionId => {
-                    dispatch(
-                        {
-                            type: MENU,
-                            selectionId
-                        }
-                    );
-                },
-
-                reselectHidden: (container, selectionId) => {
-
-                    const current = container.querySelector(`[data-sel='${state.selected}']`);
-                    if (current && current.dataset.sel !== selectionId)
-                    {
-                        //console.log("reselectHidden", selectionId);
-                        dispatch({type: SELECT, selectionId})
-                    }
-                },
-
-                findSelectionIndex: selectionId => {
-                    const items = findTreeItems(treeRef.current);
-                    return findItemIndex(items,selectionId);
-                },
-
-                selectByIndex: index => {
-                    const items = findTreeItems(treeRef.current);
-
-                    if (index <0 || index >= items.length)
-                    {
-                        throw new Error(`Invalid tree item index: ${index}`)
-                    }
-
-                    items[index].focus();
-                },
-
-                selectFirst: () => {
-                    const firstItem = treeRef.current.querySelector("li[role='treeitem']");
-                    if (firstItem)
-                    {
-                        const firstId = firstItem.dataset.sel;
-                        //console.log(`Select first id '${firstId}'`);
-                        ctx.select(firstId);
-                    }
-                }
-
-
-            }),
-        [ id, state ]
-    );
+    /** tree context as localStore() mobx state */
+    const ctx = useLocalStore( () => new TreeState(id, treeRef, options));
 
     useEffect(
         () => {
-            if (state.selected === null)
+            if (ctx.selected === null)
             {
                 ctx.selectFirst();
             }
@@ -281,10 +319,19 @@ const Tree = ({id = "tree", "aria-labelledby" : labelledBy, options, children}) 
         []
     );
 
+    useEffect(
+        () => {
+            return () => {
+                treeContexts.delete(id)
+            };
+        },
+        []
+    );
+
 
     const onKeyDown = ev => {
 
-        const { selected } = state;
+        const { selected } = ctx;
         const { keyCode, target }= ev;
 
         const  { classList } = ev.target;
@@ -350,6 +397,8 @@ const Tree = ({id = "tree", "aria-labelledby" : labelledBy, options, children}) 
             }
             case 39: // cursor right
             {
+                console.log("cursor right");
+
                 const button = target.querySelector("button.caret");
                 if (button && button.getAttribute("aria-expanded") === "false")
                 {
@@ -382,7 +431,7 @@ const Tree = ({id = "tree", "aria-labelledby" : labelledBy, options, children}) 
                         pos = 0;
                         focusCurrent = true;
                     }
-                    
+
                     const newPos = n === 0 ? 0 : n === Infinity ? items.length - 1 : pos + n;
                     if (newPos >= 0 && newPos < items.length)
                     {
@@ -425,7 +474,7 @@ const Tree = ({id = "tree", "aria-labelledby" : labelledBy, options, children}) 
             </ul>
         </Manager>
     );
-};
+});
 
 Tree.propTypes = {
     /**
@@ -460,5 +509,10 @@ Tree.Objects = Objects;
 Tree.Folder = Folder;
 Tree.IndexedObjects = IndexedObjects;
 Tree.MetaItem = MetaItem;
+
+Tree.getContext = function(id)
+{
+    return treeContexts.get(id);
+}
 
 export default Tree;

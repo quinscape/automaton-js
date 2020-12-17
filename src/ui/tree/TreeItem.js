@@ -7,7 +7,7 @@ import { TreeContext } from "./Tree";
  * Internal helper component that renders the a11y friendly base tree item/<li>.
  *
  */
-const TreeItem = React.forwardRef(({ selectionId, children }, ref) => {
+const TreeItem = React.forwardRef(({ selectionId, children, kind = "item" }, ref) => {
 
     const ctx = useContext(TreeContext);
 
@@ -28,6 +28,7 @@ const TreeItem = React.forwardRef(({ selectionId, children }, ref) => {
                     }
                 }
             }}
+            data-kind={ kind }
         >
             { children }
         </li>

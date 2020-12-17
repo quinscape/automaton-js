@@ -3,21 +3,47 @@ import PropTypes from "prop-types"
 import { observer as fnObserver } from "mobx-react-lite"
 import InteractiveQuery, { getFirstValue } from "../../model/InteractiveQuery";
 import i18n from "../../i18n";
-import { toJS } from "mobx";
+import { action, toJS } from "mobx";
 import ObjectItem from "./ObjectItem";
 import { appendRows, TreeContext } from "./Tree";
 import MetaItem from "./MetaItem";
 import MoreItem from "./MoreItem";
 
 
+const resetPaging = action(
+    "Objects.resetPaging",
+    (value, offset, pageSize) =>
+    {
+        value.queryConfig.offset = offset;
+        value.queryConfig.pageSize = pageSize;
+    }
+);
+
+
 /**
  * Embeds a list of objects at the current level.
  */
-const Objects = fnObserver(({render, values, actions, children}) => {
+const Objects = fnObserver(({id, render, values, actions, children}) => {
 
     const [ dropDown, setDropDown ] = useState(-1);
 
     const ctx = useContext(TreeContext);
+
+    ctx.register(id, () => {
+
+        const config = values.queryConfig;
+
+        const prevOffset = config.offset;
+        const prevPageSize = config.pageSize;
+
+        return values.update({
+            ... config,
+            offset: 0,
+            pageSize: values.rows.length
+        }).then(() => {
+            resetPaging(values, prevOffset, prevPageSize);
+        })
+    })
 
     const loadMore = wasSelected => {
 
@@ -93,6 +119,12 @@ const Objects = fnObserver(({render, values, actions, children}) => {
 });
 
 Objects.propTypes = {
+    /**
+     * Unique logical id for the component that can be used to update that part of the tree or select object rows within
+     * via `Tree.getContext(id)`
+     */
+    id: PropTypes.string.isRequired,
+
     /**
      * Render function called once to render the item body for every row
      */

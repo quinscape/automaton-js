@@ -9,13 +9,17 @@ import GraphQLQuery from "../../GraphQLQuery";
 import TreeItem from "./TreeItem";
 import MetaItem from "./MetaItem";
 import CaretButton from "./CaretButton";
+import { observer as fnObserver} from "mobx-react-lite"
+
 
 
 const LOADING = "LOADING";
 /**
  * Renders an initially closed folder that quries additional children on demand.
  */
-const Folder = ({render, query, variables, onLoad, children}) => {
+const Folder = fnObserver(({render, query, variables = query && query.defaultVars, onLoad, children}) => {
+
+    console.log("<Folder>: props = ", {render, query, variables, onLoad, children})
 
     const ref = useRef(null);
 
@@ -45,16 +49,16 @@ const Folder = ({render, query, variables, onLoad, children}) => {
 
             promise.then(
                 result => {
-                        setObjects(
-                            result
-                        );
-                        setOpen(!open);
+                    setObjects(
+                        result
+                    );
+                    setOpen(!open);
 
-                        if (ev === undefined && !ctx.selected)
-                        {
-                            ctx.selectFirst();
-                        }
-                    },
+                    if (ev === undefined && !ctx.selected)
+                    {
+                        ctx.selectFirst();
+                    }
+                },
                 err => console.error("Error fetching data for <Tree.Folder/>", err)
             );
             setObjects(LOADING);
@@ -150,7 +154,7 @@ const Folder = ({render, query, variables, onLoad, children}) => {
             </div>
         </TreeItem>
     );
-};
+});
 
 Folder.propTypes = {
     /**

@@ -7,7 +7,6 @@ import InteractiveQuery, { getFirstValue } from "../../model/InteractiveQuery";
 import i18n from "../../i18n";
 import unicodeSubstring from "unicode-substring";
 
-import { field, value } from "../../FilterDSL"
 import { appendRows, nextSelectionId, TreeContext } from "./Tree";
 import ObjectItem from "./ObjectItem";
 import updateComponentCondition from "../../util/updateComponentCondition";
@@ -15,6 +14,19 @@ import config from "../../config";
 import TreeItem from "./TreeItem";
 import MoreItem from "./MoreItem";
 import CaretButton from "./CaretButton";
+import { action } from "mobx";
+
+import { and, or, field, value } from "../../FilterDSL"
+
+const resetConditionAndPaging = action(
+    "IndexedObjects.resetPaging",
+    (value, condition, offset, pageSize) =>
+    {
+        value.queryConfig.condition = condition;
+        value.queryConfig.offset = offset;
+        value.queryConfig.pageSize = pageSize;
+    }
+);
 
 
 function firstLetter(name)
@@ -55,7 +67,7 @@ function findLetter(rows, nameField, letter)
 
 const defaultAltText = letter => i18n("Toggle Items starting with {0}", letter);
 
-const IndexItem = ({ letter, open, setOpen, render, altText = defaultAltText, heading, children }) => {
+const IndexItem = fnObserver(({ letter, open, setOpen, render, altText = defaultAltText, heading, children }) => {
 
     const ctx = useContext(TreeContext);
 
@@ -88,6 +100,7 @@ const IndexItem = ({ letter, open, setOpen, render, altText = defaultAltText, he
         innerElements = (
             <TreeItem
                 selectionId={ headingSelectionId }
+                kind="indexed-objects-header"
             >
                 <CaretButton
                     open={ headingOpen }
@@ -145,6 +158,7 @@ const IndexItem = ({ letter, open, setOpen, render, altText = defaultAltText, he
         <TreeItem
             ref={ ref }
             selectionId={ selectionId }
+            kind="indexed-objects"
         >
             <CaretButton
                 open={ open }
@@ -154,11 +168,11 @@ const IndexItem = ({ letter, open, setOpen, render, altText = defaultAltText, he
             />
             <div className="wrapper">
                 <div className={
-                        cx(
-                            "header",
-                            selectionId === ctx.selected && "focus"
-                        )
-                    }
+                    cx(
+                        "header",
+                        selectionId === ctx.selected && "focus"
+                    )
+                }
                 >
                     <button
                         type="button"
@@ -190,7 +204,7 @@ const IndexItem = ({ letter, open, setOpen, render, altText = defaultAltText, he
             </div>
         </TreeItem>
     );
-};
+});
 
 const OPEN = "OPEN";
 const SET_LOAD_STATE = "SET_LOAD_STATE";
@@ -334,9 +348,10 @@ function renderIndexDefault(letter)
 }
 
 
-const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault, values: valuesFromProps, index, actions, nameField = "name", altText, heading = "", children }) => {
+const IndexedObjects = fnObserver(({ id, render, renderIndex = renderIndexDefault, values: valuesFromProps, index, actions, nameField = "name", altText, heading = "", children }) => {
 
     const ctx = useContext(TreeContext);
+
 
     const values = useMemo(
         () => {
@@ -350,6 +365,91 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault, v
     const [dropDown, setDropDown] = useState(-1);
 
     const [state, dispatch] = useReducer(reducer, null, () => createInitialState(index, values, nameField));
+
+    ctx.register(id, () => {
+        const config = values.queryConfig;
+
+        const prevCondition = config.condition;
+        const prevOffset = config.offset;
+        const prevPageSize = config.pageSize;
+
+        const letterConditions = [];
+
+        for (let [letter, entry] of Object.entries(state))
+        {
+            if (entry.open)
+            {
+                const { rows } = values;
+
+                let found = false;
+                let last;
+                for (let i = 0; i < rows.length; i++)
+                {
+                    const row = rows[i];
+
+                    const v = get(row, nameField);
+
+                    const isLetter = unicodeSubstring(v, 0, 1).toLocaleUpperCase() === letter;
+                    if (isLetter)
+                    {
+                        found = true;
+                        last = v;
+                    }
+                    else
+                    {
+                        if (found)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if (!last)
+                {
+                    throw new Error(
+                        "Could not find an entry starting with '" + letter + "' in the current rows. " +
+                        "This should not happen. The index should always reflect the actually existing rows, even when " +
+                        "using a filtered tree"
+                    );
+                }
+
+                letterConditions.push(
+                    and(
+                        field(nameField).upper().startsWith(
+                            value(
+                                letter
+                            )
+                        ),
+                        field(nameField).lessOrEqual(
+                            value(
+                                last
+                            )
+                        )
+                    )
+                )
+            }
+        }
+
+        const condition = updateComponentCondition(
+            prevCondition,
+            or(
+                ... letterConditions
+            ),
+            ctx.id,
+            false
+        );
+
+        return values.update({
+            ... config,
+            condition,
+            offset: 0,
+            pageSize: 0
+        }).then(() => {
+            resetConditionAndPaging(values, prevCondition, prevOffset, prevPageSize);
+        })
+
+    })
+
     const loadMore = (letter, wasSelected) => {
 
         const { queryConfig, rowCount, _query: query } = values;
@@ -632,6 +732,12 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault, v
 
 
 IndexedObjects.propTypes = {
+    /**
+     * Unique logical id for the component that can be used to update that part of the tree or select object rows within
+     * via `Tree.getContext(id)`
+     */
+    id: PropTypes.string.isRequired,
+
     /**
      * Render prop for a data row. Receives the row and returns a react element tree or simple renderable values.
      */

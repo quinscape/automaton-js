@@ -191,7 +191,7 @@ describe("Tree", function () {
 
                 act(() => {
                     const firstItem = container.querySelector("li[role='treeitem']");
-                    firstItem.focus();
+                    //firstItem.focus();
 
                     fireEvent(
                         firstItem,

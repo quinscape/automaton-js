@@ -104,8 +104,8 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
                                                 data-placement={ placement }
                                                 scheduleUpdate={ scheduleUpdate }
                                                 close={ () => {
-                                                    ctx.updateMenu(null);
                                                     const link = findParentLink(ctx.menuElem);
+                                                    ctx.updateMenu(null);
                                                     link && link.focus();
                                                 } }
 

@@ -99,9 +99,9 @@ describe("Tree.IndexedObjects", function () {
             <FormConfigProvider schema={inputSchema}>
                 <Tree>
                     <Tree.IndexedObjects
-                        values={iQuery}
-                        render={foo => foo.name}
-                        index={nodeIndex}
+                        values={ iQuery }
+                        render={ foo => foo.name }
+                        index={ nodeIndex }
                         renderIndex={c => c + ":"}
                         actions={
                             [
