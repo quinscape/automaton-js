@@ -1,6 +1,6 @@
 {
     "name": "@quinscape/automaton-js",
-    "version": "0.2.19",
+    "version": "0.2.20",
     "description": "Automation development system javascript companion library",
     "main": "lib/index.js",
     "esnext": "src/index.js",
