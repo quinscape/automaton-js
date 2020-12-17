@@ -170,6 +170,8 @@ export const FIELD_OPERATIONS = {
     "power":1,
     "multiply":1,
     "unaryPlus":0,
+    "lower":0,
+    "upper":0,
 
     // for sort order fields
     "asc":0,

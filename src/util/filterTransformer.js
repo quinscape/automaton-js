@@ -233,7 +233,15 @@ const operationImpl = {
         return +a;
     },
     asc: false,
-    desc: false
+    desc: false,
+
+    lower: (a) => {
+        return a.toLocaleLowerCase();
+    },
+
+    upper: (a) => {
+        return a.toLocaleUpperCase();
+    }
 };
 
 const IGNORE_CASE_SUFFIX = "IgnoreCase";

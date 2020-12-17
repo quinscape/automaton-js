@@ -251,6 +251,9 @@ describe("filterTransformer", function () {
         assert.throws(() =>  exec(operation("asc", [])), /asc is not supported in Javascript evaluation/);
         assert.throws(() => exec(operation("desc", [])), /desc is not supported in Javascript evaluation/);
 
+        assert(exec(operation("lower", [value("ÄBC")])) === "äbc");
+        assert(exec(operation("upper", [value("äbc")])) === "ÄBC");
+
     });
 
     it("resolves fields references at runtime", () => {
