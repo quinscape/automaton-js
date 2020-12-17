@@ -9,15 +9,22 @@ const redoChanges = action("ProcessHistory.redoChanges", (scope, changes, from, 
 
         //console.log("REDO CHANGE", scope, change);
 
-        const { type, name } = change;
-
-        if (type === "update")
+        if (change)
         {
-            scope[name] = change.newValue;
+            const { type, name } = change;
+
+            if (type === "update")
+            {
+                scope[name] = change.newValue;
+            }
+            else
+            {
+                throw new Error("Unhandled redo type: " + JSON.stringify(change));
+            }
         }
         else
         {
-            throw new Error("Unhandled redo type: " + JSON.stringify(change));
+            console.warn("redoChanges: change is falsy")
         }
     }
 });
@@ -31,15 +38,22 @@ const undoChanges = action("ProcessHistory.undoChanges", (scope, changes, from, 
 
         //console.log("UNDO CHANGE", scope, change);
 
-        const { type, name } = change;
-
-        if (type === "update")
+        if (change)
         {
-            scope[name] = change.oldValue;
+            const { type, name } = change;
+
+            if (type === "update")
+            {
+                scope[name] = change.oldValue;
+            }
+            else
+            {
+                throw new Error("Unhandled undo type: " + JSON.stringify(change));
+            }
         }
         else
         {
-            throw new Error("Unhandled undo type: " + JSON.stringify(change));
+            console.warn("undoChanges: change is falsy")
         }
     }
 
@@ -62,6 +76,7 @@ export default class ProcessHistory {
     {
         const { versioningStrategy, scope } = process;
         this.process = process;
+        this.isRecording = true;
 
         if (scope)
         {
@@ -71,14 +86,17 @@ export default class ProcessHistory {
             }
             this.dispose = observe(scope, change => {
 
-                if (versioningStrategy(change.name))
+                if (this.isRecording && versioningStrategy(change.name))
                 {
+                    //console.log("ProcessHistory: Recording change on " + change.name)
+
                     const { changes } = this;
 
                     changes[this.pos++] = change;
 
                     if (this.pos < this.changesEnd)
                     {
+                        //console.log("ProcessHistory: prune")
                         this.changesEnd = this.pos;
 
                         // if we branch off a previous history state, the changes from that point are lost and we
@@ -119,15 +137,26 @@ export default class ProcessHistory {
         }
 
         const { changes, process } = this;
-        if (newPos > this.pos)
-        {
-            redoChanges(process.scope, changes, this.pos, newPos);
-        }
-        else if (newPos < this.pos)
-        {
-            undoChanges(process.scope, changes, this.pos - 1, newPos);
-        }
 
-        this.pos = newPos;
+        // suppress recording during history navigation
+        this.isRecording = false;
+
+        try
+        {
+            if (newPos > this.pos)
+            {
+                redoChanges(process.scope, changes, this.pos, newPos);
+            }
+            else if (newPos < this.pos)
+            {
+                undoChanges(process.scope, changes, this.pos - 1, newPos);
+            }
+
+            this.pos = newPos;
+        }
+        finally
+        {
+            this.isRecording = true;
+        }
     }
 }

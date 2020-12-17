@@ -401,7 +401,7 @@ function addEffect(process, view, effect)
  */
 function isArrayEqual(arrayA, arrayB)
 {
-    console.log("isArrayEqual", arrayA, arrayB);
+    //console.log("isArrayEqual", arrayA, arrayB);
 
 
     if (arrayA.length !== arrayB.length)
@@ -498,7 +498,11 @@ function resetHistoryTo(historyIndex)
     const oldIndex = currentHistoryPos;
     currentHistoryPos = historyIndex;
 
-    config.history.go(currentHistoryPos - oldIndex);
+    const delta = currentHistoryPos - oldIndex;
+
+    //console.log("resetHistoryTo", currentHistoryPos, "go to", delta);
+
+    config.history.go(delta);
 }
 
 
@@ -1212,7 +1216,7 @@ function noViewState()
 }
 
 
-function findHistoryEntry(navigationId)
+function findHistoryIndex(navigationId)
 {
     const { length } = processHistory;
     for (let i = 0; i < length; i++)
@@ -1220,10 +1224,10 @@ function findHistoryEntry(navigationId)
         const entry = processHistory[i];
         if (entry.id === navigationId)
         {
-            return entry;
+            return i;
         }
     }
-    return null;
+    return -1;
 }
 
 
@@ -1238,10 +1242,8 @@ export function onHistoryAction(location, action)
 
             const { navigationId } = state;
 
-
-            const entry = findHistoryEntry(navigationId);
-
-            if (!entry)
+            const index = findHistoryIndex(navigationId);
+            if (index < 0)
             {
                 render(
                     noViewState()
@@ -1249,7 +1251,10 @@ export function onHistoryAction(location, action)
             }
             else
             {
-                currentHistoryPos = navigationId;
+                const entry = processHistory[index];
+                currentHistoryPos = index;
+
+                //console.log("POP: set currentHistoryPos = ", currentHistoryPos)
 
                 // noinspection JSIgnoredPromiseFromCall
                 renderRestoredView(entry);
@@ -1369,15 +1374,16 @@ function pushProcessState(replace = false)
 {
     const { id, currentState, history } = currentProcess[secret];
 
-    //console.log("pushProcessState", {id, currentState});
 
     const navigationId = ++historyCounter;
     currentHistoryPos = navigationId;
 
-    if (navigationId < processHistory.length)
+    //console.log("pushProcessState: id = ", id, "currentHistoryPos =", currentHistoryPos);
+
+    if (currentHistoryPos < processHistory.length)
     {
-        //console.log("Prune history");
-        processHistory = processHistory.slice(0, navigationId);
+        //console.log("pushProcessState: prune history")
+        processHistory = processHistory.slice(0, currentHistoryPos);
     }
 
     //const versionedProps = getVersionedProps(currentProcess);
@@ -1418,6 +1424,11 @@ function pushProcessState(replace = false)
             //     console.log("Process #", processId, " is still reachable")
             // }
         }
+
+        currentHistoryPos -= newStart;
+
+        //console.log("pushProcessState: shorten history, newStart = ", newStart, "currentHistoryPos = ", currentHistoryPos)
+
         processHistory = processHistory.slice(newStart);
     }
 
@@ -1711,7 +1722,7 @@ export function findBackStateIndex(n)
 {
     let i, entry, historyIndex ;
 
-    const pos = processHistory.length;
+    const pos = currentHistoryPos;
 
     if (typeof n === "function")
     {
@@ -1729,6 +1740,9 @@ export function findBackStateIndex(n)
 
         if (!entry)
         {
+            alert(
+                i18n("State not found")
+            );
             throw new Error("No entry to navigate back to found.");
         }
 
