@@ -354,7 +354,7 @@ return(
 export const renderProcessExportScript = (processExports) => {
     let processScript = "";
 
-    const {extraConstants, process, scope} = processExports;
+    const {extraConstants, process, scope ,configuration} = processExports;
     if (extraConstants) {
         extraConstants.map((extraConstant) => {
             processScript += `${extraConstant}
@@ -363,15 +363,21 @@ export const renderProcessExportScript = (processExports) => {
     }
     ;
     //END the section of extraConstant
+    processScript += `export function initProcess(process,scope) {`
 
-    processScript += `export function initProcess(process,scope)
-    {
+    if (configuration && configuration.length >= 1) {
+        configuration.map((config) => {
+        processScript += `
+        ${config}`
+        })
+    }
+    processScript += `
         ${'//code'}
         return (
             {
-                startState:${process.startState},
-                states: {
-                    `;
+            startState:${process.startState},
+            states: {
+                `;
 
     const {states} = process;
 
