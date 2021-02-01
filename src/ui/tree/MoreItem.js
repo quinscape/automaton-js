@@ -1,10 +1,11 @@
 import React, { useContext, useMemo } from "react"
+import { observer as fnObserver } from "mobx-react-lite"
 import cx from "classnames";
 import TreeItem from "./TreeItem";
 import i18n from "../../i18n";
 import { nextSelectionId, TreeContext } from "./Tree";
 
-const MoreItem = ({onMore}) => {
+const MoreItem = fnObserver(({onMore}) => {
 
     const selectionId = useMemo( nextSelectionId, []);
 
@@ -35,6 +36,6 @@ const MoreItem = ({onMore}) => {
             </div>
         </TreeItem>
     );
-};
+});
 
 export default MoreItem;
