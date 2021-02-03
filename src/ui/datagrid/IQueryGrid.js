@@ -68,9 +68,17 @@ const DataGrid = fnObserver(props => {
         () => {
 
             let enabledCount = 0;
-            const columns = React.Children.map(children, (kid, idx) => {
 
-                const {name, filter, heading, sort, renderFilter } = kid.props;
+            const columns = [];
+
+            React.Children.forEach(children, (columnElem, idx) => {
+
+                if (!columnElem || columnElem.type !== Column)
+                {
+                    return;
+                }
+
+                const {name, filter, heading, sort, renderFilter } = columnElem.props;
 
                 let typeRef = null, sortable = false, enabled = false;
                 if (name)
@@ -99,7 +107,7 @@ const DataGrid = fnObserver(props => {
                     enabledCount++;
                 }
 
-                return ({
+                columns.push({
                     name,
                     sortable,
                     filter,
@@ -107,7 +115,8 @@ const DataGrid = fnObserver(props => {
                     type: typeRef && typeRef.name,
                     heading: heading || name,
                     sort: sort || name,
-                    renderFilter
+                    renderFilter,
+                    columnElem
                 });
             });
 
@@ -196,11 +205,10 @@ const DataGrid = fnObserver(props => {
                                             }
                                         >
                                             {
-                                                React.Children.map(
-                                                    children,
-                                                    (col,idx) => columns[idx].enabled && (
+                                                columns.map(
+                                                    column => column.enabled && (
                                                         React.cloneElement(
-                                                            col,
+                                                            column.columnElem,
                                                             {
                                                                 context
                                                             }
@@ -244,11 +252,10 @@ const DataGrid = fnObserver(props => {
                                     }
                                 >
                                     {
-                                        React.Children.map(
-                                            children,
-                                            (col, idx) => columns[idx].enabled && (
+                                        columns.map(
+                                            column => column.enabled && (
                                                 React.cloneElement(
-                                                    col,
+                                                    column.columnElem,
                                                     {
                                                         context
                                                     }
