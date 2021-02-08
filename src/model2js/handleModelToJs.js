@@ -81,6 +81,7 @@ export const renderDomainScript = (domain) => {
         @observable ${name}
         `
     })
+    if (computeds && computeds.length >= 1) {
     computeds.forEach(computed => {
         const {name, code} = computed
         domainScript += `
@@ -90,6 +91,7 @@ export const renderDomainScript = (domain) => {
         }
     }`
     })
+    }
     return beautify(domainScript)
 }
 
@@ -476,9 +478,20 @@ export default class ${name} {
         }
     `
         })
-        // computeds.map((computed)=>{
-        //     processScript += ``
-        // })
+
+        if (computeds && computeds.length >= 1) {
+
+            computeds.map((computed)=>{
+                const { name, code } = computed
+
+                processScript += `
+        @computed get ${name}()
+        {
+            ${code}
+        }
+    `
+            })
+        }
     }
     processScript += `}`;
     //END the section of SCOPE
