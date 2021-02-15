@@ -206,10 +206,11 @@ const DataGrid = fnObserver(props => {
                                         >
                                             {
                                                 columns.map(
-                                                    column => column.enabled && (
+                                                    (column, columnIdx) => column.enabled && (
                                                         React.cloneElement(
                                                             column.columnElem,
                                                             {
+                                                                key: columnIdx,
                                                                 context
                                                             }
                                                         )
@@ -253,10 +254,11 @@ const DataGrid = fnObserver(props => {
                                 >
                                     {
                                         columns.map(
-                                            column => column.enabled && (
+                                            (column, columnIdx) => column.enabled && (
                                                 React.cloneElement(
                                                     column.columnElem,
                                                     {
+                                                        key: columnIdx,
                                                         context
                                                     }
                                                 )
@@ -322,5 +324,6 @@ DataGrid.RowSelector = RowSelector;
 DataGrid.WorkingSetStatus = WorkingSetStatusComponent;
 
 DataGrid.displayName = "IQueryGrid";
+Column.displayName = "Column";
 
 export default DataGrid
