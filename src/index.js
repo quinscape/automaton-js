@@ -55,6 +55,7 @@ import registerBigDecimalConverter from "./registerBigDecimalConverter";
 import DecimalField from "./ui/DecimalField";
 import URLField from "./ui/URLField";
 import filterTransformer, { FieldResolver } from "./util/filterTransformer";
+import CollapsibleSidebar from "./ui/CollapsibleSidebar";
 
 import  { createMockedQuery, createFilteredMockQuery} from "./util/createMockedQuery"
 
@@ -277,6 +278,8 @@ export {
     DecimalField,
 
     URLField,
+
+    CollapsibleSidebar,
 
     registerAutomatonConverters,
 
