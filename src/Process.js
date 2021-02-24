@@ -1376,14 +1376,14 @@ function pushProcessState(replace = false)
 
 
     const navigationId = ++historyCounter;
-    currentHistoryPos = navigationId;
+    //currentHistoryPos = navigationId;
 
     //console.log("pushProcessState: id = ", id, "currentHistoryPos =", currentHistoryPos);
 
-    if (currentHistoryPos < processHistory.length)
+    if (currentHistoryPos < processHistory.length - 1)
     {
         //console.log("pushProcessState: prune history")
-        processHistory = processHistory.slice(0, currentHistoryPos);
+        processHistory = processHistory.slice(0, currentHistoryPos + 1);
     }
 
     //const versionedProps = getVersionedProps(currentProcess);
@@ -1393,6 +1393,7 @@ function pushProcessState(replace = false)
         state: currentState,
         historyPos: history.getCurrentPos()
     });
+    currentHistoryPos++;
 
     const { navigationHistoryLimit } = config;
 
