@@ -37,7 +37,6 @@ class MockProcess
                 action: sinon.spy()
             },
             "nonform2" : {
-                discard: true,
                 to: "TestProcess",
                 action: sinon.spy()
             },
@@ -317,12 +316,19 @@ describe("Button", function () {
             }
         )
 
+        //console.log(prettyDOM(container))
+
         const input = getByLabelText(container, "name");
         const nonDiscardButton = getByText(container,"Do");
         const discardButton = getByText(container,"Dont");
+        const nonFormButton = getByText(container,"Do3");
+        const nonFormButton2 = getByText(container,"Do4");
 
         assert(input.disabled);
         assert(nonDiscardButton.disabled);
         assert(!discardButton.disabled);
+        assert(!nonFormButton.disabled);
+        assert(!nonFormButton2.disabled);
+
     });
 });
