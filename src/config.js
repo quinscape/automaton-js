@@ -38,6 +38,11 @@ export const DEFAULT_OPTS = {
     navigationHistoryLimit: 30,
 
     /**
+     * TMP: Extra logging for history
+     */
+    logHistory: false,
+
+    /**
      * Config for process dialogs
      */
     processDialog: {

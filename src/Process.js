@@ -500,7 +500,8 @@ function resetHistoryTo(historyIndex)
 
     const delta = currentHistoryPos - oldIndex;
 
-    //console.log("resetHistoryTo", currentHistoryPos, "go to", delta);
+    console.log("resetHistoryTo", currentHistoryPos, "go to", delta);
+    config.logHistory && logHistory();
 
     config.history.go(delta);
 }
@@ -711,7 +712,7 @@ export class Process {
             )
                 .then(transition => {
 
-                    //console.log("TRANSITION END", "transition = ", transition);
+                    console.log("TRANSITION END", "transition = ", transition);
 
                     const { historyIndex } = transition;
                     if (historyIndex >= 0)
@@ -1302,7 +1303,7 @@ const renderRestoredView = action(
 
         const { processId, state: nextState, historyPos } = historyEntry;
 
-        //console.log("renderRestoredView", { processId, state, historyPos });
+        config.logHistory && console.log("renderRestoredView", { processId, state, historyPos });
 
         const prevProcess = currentProcess;
         const nextProcess = processes[processId];
@@ -1369,6 +1370,17 @@ function findReachableProcesses(start)
     return reachable;
 }
 
+function logHistory()
+{
+    console.log(`HISTORY (currentHistoryPos = ${currentHistoryPos} )`, processHistory.map(({ id, processId, state, historyPos }, idx) => {
+
+        const msg = `id: ${id} processId: ${processId} state: ${state} historyPos: ${historyPos}`;
+
+
+        return currentHistoryPos === idx ? "[[" + msg + "]]" : msg;
+    }).join(" / "));
+}
+
 
 function pushProcessState(replace = false)
 {
@@ -1378,12 +1390,15 @@ function pushProcessState(replace = false)
     const navigationId = ++historyCounter;
     //currentHistoryPos = navigationId;
 
-    //console.log("pushProcessState: id = ", id, "currentHistoryPos =", currentHistoryPos);
+    config.logHistory && console.log("pushProcessState: id = ", id);
 
     if (currentHistoryPos < processHistory.length - 1)
     {
-        //console.log("pushProcessState: prune history")
+        config.logHistory && console.log("pushProcessState: prune history")
+
         processHistory = processHistory.slice(0, currentHistoryPos + 1);
+
+        config.logHistory && logHistory()
     }
 
     //const versionedProps = getVersionedProps(currentProcess);
@@ -1401,7 +1416,7 @@ function pushProcessState(replace = false)
 
     if (length > navigationHistoryLimit)
     {
-//        console.log("SHRINK", processHistory.map( e => e.processId));
+        config.logHistory && console.log("SHRINK", processHistory.map( e => e.processId));
 
         const newStart = length - navigationHistoryLimit;
         const reachableProcesses = findReachableProcesses(newStart);
@@ -1428,11 +1443,12 @@ function pushProcessState(replace = false)
 
         currentHistoryPos -= newStart;
 
-        //console.log("pushProcessState: shorten history, newStart = ", newStart, "currentHistoryPos = ", currentHistoryPos)
+        config.logHistory && console.log("pushProcessState: shorten history, newStart = ", newStart, "currentHistoryPos = ", currentHistoryPos)
 
         processHistory = processHistory.slice(newStart);
     }
 
+    config.logHistory && logHistory();
 
     const op = replace ? "replace" : "push";
 
@@ -1730,8 +1746,11 @@ export function findBackStateIndex(n)
         for (i = pos - 1; i >= 0; i--)
         {
             const e = processHistory[i];
+            const result = n(e);
 
-            if (n(e) === true)
+            config.logHistory && console.log("BACK", e, "=>", result);
+
+            if (result === true)
             {
                 historyIndex = i;
                 entry = e;
@@ -1746,8 +1765,6 @@ export function findBackStateIndex(n)
             );
             throw new Error("No entry to navigate back to found.");
         }
-
-        //console.log("back(fn) : true for history index #", historyIndex, "=", processHistory[historyIndex]);
     }
     else if (typeof n === "number")
     {

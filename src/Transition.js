@@ -1,10 +1,8 @@
 import { findBackStateIndex } from "./Process";
+import config from "./config";
 
 
 const secret = Symbol("TransitionSecret");
-
-
-
 
 /**
  * Encapsulates a runtime transition within a process.
@@ -129,5 +127,7 @@ export default class Transition {
 
         this.isRecorded = false;
         this[secret].historyIndex = historyIndex;
+
+        config.logHistory && console.log("transition.back: historyIndex = ", historyIndex);
     }
 }
