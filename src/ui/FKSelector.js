@@ -357,7 +357,7 @@ const FKSelector = fnObserver(props => {
 
             //console.log("FK-CONTEXT", ctx, "PROPS", props);
 
-            Field.registerContext(formConfig.root, ctx);
+            //formConfig.formContext.registerFieldContext(ctx);
 
             return ctx;
         },
