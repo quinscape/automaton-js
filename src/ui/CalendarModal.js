@@ -10,17 +10,6 @@ import set from "lodash.set"
 import autoSubmitHack from "../util/autoSubmitHack";
 import { DateTime } from "luxon";
 
-
-const changeOuterFormValue = action(
-    "Set Timestamp/Date",
-    (root, name, value) => {
-        set(root,name,value);
-    }
-);
-
-
-const TIME_REGEX = /[0-9]+-[0-9]+-[0-9]+T(.*)\./;
-
 /**
  * Simple FontAwesome Icon component
  */
@@ -54,7 +43,7 @@ const CalendarModal = props =>  {
 
             //console.log("CalendarModal.choose", dt.toISO());
 
-            changeOuterFormValue(formConfig.root, name, dt);
+            formConfig.handleChange(ctx, dt.toFormat (isTimeStamp ? ctx.timestampFormat : ctx.dateFormat));
 
             autoSubmitHack(formConfig);
         }
