@@ -172,6 +172,7 @@ export const FIELD_OPERATIONS = {
     "unaryPlus":0,
     "lower":0,
     "upper":0,
+    "toString":0,
 
     // for sort order fields
     "asc":0,

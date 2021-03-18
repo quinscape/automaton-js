@@ -254,6 +254,8 @@ describe("filterTransformer", function () {
         assert(exec(operation("lower", [value("ÄBC")])) === "äbc");
         assert(exec(operation("upper", [value("äbc")])) === "ÄBC");
 
+        assert( exec(operation("toString", [value(123)])) === "123");
+
     });
 
     it("resolves fields references at runtime", () => {
