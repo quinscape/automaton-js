@@ -153,7 +153,7 @@ const DataGrid = fnObserver(props => {
                 className={
                     cx(
                         // reduced bottom margin to visually connect pagination
-                        "data-grid table mt-3 mb-2",
+                        "data-grid table",
                         tableClassName
                     )
                 }
@@ -292,7 +292,7 @@ const DataGrid = fnObserver(props => {
 });
 
 DataGrid.defaultProps = {
-    tableClassName: "table-hover table-striped table-bordered table-sm",
+    tableClassName: "table-hover table-striped table-bordered table-sm mt-3 mb-2",
     filterTimeout: 350,
     workingSet: null
 };
