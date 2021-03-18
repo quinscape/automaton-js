@@ -990,8 +990,6 @@ function inject(scope, injections)
             const result = injections[graphQlQuery.query];
             if (result === undefined)
             {
-                debugger;
-
                 throw new Error("Could not find query for prop '" + name + "'");
             }
 
