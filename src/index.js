@@ -81,6 +81,7 @@ import {
 import printSchema from "./util/printSchema"
 import InteractiveQueryEditor from "./ui/iqed/InteractiveQueryEditor";
 import InteractiveQueryDefinition from "./model/InteractiveQueryDefinition.js"
+import { evaluateMemoryQuery } from "./util/evaluateMemoryQuery";
 
 // improves auto-completion for DSL members
 const FilterDSL = {
@@ -176,6 +177,7 @@ const FilterDSL = {
      */
     findComponentNode
 };
+
 
 
 
@@ -292,7 +294,8 @@ export {
     FieldResolver,
 
     createMockedQuery,
-    createFilteredMockQuery
+    createFilteredMockQuery,
+    evaluateMemoryQuery
 }
 
 
