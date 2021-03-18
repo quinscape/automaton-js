@@ -1,9 +1,9 @@
 import { action, observable } from "mobx";
-import { component, condition, isConditionObject, isLogicalCondition, Type } from "../FilterDSL";
-import compareConditions from "../util/compareConditions"
+import { isConditionObject } from "../FilterDSL";
 import updateComponentCondition from "../util/updateComponentCondition";
 
-const NO_COMPONENT = null;
+
+export const NO_COMPONENT = null;
 
 
 /**
@@ -159,6 +159,4 @@ export default class InteractiveQuery {
             offset: 0
         })
     }
-
-
 }
