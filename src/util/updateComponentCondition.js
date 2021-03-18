@@ -81,7 +81,7 @@ function processComponentCondition(compositeCondition, componentNode, newCompone
 export default function updateComponentCondition(
     compositeCondition,
     componentCondition,
-    componentId= null,
+    componentId = null,
     compareUpdate = true
 )
 {
@@ -91,7 +91,7 @@ export default function updateComponentCondition(
     let newCondition;
     if (compositeCondition === null)
     {
-        newCondition = newComponentNode;
+        newCondition = componentId ? newComponentNode : componentCondition;
     }
     else
     {
@@ -120,15 +120,16 @@ export default function updateComponentCondition(
             }
 
         }
-        else if (!isLogicalCondition(compositeCondition))
+        else
         {
-            throw new Error(
-                "Invalid current condition in queryConfig, " +
-                "root node must be a logical condition combining component conditions: " +
-                JSON.stringify(compositeCondition, null, 4)
-            );
-        }
+            const isComplexComponentLogical = isLogicalCondition(compositeCondition) && compositeCondition.operands.every( o => o.type === Type.COMPONENT);
 
+            if (!isComplexComponentLogical)
+            {
+                return componentCondition;
+            }
+
+        }
         const componentConditions = [];
 
         const {operands} = compositeCondition;
