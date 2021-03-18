@@ -53,4 +53,11 @@ export default class GraphQLQuery {
             }
         );
     }
+
+    clone()
+    {
+        const c = new GraphQLQuery(this.query, this.defaultVars);
+        c.queryDef = this.queryDef;
+        return c;
+    }
 }
