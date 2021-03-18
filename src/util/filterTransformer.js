@@ -241,6 +241,10 @@ const operationImpl = {
 
     upper: (a) => {
         return a.toLocaleUpperCase();
+    },
+
+    toString: (a) => {
+        return String(a);
     }
 };
 
