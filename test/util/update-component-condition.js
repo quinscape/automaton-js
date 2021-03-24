@@ -1,7 +1,8 @@
-import { before, describe, it } from "mocha"
+import { describe, it } from "mocha"
 import assert from "power-assert"
 import updateComponentCondition from "../../src/util/updateComponentCondition";
-import { and, or, not, field, value, component, condition } from "../../src/FilterDSL";
+import { and, component, condition, field, value } from "../../src/FilterDSL";
+
 
 function dump(value)
 {
@@ -208,6 +209,155 @@ describe("updateComponentCondition", function () {
                                 }
                             ]
                         }
+                    }
+                ]
+            }
+        )
+
+
+        //console.log(JSON.stringify(cond, null ,4))
+
+        assert.deepEqual(
+            updateComponentCondition(
+                field("b").eq(value(2)),
+                field("a").eq(value(1)),
+                "test-931",
+                true
+            ),
+            {
+                "type": "Condition",
+                "name": "and",
+                "operands": [
+                    {
+                        "type": "Component",
+                        "id": null,
+                        "condition": {
+                            "type": "Condition",
+                            "name": "eq",
+                            "operands": [
+                                {
+                                    "type": "Field",
+                                    "name": "b"
+                                },
+                                {
+                                    "type": "Value",
+                                    "scalarType": "Int",
+                                    "value": 2,
+                                    "name": null
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "Component",
+                        "id": "test-931",
+                        "condition": {
+                            "type": "Condition",
+                            "name": "eq",
+                            "operands": [
+                                {
+                                    "type": "Field",
+                                    "name": "a"
+                                },
+                                {
+                                    "type": "Value",
+                                    "scalarType": "Int",
+                                    "value": 1,
+                                    "name": null
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        )
+
+        //console.log(JSON.stringify(cond, null ,4))
+        
+        assert.deepEqual(
+            updateComponentCondition(
+                // XXX: this is the way the condition comes from the server. If we use a simple and(), the FilterDSL
+                //      will remove it (hence the condition("and", [... ]) workaround
+                and(
+                    component(null, field("b").eq(value(2))),
+                    component("test-134", field("c").eq(value(3)))
+                ),
+                field("a").eq(value(1)),
+                null,
+                true
+            ),
+            {
+                "type": "Condition",
+                "name": "and",
+                "operands": [
+                    {
+                        "type": "Component",
+                        "id": null,
+                        "condition": {
+                            "type": "Condition",
+                            "name": "eq",
+                            "operands": [
+                                {
+                                    "type": "Field",
+                                    "name": "a"
+                                },
+                                {
+                                    "type": "Value",
+                                    "scalarType": "Int",
+                                    "value": 1,
+                                    "name": null
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "Component",
+                        "id": "test-134",
+                        "condition": {
+                            "type": "Condition",
+                            "name": "eq",
+                            "operands": [
+                                {
+                                    "type": "Field",
+                                    "name": "c"
+                                },
+                                {
+                                    "type": "Value",
+                                    "scalarType": "Int",
+                                    "value": 3,
+                                    "name": null
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        )
+
+        const cond = updateComponentCondition(
+            field("b").eq(value(2)),
+            field("a").eq(value(1)),
+            null,
+            true
+        );
+
+        //console.log(JSON.stringify(cond, null ,4))
+
+        assert.deepEqual(
+            cond,
+            {
+                "type": "Condition",
+                "name": "eq",
+                "operands": [
+                    {
+                        "type": "Field",
+                        "name": "a"
+                    },
+                    {
+                        "type": "Value",
+                        "scalarType": "Int",
+                        "value": 1,
+                        "name": null
                     }
                 ]
             }

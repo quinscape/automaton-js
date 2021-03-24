@@ -1,4 +1,4 @@
-import { component, condition, isLogicalCondition, Type } from "../FilterDSL";
+import { component, and, condition, isLogicalCondition, Type } from "../FilterDSL";
 import compareConditions from "./compareConditions";
 
 
@@ -126,7 +126,18 @@ export default function updateComponentCondition(
 
             if (!isComplexComponentLogical)
             {
-                return componentCondition;
+                if (!componentId)
+                {
+                    return componentCondition;
+                }
+                else
+                {
+                    return and(
+                        component(null, compositeCondition),
+                        newComponentNode
+                    );
+                }
+
             }
 
         }
