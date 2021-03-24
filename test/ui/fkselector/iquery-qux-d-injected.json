@@ -1,0 +1,107 @@
+{
+    "_type": "InteractiveQueryQuxD",
+
+    "type": "QuxD",
+    "rows": [
+        {
+            "_type": "QuxD",
+            "name": "Qux D #11",
+            "description": "Desc Qux D #9",
+            "id": "205a0b48-b8b1-4bbf-adab-f27d46ba6f01",
+            "value": 9
+        },
+        {
+            "_type": "QuxD",
+            "name": "Qux D #5",
+            "description": "Desc Qux D #5",
+            "id": "3d1974f0-5ce0-4c9d-9cd9-b1d4cbd44cc7",
+            "value": 5
+        },
+        {
+            "_type": "QuxD",
+            "name": "Qux D #1",
+            "description": "Desc Qux D #1",
+            "id": "878b342b-923a-4be4-928c-493941063c4c",
+            "value": 1
+        },
+        {
+            "_type": "QuxD",
+            "name": "Qux D #6",
+            "description": "Desc Qux D #6",
+            "id": "89886ea6-8c60-4c8b-b27b-15f2a7b6740c",
+            "value": 6
+        },
+        {
+            "_type": "QuxD",
+            "name": "Qux D #7",
+            "description": "Desc Qux D #7",
+            "id": "9379fb85-fd88-4fb6-b031-064771d23559",
+            "value": 7
+        },
+        {
+            "_type": "QuxD",
+            "name": "Qux D #2",
+            "description": "no desc",
+            "id": "a0434e65-9bad-47e1-8b28-04cf3523aa32",
+            "value": 2
+        },
+        {
+            "_type": "QuxD",
+            "name": "Qux D #3",
+            "description": "no desc",
+            "id": "a8d4df8e-16a5-4a77-b025-537557815226",
+            "value": 3
+        },
+        {
+            "_type": "QuxD",
+            "name": "Qux D #4",
+            "description": "Desc Qux D #4",
+            "id": "bd832498-5ae8-4924-984e-76c85691d7f6",
+            "value": 4
+        },
+        {
+            "_type": "QuxD",
+            "name": "Qux D #8",
+            "description": "Desc Qux D #8",
+            "id": "f92adab1-f684-4268-bce4-4eb9b2a72f2e",
+            "value": 8
+        }
+    ],
+    "queryConfig": {
+        "_type": "QueryConfig",
+        "pageSize": 0,
+        "condition": null,
+        "sortFields": [
+            "id"
+        ],
+        "id": null,
+        "offset": 0
+    },
+    "columnStates": [
+        {
+            "_type": "ColumnState",
+            "name": "id",
+            "sortable": true,
+            "enabled": true
+        },
+        {
+            "_type": "ColumnState",
+            "name": "name",
+            "sortable": true,
+            "enabled": true
+        },
+        {
+            "_type": "ColumnState",
+            "name": "value",
+            "sortable": true,
+            "enabled": true
+        },
+        {
+            "_type": "ColumnState",
+            "name": "description",
+            "sortable": true,
+            "enabled": true
+        }
+    ],
+    "rowCount": 9
+}
