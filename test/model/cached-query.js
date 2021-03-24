@@ -57,17 +57,24 @@ describe("CachedQuery", function () {
             }
         )
 
-        // CachedQuery executed the default config and thus resorted by name with a pagination of 5
-        assert.deepEqual(
-            doc.rows.map(r => r.name),
-            [
-                "Qux D #1",
-                "Qux D #11",
-                "Qux D #2",
-                "Qux D #3",
-                "Qux D #4"
-            ]
+        return Promise.resolve().then(
+            () => {
+
+                // CachedQuery executed the default config and thus resorted by name with a pagination of 5
+                assert.deepEqual(
+                    doc.rows.map(r => r.name),
+                    [
+                        "Qux D #1",
+                        "Qux D #11",
+                        "Qux D #2",
+                        "Qux D #3",
+                        "Qux D #4"
+                    ]
+                )
+
+            }
         )
+
     })
 
     it("paginates in-memory iQueries", function () {
@@ -79,36 +86,37 @@ describe("CachedQuery", function () {
         })
 
         // we go to the next page..
-        doc.update(
+        return doc.update(
             {
                 offset: 5
             }
-        )
+        ).then(
+            () => {
+                assert.deepEqual(
+                    doc.queryConfig,
+                    {
+                        "_type": "QueryConfig",
+                        "condition": null,
+                        "id": null,
+                        "offset": 5,
+                        "pageSize": 5,
+                        "sortFields": [
+                            "name"
+                        ]
+                    }
+                )
 
-        assert.deepEqual(
-            doc.queryConfig,
-            {
-                "_type": "QueryConfig",
-                "condition": null,
-                "id": null,
-                "offset": 5,
-                "pageSize": 5,
-                "sortFields": [
-                    "name"
-                ]
-            }
-        )
-
-        // and find the rest of our rows
-        assert.deepEqual(
-            doc.rows.map(r => r.name),
-            [
-                "Qux D #5",
-                "Qux D #6",
-                "Qux D #7",
-                "Qux D #8"
-            ]
-        )
+                // and find the rest of our rows
+                assert.deepEqual(
+                    doc.rows.map(r => r.name),
+                    [
+                        "Qux D #5",
+                        "Qux D #6",
+                        "Qux D #7",
+                        "Qux D #8"
+                    ]
+                )
+            })
     })
 
     it("sorts in-memory iQueries", function () {
@@ -120,36 +128,41 @@ describe("CachedQuery", function () {
             })
 
             // back to page one, resort by value descending
-            doc.update(
+            return doc.update(
                 {
                     sortFields: ["!value"]
                 }
             )
+                .then(
+                    () => {
+                        assert.deepEqual(
+                            doc.queryConfig,
+                            {
+                                "_type": "QueryConfig",
+                                "condition": null,
+                                "id": null,
+                                "offset": 0,
+                                "pageSize": 5,
+                                "sortFields": [
+                                    "!value"
+                                ]
+                            }
+                        )
 
-            assert.deepEqual(
-                doc.queryConfig,
-                {
-                    "_type": "QueryConfig",
-                    "condition": null,
-                    "id": null,
-                    "offset": 0,
-                    "pageSize": 5,
-                    "sortFields": [
-                        "!value"
-                    ]
-                }
-            )
+                        assert.deepEqual(
+                            doc.rows.map(r => r.name),
+                            [
+                                "Qux D #11",
+                                "Qux D #8",
+                                "Qux D #7",
+                                "Qux D #6",
+                                "Qux D #5"
+                            ]
+                        )
 
-            assert.deepEqual(
-                doc.rows.map(r => r.name),
-                [
-                    "Qux D #11",
-                    "Qux D #8",
-                    "Qux D #7",
-                    "Qux D #6",
-                    "Qux D #5"
-                ]
-            )
+                    }
+                )
+
         }
 
         // test sorting for multiple columns
@@ -161,50 +174,55 @@ describe("CachedQuery", function () {
             })
 
             // back to page one, resort by value descending
-            doc.update(
+            return doc.update(
                 {
                     condition: field("description").eq(value("no desc")),
                     sortFields: ["description","!value"]
                 }
             )
-
-            assert.deepEqual(
-                doc.queryConfig,
-                {
-                    "_type": "QueryConfig",
-                    "condition": {
-                        "type": "Condition",
-                        "name": "eq",
-                        "operands": [
+                .then(
+                    () => {
+                        assert.deepEqual(
+                            doc.queryConfig,
                             {
-                                "type": "Field",
-                                "name": "description"
-                            },
-                            {
-                                "type": "Value",
-                                "scalarType": "String",
-                                "value": "no desc",
-                                "name": null
+                                "_type": "QueryConfig",
+                                "condition": {
+                                    "type": "Condition",
+                                    "name": "eq",
+                                    "operands": [
+                                        {
+                                            "type": "Field",
+                                            "name": "description"
+                                        },
+                                        {
+                                            "type": "Value",
+                                            "scalarType": "String",
+                                            "value": "no desc",
+                                            "name": null
+                                        }
+                                    ]
+                                },
+                                "id": null,
+                                "offset": 0,
+                                "pageSize": 5,
+                                "sortFields": [
+                                    "description",
+                                    "!value"
+                                ]
                             }
-                        ]
-                    },
-                    "id": null,
-                    "offset": 0,
-                    "pageSize": 5,
-                    "sortFields": [
-                        "description",
-                        "!value"
-                    ]
-                }
-            )
+                        )
 
-            assert.deepEqual(
-                doc.rows.map(r => r.name),
-                [
-                    "Qux D #3",
-                    "Qux D #2"
-                ]
-            )
+                        assert.deepEqual(
+                            doc.rows.map(r => r.name),
+                            [
+                                "Qux D #3",
+                                "Qux D #2"
+                            ]
+                        )
+
+                    }
+                )
+
         }
     })
 
@@ -218,48 +236,52 @@ describe("CachedQuery", function () {
 
 
         // filter by name
-        doc.update(
-            {
-                condition: field("name").contains(value("#1"))
-            }
-        )
-
-        assert.deepEqual(
-            doc.queryConfig,
-            {
-                "_type": "QueryConfig",
-                "pageSize": 5,
-                "condition": {
-                    "type": "Condition",
-                    "name": "contains",
-                    "operands": [
+        return doc.update(
+                {
+                    condition: field("name").contains(value("#1"))
+                }
+            )
+            .then(
+                () => {
+                    assert.deepEqual(
+                        doc.queryConfig,
                         {
-                            "type": "Field",
-                            "name": "name"
-                        },
-                        {
-                            "type": "Value",
-                            "scalarType": "String",
-                            "value": "#1",
-                            "name": null
+                            "_type": "QueryConfig",
+                            "pageSize": 5,
+                            "condition": {
+                                "type": "Condition",
+                                "name": "contains",
+                                "operands": [
+                                    {
+                                        "type": "Field",
+                                        "name": "name"
+                                    },
+                                    {
+                                        "type": "Value",
+                                        "scalarType": "String",
+                                        "value": "#1",
+                                        "name": null
+                                    }
+                                ]
+                            },
+                            "sortFields": [
+                                "name"
+                            ],
+                            "id": null,
+                            "offset": 0
                         }
-                    ]
-                },
-                "sortFields": [
-                    "name"
-                ],
-                "id": null,
-                "offset": 0
-            }
-        )
+                    )
 
-        // two matches
-        assert.deepEqual(
-            doc.rows.map(r => r.name),
-            [
-                "Qux D #1",
-                "Qux D #11"
-            ]
-        )
+                    // two matches
+                    assert.deepEqual(
+                        doc.rows.map(r => r.name),
+                        [
+                            "Qux D #1",
+                            "Qux D #11"
+                        ]
+                    )
+
+                }
+            )
     })
 });

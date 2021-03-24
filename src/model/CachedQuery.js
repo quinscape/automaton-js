@@ -40,7 +40,7 @@ export default class CachedQuery
      */
     constructor(source, queryConfig)
     {
-        this.rows = source.rows;
+        this.rows = [];
         this.queryConfig = {
             ... source.queryConfig,
             ... queryConfig
@@ -52,28 +52,7 @@ export default class CachedQuery
 
         this._type = source._type;
 
-        this._query = source._query.clone();
-
-        this._query.execute = vars => {
-
-            //console.log("CachedQuery execute", vars);
-
-            const gqlMethodName = this._query.getQueryDefinition().methods[0];
-
-            return Promise.resolve(
-                {
-                    [gqlMethodName] :  evaluateMemoryQuery(
-                        getWireFormat(),
-                        source,
-                        {
-                            ... this.queryConfig,
-                            ... vars.config
-                        },
-                        this
-                    )
-                }
-            )
-        }
+        this._query = CachedQuery.createMemoryQuery(source, this.queryConfig);
 
         // apply default config 
         this.update(this.queryConfig)
@@ -106,5 +85,67 @@ export default class CachedQuery
     {
         return InteractiveQuery.prototype.updateCondition.call(this, componentCondition, componentId, checkConditions);
     }
+
+    static createMemoryQuery(source, queryConfig)
+    {
+
+        const query = source._query.clone();
+
+        const mergedConfig = {
+            offset: 0,
+            ... query.defaultVars.config,
+            ... queryConfig
+        };
+
+        query.execute = vars => {
+
+            //console.log("CachedQuery execute", vars);
+
+            const gqlMethodName = query.getQueryDefinition().methods[0];
+
+            const result = evaluateMemoryQuery(
+                getWireFormat(),
+                source,
+                {
+                    ... mergedConfig,
+                    ... vars.config
+                }
+            );
+
+            // XXX: needed in tests
+            result._query = query;
+
+            return Promise.resolve(
+                {
+                    [gqlMethodName] :  result
+                }
+            )
+        }
+
+        query.defaultVars = mergedConfig;
+
+        return query;
+    }
+
+
+    /**
+     * Loads a memory query from a raw JSON iquery document. Mostly useful for tests
+     *
+     * @param {String} type     InteractiveQuery type 
+     * @param {object} raw      raw, unconverted iQuery JSON data (must have _type field)
+     * @param query             formal query instance to register for the memory query
+     * @param queryConfig       queryConfig override for the memory query
+     *
+     * @return {InteractiveQuery} memory query based on the raw data
+     */
+    static loadMemoryQuery(type, raw, query, queryConfig)
+    {
+        //console.log("CachedQuery.loadMemoryQuery", raw, query, queryConfig)
+
+        const source = getWireFormat().fromWire( type, raw);
+        source._query = query;
+        return this.createMemoryQuery(source, queryConfig);
+    }
 }
-    
+
+
