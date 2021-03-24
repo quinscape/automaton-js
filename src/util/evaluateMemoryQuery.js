@@ -1,4 +1,4 @@
-import { action } from "mobx";
+import { action, toJS } from "mobx";
 import config from "../config";
 import { FieldResolver } from "./filterTransformer";
 import { filterTransformer } from "../index";
@@ -127,6 +127,7 @@ export const evaluateMemoryQuery = action(
         {
             document = new InteractiveQuery();
 
+            document._type = cachedDocument._type;
             document.type = cachedDocument.type;
             document.queryConfig = {
                 ... queryConfig
@@ -164,6 +165,5 @@ export const evaluateMemoryQuery = action(
         {
             document.rows = filteredRows
         }
-
         return document;
     });
