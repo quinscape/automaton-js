@@ -1,86 +1,231 @@
-import React from "react"
+import React, { useEffect, useRef } from "react"
+import cx from "classnames";
 import i18n from "../i18n";
 
 import { ButtonToolbar, Container, Modal, ModalBody, ModalHeader } from "reactstrap"
 import DataGrid from "./datagrid/IQueryGrid";
+import { Form, Field, Addon, Icon, FormLayout, usePrevious } from "domainql-form";
 import { isNonNull } from "domainql-form/lib/InputSchema";
+import { useLocalStore,observer as fnObserver } from "mobx-react-lite";
+import { action, comparer, observable, reaction, toJS } from "mobx";
 
+import { field, operation, value } from "../FilterDSL";
+import { NO_FILTER, NO_SEARCH_FILTER, COLUMN_FILTER, createSearchFilter } from "./FKSelector";
+
+const setFilter = action(
+    "FkSelectorModal.setFilter",
+    (formObject, filter) => {
+        formObject.filter = filter;
+    }
+)
 
 /**
  * Selector popup for the FK selector.
  */
-const FkSelectorModal = props => {
+const FkSelectorModal = fnObserver(
+    props => {
 
-    const { isOpen, iQuery, columns, title, fieldType, selectRow, toggle, fade } = props;
+        const { isOpen, iQuery, iQueryType, columns, columnTypes, title, fieldType, selectRow, toggle, fade, filter = null, modalFilter, searchFilter, searchTimeout } = props;
 
-    return(
-        <Modal isOpen={ isOpen } toggle={ toggle } size="lg" fade={ fade }>
-            <ModalHeader
-                toggle={ toggle }
-            >
+        const formObject = useLocalStore(() => observable({filter}));
+
+        const iQueryRef = useRef(null);
+        const searchFieldRef = useRef(null);
+
+
+        useEffect(
+            () => {
+
+                // reinitialize filter on opening
+                if (isOpen && formObject.filter !== filter)
                 {
-                    title
+                    setFilter(formObject, filter);
                 }
-            </ModalHeader>
-            <ModalBody>
-                <Container fluid={ true }>
+
+                // update iQuery ref
+                iQueryRef.current = iQuery;
+            }
+        )
+
+        const haveSearchFilter = !!searchFilter;
+        const showSearchFilter = haveSearchFilter && modalFilter !== NO_SEARCH_FILTER && modalFilter !== NO_FILTER;
+        const showColumnFilter = (!haveSearchFilter && modalFilter !== NO_FILTER) ||
+                                 (haveSearchFilter && modalFilter === NO_SEARCH_FILTER) ||
+                                 modalFilter === COLUMN_FILTER;
+
+        //console.log({haveSearchFilter, showSearchFilter, showColumnFilter})
+
+        useEffect(
+            () => {
+                return reaction(
+                    // the expression creates a new filter expression from the current observable state
+                    () => {
+
+                        const { filter } = formObject;
+                        if (filter && showSearchFilter)
+                        {
+                            return createSearchFilter(iQueryType, searchFilter, formObject.filter);
+                        }
+                        else
+                        {
+                            return null;
+                        }
+
+                    },
+                    // and the effect triggers the debounced condition update
+                    newCondition => {
+
+                        // We can't use `iQuery` directly because this closure traps the very first iQuery prop value
+                        // which is always null. So we trap the iQueryRef ref instead and change its current prop
+                        iQueryRef.current.updateCondition(
+                            newCondition
+                        );
+                    },
                     {
-                        isOpen && (
-                            <DataGrid
-                                id="fk-selector-grid"
-                                tableClassName="table-hover table-striped table-bordered table-sm table-responsive"
-                                value={ iQuery }
-                            >
-                                <DataGrid.Column
-                                    heading={ "Action" }
-                                >
-                                    {
-                                        row => (
-                                            <button
-                                                type="button"
-                                                className="btn btn-secondary"
-                                                onClick={ ev => selectRow(iQuery.type, row) }
-                                            >
-                                                {
-                                                    i18n("Select")
-                                                }
-                                            </button>
-                                        )
-                                    }
-                                </DataGrid.Column>
+                        delay: searchTimeout,
+                        equals: comparer.structural
+                    }
+                );
+            },
+            []
+        );
+
+        //console.log("FkSelectorModal", toJS(iQuery))
+
+        return(
+            <Modal isOpen={ isOpen } toggle={ toggle } size="lg" fade={ fade }>
+                <ModalHeader
+                    toggle={ toggle }
+                >
+                    {
+                        title
+                    }
+                </ModalHeader>
+                <ModalBody>
+                    <Container fluid={ true }>
+                        <div className="row">
+                            <div className="col">
                                 {
-                                    columns.map(
-                                        name => (
-                                            <DataGrid.Column
-                                                key={ name }
-                                                name={ name }
-                                                filter="containsIgnoreCase"
-                                            />
-                                        )
+                                    showSearchFilter && (
+                                        <Form
+                                            value={ formObject }
+                                            options={{
+                                            }}
+                                        >
+                                            <Field
+                                                ref={ searchFieldRef }
+                                                name="filter"
+                                                label="search"
+                                                labelClass="sr-only"
+                                                formGroupClass="mb-2"
+                                                type="String"
+                                            >
+                                                <Addon
+                                                    placement={ Addon.LEFT }
+                                                    text={ true }
+                                                >
+                                                    <Icon className="fa-search"/>
+                                                </Addon>
+                                                <Addon
+                                                    placement={ Addon.RIGHT }
+                                                >
+                                                    <button
+                                                        className="btn btn-light border"
+                                                        type="button"
+                                                        onClick={
+                                                            () => {
+                                                                setFilter(formObject, "")
+                                                                searchFieldRef.current.focus()
+                                                            }
+                                                        }
+
+                                                    >
+
+                                                        <Icon className="fa-eraser mr-1"/>
+                                                        Clear
+                                                    </button>
+                                                </Addon>
+                                            </Field>
+                                        </Form>
                                     )
                                 }
-                            </DataGrid>
-                        )
-                    }
-                    <ButtonToolbar>
+                            </div>
+                        </div>
                         {
-                            !isNonNull(fieldType) && (
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={ ev => selectRow(iQuery.type, null) }
-                                >
-                                    {
-                                        i18n("Select None")
+                            isOpen && (
+                                <DataGrid
+                                    id="fk-selector-grid"
+                                    tableClassName={
+                                        cx(
+                                            "table-hover table-striped table-bordered table-sm",
+                                            showColumnFilter && "table-responsive"
+                                        )
                                     }
-                                </button>
+                                    value={ iQuery }
+                                    filterTimeout={ searchTimeout }
+                                >
+                                    <DataGrid.Column
+                                        heading={ "Action" }
+                                    >
+                                        {
+                                            row => (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-secondary"
+                                                    onClick={ ev => selectRow(row) }
+                                                >
+                                                    {
+                                                        i18n("Select")
+                                                    }
+                                                </button>
+                                            )
+                                        }
+                                    </DataGrid.Column>
+                                    {
+                                        columns.map(
+                                            (name, idx) => (
+                                                <DataGrid.Column
+                                                    key={ name }
+                                                    name={ name }
+                                                    filter={
+                                                        showColumnFilter ? (
+                                                            columnTypes[idx] === "String" ?
+                                                                "containsIgnoreCase" :
+                                                                val =>
+                                                                    field(name).toString()
+                                                                    .containsIgnoreCase(
+                                                                        value(val, "String")
+                                                                    )
+                                                            ) :
+                                                            null
+                                                    }
+                                                />
+                                            )
+                                        )
+                                    }
+                                </DataGrid>
                             )
                         }
-                    </ButtonToolbar>
-                </Container>
-            </ModalBody>
-        </Modal>
-    )
-};
+                        <ButtonToolbar>
+                            {
+                                !isNonNull(fieldType) && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary"
+                                        onClick={ ev => selectRow(null) }
+                                    >
+                                        {
+                                            i18n("Select None")
+                                        }
+                                    </button>
+                                )
+                            }
+                        </ButtonToolbar>
+                    </Container>
+                </ModalBody>
+            </Modal>
+        )
+    }
+);
 
 export default FkSelectorModal

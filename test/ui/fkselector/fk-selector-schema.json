@@ -1,32 +1,40 @@
 {
     "types": [
         {
+            "kind": "SCALAR",
+            "name": "String",
+            "description": "Built-in String",
+            "fields": null,
+            "inputFields": null,
+            "interfaces": null,
+            "enumValues": null,
+            "possibleTypes": null
+        },
+        {
+            "kind": "SCALAR",
+            "name": "Boolean",
+            "description": "Built-in Boolean",
+            "fields": null,
+            "inputFields": null,
+            "interfaces": null,
+            "enumValues": null,
+            "possibleTypes": null
+        },
+        {
             "kind": "OBJECT",
-            "name": "InteractiveQueryQuxF",
-            "description": "Interactive Query with QuxD payload.",
+            "name": "QuxB",
+            "description": "Catalog-like connected via name foreign key to QuxMain",
             "fields": [
                 {
-                    "name": "rowCount",
-                    "description": "Total row count available.",
+                    "name": "name",
+                    "description": "DB column 'name'",
                     "args": [],
                     "type": {
-                        "kind": "SCALAR",
-                        "name": "Int",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "rows",
-                    "description": "List with current rows of QuxF.",
-                    "args": [],
-                    "type": {
-                        "kind": "LIST",
+                        "kind": "NON_NULL",
                         "name": null,
                         "ofType": {
-                            "kind": "OBJECT",
-                            "name": "QuxF",
+                            "kind": "SCALAR",
+                            "name": "String",
                             "ofType": null
                         }
                     },
@@ -34,8 +42,8 @@
                     "deprecationReason": null
                 },
                 {
-                    "name": "type",
-                    "description": "Name of payload type (always 'QuxF')",
+                    "name": "description",
+                    "description": "DB column 'description'",
                     "args": [],
                     "type": {
                         "kind": "SCALAR",
@@ -46,27 +54,31 @@
                     "deprecationReason": null
                 },
                 {
-                    "name": "queryConfig",
-                    "description": "Query configuration the current result was produced with.",
+                    "name": "id",
+                    "description": "DB column 'id'",
                     "args": [],
                     "type": {
-                        "kind": "OBJECT",
-                        "name": "QueryConfig",
-                        "ofType": null
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                            "kind": "SCALAR",
+                            "name": "String",
+                            "ofType": null
+                        }
                     },
                     "isDeprecated": false,
                     "deprecationReason": null
                 },
                 {
-                    "name": "columnStates",
-                    "description": "Column states for the current result.",
+                    "name": "value",
+                    "description": "DB column 'value'",
                     "args": [],
                     "type": {
-                        "kind": "LIST",
+                        "kind": "NON_NULL",
                         "name": null,
                         "ofType": {
-                            "kind": "OBJECT",
-                            "name": "ColumnState",
+                            "kind": "SCALAR",
+                            "name": "Int",
                             "ofType": null
                         }
                     },
@@ -81,31 +93,19 @@
         },
         {
             "kind": "OBJECT",
-            "name": "InteractiveQueryQuxE",
-            "description": "Interactive Query with QuxE payload.",
+            "name": "QuxC",
+            "description": "Catalog-like connected via id foreign keys to QuxMain twice",
             "fields": [
                 {
-                    "name": "rowCount",
-                    "description": "Total row count available.",
+                    "name": "name",
+                    "description": "DB column 'name'",
                     "args": [],
                     "type": {
-                        "kind": "SCALAR",
-                        "name": "Int",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "rows",
-                    "description": "List with current rows of QuxE.",
-                    "args": [],
-                    "type": {
-                        "kind": "LIST",
+                        "kind": "NON_NULL",
                         "name": null,
                         "ofType": {
-                            "kind": "OBJECT",
-                            "name": "QuxE",
+                            "kind": "SCALAR",
+                            "name": "String",
                             "ofType": null
                         }
                     },
@@ -113,8 +113,8 @@
                     "deprecationReason": null
                 },
                 {
-                    "name": "type",
-                    "description": "Name of payload type (always 'QuxE')",
+                    "name": "description",
+                    "description": "DB column 'description'",
                     "args": [],
                     "type": {
                         "kind": "SCALAR",
@@ -125,29 +125,222 @@
                     "deprecationReason": null
                 },
                 {
-                    "name": "queryConfig",
-                    "description": "Query configuration the current result was produced with.",
+                    "name": "id",
+                    "description": "DB column 'id'",
                     "args": [],
                     "type": {
-                        "kind": "OBJECT",
-                        "name": "QueryConfig",
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                            "kind": "SCALAR",
+                            "name": "String",
+                            "ofType": null
+                        }
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "value",
+                    "description": "DB column 'value'",
+                    "args": [],
+                    "type": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                            "kind": "SCALAR",
+                            "name": "Int",
+                            "ofType": null
+                        }
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                }
+            ],
+            "inputFields": null,
+            "interfaces": [],
+            "enumValues": null,
+            "possibleTypes": null
+        },
+        {
+            "kind": "OBJECT",
+            "name": "QuxA",
+            "description": "Catalog-like connected via id foreign key to QuxMain",
+            "fields": [
+                {
+                    "name": "name",
+                    "description": "DB column 'name'",
+                    "args": [],
+                    "type": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                            "kind": "SCALAR",
+                            "name": "String",
+                            "ofType": null
+                        }
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "description",
+                    "description": "DB column 'description'",
+                    "args": [],
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
                         "ofType": null
                     },
                     "isDeprecated": false,
                     "deprecationReason": null
                 },
                 {
-                    "name": "columnStates",
-                    "description": "Column states for the current result.",
+                    "name": "id",
+                    "description": "DB column 'id'",
                     "args": [],
                     "type": {
-                        "kind": "LIST",
+                        "kind": "NON_NULL",
                         "name": null,
                         "ofType": {
-                            "kind": "OBJECT",
-                            "name": "ColumnState",
+                            "kind": "SCALAR",
+                            "name": "String",
                             "ofType": null
                         }
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "value",
+                    "description": "DB column 'value'",
+                    "args": [],
+                    "type": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                            "kind": "SCALAR",
+                            "name": "Int",
+                            "ofType": null
+                        }
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                }
+            ],
+            "inputFields": null,
+            "interfaces": [],
+            "enumValues": null,
+            "possibleTypes": null
+        },
+        {
+            "kind": "OBJECT",
+            "name": "QuxD",
+            "description": "Catalog-like connected via id foreign QuxMain without scalar field",
+            "fields": [
+                {
+                    "name": "name",
+                    "description": "DB column 'name'",
+                    "args": [],
+                    "type": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                            "kind": "SCALAR",
+                            "name": "String",
+                            "ofType": null
+                        }
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "description",
+                    "description": "DB column 'description'",
+                    "args": [],
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "id",
+                    "description": "DB column 'id'",
+                    "args": [],
+                    "type": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                            "kind": "SCALAR",
+                            "name": "String",
+                            "ofType": null
+                        }
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "value",
+                    "description": "DB column 'value'",
+                    "args": [],
+                    "type": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                            "kind": "SCALAR",
+                            "name": "Int",
+                            "ofType": null
+                        }
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                }
+            ],
+            "inputFields": null,
+            "interfaces": [],
+            "enumValues": null,
+            "possibleTypes": null
+        },
+        {
+            "kind": "OBJECT",
+            "name": "ColumnState",
+            "description": "The state of a column within an interactive query.",
+            "fields": [
+                {
+                    "name": "name",
+                    "description": "Column name",
+                    "args": [],
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "sortable",
+                    "description": "True if the column is sortable.",
+                    "args": [],
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "Boolean",
+                        "ofType": null
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "enabled",
+                    "description": "True if column is enabled. Server might disabled columns.",
+                    "args": [],
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "Boolean",
+                        "ofType": null
                     },
                     "isDeprecated": false,
                     "deprecationReason": null
@@ -475,21 +668,66 @@
             "possibleTypes": null
         },
         {
-            "kind": "SCALAR",
-            "name": "String",
-            "description": "Built-in String",
+            "kind": "INPUT_OBJECT",
+            "name": "QueryConfigInput",
+            "description": "Encapsulates all parameters of an interactive query.",
             "fields": null,
-            "inputFields": null,
-            "interfaces": null,
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "SCALAR",
-            "name": "Boolean",
-            "description": "Built-in Boolean",
-            "fields": null,
-            "inputFields": null,
+            "inputFields": [
+                {
+                    "name": "pageSize",
+                    "description": "Maximum number of paginated results.,",
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "Int",
+                        "ofType": null
+                    },
+                    "defaultValue": null
+                },
+                {
+                    "name": "condition",
+                    "description": "FilterDSL condition graph or null",
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "Condition",
+                        "ofType": null
+                    },
+                    "defaultValue": null
+                },
+                {
+                    "name": "sortFields",
+                    "description": "Current sort order for the query.",
+                    "type": {
+                        "kind": "LIST",
+                        "name": null,
+                        "ofType": {
+                            "kind": "SCALAR",
+                            "name": "FieldExpression",
+                            "ofType": null
+                        }
+                    },
+                    "defaultValue": null
+                },
+                {
+                    "name": "id",
+                    "description": "Optional unique query identifier. Useful for server-side query implementations.",
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                    },
+                    "defaultValue": null
+                },
+                {
+                    "name": "offset",
+                    "description": "Current offset within the paginated results. The number of rows to skip in the results.",
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "Int",
+                        "ofType": null
+                    },
+                    "defaultValue": null
+                }
+            ],
             "interfaces": null,
             "enumValues": null,
             "possibleTypes": null
@@ -553,225 +791,12 @@
                 },
                 {
                     "name": "offset",
-                    "description": "Current offset within the paginated results",
+                    "description": "Current offset within the paginated results. The number of rows to skip in the results.",
                     "args": [],
                     "type": {
                         "kind": "SCALAR",
                         "name": "Int",
                         "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "QuxB",
-            "description": "Catalog-like connected via name foreign key to QuxMain",
-            "fields": [
-                {
-                    "name": "name",
-                    "description": "DB column 'name'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "description",
-                    "description": "DB column 'description'",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "id",
-                    "description": "DB column 'id'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "value",
-                    "description": "DB column 'value'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "Int",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "QuxC",
-            "description": "Catalog-like connected via id foreign keys to QuxMain twice",
-            "fields": [
-                {
-                    "name": "name",
-                    "description": "DB column 'name'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "description",
-                    "description": "DB column 'description'",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "id",
-                    "description": "DB column 'id'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "value",
-                    "description": "DB column 'value'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "Int",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "QuxA",
-            "description": "Catalog-like connected via id foreign key to QuxMain",
-            "fields": [
-                {
-                    "name": "name",
-                    "description": "DB column 'name'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "description",
-                    "description": "DB column 'description'",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "id",
-                    "description": "DB column 'id'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "value",
-                    "description": "DB column 'value'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "Int",
-                            "ofType": null
-                        }
                     },
                     "isDeprecated": false,
                     "deprecationReason": null
@@ -942,6 +967,18 @@
                     "deprecationReason": null
                 },
                 {
+                    "name": "quxDId",
+                    "description": "DB foreign key column 'qux_d_id'",
+                    "args": [],
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
                     "name": "quxD",
                     "description": "Target of 'qux_d_id'",
                     "args": [],
@@ -954,59 +991,56 @@
                     "deprecationReason": null
                 },
                 {
-                    "name": "quxE",
-                    "description": "Target of 'qux_e_id'",
+                    "name": "quxD2Id",
+                    "description": "DB foreign key column 'qux_d2_id'",
+                    "args": [],
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "quxD2",
+                    "description": "Target of 'qux_d2_id'",
                     "args": [],
                     "type": {
                         "kind": "OBJECT",
-                        "name": "QuxE",
+                        "name": "QuxD",
                         "ofType": null
                     },
                     "isDeprecated": false,
                     "deprecationReason": null
                 },
                 {
-                    "name": "quxF",
-                    "description": "Target of 'qux_f_id'",
+                    "name": "quxD3Id",
+                    "description": "DB foreign key column 'qux_d3_id'",
+                    "args": [],
+                    "type": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "quxD3",
+                    "description": "Target of 'qux_d3_id'",
                     "args": [],
                     "type": {
                         "kind": "OBJECT",
-                        "name": "QuxF",
+                        "name": "QuxD",
                         "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "QuxD",
-            "description": "Catalog-like connected via id foreign QuxMain without scalar field",
-            "fields": [
-                {
-                    "name": "name",
-                    "description": "DB column 'name'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
                     },
                     "isDeprecated": false,
                     "deprecationReason": null
                 },
                 {
-                    "name": "description",
-                    "description": "DB column 'description'",
+                    "name": "quxD4Id",
+                    "description": "DB foreign key column 'qux_d4_id'",
                     "args": [],
                     "type": {
                         "kind": "SCALAR",
@@ -1017,219 +1051,12 @@
                     "deprecationReason": null
                 },
                 {
-                    "name": "id",
-                    "description": "DB column 'id'",
+                    "name": "quxD4",
+                    "description": "Target of 'qux_d4_id'",
                     "args": [],
                     "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "value",
-                    "description": "DB column 'value'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "Int",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "QuxE",
-            "fields": [
-                {
-                    "name": "name",
-                    "description": "DB column 'name'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "description",
-                    "description": "DB column 'description'",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "id",
-                    "description": "DB column 'id'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "value",
-                    "description": "DB column 'value'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "Int",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "QuxF",
-            "fields": [
-                {
-                    "name": "name",
-                    "description": "DB column 'name'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "description",
-                    "description": "DB column 'description'",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "id",
-                    "description": "DB column 'id'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "value",
-                    "description": "DB column 'value'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "Int",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "ColumnState",
-            "description": "The state of a column within an interactive query.",
-            "fields": [
-                {
-                    "name": "name",
-                    "description": "Column name",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "enabled",
-                    "description": "True if column is enabled. Server might disabled columns.",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Boolean",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "sortable",
-                    "description": "True if the column is sortable.",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Boolean",
+                        "kind": "OBJECT",
+                        "name": "QuxD",
                         "ofType": null
                     },
                     "isDeprecated": false,
@@ -1247,103 +1074,6 @@
             "description": "Built-in Int",
             "fields": null,
             "inputFields": null,
-            "interfaces": null,
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "INPUT_OBJECT",
-            "name": "QuxMainInput",
-            "description": "Main object for fk_test",
-            "fields": null,
-            "inputFields": [
-                {
-                    "name": "quxDId",
-                    "description": null,
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "defaultValue": null
-                },
-                {
-                    "name": "quxAId",
-                    "description": null,
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "defaultValue": null
-                },
-                {
-                    "name": "quxBName",
-                    "description": null,
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "defaultValue": null
-                },
-                {
-                    "name": "quxCId1",
-                    "description": null,
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "defaultValue": null
-                },
-                {
-                    "name": "name",
-                    "description": null,
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "defaultValue": null
-                },
-                {
-                    "name": "quxCId2",
-                    "description": null,
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "defaultValue": null
-                },
-                {
-                    "name": "id",
-                    "description": null,
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "defaultValue": null
-                }
-            ],
             "interfaces": null,
             "enumValues": null,
             "possibleTypes": null
@@ -1436,6 +1166,346 @@
             "interfaces": null,
             "enumValues": null,
             "possibleTypes": null
+        },
+        {
+            "kind": "OBJECT",
+            "name": "QueryType",
+            "description": "Auto-generated from DataGridLogic, FileAccessLogic, ResourceAccessLogic, ShippingLogic, TestLogic, AutomatonStandardLogic",
+            "fields": [
+                {
+                    "name": "iQueryQuxA",
+                    "description": "Queries QuxA objects based on the given query config",
+                    "args": [
+                        {
+                            "name": "config",
+                            "description": null,
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "INPUT_OBJECT",
+                                    "name": "QueryConfigInput",
+                                    "ofType": null
+                                }
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "delay",
+                            "description": null,
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        }
+                    ],
+                    "type": {
+                        "kind": "OBJECT",
+                        "name": "InteractiveQueryQuxA",
+                        "ofType": null
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "iQueryQuxB",
+                    "description": "Queries QuxB objects based on the given query config",
+                    "args": [
+                        {
+                            "name": "config",
+                            "description": null,
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "INPUT_OBJECT",
+                                    "name": "QueryConfigInput",
+                                    "ofType": null
+                                }
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "delay",
+                            "description": null,
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        }
+                    ],
+                    "type": {
+                        "kind": "OBJECT",
+                        "name": "InteractiveQueryQuxB",
+                        "ofType": null
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "iQueryQuxC",
+                    "description": "Queries QuxC objects based on the given query config",
+                    "args": [
+                        {
+                            "name": "config",
+                            "description": null,
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "INPUT_OBJECT",
+                                    "name": "QueryConfigInput",
+                                    "ofType": null
+                                }
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "delay",
+                            "description": null,
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        }
+                    ],
+                    "type": {
+                        "kind": "OBJECT",
+                        "name": "InteractiveQueryQuxC",
+                        "ofType": null
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                },
+                {
+                    "name": "iQueryQuxD",
+                    "description": "Queries QuxD objects based on the given query config",
+                    "args": [
+                        {
+                            "name": "config",
+                            "description": null,
+                            "type": {
+                                "kind": "NON_NULL",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "INPUT_OBJECT",
+                                    "name": "QueryConfigInput",
+                                    "ofType": null
+                                }
+                            },
+                            "defaultValue": null
+                        },
+                        {
+                            "name": "delay",
+                            "description": null,
+                            "type": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            },
+                            "defaultValue": null
+                        }
+                    ],
+                    "type": {
+                        "kind": "OBJECT",
+                        "name": "InteractiveQueryQuxD",
+                        "ofType": null
+                    },
+                    "isDeprecated": false,
+                    "deprecationReason": null
+                }
+            ],
+            "inputFields": null,
+            "interfaces": [],
+            "enumValues": null,
+            "possibleTypes": null
+        },
+        {
+            "kind": "OBJECT",
+            "name": "MutationType",
+            "description": "Auto-generated from DataGridLogic, FileAccessLogic, ResourceAccessLogic, ShippingLogic, TestLogic, AutomatonStandardLogic",
+            "fields": [],
+            "inputFields": null,
+            "interfaces": [],
+            "enumValues": null,
+            "possibleTypes": null
+        }
+    ],
+    "relations": [
+        {
+            "sourceFields": [
+                "quxAId"
+            ],
+            "targetType": "QuxA",
+            "leftSideObjectName": "quxA",
+            "sourceField": "OBJECT_AND_SCALAR",
+            "targetField": "NONE",
+            "sourceType": "QuxMain",
+            "id": "QuxMain-quxA",
+            "targetFields": [
+                "id"
+            ]
+        },
+        {
+            "sourceFields": [
+                "quxBName"
+            ],
+            "targetType": "QuxB",
+            "leftSideObjectName": "quxB",
+            "sourceField": "OBJECT_AND_SCALAR",
+            "targetField": "NONE",
+            "sourceType": "QuxMain",
+            "id": "QuxMain-quxB",
+            "targetFields": [
+                "name"
+            ]
+        },
+        {
+            "sourceFields": [
+                "quxCId1"
+            ],
+            "targetType": "QuxC",
+            "leftSideObjectName": "quxC1",
+            "sourceField": "OBJECT_AND_SCALAR",
+            "targetField": "NONE",
+            "sourceType": "QuxMain",
+            "id": "QuxMain-quxC1",
+            "targetFields": [
+                "id"
+            ]
+        },
+        {
+            "sourceFields": [
+                "quxCId2"
+            ],
+            "targetType": "QuxC",
+            "leftSideObjectName": "quxC2",
+            "sourceField": "OBJECT_AND_SCALAR",
+            "targetField": "NONE",
+            "sourceType": "QuxMain",
+            "id": "QuxMain-quxC2",
+            "targetFields": [
+                "id"
+            ]
+        },
+        {
+            "sourceFields": [
+                "quxDId"
+            ],
+            "targetType": "QuxD",
+            "leftSideObjectName": "quxD",
+            "sourceField": "OBJECT_AND_SCALAR",
+            "targetField": "NONE",
+            "sourceType": "QuxMain",
+            "id": "QuxMain-quxD",
+            "targetFields": [
+                "id"
+            ]
+        },
+        {
+            "sourceFields": [
+                "quxD2Id"
+            ],
+            "targetType": "QuxD",
+            "leftSideObjectName": "quxD2",
+            "sourceField": "OBJECT_AND_SCALAR",
+            "targetField": "NONE",
+            "sourceType": "QuxMain",
+            "id": "QuxMain-quxD2",
+            "targetFields": [
+                "id"
+            ]
+        },
+        {
+            "sourceFields": [
+                "quxD3Id"
+            ],
+            "targetType": "QuxD",
+            "leftSideObjectName": "quxD3",
+            "sourceField": "OBJECT_AND_SCALAR",
+            "targetField": "NONE",
+            "sourceType": "QuxMain",
+            "id": "QuxMain-quxD3",
+            "targetFields": [
+                "id"
+            ]
+        },
+        {
+            "sourceFields": [
+                "quxD4Id"
+            ],
+            "targetType": "QuxD",
+            "leftSideObjectName": "quxD4",
+            "sourceField": "OBJECT_AND_SCALAR",
+            "targetField": "NONE",
+            "sourceType": "QuxMain",
+            "id": "QuxMain-quxD4",
+            "targetFields": [
+                "id"
+            ]
+        }
+    ],
+    "nameFields": {
+        "QuxB": [
+            "name"
+        ],
+        "QuxC": [
+            "name"
+        ],
+        "QuxA": [
+            "name"
+        ],
+        "QuxD": [
+            "name"
+        ],
+        "ColumnState": [
+            "name"
+        ],
+        "QuxMain": [
+            "name"
+        ]
+    },
+    "genericTypes": [
+        {
+            "type": "InteractiveQueryQuxD",
+            "typeParameters": [
+                "QuxD"
+            ],
+            "genericType": "de.quinscape.automaton.model.data.InteractiveQuery"
+        },
+        {
+            "type": "InteractiveQueryQuxB",
+            "typeParameters": [
+                "QuxB"
+            ],
+            "genericType": "de.quinscape.automaton.model.data.InteractiveQuery"
+        },
+        {
+            "type": "InteractiveQueryQuxC",
+            "typeParameters": [
+                "QuxC"
+            ],
+            "genericType": "de.quinscape.automaton.model.data.InteractiveQuery"
+        },
+        {
+            "type": "InteractiveQueryQuxA",
+            "typeParameters": [
+                "QuxA"
+            ],
+            "genericType": "de.quinscape.automaton.model.data.InteractiveQuery"
+        },
+        {
+            "type": "InteractiveQueryQuxMain",
+            "typeParameters": [
+                "QuxMain"
+            ],
+            "genericType": "de.quinscape.automaton.model.data.InteractiveQuery"
         }
     ]
 }
