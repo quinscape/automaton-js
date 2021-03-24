@@ -38,7 +38,7 @@ export default class CachedQuery
      * @param {Object} queryConfig          queryConfig override. Note that you will want to override "pageSize" in most cases
      *                                      since the source query will have disabled paging to get all results.
      */
-    constructor(source, queryConfig)
+    constructor(source, queryConfig, fn)
     {
         this.rows = [];
         this.queryConfig = {
@@ -52,7 +52,7 @@ export default class CachedQuery
 
         this._type = source._type;
 
-        this._query = CachedQuery.createMemoryQuery(source, this.queryConfig);
+        this._query = CachedQuery.createMemoryQuery(source, this.queryConfig, fn);
 
         // apply default config 
         this.update(this.queryConfig)
@@ -86,7 +86,17 @@ export default class CachedQuery
         return InteractiveQuery.prototype.updateCondition.call(this, componentCondition, componentId, checkConditions);
     }
 
-    static createMemoryQuery(source, queryConfig)
+
+    /**
+     * Creates a in-memory query from the given source iQuery.
+     *
+     * @param source            InteractiveQuery instance containing all rows
+     * @param queryConfig       overriding query config
+     * @param {function} [fn]   optional function callback called after every mocked request ( result => ... }
+     * 
+     * @return {GraphQLQuery} mocked graphql query
+     */
+    static createMemoryQuery(source, queryConfig, fn)
     {
 
         const query = source._query.clone();
@@ -115,6 +125,11 @@ export default class CachedQuery
             // XXX: needed in tests
             result._query = query;
 
+            if (typeof fn === "function")
+            {
+                fn(result);
+            }
+
             return Promise.resolve(
                 {
                     [gqlMethodName] :  result
@@ -131,20 +146,22 @@ export default class CachedQuery
     /**
      * Loads a memory query from a raw JSON iquery document. Mostly useful for tests
      *
-     * @param {String} type     InteractiveQuery type 
+     * @param {String} type     InteractiveQuery type
      * @param {object} raw      raw, unconverted iQuery JSON data (must have _type field)
      * @param query             formal query instance to register for the memory query
      * @param queryConfig       queryConfig override for the memory query
      *
-     * @return {InteractiveQuery} memory query based on the raw data
+     * @param {function} [fn]   optional callback called after every mocked request
+     *
+     * @return {GraphQLQuery} mocked graphql query
      */
-    static loadMemoryQuery(type, raw, query, queryConfig)
+    static loadMemoryQuery(type, raw, query, queryConfig, fn)
     {
         //console.log("CachedQuery.loadMemoryQuery", raw, query, queryConfig)
 
         const source = getWireFormat().fromWire( type, raw);
         source._query = query;
-        return this.createMemoryQuery(source, queryConfig);
+        return this.createMemoryQuery(source, queryConfig, fn);
     }
 }
 
