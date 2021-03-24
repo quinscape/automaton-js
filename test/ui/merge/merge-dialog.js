@@ -1,7 +1,7 @@
 import { before, describe, it } from "mocha"
 import React from "react"
 import assert from "power-assert"
-import { act, getAllByText, getByLabelText, getByText, render } from "@testing-library/react"
+import { act, getAllByText, getByLabelText, getByText, render, cleanup } from "@testing-library/react"
 
 import simpleMergeData from "../../merge/simple-merge.json"
 import fkMergeData from "../../merge/foreign-key-merge.json"
@@ -30,7 +30,12 @@ describe("<ChangeConflictDialog/>", function () {
 
     let inputSchema, wireFormat;
 
-    before(() => {
+    afterEach(() => {
+        render(<span/>);
+        cleanup();
+    } );
+
+    beforeEach(() => {
 
         inputSchema = new InputSchema(rawSchema);
 
