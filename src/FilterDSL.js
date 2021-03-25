@@ -395,6 +395,11 @@ export function isLogicalCondition(node)
     );
 }
 
+export function isComposedComponentExpression(node)
+{
+    return isLogicalCondition(node) && node.operands.every( o => o.type === Type.COMPONENT)
+}
+
 
 /**
  * Finds a component node with the given id.
@@ -406,18 +411,32 @@ export function isLogicalCondition(node)
  */
 export function findComponentNode(conditionNode, id)
 {
-    const { operands } = conditionNode;
-
-    if (operands)
+    if (conditionNode.type === Type.COMPONENT)
     {
-        for (let i = 0; i < operands.length; i++)
+        return conditionNode.id === id ? conditionNode : null;
+    }
+
+    if (isComposedComponentExpression(conditionNode))
+    {
+        const { operands } = conditionNode;
+
+        if (operands)
         {
-            const operand = operands[i];
-            if (operand.type === Type.COMPONENT && operand.id === id)
+            for (let i = 0; i < operands.length; i++)
             {
-                return operand;
+                const operand = operands[i];
+                if (operand.type === Type.COMPONENT && operand.id === id)
+                {
+                    return operand;
+                }
             }
         }
+        return null;
     }
-    return null;
+    else
+    {
+        return id === null ? component(null, conditionNode) : null;
+    }
+
+
 }

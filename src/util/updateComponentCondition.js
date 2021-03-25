@@ -1,4 +1,4 @@
-import { component, and, condition, isLogicalCondition, Type } from "../FilterDSL";
+import { component, and, condition, isLogicalCondition, Type, isComposedComponentExpression } from "../FilterDSL";
 import compareConditions from "./compareConditions";
 
 
@@ -122,7 +122,7 @@ export default function updateComponentCondition(
         }
         else
         {
-            const isComplexComponentLogical = isLogicalCondition(compositeCondition) && compositeCondition.operands.every( o => o.type === Type.COMPONENT);
+            const isComplexComponentLogical = isComposedComponentExpression(compositeCondition);
 
             if (!isComplexComponentLogical)
             {
