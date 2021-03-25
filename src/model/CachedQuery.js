@@ -146,10 +146,10 @@ export default class CachedQuery
     /**
      * Loads a memory query from a raw JSON iquery document. Mostly useful for tests
      *
-     * @param {String} type     InteractiveQuery type
-     * @param {object} raw      raw, unconverted iQuery JSON data (must have _type field)
-     * @param query             formal query instance to register for the memory query
-     * @param queryConfig       queryConfig override for the memory query
+     * @param {String} type             InteractiveQuery type
+     * @param {object} raw              raw, unconverted iQuery JSON data (must have _type field)
+     * @param {GraphQLQuery} query      formal query instance to register for the memory query
+     * @param queryConfig               queryConfig override for the memory query
      *
      * @param {function} [fn]   optional callback called after every mocked request
      *
@@ -158,10 +158,26 @@ export default class CachedQuery
     static loadMemoryQuery(type, raw, query, queryConfig, fn)
     {
         //console.log("CachedQuery.loadMemoryQuery", raw, query, queryConfig)
-
-        const source = getWireFormat().fromWire( type, raw);
-        source._query = query;
+        const source = this.convertIQuery(type, raw, query);
         return this.createMemoryQuery(source, queryConfig, fn);
+    }
+
+
+    /**
+     * Convert raw iquery data to an Interactive Query instance.
+     *
+     * @param {String} type             name of the degenerified InteractiveQuery container (e.g. "InteractiveQueryFoo")
+     * @param {object} raw              raw JSON data like it comes from the GraphQL server matching the type
+     * @param {GraphQLQuery} query      query instance to register as _query for the converted document.
+     *                                  Will be used by widgets to requery it.
+     *
+     * @return {InteractiveQuery} iQuery document instance containing correctly converted scalar values
+     */
+    static convertIQuery(type, raw, query)
+    {
+        const source = getWireFormat().fromWire(type, raw);
+        source._query = query;
+        return source;
     }
 }
 
