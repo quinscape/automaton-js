@@ -7,9 +7,10 @@ import {
     act,
     cleanup,
     findByDisplayValue,
-    findByText, fireEvent,
+    findByText,
+    fireEvent,
     getByLabelText,
-    getByText, prettyDOM,
+    getByText,
     queryByLabelText,
     render,
     waitForElement,
@@ -21,9 +22,9 @@ import config from "../../../src/config"
 import InteractiveQuery from "../../../src/model/InteractiveQuery"
 import FKSelector from "../../../src/ui/FKSelector";
 import GraphQLQuery from "../../../src/GraphQLQuery"
-import { field, or, value } from "../../../src/FilterDSL"
 import { __setWireFormatForTest } from "../../../src/domain";
 import CachedQuery from "../../../src/model/CachedQuery";
+import { field, value, or } from "../../../src/FilterDSL";
 
 import sleep from "../sleep";
 import { runInAction } from "mobx";
@@ -33,7 +34,7 @@ const rawSchema = require("./fk-selector-schema.json");
 
 let executeSpy;
 
-const validationTimeout = 10
+const searchTimeout = 4
 
 
 function getModal()
@@ -235,7 +236,7 @@ function searchFor(inputElem, searchTerm)
                         //     }
                         // });
 
-                        promise = userEvent.type(inputElem, searchTerm, {delay: validationTimeout / 2});
+                        promise = userEvent.type(inputElem, searchTerm, {delay: searchTimeout / 2});
 
                     }
                 );
@@ -244,7 +245,7 @@ function searchFor(inputElem, searchTerm)
             }
         )
         .then(
-            () => sleep(validationTimeout * 2)
+            () => sleep(searchTimeout * 2)
         )
 }
 
@@ -354,15 +355,15 @@ describe("FKSelector", function () {
                             <FKSelector
                                 name="quxAId"
                                 display="quxA.name"
-                                required={true}
+                                required={ true }
                                 query={Q_QuxA}
-                                fade={false}
+                                fade={ false }
                             />
 
                             <FKSelector
                                 name="quxBName"
                                 query={Q_QuxB}
-                                fade={false}
+                                fade={ false }
                             />
 
                         </TestForm>
@@ -402,14 +403,14 @@ describe("FKSelector", function () {
                                 name="quxCId1"
                                 display="quxC1.name"
                                 query={Q_QuxC}
-                                fade={false}
+                                fade={ false }
                             />
 
                             <FKSelector
                                 name="quxCId2"
                                 display="quxC2.name"
                                 query={Q_QuxC}
-                                fade={false}
+                                fade={ false }
                             />
 
                         </TestForm>
@@ -458,8 +459,8 @@ describe("FKSelector", function () {
                                     display="quxD.name"
                                     searchFilter="name"
                                     query={ Q_QuxD }
-                                    fade={false}
-                                    validationTimeout={validationTimeout}
+                                    fade={ false }
+                                    searchTimeout={ searchTimeout }
                                 />
 
                             </TestForm>
@@ -489,7 +490,10 @@ describe("FKSelector", function () {
                 })
         })
 
-        it("accepts complex search filter", function () {
+        it("accepts complex search filter", ()  => testQuxDWorkflow(false))
+
+
+        it("optionally hides the search filter in the modal", function () {
 
             const Q_QuxD = CachedQuery.loadMemoryQuery("InteractiveQueryQuxD", require("./iquery-qux-d.json"), require("./Q_QuxC").default, {pageSize: 5});
             let container, debug;
@@ -500,6 +504,7 @@ describe("FKSelector", function () {
                     ({container, debug} = render(
                         <FormConfigProvider schema={inputSchema}>
                             <TestForm
+                                key={1}
                                 value={formObj}
                             >
                                 <FKSelector
@@ -522,112 +527,9 @@ describe("FKSelector", function () {
                                         )
                                     }
                                     query={ Q_QuxD }
-                                    fade={false}
-                                    validationTimeout={validationTimeout}
-                                />
-
-                            </TestForm>
-                        </FormConfigProvider>
-                    ))
-                }
-            );
-
-            //console.log(prettyDOM(container))
-
-            const fkSelectorD = getByLabelText(container, "quxDId");
-            assert(fkSelectorD.value === "");
-
-            return Promise.resolve()
-
-                // test normal selection on search filtered <FKSelector>
-                .then(
-                    () => selectFromModal(fkSelectorD, "Qux D #2")
-                )
-                .then(() => {
-                    assert(formObj.quxDId === "a0434e65-9bad-47e1-8b28-04cf3523aa32")
-                    assert(formObj.quxD.name === "Qux D #2")
-                })
-
-                .then(
-                    () => searchFor(fkSelectorD, "#5")
-                )
-                .then(
-                    () => findByDisplayValue(container, "Qux D #5")
-                )
-
-                .then(() => {
-                    assert(formObj.quxDId === "3d1974f0-5ce0-4c9d-9cd9-b1d4cbd44cc7")
-                    assert(formObj.quxD.name === "Qux D #5")
-                })
-
-
-                // check behavior on ambiguous matches
-                .then(
-                    () => searchFor(fkSelectorD, "#1")
-                )
-                .then(
-                    // we match #1 and #11
-                    () => findByText(container, "[Ambiguous match]")
-                )
-                .then(
-                    () => openFKSelectorModal(fkSelectorD)
-                )
-
-                .then(modal => {
-
-                    // ambiguous search filter preselects the same filter in the modal
-
-                    const tableBody = modal.querySelector("table.data-grid tbody")
-
-                    assert(modal.querySelectorAll("tr.data").length === 2)
-
-                    const searchFilterInput = getByLabelText(modal, "search");
-
-                    assert(searchFilterInput.value === "#1")
-
-                    assert(getByText(tableBody, "Qux D #1"))
-                    assert(getByText(tableBody, "Qux D #11"))
-
-                    // by default, we have no column filters if we have a search filter
-                    assert(!modal.querySelectorAll("tr.filter input.form-control").length)
-
-                    clickModalChoice(modal, null)
-
-
-                })
-                .then(() => waitForModalClose())
-
-
-                .then(
-                    () => searchFor(fkSelectorD, "abc")
-                )
-                .then(
-                    () => findByText(container, "[No match]")
-                )
-
-        })
-
-        it("optionally hides the search filter in the modal", function () {
-
-            const Q_QuxD = CachedQuery.loadMemoryQuery("InteractiveQueryQuxD", require("./iquery-qux-d.json"), require("./Q_QuxC").default, {pageSize: 5});
-            let container, debug;
-
-
-            act(
-                () => {
-                    ({container, debug} = render(
-                        <FormConfigProvider schema={inputSchema}>
-                            <TestForm
-                                value={formObj}
-                            >
-                                <FKSelector
-                                    name="quxDId"
-                                    display="quxD.name"
-                                    searchFilter="name"
-                                    query={ Q_QuxD }
-                                    fade={false}
+                                    fade={ false }
                                     modalFilter={ FKSelector.NO_SEARCH_FILTER }
-                                    validationTimeout={validationTimeout}
+                                    searchTimeout={ searchTimeout }
                                 />
 
                             </TestForm>
@@ -655,7 +557,7 @@ describe("FKSelector", function () {
 
                 .then(modal => {
 
-                    // without search filter there is no preselection
+                    // without search filter there is no preselection (if we have a complex search filter)
                     assert(modal.querySelectorAll("tr.data").length === 5)
 
                     const searchFilterInput = queryByLabelText(modal, "search");
@@ -664,15 +566,64 @@ describe("FKSelector", function () {
                     clickModalChoice(modal, null)
                 })
                 .then(() => waitForModalClose())
+
+                .then(() => {
+                    act(
+                        () => {
+                            ({container, debug} = render(
+                                <FormConfigProvider schema={inputSchema}>
+                                    <TestForm
+                                        key={ 2 }
+                                        value={formObj}
+                                    >
+                                        <FKSelector
+                                            name="quxDId"
+                                            display="quxD.name"
+                                            searchFilter="name"
+                                            query={ Q_QuxD }
+                                            fade={ false }
+                                            modalFilter={ FKSelector.NO_SEARCH_FILTER }
+                                            searchTimeout={ searchTimeout }
+                                        />
+
+                                    </TestForm>
+                                </FormConfigProvider>
+                            ))
+                        }
+                    );
+
+                })
+
+                // check behavior on ambiguous matches
+                .then(
+                    () => searchFor(getByLabelText(container, "quxDId"), "#1")
+                )
+                .then(
+                    // we match #1 and #11
+                    () => findByText(container, "[Ambiguous match]")
+                )
+                .then(
+                    () => openFKSelectorModal(getByLabelText(container, "quxDId"))
+                )
+
+                .then(modal => {
+
+                    // for a simple filter, we preselect via column filter
+                    assert(modal.querySelectorAll("tr.data").length === 2)
+
+                    const searchFilterInput = queryByLabelText(modal, "search");
+                    assert(!searchFilterInput)
+
+                    clickModalChoice(modal, null)
+                })
+                .then(() => waitForModalClose())
+
         })
 
         it("optionally adds an extra column filter in the modal", function () {
 
-            const Q_QuxD = CachedQuery.loadMemoryQuery("InteractiveQueryQuxD", require("./iquery-qux-d.json"), require("./Q_QuxC").default, {pageSize: 5}, result => {
-                console.log("Q_QuxD", JSON.stringify(result.queryConfig))
-            });
+            const Q_QuxD = CachedQuery.loadMemoryQuery("InteractiveQueryQuxD", require("./iquery-qux-d.json"), require("./Q_QuxC").default, {pageSize: 5});
             let container, debug;
-
 
             act(
                 () => {
@@ -686,9 +637,9 @@ describe("FKSelector", function () {
                                     display="quxD.name"
                                     searchFilter="name"
                                     query={ Q_QuxD }
-                                    fade={false}
+                                    fade={ false }
                                     modalFilter={ FKSelector.COLUMN_FILTER }
-                                    validationTimeout={validationTimeout}
+                                    searchTimeout={ searchTimeout }
                                 />
 
                             </TestForm>
@@ -743,6 +694,22 @@ describe("FKSelector", function () {
                             `)
                         )
 
+                        const filterRow = getModal().querySelector("tr.filter");
+                        const filterInputs = filterRow.querySelectorAll("tr.filter input,select");
+
+                        return searchFor(filterInputs[2], "#2");
+                    }
+                )
+                .then(
+                    () => {
+
+                        const summary = getModalTableSummary();
+
+                        assert(
+                            summary === ignoreLeading(`
+                            
+                            `)
+                        )
                     }
                 )
                 .then(
@@ -752,7 +719,131 @@ describe("FKSelector", function () {
                     () => waitForModalClose()
                 )
         })
+
     })
+
+    function testQuxDWorkflow(inMemory)
+    {
+        const rawData = require("./iquery-qux-d.json");
+        const query = require("./Q_QuxD").default;
+
+        const source = inMemory ?
+            CachedQuery.convertIQuery(
+                "InteractiveQueryQuxD",
+                rawData,
+                query
+            ) :
+            CachedQuery.loadMemoryQuery(
+                "InteractiveQueryQuxD",
+                rawData,
+                query,
+                {
+                    pageSize: 5
+                }
+            );
+
+        let container, debug;
+
+        const renderSpy = sinon.spy();
+
+        act(
+            () => {
+                ({container, debug} = render(
+                    <FormConfigProvider schema={inputSchema}>
+                        <TestForm
+                            value={formObj}
+                            renderSpy={ renderSpy }
+                        >
+                            <FKSelector
+                                name="quxDId"
+                                display="quxD.name"
+                                searchFilter="name"
+                                query={ source }
+                                fade={ false }
+                                searchTimeout={ searchTimeout }
+                            />
+
+                        </TestForm>
+                    </FormConfigProvider>
+                ))
+            }
+        );
+
+        const fkSelectorD = getByLabelText(container, "quxDId");
+        assert(fkSelectorD.value === "");
+
+        return Promise.resolve()
+
+
+            // test normal selection on search filtered <FKSelector>
+            .then(
+                () => selectFromModal(fkSelectorD, "Qux D #2")
+            )
+            .then(() => {
+                assert(formObj.quxDId === "a0434e65-9bad-47e1-8b28-04cf3523aa32")
+                assert(formObj.quxD.name === "Qux D #2")
+            })
+
+            .then(
+                () => searchFor(fkSelectorD, "#5")
+            )
+            .then(
+                () => findByDisplayValue(container, "Qux D #5")
+            )
+
+            .then(() => {
+                assert(formObj.quxDId === "3d1974f0-5ce0-4c9d-9cd9-b1d4cbd44cc7")
+                assert(formObj.quxD.name === "Qux D #5")
+            })
+
+
+            // check behavior on ambiguous matches
+            .then(
+                () => searchFor(fkSelectorD, "#1")
+            )
+            .then(
+                // we match #1 and #11
+                () => findByText(container, "[Ambiguous match]")
+            )
+            .then(
+                () => openFKSelectorModal(fkSelectorD)
+            )
+
+            .then(modal => {
+
+                // ambiguous search filter preselects the same filter in the modal
+
+                const tableBody = modal.querySelector("table.data-grid tbody")
+
+                assert(modal.querySelectorAll("tr.data").length === 2)
+
+                const searchFilterInput = getByLabelText(modal, "search");
+
+                assert(searchFilterInput.value === "#1")
+
+                assert(getByText(tableBody, "Qux D #1"))
+                assert(getByText(tableBody, "Qux D #11"))
+
+                // by default, we have no column filters if we have a search filter
+                assert(!modal.querySelectorAll("tr.filter input.form-control").length)
+
+                clickModalChoice(modal, null)
+
+
+            })
+            .then(() => waitForModalClose())
+
+
+            .then(
+                () => searchFor(fkSelectorD, "abc")
+            )
+            .then(
+                () => findByText(container, "[No match]")
+            )
+
+    }
+
+    it("works off in-memory queries", ()  => testQuxDWorkflow(true))
 
     it("tolerates non-null violations", function () {
 
@@ -784,9 +875,9 @@ describe("FKSelector", function () {
                             <FKSelector
                                 name="quxAId"
                                 display="quxA.name"
-                                required={true}
+                                required={ true }
                                 query={Q_QuxA}
-                                fade={false}
+                                fade={ false }
                             />
 
                         </TestForm>
@@ -794,6 +885,8 @@ describe("FKSelector", function () {
                 ))
             }
         );
+
+        const fkSelectorA = getByLabelText(container, "quxAId");
 
         return Promise.resolve()
             .then(
@@ -821,7 +914,17 @@ describe("FKSelector", function () {
                     assert.deepEqual(formConfig.getErrors("quxAId"), ["","QuxMain.quxAId:Field Required"])
                 }
             )
+            .then(
+                () => selectFromModal(fkSelectorA, "Qux A #3")
+            )
+            .then(() => {
+                assert(fkSelectorA.value === "Qux A #3");
+                assert(formObj.quxA.name === "Qux A #3")
+                assert(formObj.quxAId === "17861d28-a11d-4dd5-b66c-b4351ca1a980")
 
-
+                const formConfig = renderSpy.lastCall.args[0];
+                assert(!formConfig.hasErrors())
+            })
     })
+
 });

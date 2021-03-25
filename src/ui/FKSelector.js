@@ -29,7 +29,7 @@ import { useDebouncedCallback } from "use-debounce"
 import get from "lodash.get"
 import { getIQueryPayloadType, getOutputTypeName, lookupType, unwrapAll, unwrapNonNull } from "../util/type-utils"
 
-import { field, Type, value } from "../FilterDSL"
+import { field, Type, value, condition, component } from "../FilterDSL"
 import { getGraphQLMethodType } from "../Process";
 import { isNonNull } from "domainql-form/lib/InputSchema";
 import { SCALAR } from "domainql-form/lib/kind";
@@ -40,7 +40,7 @@ export const NO_SEARCH_FILTER = "NO_SEARCH_FILTER";
 /**
  * Filter Mode: Do not offer a column filter by default.
  */
-export const NO_COLUMN_FILTER = "NO_COLUMN_FILTER";
+export const NO_FILTER = "NO_FILTER";
 /**
  * Filter Mode: Offer a column filter even if a search filter is defined (with the searchFilter prop).
  */
@@ -61,9 +61,10 @@ export function createSearchFilter(type, searchFilter, searchTerm)
         return null;
     }
 
+    let condition;
     if (typeof searchFilter === "function")
     {
-        return searchFilter(searchTerm)
+        condition = searchFilter(searchTerm)
     }
     else
     {
@@ -71,7 +72,7 @@ export function createSearchFilter(type, searchFilter, searchTerm)
 
         if (scalarType === "String")
         {
-            return field(searchFilter)
+            condition = field(searchFilter)
                 .containsIgnoreCase(
                     value(
                         searchTerm,
@@ -81,7 +82,7 @@ export function createSearchFilter(type, searchFilter, searchTerm)
         }
         else
         {
-            return field(searchFilter)
+            condition = field(searchFilter)
                 .toString()
                 .containsIgnoreCase(
                     value(
@@ -92,6 +93,8 @@ export function createSearchFilter(type, searchFilter, searchTerm)
 
         }
     }
+
+    return condition;
 }
 
 
@@ -200,7 +203,7 @@ const FKSelector = fnObserver(props => {
 
     const [ isLoading, setIsLoading ] = useState(false);
 
-    const { display, query : queryFromProps, searchFilter, modalTitle, fade, validationTimeout, modalFilter, cachedPageSize, children, ... fieldProps } = props;
+    const { display, query : queryFromProps, searchFilter, modalTitle, fade, searchTimeout, modalFilter, cachedPageSize, children, ... fieldProps } = props;
 
     const haveUserInput = !!searchFilter;
 
@@ -368,7 +371,7 @@ const FKSelector = fnObserver(props => {
                             //console.log("FK-CONTEXT", ctx);
                             //console.log("QUERY", query);
 
-                            const condition = createSearchFilter(iQueryType, searchFilter, val);
+                            const condition = createSearchFilter(iQueryType, searchFilter, val, isAmbiguousMatch && modalFilter === NO_SEARCH_FILTER ? "fk-selector-grid" : null);
                             setIsLoading(true);
 
                             query.execute({
@@ -413,7 +416,7 @@ const FKSelector = fnObserver(props => {
                                 }
                             );
                         },
-                        validationTimeout
+                        searchTimeout
                     );
 
                     const selectRow = row => {
@@ -443,12 +446,19 @@ const FKSelector = fnObserver(props => {
 
                     const selectFromModal = () => {
 
-                        const condition = isAmbiguousMatch && modalFilter !== NO_SEARCH_FILTER ? createSearchFilter(iQueryType, searchFilter, inputValue) : null
+                        // if we have an ambiguous match but are configured to show no search filter, we can still preselect the column filter if we have a simple search filter
+                        const shouldPreselectFilter = modalFilter !== NO_SEARCH_FILTER || typeof searchFilter === "string";
+                        let cond = isAmbiguousMatch && shouldPreselectFilter ? createSearchFilter(iQueryType, searchFilter, inputValue) : null
+                        if (isAmbiguousMatch && modalFilter === NO_SEARCH_FILTER && shouldPreselectFilter)
+                        {
+                            cond = component("fk-selector-grid", condition("and", [ cond ]));
+                        }
+
                         query.execute(
                                     {
                                         config: {
                                             ... iQueryDoc ? iQueryDoc.queryConfig : query.defaultVars.config,
-                                            condition
+                                            condition: cond
                                         }
                                     }
                                 )
@@ -574,7 +584,7 @@ const FKSelector = fnObserver(props => {
                                 fade={ fade }
                                 modalFilter={ modalFilter }
                                 searchFilter={ searchFilter }
-                                validationTimeout={ validationTimeout }
+                                searchTimeout={ searchTimeout }
                             />
                         </FormGroup>
                     );
@@ -623,7 +633,7 @@ FKSelector.propTypes = {
      */
     modalFilter: PropTypes.oneOf([
         NO_SEARCH_FILTER,
-        NO_COLUMN_FILTER,
+        NO_FILTER,
         COLUMN_FILTER
     ]),
 
@@ -682,7 +692,7 @@ FKSelector.propTypes = {
     /**
      * Timeout in ms after which the input will do the validation query ( default: 250).
      */
-    validationTimeout: PropTypes.number,
+    searchTimeout: PropTypes.number,
 
     /**
      * Placeholder for input (See `searchFilter`)
@@ -698,14 +708,14 @@ FKSelector.propTypes = {
 FKSelector.defaultProps = {
     modalTitle: i18n("Select Target Object"),
     fade: false,
-    validationTimeout: 350,
+    searchTimeout: 350,
     cachedPageSize: 5
 };
 
 FKSelector.displayName = "FKSelector";
 
 FKSelector.NO_SEARCH_FILTER = NO_SEARCH_FILTER;
-FKSelector.NO_COLUMN_FILTER = NO_COLUMN_FILTER;
+FKSelector.NO_FILTER = NO_FILTER;
 FKSelector.COLUMN_FILTER = COLUMN_FILTER;
 
 export default FKSelector;

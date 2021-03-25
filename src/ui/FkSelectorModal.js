@@ -10,7 +10,7 @@ import { useLocalStore,observer as fnObserver } from "mobx-react-lite";
 import { action, comparer, observable, reaction, toJS } from "mobx";
 
 import { field, operation, value } from "../FilterDSL";
-import { NO_COLUMN_FILTER, NO_SEARCH_FILTER, COLUMN_FILTER, createSearchFilter } from "./FKSelector";
+import { NO_FILTER, NO_SEARCH_FILTER, COLUMN_FILTER, createSearchFilter } from "./FKSelector";
 
 const setFilter = action(
     "FkSelectorModal.setFilter",
@@ -25,7 +25,7 @@ const setFilter = action(
 const FkSelectorModal = fnObserver(
     props => {
 
-        const { isOpen, iQuery, iQueryType, columns, columnTypes, title, fieldType, selectRow, toggle, fade, filter = null, modalFilter, searchFilter, validationTimeout } = props;
+        const { isOpen, iQuery, iQueryType, columns, columnTypes, title, fieldType, selectRow, toggle, fade, filter = null, modalFilter, searchFilter, searchTimeout } = props;
 
         const formObject = useLocalStore(() => observable({filter}));
 
@@ -48,8 +48,8 @@ const FkSelectorModal = fnObserver(
         )
 
         const haveSearchFilter = !!searchFilter;
-        const showSearchFilter = haveSearchFilter && modalFilter !== NO_SEARCH_FILTER;
-        const showColumnFilter = (!haveSearchFilter && modalFilter !== NO_COLUMN_FILTER) ||
+        const showSearchFilter = haveSearchFilter && modalFilter !== NO_SEARCH_FILTER && modalFilter !== NO_FILTER;
+        const showColumnFilter = (!haveSearchFilter && modalFilter !== NO_FILTER) ||
                                  (haveSearchFilter && modalFilter === NO_SEARCH_FILTER) ||
                                  modalFilter === COLUMN_FILTER;
 
@@ -82,7 +82,7 @@ const FkSelectorModal = fnObserver(
                         );
                     },
                     {
-                        delay: validationTimeout,
+                        delay: searchTimeout,
                         equals: comparer.structural
                     }
                 );
@@ -162,7 +162,7 @@ const FkSelectorModal = fnObserver(
                                         )
                                     }
                                     value={ iQuery }
-                                    filterTimeout={ validationTimeout }
+                                    filterTimeout={ searchTimeout }
                                 >
                                     <DataGrid.Column
                                         heading={ "Action" }

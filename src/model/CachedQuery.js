@@ -158,10 +158,16 @@ export default class CachedQuery
     static loadMemoryQuery(type, raw, query, queryConfig, fn)
     {
         //console.log("CachedQuery.loadMemoryQuery", raw, query, queryConfig)
-
-        const source = getWireFormat().fromWire( type, raw);
-        source._query = query;
+        const source = this.convertIQuery(type, raw, query);
         return this.createMemoryQuery(source, queryConfig, fn);
+    }
+
+
+    static convertIQuery(type, raw, query)
+    {
+        const source = getWireFormat().fromWire(type, raw);
+        source._query = query;
+        return source;
     }
 }
 

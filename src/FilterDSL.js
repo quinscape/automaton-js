@@ -406,6 +406,11 @@ export function isLogicalCondition(node)
  */
 export function findComponentNode(conditionNode, id)
 {
+    if (conditionNode.type === Type.COMPONENT)
+    {
+        return conditionNode.id === id ? conditionNode : null;
+    }
+
     const { operands } = conditionNode;
 
     if (operands)

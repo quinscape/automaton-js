@@ -437,42 +437,6 @@ renderIndex | func | Render prop for an index row. Receives the first unicode ch
 ------|------|-------------
 **action** (required) | func | Action function for the action
 **label** (required) | string or func | Label for the action for function to render a decorated label
-## <Tree.IndexedObjects/> Example
-
-IndexedObjects works very similar to Objects but it arranges the row
-values in groups by initial character.
-
-```js
-
-<Tree
-    id="animal-tree" aria-labelledby="animal-tree-title">
-    <Tree.IndexedObjects
-        values={ iQuery }
-        index={ indexArray }
-        render={(row, iSelected) => row.name }
-        renderIndex={letter => (<b>{letter + ":"}</b>)}
-        actions={
-            [
-                {
-                    label: "Default Action",
-                    action: row => ...
-                },
-                {
-                    label: "Action 2",
-                    action: row => ...
-                }
-            ]
-        }
-    />
-</Tree>
-```
-
-It receives and addition `index` prop which must be provided with an
-array of initial characters in sort order.
-
-The optional `renderIndex` render prop is used to render the initial
-letter tree group headers. Here we render it bold and add a colon.
-
 ## &lt;Tree.Folder/&gt;
 
 Renders an initially closed folder that quries additional children on demand.
@@ -514,25 +478,224 @@ modal grid.
 
  Name | Type | Description 
 ------|------|-------------
-autoFocus | bool | True to focus the fk selector input (See `validateInput` )
-display | string or func | Property to use as display value or render function for the current value ( formConfig => ReactElement ). Must be set if name is not set.
+autoFocus | bool | True to focus the fk selector input (See `searchFilter` )
+cachedPageSize | number | Page size to use when using an in-memory iQuery document as data source. (Default is 5)
+display | string or func | Property to use as display value or render function for the current value ( formConfig => ReactElement ). Can be used to extend on simple property rendering.
 fade | bool | Whether to do the modal fade animation on selection (default is true)
 formGroupClass | string | Additional HTML classes for the form group element.
 helpText | string | Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
 inputClass | string | Additional HTML classes for the display value.
 label | string | Label for the field. Must be defined if name is missing.
 labelClass | string | Additional HTML classes for the label element.
+modalFilter | enum | Filter mode for the selector modal. Controls display of column and repeated search filter in interaction with the searchFilter prop,
 modalTitle | string | Title for the modal dialog selecting the target object
 mode | FieldMode value | Mode for this foreign key selector. If not set or set to null, the mode will be inherited from the &lt;Form/&gt; or &lt;FormBlock&gt;.
-name | string | Name / path for the foreign key value (e.g. "name", but also "foos.0.name"). Optional for this widget as it can also operate just by updating embedded objects. If name is not set, display and label must be set.
-onUpdate | func | Optional alternate handler for target selection. The default behavior can automatically update an embedded target object if
-placeholder | string | Placeholder for input (See `validateInput`)
+**name** (required) | string | Name / path for the foreign key value (e.g. "name", but also "foos.0.name").
+placeholder | string | Placeholder for input (See `searchFilter`)
 **query** (required) | instance of GraphQLQuery or instance of InteractiveQuery | iQuery GraphQL query to fetch the current list of target objects
-targetField | string | Name of the relation target field
+searchFilter | string or func | Field name or function returning a filter expression used to allow and validate text-input changes of the selected value. The field or filter must match exactly one element from the current `query`. (Function must be of the form `value => ...` and must return a Filter DSL condition.)
+searchTimeout | number | Timeout in ms after which the input will do the validation query ( default: 250).
 tooltip | string | Tooltip / title attribute for the input element
-validateInput | string or func | Field name or function returning a filter expression used to allow and validate text-input changes of the selected value. The field or filter must match exactly one element from the current `query`. (Function must be of the form `value => ...` and must return a Filter DSL condition.)
-validateInputJS | func | Provides a js validation function that is only used in one special case. Injected iQueries and textual user-input. If we use an InteractiveQuery that contains all the rows of that types, we can use this function to filter that injected Interactive query document via JavaScript instead of querying the server. If this prop is not set, the FKSelector will query the server in any case.
-validationTimeout | number | Timeout in ms after which the input will do the validation query ( default: 300).
+## FKSelector Examples
+
+The new `<FKSelector/>` is a versatile widget but even easier to use and configure than before.
+                       
+The FK selector expects each foreign-key field to come with a complex object giving detail information about the current
+selection. It will automatically both the scalar foreign key field as well as the associated reference object.
+                
+### Simple Example
+
+```js
+    <FKSelector
+        name="quxAId"
+        label="Qux A"
+        display="quxA.name"
+        query={ Q_QuxA }
+        required={ true }
+    />
+```
+
+This example above will provide a foreign key widget that shows the current selection and allows a new selection via
+modal popup. The modal popup will contain a datagrid with a column for each of the fields selected in the query (except
+"id", which must be selected). It will provide a containsIgnoreCase filter for every column. An additional column
+contains a select button per row to select that object for the foreign key field.
+
+The `name` prop references the scalar foreign key field. `label` provides the human-readable label. The `display` prop
+can be either a string or a function `row => String` that renders the representation of the each row. Note that you
+commonly will need to write defensive code in those functions that can deal with intermediary objects missing. For example
+
+```js
+    row => row.quxA && (row.quxA.name + "-" + row.quxA.description)
+```
+
+Defining the `display` prop as string will automatically be null-safe.
+
+The `query` prop must be either a GraphQLQuery instance or an InteractiveQuery document. See [below](#in-memory-operation) how do to the latter.  
+
+
+### Search Filter
+
+Adding the `searchFilter` prop will turn the fk-selector into an autocomplete input. The design tries to find a 
+compromise between ease and use and a11y in that it does not have a autocomplete popup which while formally valid
+is not really optimal both in terms of a11y concerns as well as mobile usability. 
+
+The current solution is that the input of the user is turned into a FilterDSL expression that gets evaluated. If there is
+exactly one result, that result will be used as foreign key selection.
+
+Having no or more than one match generates a form error.
+
+The default behavior of the fk selector modal is to use the same searchFilter driven by a single external input instead 
+of the column filter. You can change that behavior with the `modalFilter` prop
+                                                                          
+```js
+    <FKSelector
+        name="quxAId"
+        label="Qux A"
+        display="quxA.name"
+        searchFilter="name"
+        query={ Q_QuxA }
+        required={ true }
+    />
+```
+
+#### modalFilter Prop
+
+option                      | description
+----------------------------|------------
+FKSelector.NO_FILTER        | Don't show any filter in the modal.
+FKSelector.NO_SEARCH_FILTER | Suppress search filter and show the column filter in the modal instead.
+FKSelector.COLUMN_FILTER    | Show the column filter in addition to the search filter in the modal. 
+
+### Complex Search Filter
+                            
+The `searchFilter` prop can also be given a function that converts the current autocomplete input value into a FilterDSL
+condition graph using the FilterDSL.
+
+```js
+
+    import { FilterDSL } from "@quinscape/automaton-js"
+    const { field, value, or } = FilterDSL;
+
+    <FKSelector
+        name="quxAId"
+        label="Qux A"
+        display="quxA.name"
+        searchFilter={
+            val => or(
+                field("name")
+                    .containsIgnoreCase(
+                        value(
+                            val
+                        )
+                    ),
+                field("description")
+                    .containsIgnoreCase(
+                        value(
+                            val
+                        )
+                    )
+            )
+        }
+        query={ Q_QuxA }
+        required={ true }
+    />
+```
+
+Here we check of either the name field or the description field of the quxA row contain the current autocomplete value.
+
+### Special Behavior: Ambiguous matches
+
+In the case of an ambiguous match where the search filter returns more than one result, the fk selector will preselect 
+those results where possible.
+
+If the search filter is enabled in the modal (default), any ambiguous match is repeated in the search filter in the modal.
+A user can discover *why* his match failed and adapt to find a better search.
+
+If no search filter is shown in the modal, but the search filter is a simple search filter, the fk selector will use the 
+column filter of that column to preselect the ambiguous match.
+
+
+## In-Memory Operation
+
+Instead of performing actual search queries for search filter and modal selection operations, the fk selector can operate
+with in-memory queries.
+
+To enable that, it needs to be given an InteractiveQuery instance instead of a GraphQL query instance.
+      
+In your process:
+
+```js
+    class MyProcessScope
+    {
+        quxDs = injection( Q_QuxD_All )
+        
+    }
+```
+      
+Your query then needs to be set up to disable pagination so that all results will be injected.
+
+```js
+import { query } from "@quinscape/automaton-js"
+
+export default query(
+    // language=GraphQL
+    `query QuxD_Injected($config: QueryConfigInput!)
+    {
+        iQueryQuxD(config: $config)
+        {
+            type
+            columnStates{
+                name
+                enabled
+                sortable
+            }
+            queryConfig {
+                id
+                condition
+                offset
+                pageSize
+                sortFields
+            }
+            rows {
+                id
+                name
+                value
+                description
+            }
+            rowCount
+        }
+    }`,
+    {
+        config: {
+            // XXX: you need to set pageSize to 0 to disable pagination here
+            pageSize: 0,
+            sortFields: ["id"]
+        }
+    }
+)
+```
+
+Finally, you can use the injected document for the fk selector
+
+```js
+
+    import { FilterDSL } from "@quinscape/automaton-js"
+    const { field, value, or } = FilterDSL;
+
+    <FKSelector
+        name="quxAId"
+        label="Qux A"
+        display="quxA.name"
+        searchFilter="name"
+        query={ scope.quxDs }
+        required={ true }
+    />
+```
+        
+The fk selector will run the search Filter and the modal filtering, sorting, pagination etc with a new GraphQL 
+query implemention that can evaluate FilterDSL expressions on Javascript objects.
+
+This is of course just an example. You can just as well hardcode your cached source document or generate it in some way.
 ## &lt;AssociationSelector/&gt;
 
 Displays the currently associated entities of a many-to-many relationship as seen from one of the associated sides.
