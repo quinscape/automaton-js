@@ -4,9 +4,7 @@ The `config` object can be imported from @quinscape/automaton-js and encapsulate
 automaton app.
 
 ```js 
-
 import { config } from "@quinscape/automaton-js";
-
 ```
 
 It supports a limited set of configuration properties which can be extended by the user for app-specific static / global 
@@ -14,7 +12,7 @@ configuration.
 
 ## Config properties
 
-### `config.alternateStyles`
+### config.alternateStyles
 
 If the application uses alternate styles provided by the de.quinscape.automaton.runtime.provider.AlternateStyleProvider,
 the information about these styles will be in `config.alternateStyles`
@@ -40,15 +38,15 @@ Example:
 ```  
 
 
-### `config.appName`
+### config.appName
 
 The name of the app
 
-### `config.appScope`
+### config.appScope
 
 The appScope of the current app if the app has an app scope.
 
-### `config.auth`
+### config.auth
 
 The auth object representing the current user.
 
@@ -58,45 +56,45 @@ The auth object representing the current user.
   
   You can use `auth.hasRole("A", "B")` has convenience method to check whether the current user has one of the given roles.
   
-### `config.contextPath`
+### config.contextPath
 
 The current servlet context path under which the application is deployed. Needed to construct correct inner-application 
 URIs (if you don't use automaton's uri() helper which handles that automatically)
 
-### `config.csrfToken`
+### config.csrfToken
 
 Information about the current CSRF token from Spring security. This token must be provided on all POST requests to prevent
 user session hijacking.
 
-### `config.history`
+### config.history
 
 Contains the process history
 
-### `config.inputSchema`
+### config.inputSchema
 
 Contains the domainql-form input schema resulting from the app's GraphQL schema.
 
-### `config.layout`
+### config.layout
 
 Contains the default layout component.
 
-### `config.locale`
+### config.locale
 
 Contains the current locale
 
-### `config.localScope`
+### config.localScope
 
 The localScope of the current app if the app has a local scope.
 
-### `config.mergeOptions`
+### config.mergeOptions
 
 Contains the system merge options.
 
-### `config.navigationHistoryLimit`
+### config.navigationHistoryLimit
 
 Contains the number of process states that are kept within the process history. Default is 15.
 
-### `config.processDialog`
+### config.processDialog
 
 Default configuration options for process dialogs. These options can be overriden by providing the third argument to
 `process.runSubProcess(name, input, opts)`. 
@@ -118,36 +116,35 @@ Default configuration options for process dialogs. These options can be override
         /** Additional classes for the <ModalBody/> component */
         bodyClass: ""
     }
-
 ```
-### `config.rootProcess`
+### config.rootProcess
 
 Contains the current root Process.
 
-### `config.scopeSyncTimeout`
+### config.scopeSyncTimeout
 
 Contains the scope synchronization timeout. This is the number of milliseconds without change until the scope is againn
 synchronized to the server (only applicable to the server-scopes appScope and userScope). Default is 1500ms. 
 
-### `config.sessionScope`
+### config.sessionScope
 
 The sessionScope of the current app if the app has a session scope.
 
-### `config.subProcessAsDialog`
+### config.subProcessAsDialog
 
 If `true`, sub processes are launched within modal dialogs. If `false` the replace the previous process output in the 
 browser window for the duration of the process. Default is `true`.
 
-### `config.translations`
+### config.translations
 
 Contains the translation map. (Used by automaton's i18n() helper)
 
-### `config.userInfo`
+### config.userInfo
 
 If the app defines a de.quinscape.automaton.runtime.userinfo.UserInfoService, the current extended user info block
 is available as `config.userInfo`.
 
-### `config.userScope`
+### config.userScope
 
 The userScope of the current app if the app has a user scope.
 
@@ -200,7 +197,6 @@ export default {
     runInAction,
     toJS
 };
-
 ```
 
 Here we assume a "validationRules" object to be provided by a JsViewProvider and we declare that the config shall have 
