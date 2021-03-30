@@ -112,7 +112,21 @@ function lookupPromiseArray(key)
     return promiseArray;
 }
 
+
+/**
+ * Low-level websocket handler for automaton.
+ *
+ * Before you use this, make sure you actually want to and not the more convenient pubsub implemented on top of this.
+ */
 const Hub = {
+    /**
+     * Registers a handler for the given message type.
+     *
+     * @param {String} type     message type
+     * @param {function} fn     callback that will receive the message payload
+     * 
+     * @return {function(): void} unregister function
+     */
     register:
         function (type, fn) {
             //console.log("Hub.register(", type, fn, ")");
@@ -129,14 +143,16 @@ const Hub = {
                 handlers[type] = handlers[type].filter( f => f !== fn);
             }
         },
+    /**
+     * Sends a message via websocket.
+     *
+     * @param {String} type         message type
+     * @param {object} payload      message payload
+     *
+     * @return {number} message id
+     */
     send:
-    // Send message to server over socket.
-        function (type, payload, noLog = false) {
-
-            if (!noLog)
-            {
-                //console.log("SEND", type, payload)
-            }
+        function (type, payload) {
 
             const message = prepare(type, payload);
 
@@ -147,8 +163,21 @@ const Hub = {
 
             return message.messageId;
         },
+
+    /**
+     * Initiate a request/response over websocket.
+     *
+     * The server has to react to the message received by sending a Response message referencing the message id of the
+     * message.
+     *
+     * @see de.quinscape.automaton.runtime.ws.DefaultAutomatonClientConnection.respond
+     *
+     * @param {String} type     message type
+     * @param payload           message payload
+     *
+     * @return {Promise<unknown>}
+     */
     request:
-    // Send message to server over socket.
         function (type, payload) {
             return new Promise((resolve, reject) => {
 
@@ -171,6 +200,13 @@ const Hub = {
                 promises[messageId] = [resolve, reject, timerId];
             });
         },
+    /**
+     * Initializes the Hub with the prepared connection id for the client.
+     *
+     * @param {String} cid      connection id
+     *
+     * @return {Promise<String>} resolves with the connection id after the websocket connection is established.
+     */
     init:
         function (cid) {
             connectionId = cid;
@@ -183,6 +219,12 @@ const Hub = {
 
             return this.promise;
         },
+
+    /**
+     * Returns the current connection id.
+     *
+     * @return {String} connection id
+     */
     getConnectionId: function ()
     {
         return connectionId;

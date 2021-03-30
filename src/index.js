@@ -44,8 +44,6 @@ import mapIterator from "./util/mapIterator";
 import DomainActivityIndicator from "./ui/DomainActivityIndicator";
 import equalsScalar, {registerScalarEquals} from "./util/equalsScalar";
 import renderEntity, {registerEntityRenderer} from "./util/renderEntity";
-import { openDialog } from "./ui/Dialog"
-import { MergeOperation } from "./ui/ChangeConflictDialog";
 import AttachmentField from "./ui/AttachmentField";
 import AttachmentLink from "./ui/AttachmentLink";
 import uploadAttachment from "./uploadAttachment";
@@ -80,8 +78,10 @@ import {
 
 import printSchema from "./util/printSchema"
 import InteractiveQueryEditor from "./ui/iqed/InteractiveQueryEditor";
-import InteractiveQueryDefinition from "./model/InteractiveQueryDefinition.js"
+import InteractiveQueryDefinition from "./model/InteractiveQueryDefinition"
 import { evaluateMemoryQuery } from "./util/evaluateMemoryQuery";
+import { MergeOperation } from "./merge/MergeOperation";
+import { openDialog } from "./util/openDialog";
 
 // improves auto-completion for DSL members
 const FilterDSL = {

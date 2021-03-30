@@ -10,9 +10,10 @@ import config from "../../src/config";
 import InteractiveQuery from "../../src/model/InteractiveQuery";
 import { InputSchema, WireFormat } from "domainql-form";
 import { __setWireFormatForTest } from "../../src/domain";
-import { FieldStatus, FieldType, MergeOperation, RECURSE_EVERYTHING } from "../../src/ui/ChangeConflictDialog";
+import { FieldStatus, FieldType, RECURSE_EVERYTHING } from "../../src/ui/ChangeConflictDialog";
 import { createResolution, loadScenario } from "./loadScenario";
 import { toJS } from "mobx";
+import { MergeOperation } from "../../src/merge/MergeOperation";
 
 
 const TEST_CASE_ID = "20bbb666-79d1-4a50-8b23-4442be8b615e";

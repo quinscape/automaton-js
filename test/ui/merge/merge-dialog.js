@@ -16,12 +16,14 @@ import {
     createGenericScalarToWire,
     registerAutomatonConverters
 } from "../../../src/domain";
-import ChangeConflictDialog, { FieldStatus, FieldType, MergeOperation } from "../../../src/ui/ChangeConflictDialog";
+import ChangeConflictDialog, { FieldStatus, FieldType} from "../../../src/ui/ChangeConflictDialog";
 import { loadScenario } from "../../merge/loadScenario";
-import { openDialog, renderImperativeDialogs } from "../../../src/ui/Dialog";
+import { renderImperativeDialogs } from "../../../src/ui/Dialog";
 import { getTableSummary } from "./table-summary";
 import userEvent from "@testing-library/user-event";
 import sleep from "../sleep";
+import { MergeOperation } from "../../../src/merge/MergeOperation";
+import { openDialog } from "../../../src";
 
 
 const TEST_CASE_ID = "20bbb666-79d1-4a50-8b23-4442be8b615e";

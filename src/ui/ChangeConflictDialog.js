@@ -11,16 +11,10 @@ import { findNamed, isListType, unwrapAll } from "../util/type-utils";
 import { OBJECT } from "domainql-form/lib/kind";
 import renderEntity from "../util/renderEntity";
 import CalendarField from "./CalendarField";
+import { MergeOperation } from "../merge/MergeOperation";
 
 
 export const RECURSE_EVERYTHING = { recurseEverything: true };
-
-export const MergeOperation = {
-    CANCEL: "CANCEL",
-    DISCARD: "DISCARD",
-    APPLY: "APPLY",
-    STORE: "STORE"
-};
 
 export const FieldStatus = {
     UNDECIDED: "UNDECIDED",
