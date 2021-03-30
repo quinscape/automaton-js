@@ -13,6 +13,12 @@ import graphql from "./graphql";
  */
 export default class GraphQLQuery {
 
+    /**
+     * Create a new GraphQLQuery instance
+     *
+     * @param {String} query    query string
+     * @param {object} vars     default variables for the query
+     */
     constructor(query, vars)
     {
         this.query = query;
@@ -54,6 +60,12 @@ export default class GraphQLQuery {
         );
     }
 
+
+    /**
+     * Clone this query object.
+     *
+     * @return {GraphQLQuery} new graphql query
+     */
     clone()
     {
         const c = new GraphQLQuery(this.query, this.defaultVars);

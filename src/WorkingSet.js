@@ -7,18 +7,18 @@ import { getInputTypeName } from "./util/type-utils";
 import extractTypeData from "./extractTypeData";
 import equalsScalar from "./util/equalsScalar";
 import MergePlan from "./merge/MergePlan";
-import { openDialog } from "./ui/Dialog";
 import React from "react";
 
 import ChangeConflictDialog, {
     FieldStatus,
     FieldType,
-    MergeOperation,
     OPERATION_CANCEL,
     RECURSE_EVERYTHING
 } from "./ui/ChangeConflictDialog";
 import { getWireFormat } from "./domain";
 import { SCALAR } from "domainql-form/lib/kind";
+import { MergeOperation } from "./merge/MergeOperation";
+import { openDialog } from "./util/openDialog";
 
 
 const LIST_OF_DOMAIN_OBJECTS_TYPE = "[DomainObject]";

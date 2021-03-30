@@ -5,10 +5,10 @@ import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap
 import { Icon } from "domainql-form";
 import i18n from "../../i18n";
 import { CONDITION_METHODS, Type } from "../../FilterDSL";
-import { openDialog } from "../Dialog";
 import { join } from "./InteractiveQueryEditor";
 import ValueTypeDialog from "./ValueTypeDialog";
 import { toJS } from "mobx";
+import { openDialog } from "../../util/openDialog";
 
 
 function wrap(op, node)
