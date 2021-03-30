@@ -28,7 +28,7 @@ const FkSelectorModal = props => {
                         isOpen && (
                             <DataGrid
                                 id="fk-selector-grid"
-                                tableClassName="table-hover table-striped table-bordered table-sm table-responsive"
+                                tableClassName="table-hover table-striped table-bordered table-sm table-filling-form-controls"
                                 value={ iQuery }
                             >
                                 <DataGrid.Column
