@@ -27,25 +27,25 @@ module.exports = {
             after: "IQueryGrid",
             src: "GridExamples.md"
         },
-        {
-            after: "RowSelector",
-            src: "RowSelectorExample.md"
-        },
+        // {
+        //     after: "RowSelector",
+        //     src: "RowSelectorExample.md"
+        // },
         {
             after: "Tree",
             src: "tree-navigation.md"
         },
-        {
-            after: "Objects",
-            src: "tree-objects.md"
-        },
-        {
-            after: "IndexedObjects",
-            src: "tree-indexed.md"
-        },
-        {
-            after: "Folder",
-            src: "tree-folder.md"
-        },
+        // {
+        //     after: "Objects",
+        //     src: "tree-objects.md"
+        // },
+        // {
+        //     after: "IndexedObjects",
+        //     src: "tree-indexed.md"
+        // },
+        // {
+        //     after: "Folder",
+        //     src: "tree-folder.md"
+        // },
     ]
 }

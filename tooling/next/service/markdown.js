@@ -90,22 +90,33 @@ const validRuleFields = new Set([
 ])
 
 
-function validateRule(hw)
+function validateRule(docs, hw)
 {
-    const keys = Object.keys(hw);
-
     if (!hw.src)
     {
         throw new Error("Need src key: " + JSON.stringify(hw));
     }
 
     let count = 0;
+    const keys = Object.keys(hw);
     for (let i = 0; i < keys.length; i++)
     {
         const key = keys[i];
         if (!validRuleFields.has(key))
         {
             throw new Error("Invalid field '" + key + "': " + JSON.stringify(hw))
+        }
+
+        if (key !== "src")
+        {
+            const ref = hw[key];
+            const target = docs.find(d => d.name === ref);
+            if (!target)
+            {
+                throw new Error(
+                    "Invalid reference '" + ref + "' in rule: " + JSON.stringify(hw)
+                )
+            }
         }
 
         count++;
@@ -118,13 +129,13 @@ function validateRule(hw)
 }
 
 
-export async function loadSnippets()
+export async function loadSnippets(docs)
 {
     return Promise.all(
         config.handwritten.map(
             hw => {
 
-                validateRule(hw);
+                validateRule(docs, hw);
 
                 return fs.readFile(
                     path.resolve(
