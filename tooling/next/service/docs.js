@@ -109,10 +109,19 @@ function resolveRelative(base, rel)
     return path.resolve(path.dirname(base), rel)
 }
 
+function slashPath(path)
+{
+    if (path.sep !== "/")
+    {
+        return path.replace(path.sep, "/");
+    }
+    return path
+}
+
 
 function getProjectRelativeSourcePath(path)
 {
-    const pos = path.indexOf("src/");
+    const pos = slashPath(path).indexOf("src/");
 
     if (pos < 0)
     {
