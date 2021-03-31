@@ -109,13 +109,13 @@ function resolveRelative(base, rel)
     return path.resolve(path.dirname(base), rel)
 }
 
-function slashPath(path)
+function slashPath(sourcePath)
 {
     if (path.sep !== "/")
     {
-        return path.replace(path.sep, "/");
+        return sourcePath.replace(sourcePath.sep, "/");
     }
-    return path
+    return sourcePath;
 }
 
 
