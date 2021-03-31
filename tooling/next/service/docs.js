@@ -469,7 +469,7 @@ export async function loadDocs(indexPath)
 
     //logUndefined(getData());
 
-    const snippets = await loadSnippets();
+    const snippets = await loadSnippets(docs);
 
     return postProcess(docs, snippets);
 
