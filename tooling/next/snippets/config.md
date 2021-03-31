@@ -17,7 +17,7 @@ configuration.
 If the application uses alternate styles provided by the de.quinscape.automaton.runtime.provider.AlternateStyleProvider,
 the information about these styles will be in `config.alternateStyles`
 
-This is mostly useful to write your own style-switcher as alternative to automaton's <StyleSwitcher/> component
+This is mostly useful to write your own style-switcher as alternative to automaton's &lt;StyleSwitcher/&gt; component
 
 Example:
 
