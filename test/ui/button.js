@@ -3,7 +3,7 @@ import React from "react"
 import sinon from "sinon"
 import assert from "power-assert"
 import { act, getByLabelText, getByText, prettyDOM, render, fireEvent } from "@testing-library/react"
-import { Field, Form, FormConfigProvider, InputSchema, WireFormat } from "domainql-form"
+import { Field, Form, FormConfigProvider, FormContext, InputSchema, WireFormat } from "domainql-form"
 
 import config from "../../src/config"
 import { __setWireFormatForTest } from "../../src/domain";
@@ -103,6 +103,13 @@ const TestForm = ({value, renderSpy, actionSpy}) => (
                             >
                                 Action
                             </Button>
+                            <Button
+                                name="action2"
+                                action={ actionSpy }
+                                disabled={ Button.disabledIfErrors }
+                            >
+                                ActionDiscard
+                            </Button>
                         </>
                     )
                 }
@@ -141,6 +148,8 @@ describe("Button", function () {
             inputSchema = new InputSchema(rawSchema);
 
             config.inputSchema = inputSchema;
+
+            new FormContext(inputSchema).useAsDefault();
 
             wireFormat = new WireFormat(
                 inputSchema,
@@ -279,12 +288,14 @@ describe("Button", function () {
         const nonDiscardButton = getByText(container,"Do");
         const nonDiscardButton2 = getByText(container,"Do2");
         const discardButton = getByText(container,"Dont");
+        const actionButton = getByText(container,"Action");
+        const actionWithDisabledIfErrors = getByText(container,"ActionDiscard");
 
         assert(nonDiscardButton.disabled);
         assert(nonDiscardButton2.disabled);
         assert(!discardButton.disabled);
-
-
+        assert(!actionButton.disabled);
+        assert(actionWithDisabledIfErrors.disabled);
     });
 
 

@@ -26,7 +26,7 @@ const Button = props => {
     const formConfig = useFormConfig();
     const env = useAutomatonEnv();
 
-    const { className, name, text, transition, disabled, tooltip, children } = props;
+    const { className, name, text, transition, disabled, tooltip, formContext = formConfig.formContext, children } = props;
     /**
      * Returns either the explicit context set as prop or the current form object model if present.
      *
@@ -63,17 +63,21 @@ const Button = props => {
                 throw new Error("No transition '" + transition + "' in " + env.process.name + "/" + env.process.currentState)
             }
 
-            if (formConfig.root)
+            if (!entry.discard)
             {
-                if (!entry.discard)
+                if (formConfig.ctx)
                 {
                     formConfig.ctx.submit();
+                }
+                else
+                {
+                    formConfig.formContext.revalidate();
+                }
 
-                    // double check for safety
-                    if (isDisabled(formConfig))
-                    {
-                        return;
-                    }
+                // triggering validation might produce errors that were not visible before
+                if (isDisabled(formConfig))
+                {
+                    return;
                 }
             }
 
@@ -112,7 +116,7 @@ const Button = props => {
             }
 
             // .. and we're not discarding and we have errors, then disable button
-            isDisabled = !entry.discard && (formConfig.hasErrors() || (formConfig.formContext && !formConfig.root));
+            isDisabled = !entry.discard && (formConfig.hasErrors() || (formConfig.ctx && !formConfig.root));
         }
 
         return isDisabled;
@@ -187,5 +191,29 @@ Button.defaultProps = {
     text: ""
 };
 
+/**
+ * Convenience method to have a non-transition button that is disabled when there are errors in the form. Makes sure
+ * to submit the form /revalidate the form context before deciding.
+ *
+ * It follows the behavior of transition discard buttons and disables if there is either an error in the form or if the
+ * button is inside a form, but there is no form object.
+ *
+ * @param formConfig
+ *
+ * @return {boolean} true if the button should be disabled
+ */
+Button.disabledIfErrors = formConfig => {
+
+    if (formConfig.ctx)
+    {
+        formConfig.ctx.submit();
+    }
+    else
+    {
+        formConfig.formContext.revalidate();
+    }
+
+    return formConfig.hasErrors() || (formConfig.ctx && !formConfig.root);
+};
 
 export default fnObserver( Button )
