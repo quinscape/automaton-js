@@ -4,7 +4,6 @@ import { parse as doctrineParse, unwrapComment } from "doctrine"
 import { parse as reactDocGenParse } from "react-docgen"
 
 import config from "../automaton-js-doc.config"
-import { getData, replaceData } from "./data";
 import DocType from "./DocType";
 import { loadSnippets, processMarkdownSnippets } from "./markdown";
 
@@ -26,6 +25,7 @@ function parseCode(code)
     });
 }
 
+let docsData;
 
 function resolveImport(moduleAST, doc)
 {
@@ -482,7 +482,7 @@ export async function loadDocs(indexPath)
 
 export async function getPageDefaults(dataIn)
 {
-    if (!getData())
+    if (!docsData)
     {
         try
         {
@@ -490,9 +490,7 @@ export async function getPageDefaults(dataIn)
 
             const indexPath = path.resolve(process.cwd(), "../../src/index.js");
 
-            replaceData(
-                await loadDocs(indexPath)
-            );
+            docsData = await loadDocs(indexPath);
 
             //console.log("docsData", getData())
 
@@ -506,7 +504,7 @@ export async function getPageDefaults(dataIn)
     return {
         props: {
             ... dataIn,
-            docs: getData()
+            docs: docsData
         }
     };
 }
