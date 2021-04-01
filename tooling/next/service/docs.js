@@ -111,23 +111,27 @@ function resolveRelative(base, rel)
 
 function slashPath(sourcePath)
 {
-    if (path.sep !== "/")
+    if (path.sep === "/")
     {
-        return sourcePath.replace(sourcePath.sep, "/");
+        return sourcePath;
     }
-    return sourcePath;
+    else if (path.sep === "\\")
+    {
+        return sourcePath.replace(/\\/g, "/");
+    }
+    throw new Error("Unsupported path seperator: " + path.sep);
 }
 
 
 function getProjectRelativeSourcePath(path)
 {
-    const pos = slashPath(path).indexOf("src/");
-
+    const safePath = slashPath(path);
+    const pos = safePath.indexOf("src/");
     if (pos < 0)
     {
         throw new Error("Not a src path: " + path)
     }
-    return path.substr(pos) + ".js";
+    return safePath.substr(pos) + ".js";
 }
 
 
