@@ -3,7 +3,7 @@ import ReactDOM from "react-dom"
 import { loadProcessDefinitions, onHistoryAction, renderProcess } from "./Process"
 import config, { DEFAULT_OPTS } from "./config"
 import Authentication from "./auth"
-import { InputSchema, registerDomainObjectFactory } from "domainql-form"
+import { FormContext, InputSchema, registerDomainObjectFactory } from "domainql-form"
 import { autorun } from "mobx"
 import uri from "./uri"
 import { serverSync, storageSync, syncFrom, syncFromStorage } from "./sync"
@@ -99,6 +99,9 @@ function defaultInit(ctx, initial)
 
     config.auth = new Authentication(authentication);
     config.inputSchema = new InputSchema(schema);
+
+    new FormContext(config.inputSchema)
+        .useAsDefault()
 
     config.appName = appName;
     config.locale = locale;
