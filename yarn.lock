@@ -1952,10 +1952,10 @@ dom-helpers@^3.4.0:
   dependencies:
     "@babel/runtime" "^7.1.2"
 
-domainql-form@^3.4.3:
-  version "3.4.3"
-  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-3.4.3.tgz#ae21db926308f705706f389da89a1b2d97588a57"
-  integrity sha512-I6F8hh9UVW3tCicqLuukUCUFZH+JGOG7Qiln+viYkZ45hNETgUBZNwzPk625G+bcU+VAMMgNpG1ol5fi4K1vog==
+domainql-form@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-3.5.0.tgz#c7bda61f42d7a4389e1a7fc022b5f6092c1d7b36"
+  integrity sha512-Xf8uP8dfNcST5q6I1VNNq1EXGhVQOWONjouRSOqnbrmPKg3LoYbUtT0gjqYHglr6BKuVeOc7LQQLdzdzS47EDw==
   dependencies:
     classnames "^2.2.6"
     lodash.debounce "^4.0.8"
