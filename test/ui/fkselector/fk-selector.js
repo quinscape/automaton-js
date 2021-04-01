@@ -16,7 +16,7 @@ import {
     waitForElement,
     waitForElementToBeRemoved
 } from "@testing-library/react"
-import { FormConfigProvider, InputSchema, WireFormat, withForm } from "domainql-form"
+import { FormConfigProvider, FormContext, InputSchema, WireFormat, withForm } from "domainql-form"
 
 import config from "../../../src/config"
 import InteractiveQuery from "../../../src/model/InteractiveQuery"
@@ -272,6 +272,8 @@ describe("FKSelector", function () {
         inputSchema = new InputSchema(rawSchema);
 
         config.inputSchema = inputSchema;
+
+        new FormContext(inputSchema).useAsDefault()
 
         format = new WireFormat(inputSchema, {
             InteractiveQueryQuxA: InteractiveQuery,

@@ -2,7 +2,7 @@ import { describe, it, beforeEach } from "mocha"
 import React from "react"
 import assert from "power-assert"
 import { act, getByText, render } from "@testing-library/react"
-import { Field, Form, FormConfigProvider, InputSchema, WireFormat } from "domainql-form"
+import { Field, Form, FormConfigProvider, FormContext, InputSchema, WireFormat } from "domainql-form"
 
 import config from "../../src/config"
 import InteractiveQuery from "../../src/model/InteractiveQuery"
@@ -53,6 +53,8 @@ describe("AssociationSelector", function () {
             inputSchema = new InputSchema(rawSchema);
 
             config.inputSchema = inputSchema;
+
+            new FormContext(inputSchema).useAsDefault()
 
             wireFormat = new WireFormat(
                 inputSchema,
