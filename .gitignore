@@ -5,3 +5,6 @@ yarn-error.log
 # these files are only for developer convience
 .graphqlconfig
 schema.graphql
+tooling/next/.next
+tooling/next/node_modules
+tooling/next/docs
