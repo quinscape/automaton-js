@@ -1,3 +1,4 @@
+import "raf/polyfill"
 /*
  * Some environment patching for "jsdom-global/register"
  */
@@ -16,8 +17,6 @@ window.Date = global.Date;
 global.__DEV = true;
 global.__PROD = false;
 
-global.requestAnimationFrame = setImmediate;
-global.cancelAnimationFrame = () => 0;
 
 global.document.createRange = () => ({
     setStart: () => {},
