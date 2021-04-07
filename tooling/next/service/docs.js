@@ -6,24 +6,7 @@ import { parse as reactDocGenParse } from "react-docgen"
 import config from "../automaton-js-doc.config"
 import DocType from "./DocType";
 import { loadSnippets, processMarkdownSnippets } from "./markdown";
-
-
-const { parse } = require("@babel/parser");
-
-function parseCode(code)
-{
-    return parse(code, {
-        // parse in strict mode and allow module declarations
-        sourceType: "module",
-
-        plugins: [
-            // enable jsx syntax
-            "jsx",
-            "classProperties",
-            "decorators-legacy"
-        ]
-    });
-}
+import loadSource from "./loader";
 
 let docsData;
 
@@ -31,7 +14,7 @@ function resolveImport(moduleAST, doc)
 {
     const name = doc.local;
 
-    const { body } = moduleAST.program;
+    const {body} = moduleAST.program;
 
     for (let i = 0; i < body.length; i++)
     {
@@ -43,14 +26,15 @@ function resolveImport(moduleAST, doc)
             if (specifier)
             {
                 const imported = specifier.type === "ImportDefaultSpecifier" ? "default" : specifier.imported.name;
-                const { source } = n;
+                const {source} = n;
 
-                return { name: imported, source: source.value, doc };
+                return {imported, source: source.value, doc};
             }
         }
     }
     throw new Error("Could not resolve import: " + name);
 }
+
 
 let doDebugLog = true;
 
@@ -84,7 +68,7 @@ function undefinedsToNull(obj)
         {
             if (obj.hasOwnProperty(name))
             {
-                newObj[name]= undefinedsToNull(obj[name]);
+                newObj[name] = undefinedsToNull(obj[name]);
             }
         }
         return newObj;
@@ -98,9 +82,7 @@ function parseJsDoc(text)
 
     const unwrapped = unwrapComment("/**\n" + text + "\n*/")
 
-    return undefinedsToNull(doctrineParse(unwrapped, {
-
-    }));
+    return undefinedsToNull(doctrineParse(unwrapped, {}));
 }
 
 
@@ -108,6 +90,7 @@ function resolveRelative(base, rel)
 {
     return path.resolve(path.dirname(base), rel)
 }
+
 
 function slashPath(sourcePath)
 {
@@ -135,244 +118,278 @@ function getProjectRelativeSourcePath(path)
 }
 
 
+function findExport(dependencyAST, name)
+{
+    const isDefault = name === "default";
+
+    return dependencyAST.program.body.find(
+        n => {
+            if (isDefault && n.type === "ExportDefaultDeclaration")
+            {
+                return true;
+            }
+
+            if (!isDefault && n.type === "ExportNamedDeclaration")
+            {
+                const {declaration} = n;
+
+                if (declaration.type === "VariableDeclaration")
+                {
+                    if (declaration.declarations[0].id.name === name)
+                    {
+                        return true;
+                    }
+                }
+                else if (declaration.type === "FunctionDeclaration" || declaration.type === "ClassDeclaration")
+                {
+                    if (declaration.id.name === name)
+                    {
+                        return true;
+                    }
+                }
+
+            }
+
+            return false;
+        }
+    );
+}
+
+
+function findDeclByName(dependencyAST, localName)
+{
+    const decl = dependencyAST.program.body.find(n => {
+        if (n.type === "VariableDeclaration")
+        {
+            return n.declarations[0].id.name === localName;
+        }
+        else if (n.type === "FunctionDeclaration" || n.type === "ClassDeclaration")
+        {
+            return n.id.name === localName;
+        }
+        else if (n.type === "ExportNamedDeclaration")
+        {
+            const { declaration } = n;
+            const name = declaration.type === "VariableDeclaration" ? declaration.declarations[0].id.name : declaration.id.name;
+            return  name === localName;
+        }
+        return false;
+    });
+
+    if (decl.type === "ExportNamedDeclaration")
+    {
+        return n.declaration;
+    }
+    return decl;
+}
+
+
+function findDeclarationOfExport(dependencyAST, exportDecl)
+{
+    let origDecl;
+    let localName;
+    if (exportDecl.declaration.type === "Identifier")
+    {
+        localName = exportDecl.declaration.name;
+        origDecl = findDeclByName(dependencyAST, localName);
+    }
+    else
+    {
+        if (exportDecl.declaration.type === "CallExpression")
+        {
+            return {
+                origDecl: null,
+                localName: null
+            };
+        }
+        origDecl = exportDecl.declaration;
+        localName = exportDecl.declaration.type === "VariableDeclaration" ? exportDecl.declaration.declarations[0].id.name : exportDecl.declaration.id.name;
+    }
+
+    return {
+        origDecl,
+        localName
+    }
+}
+
+
+function getLocationOfDecl(decl)
+{
+    return decl.type === "VariableDeclaration" ?
+        decl.declarations[0].loc :
+        decl.loc;
+}
+
+
 async function resolveDocs(indexPath, moduleAST, docs)
 {
-    const sources = new Map();
-
     for (let i = 0; i < docs.length; i++)
     {
         const doc = docs[i];
+        const { name } = doc;
+
+        const isHit = name === "graphql";
 
         const imp = resolveImport(moduleAST, doc);
 
-        const { source } = imp;
+        const { imported, source } = imp;
 
         doc.source = getProjectRelativeSourcePath(resolveRelative(indexPath, source));
         doc.type = determineType(doc);
 
-        let imports = sources.get(source);
-        if (!imports)
-        {
-            imports = [];
-            sources.set(source, imports);
-        }
-        imports.push(imp);
-    }
-
-
-
-    for (let [source, imports] of sources)
-    {
         const sourcePath = resolveRelative(indexPath, source) + ".js";
-        const code = await fs.readFile(sourcePath, "UTF-8")
+        const {code, moduleAST: dependencyAST} = await loadSource(sourcePath);
 
-        const dependencyAST = parseCode(code);
-
-        const hasComponents = !!imports.find( imp => imp.doc.type === DocType.COMPONENT);
-
-        let info = null;
-        if (hasComponents)
+        let reactDocGen = null;
+        if (doc.type === DocType.COMPONENT)
         {
             try
             {
-                info = undefinedsToNull(reactDocGenParse(code));
-            }
-            catch(e)
+                reactDocGen = undefinedsToNull(reactDocGenParse(code));
+            } catch (e)
             {
                 console.log("ReactDoc parse error on file " + sourcePath, e);
             }
         }
         else
         {
-            info = null;
+            reactDocGen = null;
         }
 
-        for (let i = 0; i < imports.length; i++)
+        doc.description = null;
+        doc.reactDocGen = reactDocGen;
+
+
+
+        const exportDecl = findExport(dependencyAST, imported);
+
+        if (!exportDecl)
         {
-            const { name, doc } = imports[i];
+            console.log("No exportDecl for", name);
+        }
 
-            doc.description = null;
-            doc.reactDocGen = info;
 
-            const isDefault = name === "default";
-
-            const exportDecl = dependencyAST.program.body.find(
-                n => {
-                    if (isDefault && n.type === "ExportDefaultDeclaration")
-                    {
-                        return true;
-                    }
-
-                    if (!isDefault && n.type === "ExportNamedDeclaration")
-                    {
-                        const { declaration } = n;
-
-                        if (declaration.type === "VariableDeclaration")
-                        {
-                            if (declaration.declarations[0].id.name === name)
-                            {
-                                return true;
-                            }
-                        }
-                        else if (declaration.type === "FunctionDeclaration")
-                        {
-                            if (declaration.id.name === name)
-                            {
-                                return true;
-                            }
-                        }
-
-                    }
-
-                    return false;
-                }
-            );
-
-            if (exportDecl)
+        if (exportDecl)
+        {
+            const isDefaultExport = exportDecl.type === "ExportDefaultDeclaration";
+            // process comments directly on export
+            if (isDefaultExport)
             {
-                const isDefaultExport = exportDecl.type === "ExportDefaultDeclaration";
-
-                // process comments directly on export
-                if (isDefaultExport)
+                if (exportDecl.leadingComments && exportDecl.leadingComments.length)
                 {
-                    if (exportDecl.leadingComments && exportDecl.leadingComments.length)
-                    {
-                        doc.description = parseJsDoc(exportDecl.leadingComments[0].value);
+                    doc.description = parseJsDoc(exportDecl.leadingComments[0].value);
 
-                        const { start, end } = exportDecl.loc
-
-                        doc.start = start.line;
-                        doc.end = end.line;
-                    }
-                }
-                else
-                {
-                    if (exportDecl.leadingComments && exportDecl.leadingComments.length)
-                    {
-                        doc.description = parseJsDoc(exportDecl.leadingComments[0].value);
-
-                        const { start, end } = exportDecl.loc
-
-                        doc.start = start.line;
-                        doc.end = end.line;
-                    }
-                }
-
-
-                // find original declaration
-                let origDecl;
-                let localName;
-                if (exportDecl.declaration.type === "Identifier")
-                {
-                    localName = exportDecl.declaration.name;
-                    origDecl = dependencyAST.program.body.find(n => {
-                        if (n.type === "VariableDeclaration")
-                        {
-                            return n.declarations[0].id.name === localName;
-                        }
-                        else if (n.type === "FunctionDeclaration" || n.type === "ClassDeclaration")
-                        {
-                            return n.id.name === localName;
-                        }
-                        return false;
-                    });
-                }
-                else
-                {
-                    origDecl = exportDecl.declaration;
-                }
-
-                if (origDecl)
-                {
-                    if (!doc.description)
-                    {
-                        // description on default export has precedence over the one on the declaration
-                        if (origDecl.leadingComments && origDecl.leadingComments.length)
-                        {
-                            doc.description = parseJsDoc(origDecl.leadingComments[0].value);
-                        }
-                    }
-
-                    const {start, end} = (origDecl.type === "VariableDeclaration" ?
-                        origDecl.declarations[0].loc :
-                        origDecl.loc)
+                    const {start, end} = exportDecl.loc
 
                     doc.start = start.line;
                     doc.end = end.line;
+                }
+            }
+            else
+            {
+                if (exportDecl.leadingComments && exportDecl.leadingComments.length)
+                {
+                    doc.description = parseJsDoc(exportDecl.leadingComments[0].value);
 
+                    const {start, end} = exportDecl.loc
 
+                    doc.start = start.line;
+                    doc.end = end.line;
+                }
+            }
 
-                    //console.log(origDecl.type, doc.name)
-                    if (origDecl.type === "ClassDeclaration")
+            // find original declaration
+            const { origDecl, localName } = findDeclarationOfExport(dependencyAST, exportDecl);
+
+            //console.log('localName', localName);
+
+            if (origDecl)
+            {
+                if (!doc.description)
+                {
+                    // description on default export has precedence over the one on the declaration
+                    if (origDecl.leadingComments && origDecl.leadingComments.length)
                     {
-                        const { body } = origDecl.body;
+                        doc.description = parseJsDoc(origDecl.leadingComments[0].value);
+                    }
+                }
 
-                        doc.members = [];
+                const { start, end } = getLocationOfDecl(origDecl)
 
-                        for (let j = 0; j < body.length; j++)
+                doc.start = start.line;
+                doc.end = end.line;
+
+                //console.log(origDecl.type, doc.name)
+                if (origDecl.type === "ClassDeclaration")
+                {
+                    const {body} = origDecl.body;
+
+                    doc.members = [];
+
+                    for (let j = 0; j < body.length; j++)
+                    {
+                        const {type, key, leadingComments} = body[j];
+
+                        if (key && leadingComments && leadingComments.length)
                         {
-                            const { type, key, leadingComments } = body[j];
-
-                            if (key && leadingComments && leadingComments.length)
-                            {
-                                doc.members.push({
-                                    type,
-                                    name: key.name,
-                                    description: parseJsDoc(leadingComments[0].value),
-                                    decorators: body[j].decorators && body[j].decorators.length ? body[j].decorators.map(d => d.expression.name) : []
-                                })
-                            }
+                            doc.members.push({
+                                type,
+                                name: key.name,
+                                description: parseJsDoc(leadingComments[0].value),
+                                decorators: body[j].decorators && body[j].decorators.length ?
+                                    body[j].decorators.map(d => d.expression.name) :
+                                    []
+                            })
                         }
                     }
+                }
 
+                if (origDecl.type === "VariableDeclaration" && origDecl.declarations[0].init.type === "ObjectExpression")
+                {
 
-                    if (origDecl.type === "VariableDeclaration" && origDecl.declarations[0].init.type === "ObjectExpression")
+                    const {properties} = origDecl.declarations[0].init;
+
+                    doc.members = [];
+
+                    for (let j = 0; j < properties.length; j++)
                     {
+                        const {value: {type}, key, leadingComments} = properties[j];
 
-                        const { properties } = origDecl.declarations[0].init;
-
-                        doc.members = [];
-
-                        for (let j = 0; j < properties.length; j++)
+                        if (key && leadingComments && leadingComments.length)
                         {
-                            const { value : { type }, key, leadingComments } = properties[j];
-
-                            if (key && leadingComments && leadingComments.length)
-                            {
-                                doc.members.push({
-                                    type,
-                                    name: key.name,
-                                    description: parseJsDoc(leadingComments[0].value)
-                                })
-                            }
+                            doc.members.push({
+                                type,
+                                name: key.name,
+                                description: parseJsDoc(leadingComments[0].value)
+                            })
                         }
                     }
+                }
 
-                    if (doc.type === DocType.COMPONENT)
+                if (doc.type === DocType.COMPONENT)
+                {
+                    const expr = dependencyAST.program.body.find(n => n.type === "ExpressionStatement");
+
+                    if (
+                        expr && expr.expression.type === "AssignmentExpression" &&
+                        expr.expression.left.type === "MemberExpression" &&
+                        expr.expression.left.object.type === "Identifier" &&
+                        expr.expression.left.property.type === "Identifier" &&
+                        expr.expression.right.type === "Identifier" &&
+                        expr.expression.left.object.name === localName)
                     {
-                        const expr = dependencyAST.program.body.find(n => n.type === "ExpressionStatement");
 
-                        if (
-                            expr && expr.expression.type === "AssignmentExpression" &&
-                            expr.expression.left.type === "MemberExpression" &&
-                            expr.expression.left.object.type === "Identifier" &&
-                            expr.expression.left.property.type === "Identifier" &&
-                            expr.expression.right.type === "Identifier" &&
-                            expr.expression.left.object.name === localName)
-                        {
+                        const subName = expr.expression.right.name;
+                        const exportedName = expr.expression.left.property.name;
 
-                            const subName = expr.expression.right.name;
-                            const exportedName = expr.expression.left.property.name;
-                            
-                        }
+                        console.log("REACTDOC", exportedName, subName)
                     }
                 }
             }
         }
     }
 
-    docs.sort((a,b) => {
-
+    docs.sort((a, b) => {
         return a.name.localeCompare(b.name);
 
     })
@@ -382,14 +399,16 @@ async function resolveDocs(indexPath, moduleAST, docs)
     return docs;
 }
 
+
 function isUpperCase(name)
 {
     return name[0] === name[0].toLocaleUpperCase();
 }
 
+
 function determineType(doc)
 {
-    const { name, source } = doc;
+    const {name, source} = doc;
     return config.docTypeOverrides[name] || (
         source.indexOf("src/ui") === 0 ? DocType.COMPONENT :
             isUpperCase(name[0]) ? DocType.CLASS :
@@ -400,7 +419,7 @@ function determineType(doc)
 
 function getLink(type, name)
 {
-    switch(type)
+    switch (type)
     {
         case DocType.COMPONENT:
         case DocType.HOOK:
@@ -428,7 +447,7 @@ function getLinks(docsArray, type)
 function postProcess(docsArray, markdownSnippets)
 {
     const docs = {};
-    docsArray.forEach( doc => {
+    docsArray.forEach(doc => {
         doc.link = getLink(doc.type, doc.name)
 
         docs[doc.name] = doc;
@@ -448,16 +467,15 @@ function postProcess(docsArray, markdownSnippets)
 
 export async function loadDocs(indexPath)
 {
-    const moduleAST = parseCode(await fs.readFile(indexPath, "UTF-8"));
-
+    const {moduleAST} = await loadSource(indexPath);
 
     //console.log("FINAL CONFIG", JSON.stringify(config, null, 4))
 
     const namedExport = moduleAST.program.body.find(n => n.type === "ExportNamedDeclaration");
 
     const exported = namedExport.specifiers
-        .filter( specifier => specifier.exported.name !== "AutomatonDevTools" && specifier.exported.name !== "FilterDSL")
-        .map( specifier => ({
+        .filter(specifier => specifier.exported.name !== "AutomatonDevTools" && specifier.exported.name !== "FilterDSL")
+        .map(specifier => ({
             name: specifier.exported.name,
             local: specifier.local.name,
             source: "",
@@ -465,11 +483,10 @@ export async function loadDocs(indexPath)
         }));
 
     const docs = await resolveDocs(
-            indexPath,
-            moduleAST,
-            exported
-        )
-
+        indexPath,
+        moduleAST,
+        exported
+    )
 
     //logUndefined(getData());
 
@@ -492,10 +509,16 @@ export async function getPageDefaults(dataIn)
 
             docsData = await loadDocs(indexPath);
 
+
+            await fs.writeFile(
+                path.resolve(process.cwd(), "./.next/automaton-js-docs.json"),
+                JSON.stringify(docsData, null, 4),
+                "UTF-8"
+
+            )
             //console.log("docsData", getData())
 
-        }
-        catch(e)
+        } catch (e)
         {
             console.error("Error loading docsData", e)
         }
@@ -503,7 +526,7 @@ export async function getPageDefaults(dataIn)
 
     return {
         props: {
-            ... dataIn,
+            ...dataIn,
             docs: docsData
         }
     };

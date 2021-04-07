@@ -63,7 +63,7 @@ function CodeBlock({children, className})
 function MarkdownLink({href, children, ... rest})
 {
 
-    href = href[0] === "/" ? config.basePath + href : href;
+    href = href[0] === "/" ? (config.basePath || "") + href : href;
 
     return (
         <a
