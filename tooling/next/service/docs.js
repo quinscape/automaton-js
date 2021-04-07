@@ -4,7 +4,7 @@ import { parse as doctrineParse, unwrapComment } from "doctrine"
 import { parse as reactDocGenParse } from "react-docgen"
 
 import config from "../automaton-js-doc.config"
-import DocType from "./DocType";
+import Group from "./Group";
 import { loadSnippets, processMarkdownSnippets } from "./markdown";
 import loadSource from "./loader";
 
@@ -235,13 +235,13 @@ async function resolveDocs(indexPath, moduleAST, docs)
         const { imported, source } = imp;
 
         doc.source = getProjectRelativeSourcePath(resolveRelative(indexPath, source));
-        doc.type = determineType(doc);
+        doc.group = determineType(doc);
 
         const sourcePath = resolveRelative(indexPath, source) + ".js";
         const {code, moduleAST: dependencyAST} = await loadSource(sourcePath);
 
         let reactDocGen = null;
-        if (doc.type === DocType.COMPONENT)
+        if (doc.group === Group.COMPONENT)
         {
             try
             {
@@ -366,7 +366,7 @@ async function resolveDocs(indexPath, moduleAST, docs)
                     }
                 }
 
-                if (doc.type === DocType.COMPONENT)
+                if (doc.group === Group.COMPONENT)
                 {
                     const expr = dependencyAST.program.body.find(n => n.type === "ExpressionStatement");
 
@@ -409,10 +409,10 @@ function isUpperCase(name)
 function determineType(doc)
 {
     const {name, source} = doc;
-    return config.docTypeOverrides[name] || (
-        source.indexOf("src/ui") === 0 ? DocType.COMPONENT :
-            isUpperCase(name[0]) ? DocType.CLASS :
-                name.indexOf("use") === 0 ? DocType.HOOK : DocType.FUNCTION
+    return config.groupOverrides[name] || (
+        source.indexOf("src/ui") === 0 ? Group.COMPONENT :
+            isUpperCase(name[0]) ? Group.CLASS :
+                name.indexOf("use") === 0 ? Group.HOOK : Group.FUNCTION
     );
 }
 
@@ -421,14 +421,14 @@ function getLink(type, name)
 {
     switch (type)
     {
-        case DocType.COMPONENT:
-        case DocType.HOOK:
+        case Group.COMPONENT:
+        case Group.HOOK:
             return "component#" + name;
-        case DocType.CLASS:
+        case Group.CLASS:
             return "class#" + name;
-        case DocType.FUNCTION:
+        case Group.FUNCTION:
             return "misc#" + name;
-        case DocType.UTIL:
+        case Group.UTIL:
             return "misc#" + name;
         default:
             throw new Error("Unhandled Type: " + type)
@@ -439,7 +439,7 @@ function getLink(type, name)
 
 function getLinks(docsArray, type)
 {
-    return docsArray.filter(doc => doc.type === type)
+    return docsArray.filter(doc => doc.group === type)
         .map(doc => doc.name);
 }
 
@@ -448,18 +448,18 @@ function postProcess(docsArray, markdownSnippets)
 {
     const docs = {};
     docsArray.forEach(doc => {
-        doc.link = getLink(doc.type, doc.name)
+        doc.link = getLink(doc.group, doc.name)
 
         docs[doc.name] = doc;
     });
 
     return {
         docs,
-        components: getLinks(docsArray, DocType.COMPONENT),
-        hooks: getLinks(docsArray, DocType.HOOK),
-        classes: getLinks(docsArray, DocType.CLASS),
-        utils: getLinks(docsArray, DocType.UTIL),
-        functions: getLinks(docsArray, DocType.FUNCTION),
+        components: getLinks(docsArray, Group.COMPONENT),
+        hooks: getLinks(docsArray, Group.HOOK),
+        classes: getLinks(docsArray, Group.CLASS),
+        utils: getLinks(docsArray, Group.UTIL),
+        functions: getLinks(docsArray, Group.FUNCTION),
         handwritten: processMarkdownSnippets(markdownSnippets)
     }
 }

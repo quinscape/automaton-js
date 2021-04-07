@@ -1,14 +1,14 @@
-const DocType = require("./service/DocType")
+const Group = require("./service/Group")
 
 module.exports = {
 
     //basePath: "/test/automaton-js",
 
     // Forced doc types for cases where the naming and location rules aren't enough
-    "docTypeOverrides": {
-        "Hub": DocType.UTIL,
-        "Attachments": DocType.UTIL,
-        "config": DocType.UTIL
+    "groupOverrides": {
+        "Hub": Group.UTIL,
+        "Attachments": Group.UTIL,
+        "config": Group.UTIL
     },
 
     handwritten: [
