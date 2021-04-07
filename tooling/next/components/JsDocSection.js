@@ -51,6 +51,10 @@ function printJsDocType(type)
     {
         return printJsDocType(type.expression) + "<" +  type.applications.map( a => printJsDocType(a)).join(", ") + ">";
     }
+    else if (type.type === "NullableType")
+    {
+        return "[" +  printJsDocType(type.expression) + "]";
+    }
 
     /*
     {
