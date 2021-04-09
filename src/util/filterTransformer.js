@@ -244,7 +244,7 @@ const operationImpl = {
     },
 
     toString: (a) => {
-        return String(a);
+        return a !== null && a !== undefined ?  String(a) : null;
     }
 };
 
