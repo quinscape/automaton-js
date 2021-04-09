@@ -65,10 +65,8 @@ const filterObject = (obj, knownTypes) => {
  * Filters a raw input schema JSON structure to only include the types reachable by a given list of type names
  * as starting points.
  *
- * @category helper
- *
  * @param {Object} rawSchema            raw input schema data  / introspection result
- * @param {Array<String>} typeNames     types to start at
+ * @param {Array<String>} typeNames     types to start at. Queries and Mutations can be referenced by prefixing the method name with "q:" or "m:" (e.g. "q:iQueryFoo")
  */
 export default function pickSchemaTypes(rawSchema, typeNames)
 {

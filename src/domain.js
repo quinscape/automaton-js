@@ -67,7 +67,6 @@ export const INTERACTIVE_QUERY_DEFINITION = "de.quinscape.automaton.model.data.I
  * @param {String} typeName     type name
  * @return {String|null} full qualified generic type name or null
  *
- * @category schema
  */
 export function getGenericType(typeName)
 {
@@ -323,6 +322,12 @@ export function loadDomainDefinitions(ctx)
 
 }
 
+
+/**
+ * Sets the global wireFormat. Should only be used in tests.
+ *
+ * @param wf    wireFormat instance
+ */
 export function __setWireFormatForTest(wf)
 {
     wireFormat = wf;
@@ -334,7 +339,6 @@ export function __setWireFormatForTest(wf)
  *
  * @return {WireFormat} wire format
  *
- * @category schema
  */
 export function getWireFormat()
 {

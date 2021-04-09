@@ -71,8 +71,6 @@ export function registerScalarEquals(scalarType, fn)
  *
  * @returns {boolean}   true if scalar values are equal
  *
- * @category schema
- *
  */
 export default function equalsScalar(scalarType, a, b) {
     const eq = equalsImpls[scalarType];

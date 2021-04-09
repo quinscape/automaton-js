@@ -1727,8 +1727,6 @@ export function renderSubProcess(processName, input, injections, opts)
 /**
  * Returns the current top-level process.
  *
- * @category helper
- * 
  * @return {Process} the current process on top
  */
 export function getCurrentProcess()

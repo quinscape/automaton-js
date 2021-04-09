@@ -173,8 +173,6 @@ function sortTypes(types)
 /**
  * Renders a human-readable GraphQL schema from a JSON schema introspection including the automaton-specific additions.
  *
- * @category helper
- *
  * @param {Object} schema   (automaton) schema data
  * @param {String}newLine   newLine to use
  */

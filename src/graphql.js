@@ -131,8 +131,8 @@ function postProcess(result, processors, queryDecl, params)
  *
  * @param {Object} params                   Parameters
  * @param {String} params.query             query string
- * @param {Object} [params.variables]       query variables
- * @param {Object} [params.autoConvert]     if false, don't convert input and result ( default is true)
+ * @param {Object} params.variables         query variables
+ * @param {Object} params.autoConvert       if false, don't convert input and result ( default is true)
  *
  * @returns {Promise<*,*>} Promise resolving to query data
  */

@@ -11,7 +11,8 @@ import { getFields } from "./util/type-utils";
  *
  * @param {String} typeName         GraphQL type name
  * @param {Observable|object} obj   object.
- * @return {{_type: *}}
+ * 
+ * @return {object} Object containing just the type fields (and _type)
  */
 export default function extractTypeData(typeName, obj)
 {

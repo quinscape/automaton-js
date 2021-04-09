@@ -130,6 +130,7 @@ export function addConfig(name, value)
 /**
  * Configuration object
  *
+ * @category config
  */
 const theConfig = new Proxy(
     function () {

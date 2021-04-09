@@ -427,7 +427,11 @@ export function startup(ctx, initial, initFn)
 
 
 /**
- * Registry object available as second argument to the startup callback.
+ * Contains a number of configuration methods that only makes sense to use once at startup, in the init callback of your
+ * startup call.
+ *
+ * @category config
+ *
  */
 export const StartupRegistry = {
     /**
