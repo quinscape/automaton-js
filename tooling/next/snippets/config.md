@@ -161,7 +161,7 @@ To add more keys to your app config, you need to do two steps:
 import "whatwg-fetch"
 import bootstrap from "jsview-bootstrap"
 import { configure, runInAction, toJS, observable } from "mobx"
-import { config, getCurrentProcess, addConfig, shutdown, startup, Hub } from "@quinscape/automaton-js"
+import { config, getCurrentProcess, StartupRegistry, shutdown, startup, Hub } from "@quinscape/automaton-js"
 import Layout from "../../components/Layout";
 
 // noinspection ES6UnusedImports
@@ -180,7 +180,7 @@ bootstrap(
             config => {
 
                 config.layout = Layout;
-                addConfig("validationRules", initial.validationRules)
+                StartupRegistry.addConfig("validationRules", initial.validationRules)
 
                 return Hub.init(initial.connectionId)
             }

@@ -183,7 +183,7 @@ function createHeading(level)
         )
     };
 
-    Component.name = Component.displayName = "Heading" + level;
+    Component.displayName = "Heading" + level;
 
     return Component
 }

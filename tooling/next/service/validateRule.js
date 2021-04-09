@@ -19,6 +19,25 @@ export function hasNoRule(hw)
 }
 
 
+export function getRuleReference(hw)
+{
+    for (let field of validRuleFields)
+    {
+        if (field !== "src")
+        {
+            let ref = hw[field];
+            if (ref)
+            {
+                ref = ref.replace(/\..*$/, "")
+                return ref;
+            }
+        }
+
+    }
+    return null;
+}
+
+
 export default function validateRule(docs, hw)
 {
     if (!hw.src)
@@ -35,30 +54,23 @@ export default function validateRule(docs, hw)
         {
             throw new Error("Invalid field '" + key + "': " + JSON.stringify(hw))
         }
-
-        if (key !== "src")
-        {
-            let ref = hw[key];
-
-            if (key === "replace")
-            {
-                ref = ref.replace(/\..*$/, "")
-            }
-
-            const target = docs.find(d => d.name === ref);
-            if (!target)
-            {
-                throw new Error(
-                    "Invalid reference '" + ref + "' in rule: " + JSON.stringify(hw)
-                )
-            }
-        }
-
         count++;
     }
 
     if (count > 2)
     {
         throw new Error("Rule has more than one rule field: " + JSON.stringify(hw))
+    }
+
+    const ref = getRuleReference(hw);
+    if (ref)
+    {
+        const target = docs.find(d => d.name === ref);
+        if (!target)
+        {
+            throw new Error(
+                "Invalid reference '" + ref + "' in rule: " + JSON.stringify(hw)
+            )
+        }
     }
 }

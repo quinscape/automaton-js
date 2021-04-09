@@ -1,50 +1,63 @@
 import Layout from "../components/Layout";
-import cx from "classnames";
 import { getPageDefaults } from "../service/docs";
+import { JsDocClassSection, JsDocFunctionSection } from "../components/JsDocSection";
 import TOCLink from "../components/TOCLink";
-import { useState } from "react";
-import MarkdownPage from "../components/MarkdownPage";
+import React from "react";
+import { filterByCategory, filterPageDefaults } from "../service/docs-filter";
+import Group from "../service/Group";
 
-const Category = ({title, docs, names : namesFromProps, search}) => {
-
-    const names = search ?
-        namesFromProps.filter(name => name.toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) >= 0) :
-        namesFromProps;
-
-
-    return (
-        <>
-            <h3>
-                {
-                    title
-                }
-            </h3>
-            {
-                !names.length && "---"
-            }
-            {
-                names.map(name => <TOCLink key={name} doc={docs.docs[name]}/>)
-            }
-        </>
-    )
-};
-
-function ConfigPage(props)
+export default function ConfigurationFunctions(props)
 {
+    const { docs } = props;
+
     return (
-        <Layout {...props}>
-            <MarkdownPage docs={ props.docs } path="config.md"/>
+        <Layout
+            {...props}
+            largeSidebar={ true }
+            sidebar={ () => (
+                (
+                    <>
+                        <h5>
+                            Automaton Configuration
+                        </h5>
+                        {
+                            docs.utils.map( name => (<TOCLink key={name} docs={ docs } name={ name }/>))
+                        }
+                    </>
+                )
+
+                )}
+        >
+            <div className="row">
+                <div className="col">
+                    {
+                        docs.utils
+                            .map( name => docs.docs[name])
+                            .map(doc => {
+
+                            return (
+                                <JsDocClassSection
+                                    key={ doc.name }
+                                    name={ doc.name }
+                                    doc={ doc }
+                                    docs={ docs }
+                                />
+                            )
+                        })
+                    }
+                </div>
+            </div>
         </Layout>
     )
 }
 
-export default ConfigPage
-
-
 export async function getStaticProps(context)
 {
     return getPageDefaults({
-        title: "Automaton-Js Static Configuration"
-    })
+            title: "Automaton Configuration"
+        },
+        [ Group.UTIL ],
+        "config"
+    );
 }
 

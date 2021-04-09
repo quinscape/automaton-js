@@ -2,6 +2,7 @@ const Group = require("./service/Group")
 
 module.exports = {
 
+    // basePath for markdown links
     //basePath: "/test/automaton-js",
 
     // Forced doc types for cases where the naming and location rules aren't enough
@@ -21,17 +22,19 @@ module.exports = {
             src: "config.md"
         },
 
-        {
-            src: "explanation-injection.md"
-        },
+        { src: "documentation-introduction.md" },
+        { src: "documentation-getting-started.md" },
+        { src: "documentation-domain.md" },
 
-        {
-            src: "declarative-api.md"
-        },
+        { src: "explanation-injection.md" },
+        { src: "explanation-filter-dsl.md" },
+        { src: "declarative-api.md" },
+
+        { src: "howto-one.md" },
 
         {
             replace: "config",
-            src: "config-ref.md"
+            src: "config.md"
         },
         {
             replace: "FilterDSL.Type",

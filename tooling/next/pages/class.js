@@ -4,6 +4,8 @@ import { getPageDefaults } from "../service/docs";
 import JsDocSection, { JsDocClassSection, JsDocFunctionSection } from "../components/JsDocSection";
 import TOCLink from "../components/TOCLink";
 import React from "react";
+import { filterPageDefaults } from "../service/docs-filter";
+import Group from "../service/Group";
 
 
 export default function Classes(props)
@@ -20,7 +22,7 @@ export default function Classes(props)
                             Classes
                         </h5>
                         {
-                            docs.classes.map(name => (<TOCLink key={name} doc={docs.docs[name]}/>))
+                            docs.classes.map(name => (<TOCLink key={name} docs={ docs } name={ name }/>))
                         }
                     </>
                 )
@@ -54,7 +56,9 @@ export default function Classes(props)
 export async function getStaticProps(context)
 {
     return getPageDefaults({
-        title: "Classes"
-    })
+            title: "Classes"
+        },
+        [ Group.CLASS ]
+    );
 }
 

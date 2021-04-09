@@ -2,8 +2,7 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
 
 module.exports = (phase, { defaultConfig }) => {
     return {
-        // XXX: current deployment on my local machine under "hostname/test/<project>"
-        basePath: phase === PHASE_DEVELOPMENT_SERVER ? "" : "/test/automaton-js",
+        basePath: "",
         trailingSlash: true,
 
         webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

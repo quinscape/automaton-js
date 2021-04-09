@@ -1,11 +1,12 @@
 import Layout from "../components/Layout";
 import { getPageDefaults } from "../service/docs";
-import { JsDocClassSection } from "../components/JsDocSection";
+import { JsDocClassSection, JsDocFunctionSection } from "../components/JsDocSection";
 import TOCLink from "../components/TOCLink";
 import React from "react";
-import { filterByCategory } from "../service/docs-filter";
-import MarkdownSection from "../components/MarkdownSection";
-import MarkdownPage from "../components/MarkdownPage";
+import { filterPageDefaults } from "../service/docs-filter";
+import Group from "../service/Group";
+import MarkdownDiv from "../components/MarkdownDiv";
+import { findMarkdownBySource } from "../service/markdown-filter";
 
 export default function BrowserHelpers(props)
 {
@@ -23,8 +24,7 @@ export default function BrowserHelpers(props)
                         {
                             docs.functions
                                 .map( name => docs.docs[name])
-                                .filter(filterByCategory("declarative"))
-                                .map(doc => (<TOCLink key={doc.name} doc={ doc }/>))
+                                .map(doc => (<TOCLink key={doc.name} docs={ docs } name={ doc.name }/>))
                         }
                     </>
                 )
@@ -34,23 +34,21 @@ export default function BrowserHelpers(props)
             <div className="row">
                 <div className="col">
 
-                    <MarkdownPage
-                        docs={docs}
-                        path={ "declarative-api.md" }
+                    <MarkdownDiv
+                        markdown={ findMarkdownBySource( docs.handwritten, "declarative-api.md")}
                     />
                     {
                         docs.functions
                             .map( name => docs.docs[name])
-                            .filter(filterByCategory("declarative"))
                             .map(doc => {
 
                             return (
-                                <JsDocClassSection
+                                <JsDocFunctionSection
                                     key={ doc.name }
                                     name={ doc.name }
                                     doc={ doc }
                                     docs={ docs }
-                                    complex={ false }
+                                    standalone={ true }
                                 />
                             )
                         })
@@ -64,7 +62,11 @@ export default function BrowserHelpers(props)
 export async function getStaticProps(context)
 {
     return getPageDefaults({
-        title: "Declarative API"
-    })
+            title: "Declarative API"
+        },
+        [ Group.FUNCTION ],
+        "declarative",
+        ["declarative-api.md"]
+    );
 }
 

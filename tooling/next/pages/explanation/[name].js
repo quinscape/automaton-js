@@ -1,20 +1,23 @@
 import Layout from "../../components/Layout";
-import { getDocsData, getPageDefaults } from "../../service/docs";
 import React from "react";
-import MarkdownSection from "../../components/MarkdownSection";
-import { hasNoRule } from "../../service/validateRule";
+import MarkdownTOC from "../../components/MarkdownTOC";
+import MarkdownDiv from "../../components/MarkdownDiv";
+import { EXPLANATION, getStaticPathsByPrefix, getMarkdownPropsByPrefix } from "../../service/markdown-filter";
 
-export default function Explanation(props) {
-    const {name, content} = props;
+export default function ExplanationPage(props) {
+    const { markdown } = props;
 
     return (
         <Layout
+            largeSidebar={ true }
             sidebar={() => (
                 (
                     <>
                         <h5>
-                            Explanation: WIP
+                            { markdown.toc.title }
                         </h5>
+                        <MarkdownTOC toc={ markdown.toc }/>
+
                     </>
                 )
 
@@ -23,9 +26,8 @@ export default function Explanation(props) {
             <div className="row">
                 <div className="col">
 
-                    <MarkdownSection
-                        name={ name }
-                        markdown={ content }
+                    <MarkdownDiv
+                        markdown={ markdown }
                     />
                 </div>
             </div>
@@ -33,47 +35,37 @@ export default function Explanation(props) {
     )
 }
 
-const EXPLANATION = "explanation-";
 
-
-export async function getStaticProps({ params })
+export async function getStaticProps(context)
 {
-    const { name } = params;
+    return import("../../service/docs")
+        .then(
+            ({ getDocsData }) => {
+                return getDocsData([])
+            }
+        )
+        .then( data => {
 
-    const data = await getDocsData();
+            const { name } = context.params;
 
-    const path = EXPLANATION + name + ".md"
+            return getMarkdownPropsByPrefix(data.handwritten, EXPLANATION, name)
+    })
 
-    const hw = data.handwritten.find(hw => hw.src === path);
-
-    if (!hw)
-    {
-        throw new Error("Could not find handwritten doc with path = " + path);
-    }
-
-    return {
-        props: {
-            ... hw,
-            name,
-            title: hw.frontmatter.title
-        }
-    }
 }
 
 export async function getStaticPaths()
 {
-    const data = await getDocsData();
+    return import("../../service/docs")
+        .then(
+            ({ getDocsData }) => {
+                return getDocsData([])
+            }
+        )
+        .then( data => {
 
-    return {
-        paths: data.handwritten
-            .filter( hw => hw.src.indexOf(EXPLANATION) === 0 && hasNoRule(hw) )
-            .map(
-                hw => ({
-                    params : {
-                        name: hw.src.substr(EXPLANATION.length, - 3)
-                    }
-                })
-            ),
-        fallback: false
-    }
+            return {
+                paths: getStaticPathsByPrefix(data.handwritten, EXPLANATION),
+                fallback: false
+            }
+        }, err => console.error("DOCS DATA ERROR", err))
 }

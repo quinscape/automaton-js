@@ -7,13 +7,19 @@ import { useRouter } from "next/router";
 import * as PropTypes from "prop-types";
 import { JsDocClassSection, JsDocFunctionSection } from "../components/JsDocSection";
 import { filterByCategory } from "../service/docs-filter";
+import { EXPLANATION, DOCUMENTATION, HOWTO, findMarkdownBySource, getPathsByPrefix } from "../service/markdown-filter";
 
-const Category = ({title, docs : docsFromProps, search}) => {
+const ReferenceCategory = ({title, docs, names: names, search}) => {
+
+    // if we don't have any data at all, display nothing
+    if (!names.length)
+    {
+        return false;
+    }
 
     const filtered = search ?
-        docsFromProps.filter(doc => doc.name.toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) >= 0) :
-        docsFromProps;
-
+        names.filter(doc => doc.name.toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) >= 0) :
+        names;
 
     return (
         <>
@@ -22,12 +28,29 @@ const Category = ({title, docs : docsFromProps, search}) => {
                     title
                 }
             </h3>
-            {
-                !filtered.length && "---"
-            }
-            {
-                filtered.map(doc => <TOCLink key={ doc.name } doc={ doc }/>)
-            }
+            <ul className="list-unstyled">
+                {
+                    // display placeholder item if we have no items after filtering
+                    !filtered.length && (
+                        <li>
+                            ---
+                        </li>
+                    )
+                }
+                {
+                    filtered.map(doc => (
+                        <li
+                            key={ doc.name }
+                        >
+                            <TOCLink
+                                docs={ docs }
+                                name={ doc.name }
+                                short={ true }
+                            />
+                        </li>
+                    ))
+                }
+            </ul>
         </>
     )
 };
@@ -68,6 +91,53 @@ SearchForm.propTypes = {
 };
 
 
+function DocumentationCategory({docs, title, prefix, path})
+{
+    const router = useRouter();
+
+    return (
+        <>
+            <h2>
+                {
+                    title
+                }
+            </h2>
+            <ul className="list-unstyled">
+                {
+                    getPathsByPrefix(docs.handwritten, prefix).map(
+                        name => {
+                            const hw = findMarkdownBySource(docs.handwritten, prefix + name + ".md")
+                            return (
+
+
+                                <li
+                                    key={ name }
+                                >
+                                    <a
+                                        className="btn btn-link"
+                                        href={ router.basePath + path + name }
+                                    >
+                                        {
+                                            hw.toc.title
+                                        }
+                                    </a>
+                                </li>
+                            );
+                        }
+                    )
+                }
+            </ul>
+        </>
+    );
+}
+
+
+DocumentationCategory.propTypes = {
+    prefix: PropTypes.string,
+    title: PropTypes.string
+};
+
+
 function HomePage(props)
 {
     const { docs } = props;
@@ -91,16 +161,26 @@ function HomePage(props)
             <section>
                 <div className="row">
                     <div className="col">
-                        <h2>Documentation</h2>
-                        <a className="btn btn-link btn-sm" href={ router.basePath + "/config" }>
-                            Automaton-Js Static Config
-                        </a>
+                        <DocumentationCategory
+                            docs={ docs }
+                            title="Documentation"
+                            prefix={ DOCUMENTATION }
+                            path={"/tutorial/"}
+                        />
                     </div>
                     <div className="col">
-                        <h2>Tutorials</h2>
-                        <a className="btn btn-link btn-sm" href={ router.basePath + "/config" }>
-                            Automaton-Js Static Config
-                        </a>
+                        <DocumentationCategory
+                            docs={ docs }
+                            title="Background"
+                            path={"/explanation/"}
+                            prefix={ EXPLANATION}
+                        />
+                        <DocumentationCategory
+                            docs={ docs }
+                            title="How-Tos"
+                            path={"/howto/"}
+                            prefix={ HOWTO }
+                        />
                     </div>
                     <div className="col">
                     </div>
@@ -116,38 +196,42 @@ function HomePage(props)
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Category
+                        <ReferenceCategory
                             title="Declarative API"
                             search={ search }
-                            docs={
+                            docs={ docs }
+                            names={
                                 docs.functions
                                     .map( name => docs.docs[name])
                                     .filter(filterByCategory("declarative"))
                             }
                         />
-                        <Category
+                        <ReferenceCategory
                             title="InteractiveQuery / Filter"
                             search={ search }
-                            docs={
+                            docs={ docs }
+                            names={
                                 Object.values(docs.docs)
                                     .filter(filterByCategory("iquery"))
 
                             }
                         />
-                        <Category
+                        <ReferenceCategory
                             title="Domain-Object Helpers"
                             search={ search }
-                            docs={
+                            docs={ docs }
+                            names={
                                 docs.functions
                                     .map( name => docs.docs[name])
                                     .filter(filterByCategory("domain"))
 
                             }
                         />
-                        <Category
+                        <ReferenceCategory
                             title="Process"
                             search={ search }
-                            docs={
+                            docs={ docs }
+                            names={
                                 Object.values(docs.docs)
                                     .filter(filterByCategory("process"))
 
@@ -155,77 +239,73 @@ function HomePage(props)
                         />
                     </div>
                     <div className="col">
-                        <Category
+                        <ReferenceCategory
                             title="Components"
                             search={ search }
-                            docs={
+                            docs={ docs }
+                            names={
                                 docs.components
                                     .map( name => docs.docs[name])
                             }
                         />
-                        <Category
+                        <ReferenceCategory
                             title="Hooks"
                             search={ search }
-                            docs={
+                            docs={ docs }
+                            names={
                                 docs.hooks
                                     .map( name => docs.docs[name])
                             }
                         />
-                        <Category
+                        <ReferenceCategory
                             title="Classes"
                             search={ search }
-                            docs={
+                            docs={ docs }
+                            names={
                                 docs.classes
                                     .map( name => docs.docs[name])
                             }
                         />
                     </div>
                     <div className="col">
-                        <Category
-                            title="Schema / Types"
-                            search={ search }
-                            docs={
-                                docs.functions
-                                    .map( name => docs.docs[name])
-                                    .filter(filterByCategory("schema"))
-
-                            }
-                        />
-                        <Category
+                        <ReferenceCategory
                             title="Websocket"
                             search={ search }
-                            docs={
+                            docs={ docs }
+                            names={
                                 Object.values(docs.docs)
                                     .filter(filterByCategory("websocket"))
 
                             }
                         />
-                        <Category
+                        <ReferenceCategory
                             title="Configuration"
                             search={ search }
-                            docs={
+                            docs={ docs }
+                            names={
+                                docs.utils
+                                    .map( name => docs.docs[name])
+                                    .filter(filterByCategory("config"))
+                            }
+                        />
+                        <ReferenceCategory
+                            title="Static Utils"
+                            search={ search }
+                            docs={ docs }
+                            names={
                                 docs.utils
                                     .map( name => docs.docs[name])
                                     .filter(filterByCategory())
                             }
                         />
-                        <Category
+                        <ReferenceCategory
                             title="Functions"
                             search={ search }
-                            docs={
+                            docs={ docs }
+                            names={
                                 docs.functions
                                     .map( name => docs.docs[name])
                                     .filter(filterByCategory())
-
-                            }
-                        />
-                        <Category
-                            title="Browser Helpers"
-                            search={ search }
-                            docs={
-                                docs.functions
-                                    .map( name => docs.docs[name])
-                                    .filter(filterByCategory("helper"))
 
                             }
                         />
@@ -241,8 +321,49 @@ export default HomePage
 
 export async function getStaticProps(context)
 {
-    return getPageDefaults({
+    const staticProps = await getPageDefaults({
         title: "Main Page"
-    })
+    });
+
+    //console.log("MAIN: staticProps = ", staticProps)
+
+    const { docs } = staticProps.props;
+
+    // filter for main page
+    staticProps.props.docs = {
+        ... docs,
+
+        docs: (function (docs) {
+
+            const out = {};
+            for (let name in docs)
+            {
+                if (docs.hasOwnProperty(name))
+                {
+                    out[name] = {
+                        "name": name,
+                        "group": "CLASS",
+                        "category": docs[name].category,
+                        "link": docs[name].link
+                    }
+                }
+            }
+            return out;
+
+        })(docs.docs),
+
+
+        handwritten: docs.handwritten.map( hw => (
+            {
+                ... hw,
+                content: null,
+                toc: {
+                    title: hw.toc.title
+                }
+            }
+        ))
+    }
+
+    return staticProps;
 }
 

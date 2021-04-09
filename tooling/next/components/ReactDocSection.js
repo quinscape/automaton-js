@@ -74,7 +74,7 @@ const PropsTable = ({props, shapeConsumer = false}) => {
     }
 
     return (
-        <table className="table table-bordered table-striped table-bordered">
+        <table className="table table-bordered table-bordered table-bordered">
             <thead>
             <tr>
                 <th>Name</th>
@@ -161,7 +161,7 @@ export default function ReactDocSection({name, data, docs})
                         {
                             toInsert ? <MarkdownSection
                                 name={ name + "-" + toInsert.src }
-                                content={ toInsert.content }
+                                markdown={ toInsert }
                             /> : false
                         }
                         <h3>Props</h3>
@@ -192,7 +192,7 @@ export default function ReactDocSection({name, data, docs})
                                         <MarkdownSection
                                             key={ n }
                                             name={ n }
-                                            content={hw.content}
+                                            markdown={hw}
                                         />
                                     );
                                 }

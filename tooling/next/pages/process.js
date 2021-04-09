@@ -1,9 +1,10 @@
 import Layout from "../components/Layout";
 import { getPageDefaults } from "../service/docs";
-import { JsDocClassSection } from "../components/JsDocSection";
+import { JsDocClassSection, JsDocFunctionSection } from "../components/JsDocSection";
 import TOCLink from "../components/TOCLink";
 import React from "react";
-import { filterByCategory } from "../service/docs-filter";
+import { filterByCategory, filterPageDefaults } from "../service/docs-filter";
+import Group from "../service/Group";
 
 export default function Process(props)
 {
@@ -21,8 +22,7 @@ export default function Process(props)
                         {
                             docs.functions
                                 .map( name => docs.docs[name])
-                                .filter(filterByCategory("process"))
-                                .map(doc => (<TOCLink key={doc.name} doc={ doc }/>))
+                                .map(doc => (<TOCLink key={doc.name} docs={ docs } name={ doc.name }/>))
                         }
                     </>
                 )
@@ -38,16 +38,15 @@ export default function Process(props)
                     {
                         docs.functions
                             .map( name => docs.docs[name])
-                            .filter(filterByCategory("process"))
                             .map(doc => {
 
                             return (
-                                <JsDocClassSection
+                                <JsDocFunctionSection
                                     key={ doc.name }
                                     name={ doc.name }
                                     doc={ doc }
                                     docs={ docs }
-                                    complex={ false }
+                                    standalone={ true }
                                 />
                             )
                         })
@@ -61,7 +60,10 @@ export default function Process(props)
 export async function getStaticProps(context)
 {
     return getPageDefaults({
-        title: "Schema / GraphQL Type Functions"
-    })
+            title: "Process-Related Functions",
+        },
+        [ Group.FUNCTION ],
+        "process"
+    );
 }
 

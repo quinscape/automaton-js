@@ -1,3 +1,7 @@
 svg.icon {
     vertical-align: baseline;
 }
+
+table.table th{
+    background: #E8E8E8;
+}

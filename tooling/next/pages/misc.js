@@ -1,9 +1,10 @@
 import Layout from "../components/Layout";
 import { getPageDefaults } from "../service/docs";
-import { JsDocClassSection } from "../components/JsDocSection";
+import { JsDocClassSection, JsDocFunctionSection } from "../components/JsDocSection";
 import TOCLink from "../components/TOCLink";
 import React from "react";
-import { filterByCategory } from "../service/docs-filter";
+import { filterByCategory, filterPageDefaults } from "../service/docs-filter";
+import Group from "../service/Group";
 
 export default function MiscFunctions(props) {
     const {docs} = props;
@@ -20,12 +21,12 @@ export default function MiscFunctions(props) {
                         {
                             docs.utils
                                 .map(name => docs.docs[name])
-                                .filter(filterByCategory())
                                 .map(
                                     doc => (
                                         <TOCLink
                                             key={doc.name}
-                                            doc={doc}
+                                            docs={ docs }
+                                            name={ doc.name }
                                         />
                                     )
                                 )
@@ -36,12 +37,12 @@ export default function MiscFunctions(props) {
                         {
                             docs.functions
                                 .map(name => docs.docs[name])
-                                .filter(filterByCategory())
                                 .map(
                                     doc => (
                                         <TOCLink
                                             key={doc.name}
-                                            doc={doc}
+                                            docs={ docs }
+                                            name={ doc.name }
                                         />
                                         )
                                 )
@@ -59,7 +60,6 @@ export default function MiscFunctions(props) {
                     {
                         docs.utils
                             .map(name => docs.docs[name])
-                            .filter(filterByCategory())
                             .map(doc => (
                                     <JsDocClassSection
                                         key={doc.name}
@@ -76,9 +76,8 @@ export default function MiscFunctions(props) {
                     {
                         docs.functions
                             .map(name => docs.docs[name])
-                            .filter(filterByCategory())
                             .map(doc => (
-                                    <JsDocClassSection
+                                    <JsDocFunctionSection
                                         key={doc.name}
                                         name={doc.name}
                                         doc={doc}
@@ -98,7 +97,10 @@ export default function MiscFunctions(props) {
 export async function getStaticProps(context)
 {
     return getPageDefaults({
-        title: "Static Utils and Functions"
-    })
+            title: "Static Utils and Functions",
+        },
+        [ Group.FUNCTION, Group.UTIL ],
+        null
+    );
 }
 

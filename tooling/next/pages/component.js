@@ -4,6 +4,8 @@ import { getPageDefaults } from "../service/docs";
 import { JsDocClassSection, JsDocFunctionSection } from "../components/JsDocSection";
 import TOCLink from "../components/TOCLink";
 import React from "react";
+import Group from "../service/Group";
+import { filterPageDefaults } from "../service/docs-filter";
 
 
 export default function ComponentsAndHooks(props)
@@ -20,14 +22,14 @@ export default function ComponentsAndHooks(props)
                             Components
                         </h5>
                         {
-                            docs.components.map(name => (<TOCLink key={name} doc={docs.docs[name]}/>))
+                            docs.components.map(name => (<TOCLink key={name} docs={ docs } name={ name }/>))
 
                         }
                         <h5>
-                            Hooks
+                        Hooks
                         </h5>
                         {
-                            docs.hooks.map(name => (<TOCLink key={name} doc={docs.docs[name]}/>))
+                            docs.hooks.map(name => (<TOCLink key={name} docs={ docs } name={ name }/>))
 
                         }
                     </>
@@ -80,7 +82,9 @@ export default function ComponentsAndHooks(props)
 export async function getStaticProps(context)
 {
     return getPageDefaults({
-        title: "React components and hooks"
-    })
+            title: "React components and hooks"
+        },
+        [ Group.COMPONENT, Group.HOOK ]
+    );
 }
 

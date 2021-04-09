@@ -1,9 +1,10 @@
 import Layout from "../components/Layout";
 import { getPageDefaults } from "../service/docs";
-import { JsDocClassSection } from "../components/JsDocSection";
+import { JsDocClassSection, JsDocFunctionSection } from "../components/JsDocSection";
 import TOCLink from "../components/TOCLink";
 import React from "react";
-import { filterByCategory } from "../service/docs-filter";
+import { filterByCategory, filterPageDefaults } from "../service/docs-filter";
+import Group from "../service/Group";
 
 export default function BrowserHelpers(props)
 {
@@ -12,6 +13,7 @@ export default function BrowserHelpers(props)
     return (
         <Layout
             {...props}
+            largeSidebar={ true }
             sidebar={ () => (
                 (
                     <>
@@ -21,14 +23,12 @@ export default function BrowserHelpers(props)
                         {
                             docs.utils
                                 .map( name => docs.docs[name])
-                                .filter(filterByCategory("websocket"))
-                                .map(doc => (<TOCLink key={doc.name} doc={ doc }/>))
+                                .map(doc => (<TOCLink key={doc.name} docs={ docs } name={ doc.name }/>))
                         }
                         {
                             docs.functions
                                 .map( name => docs.docs[name])
-                                .filter(filterByCategory("websocket"))
-                                .map(doc => (<TOCLink key={doc.name} doc={ doc }/>))
+                                .map(doc => (<TOCLink key={doc.name} docs={ docs } name={ doc.name }/>))
                         }
                     </>
                 )
@@ -42,7 +42,6 @@ export default function BrowserHelpers(props)
                     {
                         docs.utils
                             .map( name => docs.docs[name])
-                            .filter(filterByCategory("websocket"))
                             .map(doc => {
 
                             return (
@@ -59,16 +58,15 @@ export default function BrowserHelpers(props)
                     {
                         docs.functions
                             .map( name => docs.docs[name])
-                            .filter(filterByCategory("websocket"))
                             .map(doc => {
 
                             return (
-                                <JsDocClassSection
+                                <JsDocFunctionSection
                                     key={ doc.name }
                                     name={ doc.name }
                                     doc={ doc }
                                     docs={ docs }
-                                    complex={ false }
+                                    standalone={ true }
                                 />
                             )
                         })
@@ -82,7 +80,10 @@ export default function BrowserHelpers(props)
 export async function getStaticProps(context)
 {
     return getPageDefaults({
-        title: "Websocket Related Functions"
-    })
+            title: "Websocket Related Functions"
+        },
+        [ Group.FUNCTION, Group.UTIL ],
+        "websocket"
+    );
 }
 

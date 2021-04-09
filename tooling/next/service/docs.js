@@ -7,6 +7,7 @@ import config from "../automaton-js-doc.config"
 import Group from "./Group";
 import { loadSnippets, processMarkdownSnippets } from "./markdown";
 import loadSource from "./loader";
+import { filterPageDefaults } from "./docs-filter";
 
 
 let docsData;
@@ -222,14 +223,12 @@ function getLocationOfDecl(decl)
 }
 
 
-async function resolveDocs(indexPath, moduleAST, docs)
+async function resolveDocs(indexPath, moduleAST, docs, groups)
 {
     for (let i = 0; i < docs.length; i++)
     {
         const doc = docs[i];
         const { name } = doc;
-
-        const isHit = name === "graphql";
 
         const imp = resolveImport(moduleAST, doc);
 
@@ -238,166 +237,170 @@ async function resolveDocs(indexPath, moduleAST, docs)
         doc.source = getProjectRelativeSourcePath(resolveRelative(indexPath, source));
         doc.group = determineType(doc);
 
-        const sourcePath = resolveRelative(indexPath, source) + ".js";
-        const {code, moduleAST: dependencyAST} = await loadSource(sourcePath);
 
-        let reactDocGen = null;
-        if (doc.group === Group.COMPONENT)
+        let code = null, dependencyAST = null;
+        if (!groups || groups.indexOf(doc.group) >= 0)
         {
-            try
+            const sourcePath = resolveRelative(indexPath, source) + ".js";
+            ({code, moduleAST: dependencyAST} = await loadSource(sourcePath));
+
+            let reactDocGen = null;
+            if (doc.group === Group.COMPONENT)
             {
-                reactDocGen = undefinedsToNull(reactDocGenParse(code));
-            } catch (e)
-            {
-                console.log("ReactDoc parse error on file " + sourcePath, e);
-            }
-        }
-        else
-        {
-            reactDocGen = null;
-        }
-
-        doc.description = null;
-        doc.reactDocGen = reactDocGen;
-
-
-
-        const exportDecl = findExport(dependencyAST, imported);
-
-        if (!exportDecl)
-        {
-            console.log("No exportDecl for", name);
-        }
-
-
-        if (exportDecl)
-        {
-            const isDefaultExport = exportDecl.type === "ExportDefaultDeclaration";
-            // process comments directly on export
-            if (isDefaultExport)
-            {
-                if (exportDecl.leadingComments && exportDecl.leadingComments.length)
+                try
                 {
-                    doc.description = parseJsDoc(exportDecl.leadingComments[0].value);
-
-                    const {start, end} = exportDecl.loc
-
-                    doc.start = start.line;
-                    doc.end = end.line;
+                    reactDocGen = undefinedsToNull(reactDocGenParse(code));
+                } catch (e)
+                {
+                    console.log("ReactDoc parse error on file " + sourcePath, e);
                 }
             }
             else
             {
-                if (exportDecl.leadingComments && exportDecl.leadingComments.length)
-                {
-                    doc.description = parseJsDoc(exportDecl.leadingComments[0].value);
+                reactDocGen = null;
+            }
 
-                    const {start, end} = exportDecl.loc
+            doc.description = null;
+            doc.reactDocGen = reactDocGen;
+
+
+
+            const exportDecl = findExport(dependencyAST, imported);
+
+            if (!exportDecl)
+            {
+                console.log("No exportDecl for", name);
+            }
+
+
+            if (exportDecl)
+            {
+                const isDefaultExport = exportDecl.type === "ExportDefaultDeclaration";
+                // process comments directly on export
+                if (isDefaultExport)
+                {
+                    if (exportDecl.leadingComments && exportDecl.leadingComments.length)
+                    {
+                        doc.description = parseJsDoc(exportDecl.leadingComments[0].value);
+
+                        const {start, end} = exportDecl.loc
+
+                        doc.start = start.line;
+                        doc.end = end.line;
+                    }
+                }
+                else
+                {
+                    if (exportDecl.leadingComments && exportDecl.leadingComments.length)
+                    {
+                        doc.description = parseJsDoc(exportDecl.leadingComments[0].value);
+
+                        const {start, end} = exportDecl.loc
+
+                        doc.start = start.line;
+                        doc.end = end.line;
+                    }
+                }
+
+                // find original declaration
+                const { origDecl, localName } = findDeclarationOfExport(dependencyAST, exportDecl);
+
+                //console.log('localName', localName);
+
+                if (origDecl)
+                {
+                    if (!doc.description)
+                    {
+                        // description on default export has precedence over the one on the declaration
+                        if (origDecl.leadingComments && origDecl.leadingComments.length)
+                        {
+                            doc.description = parseJsDoc(origDecl.leadingComments[0].value);
+                        }
+                    }
+
+                    const { start, end } = getLocationOfDecl(origDecl)
 
                     doc.start = start.line;
                     doc.end = end.line;
-                }
-            }
 
-            // find original declaration
-            const { origDecl, localName } = findDeclarationOfExport(dependencyAST, exportDecl);
-
-            //console.log('localName', localName);
-
-            if (origDecl)
-            {
-                if (!doc.description)
-                {
-                    // description on default export has precedence over the one on the declaration
-                    if (origDecl.leadingComments && origDecl.leadingComments.length)
+                    //console.log(origDecl.type, doc.name)
+                    if (origDecl.type === "ClassDeclaration")
                     {
-                        doc.description = parseJsDoc(origDecl.leadingComments[0].value);
-                    }
-                }
+                        const {body} = origDecl.body;
 
-                const { start, end } = getLocationOfDecl(origDecl)
+                        doc.members = [];
 
-                doc.start = start.line;
-                doc.end = end.line;
-
-                //console.log(origDecl.type, doc.name)
-                if (origDecl.type === "ClassDeclaration")
-                {
-                    const {body} = origDecl.body;
-
-                    doc.members = [];
-
-                    for (let j = 0; j < body.length; j++)
-                    {
-                        const {type, key, leadingComments} = body[j];
-
-                        if (key && leadingComments && leadingComments.length)
+                        for (let j = 0; j < body.length; j++)
                         {
-                            doc.members.push({
-                                type,
-                                name: key.name,
-                                description: parseJsDoc(leadingComments[0].value),
-                                decorators: body[j].decorators && body[j].decorators.length ?
-                                    body[j].decorators.map(d => d.expression.name) :
-                                    []
-                            })
+                            const {type, key, leadingComments} = body[j];
+
+                            if (key && leadingComments && leadingComments.length)
+                            {
+                                doc.members.push({
+                                    type,
+                                    name: key.name,
+                                    description: parseJsDoc(leadingComments[0].value),
+                                    decorators: body[j].decorators && body[j].decorators.length ?
+                                        body[j].decorators.map(d => d.expression.name) :
+                                        []
+                                })
+                            }
+                        }
+                    }
+
+                    if (origDecl.type === "VariableDeclaration" && origDecl.declarations[0].init.type === "ObjectExpression")
+                    {
+
+                        const {properties} = origDecl.declarations[0].init;
+
+                        doc.members = [];
+
+                        for (let j = 0; j < properties.length; j++)
+                        {
+                            const {value: {type}, key, leadingComments} = properties[j];
+
+                            if (key && leadingComments && leadingComments.length)
+                            {
+                                doc.members.push({
+                                    type,
+                                    name: key.name,
+                                    description: parseJsDoc(leadingComments[0].value)
+                                })
+                            }
+                        }
+                    }
+
+                    if (doc.group === Group.COMPONENT)
+                    {
+                        const expr = dependencyAST.program.body.find(n => n.type === "ExpressionStatement");
+
+                        if (
+                            expr && expr.expression.type === "AssignmentExpression" &&
+                            expr.expression.left.type === "MemberExpression" &&
+                            expr.expression.left.object.type === "Identifier" &&
+                            expr.expression.left.property.type === "Identifier" &&
+                            expr.expression.right.type === "Identifier" &&
+                            expr.expression.left.object.name === localName)
+                        {
+
+                            const subName = expr.expression.right.name;
+                            const exportedName = expr.expression.left.property.name;
+
+                            //console.log("REACTDOC", exportedName, subName)
                         }
                     }
                 }
 
-                if (origDecl.type === "VariableDeclaration" && origDecl.declarations[0].init.type === "ObjectExpression")
+                if (doc.description)
                 {
-
-                    const {properties} = origDecl.declarations[0].init;
-
-                    doc.members = [];
-
-                    for (let j = 0; j < properties.length; j++)
-                    {
-                        const {value: {type}, key, leadingComments} = properties[j];
-
-                        if (key && leadingComments && leadingComments.length)
-                        {
-                            doc.members.push({
-                                type,
-                                name: key.name,
-                                description: parseJsDoc(leadingComments[0].value)
-                            })
-                        }
-                    }
+                    const categoryTag = doc.description.tags.find(t => t.title === "category");
+                    doc.category = categoryTag ? categoryTag.description : null;
                 }
-
-                if (doc.group === Group.COMPONENT)
+                else
                 {
-                    const expr = dependencyAST.program.body.find(n => n.type === "ExpressionStatement");
-
-                    if (
-                        expr && expr.expression.type === "AssignmentExpression" &&
-                        expr.expression.left.type === "MemberExpression" &&
-                        expr.expression.left.object.type === "Identifier" &&
-                        expr.expression.left.property.type === "Identifier" &&
-                        expr.expression.right.type === "Identifier" &&
-                        expr.expression.left.object.name === localName)
-                    {
-
-                        const subName = expr.expression.right.name;
-                        const exportedName = expr.expression.left.property.name;
-
-                        //console.log("REACTDOC", exportedName, subName)
-                    }
+                    doc.category = null;
                 }
             }
-
-            if (doc.description)
-            {
-                const categoryTag = doc.description.tags.find(t => t.title === "category");
-                doc.category = categoryTag ? categoryTag.description : null;
-            }
-            else
-            {
-                doc.category = null;
-            }
-
         }
     }
 
@@ -432,7 +435,7 @@ const categoryPages = {
     websocket: "websocket",
     domain: "domain",
     declarative: "declarative-api",
-    helper: "helper",
+    config: "config",
     schema: "schema",
     process: "process",
     iquery: "iquery",
@@ -470,6 +473,7 @@ function postProcess(docsArray, markdownSnippets)
     const docs = {};
     docsArray.forEach(doc => {
         doc.link = getLink(doc.group, doc.name, doc.category)
+        delete doc.local;
 
         docs[doc.name] = doc;
     });
@@ -486,7 +490,7 @@ function postProcess(docsArray, markdownSnippets)
 }
 
 
-export async function loadDocs(indexPath)
+export async function loadDocs(indexPath, groups)
 {
     const {moduleAST} = await loadSource(indexPath);
 
@@ -504,44 +508,35 @@ export async function loadDocs(indexPath)
         }));
 
     const docs = await resolveDocs(
-        indexPath,
-        moduleAST,
-        exported
-    )
-
+            indexPath,
+            moduleAST,
+            exported,
+            groups
+        )
     //logUndefined(getData());
-
     const snippets = await loadSnippets(docs);
-
     return postProcess(docs, snippets);
 
 }
 
 
-export async function getDocsData()
+export async function getDocsData(groups = false)
 {
     if (!docsData)
     {
-        try
-        {
-            const path = require("path");
+        const path = require("path");
 
-            const indexPath = path.resolve(process.cwd(), "../../src/index.js");
+        const indexPath = path.resolve(process.cwd(), "../../src/index.js");
 
-            docsData = await loadDocs(indexPath);
+        //console.log("Load ", indexPath);
 
-            //console.log("docsData", getData())
+        docsData = await loadDocs(indexPath, groups);
 
-        } catch (e)
-        {
-            throw new Error("Error loading docsData" + e)
-        }
+        //console.log("docsData", getData())
 
         const logPath = path.resolve(process.cwd(), "./.next/automaton-js-docs.json");
         try
         {
-            console.log("Write to data to ", logPath)
-
             await fs.writeFile(
                 logPath,
                 JSON.stringify(docsData, null, 4),
@@ -558,14 +553,17 @@ export async function getDocsData()
 }
 
 
-export async function getPageDefaults(dataIn)
+export async function getPageDefaults(dataIn, groups = false, category = false, markdowns = [])
 {
 
-    return {
+    const defaults = {
         props: {
             ...dataIn,
-            docs: await getDocsData()
+            docs: await getDocsData(groups)
         }
     };
+
+    return filterPageDefaults(defaults, groups, category, markdowns);
 }
+
 
