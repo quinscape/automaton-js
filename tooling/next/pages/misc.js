@@ -1,36 +1,50 @@
 import Layout from "../components/Layout";
-import ReactDocSection from "../components/ReactDocSection";
 import { getPageDefaults } from "../service/docs";
-import JsDocSection, { JsDocClassSection, JsDocFunctionSection } from "../components/JsDocSection";
+import { JsDocClassSection } from "../components/JsDocSection";
 import TOCLink from "../components/TOCLink";
 import React from "react";
+import { filterByCategory } from "../service/docs-filter";
 
-/*
-
- */
-
-export default function ComponentsAndHooks(props)
-{
-    const { docs } = props;
+export default function MiscFunctions(props) {
+    const {docs} = props;
 
     return (
         <Layout
             {...props}
-            sidebar={ () => (
+            sidebar={() => (
                 (
                     <>
                         <h5>
                             Utils
                         </h5>
                         {
-                            docs.utils.map(name => (<TOCLink key={name} doc={docs.docs[name]}/>))
-
+                            docs.utils
+                                .map(name => docs.docs[name])
+                                .filter(filterByCategory())
+                                .map(
+                                    doc => (
+                                        <TOCLink
+                                            key={doc.name}
+                                            doc={doc}
+                                        />
+                                    )
+                                )
                         }
                         <h5>
                             Functions
                         </h5>
                         {
-                            docs.functions.map(name => (<TOCLink key={name} doc={docs.docs[name]}/>))
+                            docs.functions
+                                .map(name => docs.docs[name])
+                                .filter(filterByCategory())
+                                .map(
+                                    doc => (
+                                        <TOCLink
+                                            key={doc.name}
+                                            doc={doc}
+                                        />
+                                        )
+                                )
 
                         }
                     </>
@@ -43,44 +57,43 @@ export default function ComponentsAndHooks(props)
 
                     <h1>Static Util Objects</h1>
                     {
-                        docs.utils.map(name => {
-
-                            const doc = docs.docs[name];
-
-                            return (
-                                <JsDocClassSection
-                                    key={ name }
-                                    name={ name }
-                                    doc={ doc }
-                                    docs={ docs }
-                                    complex={ true }
-                                />
+                        docs.utils
+                            .map(name => docs.docs[name])
+                            .filter(filterByCategory())
+                            .map(doc => (
+                                    <JsDocClassSection
+                                        key={doc.name}
+                                        name={doc.name}
+                                        doc={doc}
+                                        docs={docs}
+                                        complex={true}
+                                    />
+                                )
                             )
-                        })
                     }
 
                     <h1>Functions</h1>
                     {
-                        docs.functions.map(name => {
-
-                            const doc = docs.docs[name];
-
-                            return (
-                                <JsDocFunctionSection
-                                    key={ name }
-                                    name={ name }
-                                    doc={ doc }
-                                    docs={ docs }
-                                    standalone={ true }
-                                />
+                        docs.functions
+                            .map(name => docs.docs[name])
+                            .filter(filterByCategory())
+                            .map(doc => (
+                                    <JsDocClassSection
+                                        key={doc.name}
+                                        name={doc.name}
+                                        doc={doc}
+                                        docs={docs}
+                                        standalone={true}
+                                    />
+                                )
                             )
-                        })
                     }
                 </div>
             </div>
         </Layout>
     )
 }
+
 
 export async function getStaticProps(context)
 {

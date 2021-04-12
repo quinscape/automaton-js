@@ -2,15 +2,17 @@ import Layout from "../components/Layout";
 import cx from "classnames";
 import { getPageDefaults } from "../service/docs";
 import TOCLink from "../components/TOCLink";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import * as PropTypes from "prop-types";
+import { JsDocClassSection, JsDocFunctionSection } from "../components/JsDocSection";
+import { filterByCategory } from "../service/docs-filter";
 
-const Category = ({title, docs, names : namesFromProps, search}) => {
+const Category = ({title, docs : docsFromProps, search}) => {
 
-    const names = search ?
-        namesFromProps.filter(name => name.toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) >= 0) :
-        namesFromProps;
+    const filtered = search ?
+        docsFromProps.filter(doc => doc.name.toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) >= 0) :
+        docsFromProps;
 
 
     return (
@@ -21,10 +23,10 @@ const Category = ({title, docs, names : namesFromProps, search}) => {
                 }
             </h3>
             {
-                !names.length && "---"
+                !filtered.length && "---"
             }
             {
-                names.map(name => <TOCLink key={name} doc={docs.docs[name]}/>)
+                filtered.map(doc => <TOCLink key={ doc.name } doc={ doc }/>)
             }
         </>
     )
@@ -115,38 +117,117 @@ function HomePage(props)
                 <div className="row">
                     <div className="col">
                         <Category
-                            title="Components"
-                            docs={docs}
+                            title="Declarative API"
                             search={ search }
-                            names={ docs.components }
+                            docs={
+                                docs.functions
+                                    .map( name => docs.docs[name])
+                                    .filter(filterByCategory("declarative"))
+                            }
+                        />
+                        <Category
+                            title="InteractiveQuery / Filter"
+                            search={ search }
+                            docs={
+                                Object.values(docs.docs)
+                                    .filter(filterByCategory("iquery"))
+
+                            }
+                        />
+                        <Category
+                            title="Domain-Object Helpers"
+                            search={ search }
+                            docs={
+                                docs.functions
+                                    .map( name => docs.docs[name])
+                                    .filter(filterByCategory("domain"))
+
+                            }
+                        />
+                        <Category
+                            title="Process"
+                            search={ search }
+                            docs={
+                                Object.values(docs.docs)
+                                    .filter(filterByCategory("process"))
+
+                            }
                         />
                     </div>
                     <div className="col">
                         <Category
-                            title="Hooks"
-                            docs={docs}
+                            title="Components"
                             search={ search }
-                            names={ docs.hooks }
+                            docs={
+                                docs.components
+                                    .map( name => docs.docs[name])
+                            }
+                        />
+                        <Category
+                            title="Hooks"
+                            search={ search }
+                            docs={
+                                docs.hooks
+                                    .map( name => docs.docs[name])
+                            }
                         />
                         <Category
                             title="Classes"
-                            docs={docs}
                             search={ search }
-                            names={ docs.classes }
-                        />
-                        <Category
-                            title="Utils"
-                            docs={docs}
-                            search={ search }
-                            names={ docs.utils }
+                            docs={
+                                docs.classes
+                                    .map( name => docs.docs[name])
+                            }
                         />
                     </div>
                     <div className="col">
                         <Category
-                            title="Functions"
-                            docs={docs}
+                            title="Schema / Types"
                             search={ search }
-                            names={ docs.functions }
+                            docs={
+                                docs.functions
+                                    .map( name => docs.docs[name])
+                                    .filter(filterByCategory("schema"))
+
+                            }
+                        />
+                        <Category
+                            title="Websocket"
+                            search={ search }
+                            docs={
+                                Object.values(docs.docs)
+                                    .filter(filterByCategory("websocket"))
+
+                            }
+                        />
+                        <Category
+                            title="Configuration"
+                            search={ search }
+                            docs={
+                                docs.utils
+                                    .map( name => docs.docs[name])
+                                    .filter(filterByCategory())
+                            }
+                        />
+                        <Category
+                            title="Functions"
+                            search={ search }
+                            docs={
+                                docs.functions
+                                    .map( name => docs.docs[name])
+                                    .filter(filterByCategory())
+
+                            }
+                        />
+                        <Category
+                            title="Browser Helpers"
+                            search={ search }
+                            docs={
+                                docs.functions
+                                    .map( name => docs.docs[name])
+                                    .filter(filterByCategory("helper"))
+
+                            }
                         />
                     </div>
                 </div>

@@ -3,12 +3,7 @@ import cx from "classnames"
 import TOCLink from "./TOCLink";
 import { useRouter } from "next/router";
 
-const Layout = ({docs = null, sidebar = false, footer, children}) => {
-
-    if (!docs)
-    {
-        throw new Error("Layout need docs prop");
-    }
+const Layout = ({sidebar = false, footer, children}) => {
 
     const router = useRouter();
 
@@ -18,19 +13,37 @@ const Layout = ({docs = null, sidebar = false, footer, children}) => {
         <div className="container">
             <header>
                 <nav className="navbar navbar-dark bg-primary">
-                    <a className="navbar-brand text-white" href={ router.basePath + "/" }><i className="fab fa-quinscape"/> Automaton-Js Documentation</a>
+                    <a className="navbar-brand text-white" href={ router.basePath + "/" }><i className="fab fa-quinscape"/> Automaton-Js</a>
 
                     <ul className="nav justify-content-end">
                         <li className="nav-item">
-                            <a className="nav-link text-light" href={ router.basePath + "/component" }>Components / Hooks</a>
-                        </li>
-                        <li className="nav-item text-light">
-                            <a className="nav-link text-light" href={ router.basePath + "/class" }>Classes</a>
+                            <a className="nav-link btn-sm text-light" href={ router.basePath + "/declarative-api" }>Declarative</a>
                         </li>
                         <li className="nav-item">
-                            <a className="nav-link text-light" href={ router.basePath + "/misc" }>Utils / Functions</a>
+                            <a className="nav-link btn-sm text-light" href={ router.basePath + "/iquery" }>InteractiveQuery</a>
                         </li>
-                    </ul>
+                        <li className="nav-item">
+                            <a className="nav-link btn-sm text-light" href={ router.basePath + "/domain" }>Domain-Objects</a>
+                        </li>
+                        <li className="nav-item">
+                            <a className="nav-link btn-sm text-light" href={ router.basePath + "/process" }>Process</a>
+                        </li>
+                        <li className="nav-item">
+                            <a className="nav-link btn-sm text-light" href={ router.basePath + "/component" }>Components</a>
+                        </li>
+                        <li className="nav-item text-light">
+                            <a className="nav-link btn-sm text-light" href={ router.basePath + "/class" }>Classes</a>
+                        </li>
+                        <li className="nav-item">
+                            <a className="nav-link btn-sm text-light" href={ router.basePath + "/schema" }>Schema</a>
+                        </li>
+                        <li className="nav-item">
+                            <a className="nav-link btn-sm text-light" href={ router.basePath + "/config" }>Configuration</a>
+                        </li>
+                        <li className="nav-item">
+                            <a className="nav-link btn-sm text-light" href={ router.basePath + "/misc" }>Misc</a>
+                        </li>
+                     </ul>
                 </nav>
             </header>
             <main className="row">
@@ -44,13 +57,17 @@ const Layout = ({docs = null, sidebar = false, footer, children}) => {
                         {children}
                     </div>
                 </div>
-                <div className="col-2">
-                    <div className="mt-5">
-                    {
-                        showSidebar && sidebar()
-                    }
-                    </div>
-                </div>
+                {
+                    showSidebar && (
+                        <div className="col-2">
+                            <div className="mt-5">
+                                {
+                                    sidebar()
+                                }
+                            </div>
+                        </div>
+                    )
+                }
             </main>
             <footer className="row">
                 <div className="col">

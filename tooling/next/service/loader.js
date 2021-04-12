@@ -27,7 +27,7 @@ export default async function loadSource(path)
         return cached;
     }
 
-    const code = await fs.readFile(path, "UTF-8");
+    const code = await fs.readFile(path, "utf8");
     const moduleAST = parseCode(code);
 
     const result = {

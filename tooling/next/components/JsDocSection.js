@@ -75,7 +75,9 @@ function printJsDocType(type)
 }
 
 
-const MethodDoc = ({doc, name = doc.name, standalone = false, insert = false}) => {
+const MethodDoc = (props) => {
+
+    const {doc, name = doc.name, standalone = false, insert = false} = props;
     const { description } = doc;
 
     const tags = doc.tags || doc.description.tags || [];
@@ -87,6 +89,12 @@ const MethodDoc = ({doc, name = doc.name, standalone = false, insert = false}) =
     const returnTag =tags.find(
         t => t.title === "return"
     );
+
+    if (name === "backToParent")
+    {
+        console.log("MethodDoc", props)
+    }
+
 
     return (
         <>
@@ -184,7 +192,7 @@ export function JsDocFunctionSection({ name, doc, docs, standalone = false })
         return (
             <MarkdownSection
                 name={ name }
-                content={ replacement.content }
+                markdown={ replacement }
             />
         )
     }
@@ -201,13 +209,13 @@ export function JsDocFunctionSection({ name, doc, docs, standalone = false })
                 doc.description &&
                 <MethodDoc
                     name={ doc.name }
-                    doc={ doc.description }
+                    doc={ doc }
                     standalone={ standalone }
                     insert={ () => (
                             toInsert ? (
                                 <MarkdownSection
                                     name={ name + "-" + toInsert.src }
-                                    content={ toInsert.content }
+                                    markdown={ toInsert }
                                 />
                             ) : false
                         )
@@ -220,7 +228,7 @@ export function JsDocFunctionSection({ name, doc, docs, standalone = false })
                                     <MarkdownSection
                                         key={ n }
                                         name={ n }
-                                        content={ hw.content }
+                                        markdown={ hw }
                                     />
                                 );
                             }
@@ -248,7 +256,7 @@ export function JsDocClassSection({name, doc, docs})
         return (
             <MarkdownSection
                 name={ name }
-                content={ replacement.content }
+                markdown={ replacement }
             />
         )
     }
@@ -273,7 +281,7 @@ export function JsDocClassSection({name, doc, docs})
             {
                 toInsert ? <MarkdownSection
                     name={ name + "-" + toInsert.src }
-                    content={ toInsert.content }
+                    markdown={ toInsert }
                 /> : false
             }
             {
@@ -295,11 +303,22 @@ export function JsDocClassSection({name, doc, docs})
                         return false;
                     }
 
+                    const mDocName = name + "." + mdoc.name;
+                    const replacement = docs.handwritten.find(hw => hw.replace === mDocName);
+
                     return (
-                        <MethodDoc
-                            key={ idx }
-                            doc={ mdoc }
-                        />
+                        replacement ? (
+                            <MarkdownSection
+                                key={ idx }
+                                name={ mDocName }
+                                markdown={ replacement }
+                            />
+                        ) : (
+                            <MethodDoc
+                                key={ idx }
+                                doc={ mdoc }
+                            />
+                        )
                     )
 
                 })
@@ -313,7 +332,7 @@ export function JsDocClassSection({name, doc, docs})
                             <MarkdownSection
                                 key={ n }
                                 name={ n }
-                                content={hw.content}
+                                markdown={ hw }
                             />
                         );
                     }

@@ -1,10 +1,10 @@
-function MarkdownSection({name, content})
+function MarkdownSection({name, markdown})
 {
     return (
         <section
             id={ name }
             dangerouslySetInnerHTML={{
-                __html: content
+                __html: markdown.content
             }}
         />
     );

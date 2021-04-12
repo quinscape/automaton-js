@@ -7,13 +7,16 @@ function MarkdownPage({docs, path})
 
     if (!hw)
     {
-        throw new Error("Could not find snippet: " + path);
+        throw new Error(
+            "Could not find snippet: " + path + ".\n" +
+            "Did you register is in the automaton-js-doc.config.js?"
+        );
     }
 
     return (
         <MarkdownSection
             name="config"
-            content={ hw.content }
+            markdown={ hw }
         />
     )
 }

@@ -8,16 +8,34 @@ module.exports = {
     "groupOverrides": {
         "Hub": Group.UTIL,
         "Attachments": Group.UTIL,
-        "config": Group.UTIL
+        "FilterDSL": Group.UTIL,
+        "config": Group.UTIL,
+        "Process": Group.UTIL,
+        "FieldResolver": Group.UTIL,
+        "StartupRegistry": Group.UTIL,
+        "InteractiveQuery": Group.UTIL
     },
 
     handwritten: [
         {
             src: "config.md"
         },
+
+        {
+            src: "explanation-injection.md"
+        },
+
+        {
+            src: "declarative-api.md"
+        },
+
         {
             replace: "config",
             src: "config-ref.md"
+        },
+        {
+            replace: "FilterDSL.Type",
+            src: "FilterDSL-Type.md"
         },
         {
             into: "GraphQLQuery",
@@ -47,5 +65,7 @@ module.exports = {
         //     after: "Folder",
         //     src: "tree-folder.md"
         // },
+
+
     ]
 }

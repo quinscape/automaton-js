@@ -8,6 +8,7 @@ import Group from "./Group";
 import { loadSnippets, processMarkdownSnippets } from "./markdown";
 import loadSource from "./loader";
 
+
 let docsData;
 
 function resolveImport(moduleAST, doc)
@@ -382,10 +383,21 @@ async function resolveDocs(indexPath, moduleAST, docs)
                         const subName = expr.expression.right.name;
                         const exportedName = expr.expression.left.property.name;
 
-                        console.log("REACTDOC", exportedName, subName)
+                        //console.log("REACTDOC", exportedName, subName)
                     }
                 }
             }
+
+            if (doc.description)
+            {
+                const categoryTag = doc.description.tags.find(t => t.title === "category");
+                doc.category = categoryTag ? categoryTag.description : null;
+            }
+            else
+            {
+                doc.category = null;
+            }
+
         }
     }
 
@@ -416,8 +428,17 @@ function determineType(doc)
     );
 }
 
+const categoryPages = {
+    websocket: "websocket",
+    domain: "domain",
+    declarative: "declarative-api",
+    helper: "helper",
+    schema: "schema",
+    process: "process",
+    iquery: "iquery",
+}
 
-function getLink(type, name)
+function getLink(type, name, category)
 {
     switch (type)
     {
@@ -427,9 +448,9 @@ function getLink(type, name)
         case Group.CLASS:
             return "class#" + name;
         case Group.FUNCTION:
-            return "misc#" + name;
+            return (categoryPages[category] || "misc") + "#" + name;
         case Group.UTIL:
-            return "misc#" + name;
+            return (categoryPages[category] || "misc") + "#" + name;
         default:
             throw new Error("Unhandled Type: " + type)
 
@@ -448,7 +469,7 @@ function postProcess(docsArray, markdownSnippets)
 {
     const docs = {};
     docsArray.forEach(doc => {
-        doc.link = getLink(doc.group, doc.name)
+        doc.link = getLink(doc.group, doc.name, doc.category)
 
         docs[doc.name] = doc;
     });
@@ -474,7 +495,7 @@ export async function loadDocs(indexPath)
     const namedExport = moduleAST.program.body.find(n => n.type === "ExportNamedDeclaration");
 
     const exported = namedExport.specifiers
-        .filter(specifier => specifier.exported.name !== "AutomatonDevTools" && specifier.exported.name !== "FilterDSL")
+        .filter(specifier => specifier.exported.name !== "AutomatonDevTools" )//&& specifier.exported.name !== "FilterDSL")
         .map(specifier => ({
             name: specifier.exported.name,
             local: specifier.local.name,
@@ -497,7 +518,7 @@ export async function loadDocs(indexPath)
 }
 
 
-export async function getPageDefaults(dataIn)
+export async function getDocsData()
 {
     if (!docsData)
     {
@@ -509,25 +530,41 @@ export async function getPageDefaults(dataIn)
 
             docsData = await loadDocs(indexPath);
 
-
-            await fs.writeFile(
-                path.resolve(process.cwd(), "./.next/automaton-js-docs.json"),
-                JSON.stringify(docsData, null, 4),
-                "UTF-8"
-
-            )
             //console.log("docsData", getData())
 
         } catch (e)
         {
-            console.error("Error loading docsData", e)
+            throw new Error("Error loading docsData" + e)
         }
+
+        const logPath = path.resolve(process.cwd(), "./.next/automaton-js-docs.json");
+        try
+        {
+            console.log("Write to data to ", logPath)
+
+            await fs.writeFile(
+                logPath,
+                JSON.stringify(docsData, null, 4),
+                "utf8"
+            )
+        }
+        catch(e)
+        {
+            throw new Error("Error writing data log to " + logPath + ": " + e);
+        }
+
     }
+    return docsData;
+}
+
+
+export async function getPageDefaults(dataIn)
+{
 
     return {
         props: {
             ...dataIn,
-            docs: docsData
+            docs: await getDocsData()
         }
     };
 }

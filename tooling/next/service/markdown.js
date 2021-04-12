@@ -2,14 +2,16 @@ import config from "../automaton-js-doc.config";
 import { promises as fs } from "fs";
 import cx from "classnames"
 import path from "path";
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToStaticMarkup, renderToString } from "react-dom/server";
 import { MDXProvider } from "@mdx-js/react";
 import MDX from "@mdx-js/runtime";
 import React from "react"
 import Highlight, { defaultProps } from "prism-react-renderer"
-
-
 import github from 'prism-react-renderer/themes/github';
+
+import frontmatter from "@github-docs/frontmatter";
+import validateRule from "./validateRule";
+
 
 function CodeBlock({children, className})
 {
@@ -76,57 +78,25 @@ function MarkdownLink({href, children, ... rest})
     )
 }
 
+function Table({children, className, ... rest})
+{
+
+    return (
+        <table className={ cx( className, "table table-striped table-hover" )} { ... rest }>
+            {
+                children
+            }
+        </table>
+    )
+}
+
 
 const components = {
     a: MarkdownLink,
-    code: CodeBlock
+    code: CodeBlock,
+    table: Table
 };
 
-const validRuleFields = new Set([
-    "src",
-    "into",
-    "after",
-    "replace"
-])
-
-
-function validateRule(docs, hw)
-{
-    if (!hw.src)
-    {
-        throw new Error("Need src key: " + JSON.stringify(hw));
-    }
-
-    let count = 0;
-    const keys = Object.keys(hw);
-    for (let i = 0; i < keys.length; i++)
-    {
-        const key = keys[i];
-        if (!validRuleFields.has(key))
-        {
-            throw new Error("Invalid field '" + key + "': " + JSON.stringify(hw))
-        }
-
-        if (key !== "src")
-        {
-            const ref = hw[key];
-            const target = docs.find(d => d.name === ref);
-            if (!target)
-            {
-                throw new Error(
-                    "Invalid reference '" + ref + "' in rule: " + JSON.stringify(hw)
-                )
-            }
-        }
-
-        count++;
-    }
-
-    if (count > 2)
-    {
-        throw new Error("Rule has more than one rule field: " + JSON.stringify(hw))
-    }
-}
 
 
 export async function loadSnippets(docs)
@@ -141,7 +111,7 @@ export async function loadSnippets(docs)
                     path.resolve(
                         process.cwd(), "./snippets/", hw.src
                     ),
-                    "UTF-8"
+                    "utf8"
                 );
             }
         )
@@ -152,21 +122,31 @@ export async function loadSnippets(docs)
 export function processMarkdownSnippets(markdownSnippets)
 {
     return markdownSnippets.map(
-        (markdown, idx) => ({
+        (markdown, idx) => {
 
-            // copy over the static config
-            ...config.handwritten[idx],
 
-            // and complete it with the rendered markup for each snippet
-            content: renderToStaticMarkup(
-                <MDXProvider components={components}>
-                    <MDX>
-                        {
-                            markdown
-                        }
-                    </MDX>
-                </MDXProvider>
-            )
-        })
+            const { data, content, errors } = frontmatter(markdown)
+
+            return ({
+
+                // copy over the static config
+                ...config.handwritten[idx],
+
+                frontmatter: data,
+
+                // and complete it with the rendered markup for each snippet
+                content: renderToString(
+                    <MDXProvider
+                        components={components}
+                    >
+                        <MDX>
+                            {
+                                content
+                            }
+                        </MDX>
+                    </MDXProvider>
+                )
+            });
+        }
     );
 }
