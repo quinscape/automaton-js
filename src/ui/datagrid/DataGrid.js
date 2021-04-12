@@ -323,7 +323,7 @@ DataGrid.Column = Column;
 DataGrid.RowSelector = RowSelector;
 DataGrid.WorkingSetStatus = WorkingSetStatusComponent;
 
-DataGrid.displayName = "IQueryGrid";
+DataGrid.displayName = "DataGrid";
 Column.displayName = "Column";
 
 export default DataGrid

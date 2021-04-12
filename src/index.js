@@ -7,8 +7,7 @@ import config, { addConfig } from "./config";
 import { Process, getCurrentProcess } from "./Process";
 import runProcess, { runProcessURI } from "./runProcess";
 
-import DataGrid from "./ui/DataGrid"
-import IQueryGrid from "./ui/datagrid/IQueryGrid"
+import DataGrid from "./ui/datagrid/DataGrid"
 import Button from "./ui/Button"
 import Link from "./ui/Link"
 import CalendarField from "./ui/CalendarField"
@@ -87,7 +86,6 @@ export {
     getCurrentProcess,
     // UI components
     DataGrid,
-    IQueryGrid,
     Pagination,
     Button,
     Link,

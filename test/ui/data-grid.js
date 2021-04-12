@@ -9,7 +9,7 @@ import config from "../../src/config"
 import InteractiveQuery from "../../src/model/InteractiveQuery"
 import { FormConfigProvider, InputSchema, Select, WireFormat } from "domainql-form"
 
-import DataGrid from "../../src/ui/datagrid/IQueryGrid"
+import DataGrid from "../../src/ui/datagrid/DataGrid"
 import sleep from "./sleep";
 import {createFilteredMockQuery} from "../../src/util/createMockedQuery";
 import {field, value, component, and, condition} from "../../src/FilterDSL"
