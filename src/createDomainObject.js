@@ -16,6 +16,8 @@ const DEFAULT_OPTIONS = {
 /**
  * Creates a new domain object with a new UUID.
  *
+ * @category domain
+ *
  * @param {String} type                 domain type name
  * @param {*} [id]                      id for the new object (default creates a new UUID)
  * @param {Object} [opts]               Options object

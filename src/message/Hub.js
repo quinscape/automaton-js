@@ -117,6 +117,9 @@ function lookupPromiseArray(key)
  * Low-level websocket handler for automaton.
  *
  * Before you use this, make sure you actually want to and not the more convenient pubsub implemented on top of this.
+ *
+ * @category websocket
+ *
  */
 const Hub = {
     /**

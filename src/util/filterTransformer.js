@@ -521,6 +521,8 @@ const TRUE = () => true;
 /**
  * Filter transformer function that transforms a condition as JSON object to an executable JS function.
  *
+ * @category iquery
+ *
  * @param {Object}      condition           JSON condition map
  * @param {Function}    resolverFactory     function that creates a field resolver function for a given field name
  *                                          ( name => { return () => f(name) } )
@@ -546,6 +548,8 @@ export default function filterTransformer(condition, resolverFactory)
 
 /**
  * Default field resolver implementation for js object graphs.
+ *
+ * @category iquery
  *
  * @param {Object} current      initial object
  * @constructor

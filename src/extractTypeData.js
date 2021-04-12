@@ -3,6 +3,16 @@ import { INPUT_OBJECT } from "domainql-form/lib/kind";
 import { getFields } from "./util/type-utils";
 
 
+/**
+ * Extracts type data of a specified type from the given object. The method will return a plain object containing
+ * only the properties of the specified type.
+ *
+ * @category domain
+ *
+ * @param {String} typeName         GraphQL type name
+ * @param {Observable|object} obj   object.
+ * @return {{_type: *}}
+ */
 export default function extractTypeData(typeName, obj)
 {
     const typeDef = config.inputSchema.getType(typeName);

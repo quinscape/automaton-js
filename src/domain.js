@@ -3,7 +3,6 @@ import config from "./config"
 import matchPath from "./matchPath";
 import { INPUT_OBJECT, OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";
 import registerDateTimeConverters from "./registerDateTimeConverters";
-import i18n from "./i18n";
 import { getOutputTypeName } from "./util/type-utils";
 
 
@@ -67,6 +66,8 @@ export const INTERACTIVE_QUERY_DEFINITION = "de.quinscape.automaton.model.data.I
  *
  * @param {String} typeName     type name
  * @return {String|null} full qualified generic type name or null
+ *
+ * @category schema
  */
 export function getGenericType(typeName)
 {
@@ -264,6 +265,9 @@ function registerFieldLengthValidator()
 }
 
 
+/**
+ * Registers the standard automaton converters
+ */
 export function registerAutomatonConverters()
 {
     wireFormat.registerConverter(
@@ -324,6 +328,14 @@ export function __setWireFormatForTest(wf)
     wireFormat = wf;
 }
 
+
+/**
+ * Returns the wireFormat instance created by the system (or tests)
+ *
+ * @return {WireFormat} wire format
+ *
+ * @category schema
+ */
 export function getWireFormat()
 {
     return wireFormat;

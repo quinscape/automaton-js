@@ -54,6 +54,9 @@ function prepareInput(query)
 
 /**
  * High-level entry point to execute a process based on a local URI.
+ *
+ * @category process
+ *
  */
 export function runProcessURI(uri)
 {
@@ -95,6 +98,7 @@ export function runProcessURI(uri)
  * High-level entry point to execute a process. Performs the whole initialization procedure and then triggers
  * a rendering of the first view-state.
  *
+ * @category process
  *
  * @param {String} processName     process name
  * @param {object} [input]         input map (processed format with single strings and numbers)

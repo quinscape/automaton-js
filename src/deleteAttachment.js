@@ -7,6 +7,8 @@ import uri from "./uri";
  *
  * The deletion might fail if there are still references to the attachment in the database.
  *
+ * @category domain
+ * 
  * @param {String} attachmentId     attachment id
  * 
  * @return {Promise<void>} resolves after the promise has been successfully deleted, rejects otherwise

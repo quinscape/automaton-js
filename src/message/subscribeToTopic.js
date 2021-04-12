@@ -36,11 +36,14 @@ function handlerKey(topic, id)
 /**
  * Subscribes the given message handler to the given topic. Returns an unsubscribe function.
  *
+ * @category websocket
+ *
  * @param {String} topic        topic name
  * @param {Function} handler    message handler function. Receives the (filtered) messages for the given topic.
  * @param {object} [filter]     Filter DSL expression
  *
  * @returns {function(...[*]=)} unsubscribe function
+ *
  */
 export default function subscribeToTopic(topic, handler, filter) {
 

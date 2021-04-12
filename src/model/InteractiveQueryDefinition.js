@@ -6,6 +6,8 @@ import { Kind } from "graphql/language/kinds"
 
 /**
  * Encapsulates a query and a default query config as user-editable query definition
+ *
+ * @category iquery
  */
 export default class InteractiveQueryDefinition {
 

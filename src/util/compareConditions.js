@@ -1,6 +1,18 @@
 import { Type } from "../FilterDSL";
 
 
+/**
+ * Does a deep-comparison between two conditions
+ *
+ * @category iquery
+ * 
+ * @param {ConditionNode} a     condition node A
+ * @param {ConditionNode} b     condition node B
+ *
+ * @param {boolean} compareValueNodes   compare the value of value nodes (default = false)
+ * 
+ * @return {boolean} true if the conditions are equal (ignoring values)
+ */
 export default function compareConditions( a, b, compareValueNodes = false)
 {
     if (a === null && b === null)

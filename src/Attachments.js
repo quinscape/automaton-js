@@ -28,6 +28,8 @@ const ACTION_UPLOAD = "ACTION_UPLOAD";
 /**
  * Contains helper functions for the special functionality needed to deal with attachments in forms
  *
+ * @category domain
+ *
  */
 const Attachments = {
 

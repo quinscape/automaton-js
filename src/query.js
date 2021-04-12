@@ -5,7 +5,9 @@ import GraphQLQuery from "./GraphQLQuery";
  * Creates a GraphQL query with the given query string and default variables.
  *
  * This static version can be tracked by babel-plugin-track-usage and is used to
- * declare named queries. 
+ * declare named queries.
+ *
+ * @category declarative
  */
 export default function query(query, defaultVars) {
 

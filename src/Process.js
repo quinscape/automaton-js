@@ -509,6 +509,9 @@ function resetHistoryTo(historyIndex)
 
 /**
  * Process facade exposing a limited set of getters and methods as process API
+ *
+ * @category process
+ *
  */
 export class Process {
     constructor(id, definition, scope, input, parent, dialogOpts)
@@ -1720,6 +1723,14 @@ export function renderSubProcess(processName, input, injections, opts)
     return renderProcessInternal(processName, input, injections, true, opts)
 }
 
+
+/**
+ * Returns the current top-level process.
+ *
+ * @category helper
+ * 
+ * @return {Process} the current process on top
+ */
 export function getCurrentProcess()
 {
     return currentProcess;

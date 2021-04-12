@@ -3,6 +3,7 @@ import config from "../config"
 
 const renderers = new Map();
 
+
 export function registerEntityRenderer(type, fn)
 {
     renderers.put(type, fn);

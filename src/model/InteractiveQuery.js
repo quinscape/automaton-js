@@ -8,7 +8,9 @@ export const NO_COMPONENT = null;
 
 /**
  * Returns the first value from an object.
- * 
+ *
+ * @category iquery
+ *
  * @param {object} m    js object
  *
  * @returns {*}
@@ -44,6 +46,8 @@ const updateFromResult = action("Update iQuery from Result", (iQuery, result) =>
 /**
  * Client-side implementation of the InteractiveQuery mechanism. Meant to be registered for all concrete types created
  * for de.quinscape.automaton.model.data.InteractiveQuery
+ *
+ * @category iquery
  */
 export default class InteractiveQuery {
 

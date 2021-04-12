@@ -72,6 +72,7 @@ export function formatGraphQLError(params, errors)
 
 const postProcessedTypes = new Map();
 
+
 export function registerGraphQLPostProcessor(type, fn)
 {
     const array = postProcessedTypes.get(type);

@@ -1,6 +1,8 @@
 /**
  * Returns to the first state that is not the source state of the given transition.
  *
+ * @category process
+ *
  * @param {Transition} t    transition instance
  *
  * @return {function(*): boolean} back function

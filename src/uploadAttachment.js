@@ -5,7 +5,7 @@ import uri from "./uri";
 /**
  * Uploads the given file as attachment
  *
- * The call
+ * @category domain
  *
  * @param {String} attachmentId     attachment id to store the attachment under. Might be an already existing id.
  * @param {String} description      Description of the attachment / former file name

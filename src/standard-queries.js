@@ -52,6 +52,8 @@ const UpdateAssociationsQuery = new GraphQLQuery(`
 /**
  * Deletes the given domain object with the given id.
  *
+ * @category domain
+ *
  * @param {String} type                 domain type name
  * @param {*} id                        id field as string or number or generic scalar object. is converted into a generic scalar object
  *                                      if it is not one already
@@ -100,6 +102,8 @@ function mapGenericScalarToValue(genericScalar)
  * Stores a single domain object and resolves to the id of the stored object. You can use special id values (e.g. "" for UUIDGenerator an or 0 for SequenceIdGenerator)
  * for them to be replaced with a new UUID or autoincrement id.
  *
+ * @category domain
+ *
  * @param {object} domainObject     domain object
  *
  * @returns {Promise<*>} resolves to the id of the stored object.
@@ -118,6 +122,8 @@ export function storeDomainObject(domainObject)
  * Stores a heterogeneous list of domain objects. You can use special id values (e.g. "" for UUIDGenerator an or 0 for SequenceIdGenerator)
  * for them to be replaced with a new UUID or autoincrement id.
  *
+ * @category domain
+ *
  * @param {Array<object>} domainObjects     list of domain objects
  *
  * @returns {Promise<*>} resolves to an array of id values
@@ -134,6 +140,8 @@ export function storeDomainObjects(domainObjects)
 /**
  * Generates a new unique id for the given domain type using the application specific id generator
  * (a server-side Spring bean implementing de.quinscape.automaton.runtime.domain.IdGenerator)
+ *
+ * @category domain
  *
  * @param {String} domainType   domain type name
  *
@@ -178,6 +186,8 @@ function findRelationByTargetType(sourceType, type)
 
 /**
  * Updates a many-to-many / associative entity from one of the associated objects. Ids may be placeholder id values.
+ *
+ * @category domain
  *
  * @param {Object} opts                         options
  * @param {String} opts.domainType              Name of the associative entity ( e.g. "BazLink" )
@@ -238,6 +248,8 @@ export function updateAssociations(opts
 
 /**
  * Wraps the given value in a GenericScalar object. If the given value already is an object, the value is returns as-is.
+ *
+ * @category domain
  *
  * @param value
  * @returns {{type: (string), value: *}|*}

@@ -1,7 +1,7 @@
 import React from "react"
 import ReactDOM from "react-dom"
 import { loadProcessDefinitions, onHistoryAction, renderProcess } from "./Process"
-import config, { DEFAULT_OPTS } from "./config"
+import config, { addConfig, DEFAULT_OPTS } from "./config"
 import Authentication from "./auth"
 import { FormContext, InputSchema, registerDomainObjectFactory } from "domainql-form"
 import { autorun } from "mobx"
@@ -14,16 +14,19 @@ import {
     getWireFormat,
     INTERACTIVE_QUERY,
     INTERACTIVE_QUERY_DEFINITION,
-    loadDomainDefinitions,
+    loadDomainDefinitions, registerAutomatonConverters,
     registerGenericType, registerType
 } from "./domain";
 import InteractiveQuery from "./model/InteractiveQuery";
 
 import { createBrowserHistory } from "history"
 import createDomainObject from "./createDomainObject";
-import { registerGenericGraphQLPostProcessor } from "./graphql";
+import { registerGenericGraphQLPostProcessor, registerGraphQLPostProcessor } from "./graphql";
 import i18n from "./i18n";
 import InteractiveQueryDefinition from "./model/InteractiveQueryDefinition";
+import { registerScalarEquals } from "./util/equalsScalar";
+import { registerEntityRenderer } from "./util/renderEntity";
+import registerBigDecimalConverter from "./registerBigDecimalConverter";
 
 
 const SCOPES_MODULE_NAME = "./scopes.js";
@@ -172,6 +175,13 @@ function defaultInit(ctx, initial)
     return Promise.all(promises);
 }
 
+/**
+ * Performs a reinitialization to defaults for the sessionScope / sessionStorage.
+ *
+ * @category process
+ *
+ * @return {Promise<boolean>} resolves when done
+ */
 export function reinitializeSessionScope()
 {
     return Promise.resolve(
@@ -180,6 +190,13 @@ export function reinitializeSessionScope()
 }
 
 
+/**
+ * Performs a reinitialization to defaults for the localScope / localStorage.
+ *
+ * @category process
+ *
+ * @return {Promise<boolean>} resolves when done
+ */
 export function reinitializeLocalScope()
 {
     return Promise.resolve(
@@ -407,3 +424,85 @@ export function startup(ctx, initial, initFn)
         .catch(err => console.error("STARTUP ERROR", err))
     );
 }
+
+
+/**
+ * Registry object available as second argument to the startup callback.
+ */
+export const StartupRegistry = {
+    /**
+     * Adds a new config name and value to the global config object and also adds that name to the list of valid option
+     * names.
+     *
+     * @param name      name of the new config property
+     * @param value     value of the new config property
+     */
+    addConfig: addConfig,
+
+    /**
+     * Registers a domain observable implementation for all domain types that where generated for the given generic type.
+     *
+     * @param {String} genericType      fully qualified java class name of a generic type
+     * @param {function} DomainClass    class definition with observables
+     */
+    registerGenericType,
+
+    /**
+     * Registers a domain class implementation containing observables for a given domain type name
+     *
+     * @param {String} name             GraphQL type name
+     * @param {function} DomainClass    domain class containing observables
+     */
+    registerType,
+
+    /**
+     * Registers a new equality function for the given scalar type.
+     *
+     * @param {String} scalarType   scalar type
+     * @param {Function} fn         equality functions
+     */
+    registerScalarEquals,
+
+    /**
+     * Registers a GraphQL post processor for the given type
+     *
+     * @param {String} type     GraphQL type name
+     * @param {Function} fn     post processor 
+     */
+    registerGraphQLPostProcessor,
+
+    /**
+     * Registers a GraphQL post processor for all types degenerified from the given Java type.
+     *
+     * @param {String} type     Full Java class of the original generic type
+     * @param {Function} fn     post processor
+     */
+    registerGenericGraphQLPostProcessor,
+
+
+    /**
+     * Registers an alterate renderer for the domain entity rendering system. The default is to
+     * render an entity according to the name field(s) registered.
+     *
+     * @param {String} type     GraphQL type name
+     * @param {Function<Observable,boolean>} fn     entity renderer receiving the observable object and a `textOnly` flag
+     */
+    registerEntityRenderer,
+
+
+    /**
+     * Registers a custom converter for the "BigDecimal" type based on the given BigNumber construBigNumber. By default the
+     * standard BigNumber constructor is used, so you can either reconfigure the standard constructor or create a
+     * newly configured clone
+     *
+     * @param {Object} [opts]                     options
+     * @param {boolean} opts.defaultPrecision   Default numerical precision
+     * @param {boolean} opts.defaultScale       Default numerical scale
+     */
+    registerBigDecimalConverter,
+
+    /**
+     * Registers the standard automaton converters
+     */
+    registerAutomatonConverters,
+};

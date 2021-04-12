@@ -1,10 +1,9 @@
 import useAutomatonEnv from "./useAutomatonEnv"
-import { startup, reinitializeLocalScope, reinitializeSessionScope, shutdown } from "./startup";
+import { startup, reinitializeLocalScope, reinitializeSessionScope, shutdown, StartupRegistry } from "./startup";
 import injection from "./injection";
 import i18n from "./i18n";
 import uri from "./uri";
 import config, { addConfig } from "./config";
-import render from "./render";
 import { Process, getCurrentProcess } from "./Process";
 import runProcess, { runProcessURI } from "./runProcess";
 
@@ -61,20 +60,7 @@ const AutomatonDevTools = "span";
 
 import Attachments from "./Attachments"
 
-import {
-    Type,
-    not,
-    or,
-    and,
-    condition,
-    field,
-    component,
-    value,
-    values,
-    getConditionArgCount,
-    isLogicalCondition,
-    findComponentNode
-} from "./FilterDSL"
+import FilterDSL from "./FilterDSL"
 
 import printSchema from "./util/printSchema"
 import InteractiveQueryEditor from "./ui/iqed/InteractiveQueryEditor";
@@ -83,108 +69,9 @@ import { evaluateMemoryQuery } from "./util/evaluateMemoryQuery";
 import { MergeOperation } from "./merge/MergeOperation";
 import { openDialog } from "./util/openDialog";
 
-// improves auto-completion for DSL members
-const FilterDSL = {
-    /**
-     * Node type constants.
-     *
-     * @type {{OPERATION: string, FIELD: string, CONDITION: string, COMPONENT: string, VALUE: string}}
-     */
-    Type,
-    /**
-     * Logical not condition.
-     *
-     * @type {function(...[*]): Condition}
-     */
-    not,
-    /**
-     * Logical or condition.
-     *
-     * @type {function(...[*]): Condition}
-     */
-    or,
-    /**
-     * Logical and condition.
-     *
-     * @type {function(...[*]): Condition}
-     */
-    and,
-    /**
-     * General Condition node. Useful for programmatically instantiating conditions. Not needed for fluent style conditions.
-     * (e.g. `field("name").containsIgnoreCase(value("abc"))` )
-     *
-     * @param {String} name     condition name
-     * @return {Condition}
-     */
-    condition,
-    /**
-     * Field / column reference.
-     *
-     * @param {String} name     field name (e.g. "name", "owner.name")
-     * @return {Field}
-     */
-    field,
-    /**
-     * Component condition node. These nodes are just marker for which part of the condition originated from which component
-     * Logically they are evaluated as the condition they wrap.
-     *
-     * @param {String} id               component id
-     * @param {Condition} condition     actual condition for component
-     * @return {{condition: *, id: *, type: string}}
-     */
-    component,
-    /**
-     * Creates a new value node
-     *
-     * @param {String} type     scalar type name
-     * @param {Object} value    scalar value of appropriate type
-     * @param {String} [name]   Field name
-     *
-     * @return {Value} value node
-     */
-    value,
-    /**
-     * Creates a new values node that encapsulates a collection of scalar values (for e.g. the IN operator)
-     *
-     * @param {String} type     scalar type name
-     * @param {Object} values   var args of scalar value of appropriate type
-     *
-     * @return {Values} values node
-     */
-    values,
-    /**
-     * Returns the number of expected arguments for the condition with the given name.
-     *
-     * @param {String} name     condition name
-     *
-     * @return {number} number of value arguments expected
-     */
-    getConditionArgCount,
-    /**
-     * Returns true if the given condition node is either a logical and or a logical or condition.
-     *
-     * @param {Object} node     node
-     * @return {boolean}    true if the node is either an "and" or an "or"
-     */
-    isLogicalCondition,
-    /**
-     * Finds a component node with the given id.
-     *
-     * @param {Object} conditionNode    condition structure root
-     * @param {String} id               component id
-     *
-     * @return {Object|null}    component node or `null`
-     */
-    findComponentNode
-};
-
-
-
-
 // noinspection JSUnusedGlobalSymbols
 export {
     config,
-    render,
     startup,
     shutdown,
     injection,
@@ -221,10 +108,6 @@ export {
 
     backToParent,
 
-    addConfig,
-
-    registerGenericType,
-    registerType,
     getGenericType,
     InteractiveQuery,
     getFirstValue,
@@ -255,15 +138,10 @@ export {
     DomainActivityIndicator,
 
     equalsScalar,
-    registerScalarEquals,
-
-    registerGraphQLPostProcessor,
-    registerGenericGraphQLPostProcessor,
 
     openDialog,
 
     renderEntity,
-    registerEntityRenderer,
     MergeOperation,
 
     AttachmentField,
@@ -275,15 +153,11 @@ export {
 
     FieldMetaButton,
 
-    registerBigDecimalConverter,
-
     DecimalField,
 
     URLField,
 
     CollapsibleSidebar,
-
-    registerAutomatonConverters,
 
     printSchema,
 
@@ -295,7 +169,9 @@ export {
 
     createMockedQuery,
     createFilteredMockQuery,
-    evaluateMemoryQuery
+    evaluateMemoryQuery,
+
+    StartupRegistry
 }
 
 

@@ -71,6 +71,8 @@ function processComponentCondition(compositeCondition, componentNode, newCompone
 /**
  * Updates a logical condition composed of component conditions with a new condition for one of the components.
  *
+ * @category iquery
+ *
  * @param {Object} compositeCondition   logical condition composed of component conditions.
  * @param {Object} componentCondition   new component condition
  * @param {String} [componentId]        optional component id to update

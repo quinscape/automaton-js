@@ -20,6 +20,9 @@ function wrap(s)
 
 /**
  * Returns a translation of the given translation key with additional optional arguments
+ *
+ * @category declarative
+ *
  * @param {string} key translation tag/key
  * @param {...string} args optional translation parameters
  * @returns {string}

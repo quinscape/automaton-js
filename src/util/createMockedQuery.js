@@ -10,6 +10,8 @@ import { evaluateMemoryQuery } from "./evaluateMemoryQuery";
  *
  * If you need filtering or pagination on your mock, use createFilteredMockQuery
  *
+ * @category iquery
+ *
  * @param format   wire format
  * @param {String} type         iQuery container type
  * @param {Object|function} payload      constant iQuery result to return from the mocked query or function producing a result from given variables
@@ -71,6 +73,8 @@ export function createMockedQuery(format, type, payload)
 /**
  * Convenience helper to create a filtered and paginated mocked query. The given query data is supposed to be the same as for a single page of
  * the results, but containing all available rows.
+ *
+ * @category iquery
  *
  * if the vars contain a condition the full list of objects will be filtered by that condition before pagination.
  */

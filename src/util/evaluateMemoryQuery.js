@@ -111,6 +111,8 @@ function sort(rows, sortFields)
 /**
  * Filters a given cached iQuery document according to the give query config object.
  *
+ * @category iquery
+ *
  * @param format            WireFormat instance
  * @param cachedDocument    cached iQuery document containing all data
  * @param queryConfig       QueryConfig instance
