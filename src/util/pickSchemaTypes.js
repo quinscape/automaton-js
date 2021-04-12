@@ -1,6 +1,6 @@
 import { findNamed, getFields, unwrapAll } from "./type-utils"
 
-import { INPUT_OBJECT, OBJECT, SCALAR } from "domainql-form/lib/kind"
+import { ENUM, INPUT_OBJECT, OBJECT, SCALAR } from "domainql-form/lib/kind"
 
 
 function followField(field, rawSchema, knownTypes)
@@ -12,6 +12,14 @@ function followField(field, rawSchema, knownTypes)
         followType(rawSchema, knownTypes, fieldTypeRef.name);
     }
     else if (fieldTypeRef.kind === SCALAR)
+    {
+        const typeDef = findNamed(rawSchema.types, fieldTypeRef.name);
+        if (typeDef != null && !knownTypes.has(fieldTypeRef.name))
+        {
+            knownTypes.add(fieldTypeRef.name);
+        }
+    }
+    else if (fieldTypeRef.kind === ENUM)
     {
         const typeDef = findNamed(rawSchema.types, fieldTypeRef.name);
         if (typeDef != null && !knownTypes.has(fieldTypeRef.name))
