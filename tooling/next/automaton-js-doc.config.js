@@ -45,7 +45,7 @@ module.exports = {
             src: "GraphQLQuery.md"
         },
         {
-            after: "IQueryGrid",
+            after: "DataGrid",
             src: "GridExamples.md"
         },
         // {

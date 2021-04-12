@@ -2,7 +2,7 @@ import cx from "classnames"
 import MarkdownSection from "./MarkdownSection";
 import React from "react";
 
-import ComplexIcon from "./complex.icon.svg";
+import ComplexIcon from "./iquery.icon.svg";
 import { printJsDocType } from "../service/printJsDocType";
 
 

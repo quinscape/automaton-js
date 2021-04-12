@@ -1,6 +1,6 @@
 ---
 title: GraphQL Injection 
-date: 2020-04-08
+date: 2021-04-08
 ---
 # GraphQL Injection
 
@@ -27,6 +27,8 @@ In practice the number of data requests that fall into the last category is ofte
 
 Most of our data needs run along the lines of "Give me the first x rows of that table, sorted by y", maybe
 with a filter. This is exactly what the InteractiveQuery system encapsulates.
+                                                 
+<InjectionDiagram/>
 
 ## Data Injection
 

@@ -8,8 +8,8 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="95"
-   height="103"
-   viewBox="0 0 25.13544 27.252084"
+   height="97"
+   viewBox="0 0 25.13544 25.664584"
    version="1.1"
    id="svg8"
    inkscape:version="1.0.2 (1.0.2+r75+1)"
@@ -65,25 +65,25 @@
        width="24.564859"
        height="20.970573"
        x="0.33363724"
-       y="6.2394848"
+       y="4.6519833"
        ry="5.9580579" />
     <circle
        style="color:#000000;overflow:visible;fill:#0220b1;fill-opacity:1;stroke:none;stroke-width:2.76544;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path844"
        cx="12.698138"
-       cy="13.094401"
+       cy="11.705337"
        r="2.4250124" />
     <circle
        style="color:#000000;overflow:visible;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2.76544;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="circle852"
-       cx="9.2332621"
-       cy="19.147829"
+       cx="8.4395113"
+       cy="18.61867"
        r="2.4234991" />
     <circle
        style="color:#000000;overflow:visible;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:2.76544;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="circle854"
-       cx="16.220184"
-       cy="19.136332"
+       cx="17.013924"
+       cy="18.607172"
        r="2.4273717" />
   </g>
 </svg>

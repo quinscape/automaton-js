@@ -33,6 +33,17 @@ module.exports = (phase, { defaultConfig }) => {
                             test: /\.svg$/,
                             use: ["@svgr/webpack"]
 
+                        },
+                        {
+                            test: /\.(jpe?g|gif|png|svg)$/i,
+                            use: [
+                                {
+                                    loader: 'url-loader',
+                                    options: {
+                                        limit: 10000
+                                    }
+                                }
+                            ]
                         }
                     ]
                 }

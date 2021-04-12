@@ -27,7 +27,7 @@ export function filterPageDefaults(pageDefaults, groups, category = false, markd
     const newDocs = {
         handwritten: docs.handwritten.filter(
             hw => {
-                if (markdowns.indexOf(hw.src) >= 0)
+                if (markdowns === true || markdowns.indexOf(hw.src) >= 0)
                 {
                     return true;
                 }

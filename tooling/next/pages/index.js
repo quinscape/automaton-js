@@ -9,6 +9,9 @@ import { JsDocClassSection, JsDocFunctionSection } from "../components/JsDocSect
 import { filterByCategory } from "../service/docs-filter";
 import { EXPLANATION, DOCUMENTATION, HOWTO, findMarkdownBySource, getPathsByPrefix } from "../service/markdown-filter";
 
+//import Logo from "../components/automaton-logo.svg"
+import Logo from "../components/data-injection.svg"
+
 const ReferenceCategory = ({title, docs, names: names, search}) => {
 
     // if we don't have any data at all, display nothing
@@ -149,44 +152,43 @@ function HomePage(props)
     return (
         <Layout {...props}>
             <div className="row">
-                <div className="col">
+                <div className="col-8">
                     <h1 className="mt-3">
                         Welcome
                     </h1>
                     <p>
                         Welcome to the new automaton-js documentation site.
                     </p>
+                    <div className="row">
+                        <div className="col">
+                            <DocumentationCategory
+                                docs={ docs }
+                                title="Documentation"
+                                prefix={ DOCUMENTATION }
+                                path={"/tutorial/"}
+                            />
+                        </div>
+                        <div className="col align-self-end">
+                            <DocumentationCategory
+                                docs={ docs }
+                                title="Background"
+                                path={"/explanation/"}
+                                prefix={ EXPLANATION}
+                            />
+                            <DocumentationCategory
+                                docs={ docs }
+                                title="How-Tos"
+                                path={"/howto/"}
+                                prefix={ HOWTO }
+                            />
+                        </div>
+
+                    </div>
+                </div>
+                <div className="col-4">
+                    <Logo />
                 </div>
             </div>
-            <section>
-                <div className="row">
-                    <div className="col">
-                        <DocumentationCategory
-                            docs={ docs }
-                            title="Documentation"
-                            prefix={ DOCUMENTATION }
-                            path={"/tutorial/"}
-                        />
-                    </div>
-                    <div className="col">
-                        <DocumentationCategory
-                            docs={ docs }
-                            title="Background"
-                            path={"/explanation/"}
-                            prefix={ EXPLANATION}
-                        />
-                        <DocumentationCategory
-                            docs={ docs }
-                            title="How-Tos"
-                            path={"/howto/"}
-                            prefix={ HOWTO }
-                        />
-                    </div>
-                    <div className="col">
-                    </div>
-                </div>
-                <hr/>
-            </section>
             <section>
                 <div className="row">
                     <div className="col">
@@ -323,7 +325,11 @@ export async function getStaticProps(context)
 {
     const staticProps = await getPageDefaults({
         title: "Main Page"
-    });
+    },
+        false,
+        false,
+        true
+    );
 
     //console.log("MAIN: staticProps = ", staticProps)
 

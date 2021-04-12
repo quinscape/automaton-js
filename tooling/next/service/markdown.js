@@ -12,6 +12,22 @@ import github from "prism-react-renderer/themes/github";
 import frontmatter from "@github-docs/frontmatter";
 import validateRule from "./validateRule";
 
+import InjectionDiagram from "../components/injection.svg"
+import DomainQLDiagram from "../components/domainql.svg"
+import AutomatonTemplatePNG from "../public/media/automaton-template.png"
+import { useRouter } from "next/router";
+
+function AutomatonTemplateScreenshot(props)
+{
+    //const router = useRouter();
+
+    return (
+        <img
+            src={ /*router.basePath +*/ "/media/automaton-template.png" }
+            alt="Screenshot of the automaton-template homepage on github"
+        />
+    )
+}
 
 function CodeBlock({children, className})
 {
@@ -88,6 +104,16 @@ function Table({children, className, ... rest})
     )
 }
 
+
+function createStub(str)
+{
+    return str.toLocaleLowerCase()
+            .replace(/ /g, "-")
+            // just remove URL reserved and unsafe characters from the name
+            .replace(/[<>:?\/#\[@!$&'()*+,;="%{}|\\^`]/g, "")
+}
+
+
 class TOC
 {
     constructor()
@@ -104,7 +130,7 @@ class TOC
 
     register(level, kids)
     {
-        const stub = kids.toLocaleLowerCase().replace(/ /g, "-");
+        const stub = createStub(kids);
         if (level === this.current.level)
         {
             const newSub = {
@@ -198,7 +224,11 @@ const components = {
     h6: createHeading(6),
     a: MarkdownLink,
     code: CodeBlock,
-    table: Table
+    table: Table,
+
+    InjectionDiagram,
+    DomainQLDiagram,
+    AutomatonTemplateScreenshot
 };
 
 
@@ -246,6 +276,7 @@ function replaceSectionMarkers(content)
         .replace(/\[\[section##(.*?)\n/g, "<section id=\"$1\">\n")
         .replace(/]]\n/g, "</section>\n")
 }
+
 
 
 export function processMarkdownSnippets(markdownSnippets)
