@@ -119,7 +119,9 @@ export default function pickSchemaTypes(rawSchema, typeNames)
         types: rawSchema.types.filter( td => knownTypes.has(td.name) ),
         relations: rawSchema.relations.filter( r => knownTypes.has(r.sourceType) && knownTypes.has(r.targetType)),
         nameFields: filterObject(rawSchema.nameFields, knownTypes),
-        genericTypes: rawSchema.genericTypes.filter( gt => knownTypes.has(gt.type))
+        genericTypes: rawSchema.genericTypes.filter( gt => knownTypes.has(gt.type)),
+        decimalPrecision: rawSchema.decimalPrecision.filter( dp => knownTypes.has(dp.domainType)),
+        fieldLengths: rawSchema.fieldLengths.filter( fl => knownTypes.has(fl.domainType))
     };
 
     queryType.fields = queryType.fields.filter( f => knownQueries.has(f.name));

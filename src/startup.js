@@ -101,6 +101,10 @@ function defaultInit(ctx, initial)
     config.translations = translations;
 
     config.auth = new Authentication(authentication);
+
+    schema.decimalPrecision = decimalPrecision;
+    schema.fieldLengths = fieldLengths;
+
     config.inputSchema = new InputSchema(schema);
 
     new FormContext(config.inputSchema)
