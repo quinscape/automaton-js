@@ -5,7 +5,7 @@ import TOCLink from "../components/TOCLink";
 import React from "react";
 import { filterPageDefaults } from "../service/docs-filter";
 import Group from "../service/Group";
-import MarkdownDiv from "../components/MarkdownDiv";
+import MarkdownSection from "../components/MarkdownSection";
 import { findMarkdownBySource } from "../service/markdown-filter";
 
 export default function BrowserHelpers(props)
@@ -34,7 +34,7 @@ export default function BrowserHelpers(props)
             <div className="row">
                 <div className="col">
 
-                    <MarkdownDiv
+                    <MarkdownSection
                         markdown={ findMarkdownBySource( docs.handwritten, "declarative-api.md")}
                     />
                     {

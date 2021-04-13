@@ -2,11 +2,15 @@
 title: Automaton-Js Introduction 
 date: 2021-04-09
 ---
+<section>
 # Introduction 
 
 Automaton is a model-driven full-stack web application framework based on Spring Boot, GraphQL / DomainQL, React and MobX. 
 It uses a process based state-system to run the application. 
 
+</section>
+
+<section>
 ## Why Automaton?
                             
 We believe that model-driven, generated code can help a lot to provide a streamlined, consistent user-experience quickly. 
@@ -24,12 +28,16 @@ We have created a powerful system of abstraction and components that can be comb
 The architecture of an automaton application uses well established java standards in the service of a modern web application
 structured in a way to support writing good and performant applications. 
 
+</section>
+
+<section>
 ## DomainQL
 
 Automaton is the application framework around the core technology DomainQL drives the domain type logic and handles 
 execution and conversions and all kinds of things.
 
 <DomainQLDiagram/>
+</section>
 
 
 

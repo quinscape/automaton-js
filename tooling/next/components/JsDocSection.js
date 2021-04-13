@@ -4,6 +4,8 @@ import React from "react";
 
 import ComplexIcon from "./iquery.icon.svg";
 import { printJsDocType } from "../service/printJsDocType";
+import useViewIntersect from "./useViewIntersect";
+import SectionLink from "./SectionLink";
 
 
 const Description = ({text}) => (
@@ -42,6 +44,11 @@ const MethodDoc = (props) => {
                                     t => t.name
                                 ).join(", ") +
                                 ")"
+                            }
+                            {
+                                doc.link != null ? (
+                                    <SectionLink link={ doc.link } />
+                                ) : ""
                             }
                         </h3>
                         <Description text={typeof description === "object" ? description.description : description }/>
@@ -120,6 +127,8 @@ const MethodDoc = (props) => {
  */
 export function JsDocFunctionSection({ name, doc, docs, standalone = false })
 {
+    const sectionRef = useViewIntersect();
+
     const replacement = docs.handwritten.find( hw => hw.replace === name);
     if (replacement)
     {
@@ -136,6 +145,7 @@ export function JsDocFunctionSection({ name, doc, docs, standalone = false })
 
     return (
         <section
+            ref={sectionRef}
             id={name}
             className="mb-5"
         >
@@ -184,6 +194,8 @@ export function JsDocFunctionSection({ name, doc, docs, standalone = false })
  */
 export function JsDocClassSection({name, doc, docs})
 {
+    const sectionRef = useViewIntersect();
+    
     const replacement = docs.handwritten.find( hw => hw.replace === name);
     if (replacement)
     {
@@ -202,6 +214,7 @@ export function JsDocClassSection({name, doc, docs})
 
     return (
         <section
+            ref={sectionRef}
             id={name}
             className="mb-5"
         >
@@ -210,6 +223,7 @@ export function JsDocClassSection({name, doc, docs})
                 {
                     name
                 }
+                <SectionLink link={ doc.link } />
             </h2>
             <Description text={doc.description && doc.description.description}/>
             {

@@ -1,5 +1,5 @@
 import config from "../automaton-js-doc.config";
-import { promises as fs } from "fs";
+import fsync, { promises as fs } from "fs";
 import cx from "classnames"
 import path from "path";
 import { renderToStaticMarkup, renderToString } from "react-dom/server";
@@ -12,10 +12,14 @@ import github from "prism-react-renderer/themes/github";
 import frontmatter from "@github-docs/frontmatter";
 import validateRule from "./validateRule";
 
+import useViewIntersect from "../components/useViewIntersect";
 import InjectionDiagram from "../components/injection.svg"
 import DomainQLDiagram from "../components/domainql.svg"
 import AutomatonTemplatePNG from "../public/media/automaton-template.png"
 import { useRouter } from "next/router";
+
+import { fsyncSync } from "fs";
+import undefinedsToNull from "./undefinedsToNull";
 
 function AutomatonTemplateScreenshot(props)
 {
@@ -126,67 +130,73 @@ class TOC
         }
         this.parents = [];
         this.current = this.data;
+        this.isOpen = false;
     }
 
-    register(level, kids)
+    register(section)
     {
-        const stub = createStub(kids);
+        const level = section.level;
+        const title = section.title;
+        const stub = section.stub;
+
         if (level === this.current.level)
         {
             const newSub = {
                 level: this.current.level,
                 name: stub,
-                title: kids,
+                title,
                 headings: []
             };
             this.parents[0].headings.push(newSub);
             this.current = newSub;
-
-
-            return "]]\n[[section##" + stub + "\n";
         }
         else if (level < this.current.level)
         {
             let h = this.current;
-            let s = "";
             while (level < h.level)
             {
                 h = this.parents.shift();
-                s += "]]\n";
             }
             this.current = h;
-
 
             const newSub = {
                 level: this.current.level,
                 name: stub,
-                title: kids,
+                title,
                 headings: []
             };
             this.parents[0].headings.push(newSub);
             this.current = newSub;
-            return "[[section##" + stub + "\n";
         }
-        else
+        else if (this.isOpen)
         {
-
             const newSub = {
                 level,
                 name: stub,
-                title: kids,
+                title,
                 headings: []
             };
             this.current.headings.push(newSub)
             this.parents.unshift(this.current);
             this.current = newSub;
+        }
+        else
+        {
+            this.isOpen = true;
 
-            return "[[section##" + stub + "\n";
+            const newSub = {
+                level,
+                name: stub,
+                title,
+                headings: []
+            };
+            this.current.headings.push(newSub)
+            this.parents.unshift(this.current);
+            this.current = newSub;
         }
 
     }
 }
-
-const TOCContext = React.createContext( null );
 
 function createHeading(level)
 {
@@ -214,6 +224,31 @@ function createHeading(level)
     return Component
 }
 
+function Section({children, title, level = 1})
+{
+    const sectionRef = useViewIntersect();
+    return (
+        <section
+            ref={sectionRef}
+        >
+            <TOCContext.Consumer>
+                {
+                    toc => {
+                        return React.createElement(React.Fragment, null,
+                            toc.register(level, title),
+                            React.createElement("h" + level, null, title)
+                        )
+
+                    }
+                }
+            </TOCContext.Consumer>
+            {
+                children
+            }
+        </section>
+    );
+}
+
 
 const components = {
     h1: createHeading(1),
@@ -225,6 +260,7 @@ const components = {
     a: MarkdownLink,
     code: CodeBlock,
     table: Table,
+    Section: Section,
 
     InjectionDiagram,
     DomainQLDiagram,
@@ -277,6 +313,27 @@ function replaceSectionMarkers(content)
         .replace(/]]\n/g, "</section>\n")
 }
 
+function parseMarkdownSections(content) {
+    // Windows newline fix
+    content = content.replace(/\r/g, "");
+    // ---
+    const MARKDOWN_SECTIONS_REGEX = /<section>\s*(#+) (.*?)\n([\s\S]*?)<\/section>/img;
+    const sections = [];
+    let m;
+    while ((m = MARKDOWN_SECTIONS_REGEX.exec(content)) != null) {
+        const level = m[1].length;
+        const title = m[2];
+        const content = m[3];
+        const stub = createStub(title);
+        sections.push({
+            stub,
+            title,
+            level,
+            content
+        });
+    }
+    return sections;
+}
 
 
 export function processMarkdownSnippets(markdownSnippets)
@@ -297,6 +354,30 @@ export function processMarkdownSnippets(markdownSnippets)
                 const toc = new TOC();
 
                 const hw = config.handwritten[idx];
+
+                // fsync.writeFileSync(`${process.cwd()}/MDAST_TREE_${hw.src}.json`, JSON.stringify(sections, null, 4), "utf8");
+                const sections = parseMarkdownSections(content)
+                    .map(
+                        section => ({
+                            ...section,
+                            content: renderToStaticMarkup(
+                                <MDXProvider
+                                    components={components}
+                                >
+                                    <MDX>
+                                        {
+                                            section.content
+                                        }
+                                    </MDX>
+                                </MDXProvider>
+                            )
+                        })
+                    );
+
+                sections.forEach(
+                    section => toc.register(section)
+                )
+
                 const snippet = {
 
                     // copy over the static config
@@ -304,23 +385,8 @@ export function processMarkdownSnippets(markdownSnippets)
 
                     frontmatter: serializeFrontMatter(data),
 
-                    // and complete it with the rendered markup for each snippet
-                    content: renderToStaticMarkup(
-                        <TOCContext.Provider value={ toc }>
-                            <MDXProvider
-                                components={components}
-                            >
-                                <MDX>
-                                    {
-                                        content
-                                    }
-                                </MDX>
-                            </MDXProvider>
-                        </TOCContext.Provider>
-                    )
+                    sections
                 };
-
-                snippet.content = replaceSectionMarkers(snippet.content);
 
                 if (toc.data.headings.length > 1)
                 {
@@ -341,8 +407,7 @@ export function processMarkdownSnippets(markdownSnippets)
                     snippet.toc = toc.data.headings[0];
                 }
 
-
-                return snippet;
+                return undefinedsToNull(snippet);
 
             }
             catch(e)

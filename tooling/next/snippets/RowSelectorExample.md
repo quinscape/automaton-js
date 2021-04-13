@@ -1,3 +1,5 @@
+
+<section>
 ## Row Selection Example
 
 To select rows, we need an additional observable set scope variable which tracks the currently
@@ -80,3 +82,5 @@ Then you use the `<DataGrid.RowSelector/>`
 </DataGrid>
 
 ```
+
+</section>

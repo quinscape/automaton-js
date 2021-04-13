@@ -1,3 +1,5 @@
+
+<section>
 ## &lt;Tree.Objects Example/&gt;
 
 ```js
@@ -40,3 +42,5 @@ triggered.
 
 The first action is the default action which is triggered when the user
 clicks on the name or presses return while the name is focused.
+
+</section>

@@ -1,3 +1,5 @@
+
+<section>
 ### FilterDSL.Type
 
 Enum object containting the node types 
@@ -10,3 +12,5 @@ VALUE     | Value node
 VALUES    | Values node (for .in())  
 OPERATION | field operation      
 COMPONENT | component marker      
+
+</section>

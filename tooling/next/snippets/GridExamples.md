@@ -1,3 +1,5 @@
+
+<section>
 ## DataGrid Examples
 
 If we have an GraphQL query injection like this
@@ -88,6 +90,9 @@ a single joined SQL query.
 Here we follow a relation named `owner` to a corresponding `AppUser` object and display `owner.login` as column.   
 
 
+</section>
+
+<section>
 ## Custom Filter
 
 A client-side custom filter can be defined by giving a function to `filter`.
@@ -123,3 +128,5 @@ The function can have one or more arguments.
 </DataGrid.Column>
 
 ```
+
+</section>

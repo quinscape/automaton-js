@@ -1,3 +1,5 @@
+
+<section>
 ## Tree-Navigation
 
 The tree can be used with both mouse and keyboard.
@@ -11,6 +13,9 @@ Clicking on the name of the item executes the default action or first action in 
 The context-menu can be opened by right-clicking the name or combining
 a normal click with either ctrl, shift or alt.
 
+</section>
+
+<section>
 ### Keyboard navigation
  
 With the keyboard the menu can be opened by either pressing ctrl, shift
@@ -25,3 +30,5 @@ the group is already closed or the item has no descendants.
 
 Cursor right opens the current tree group or jumps to the first descendant 
 if the group is already open.
+
+</section>

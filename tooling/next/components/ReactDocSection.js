@@ -1,6 +1,7 @@
 import MarkdownSection from "./MarkdownSection";
 import React from "react";
-
+import useViewIntersect from "./useViewIntersect";
+import SectionLink from "./SectionLink";
 
 function renderType(type, shapeConsumer, propName)
 {
@@ -127,6 +128,9 @@ const PropsTable = ({props, shapeConsumer = false}) => {
 
 export default function ReactDocSection({name, data, docs})
 {
+    const sectionRef = useViewIntersect();
+
+    const doc = docs.docs[name];
 
     const toInsert = docs.handwritten.find( hw => hw.into === name)
     const toAppend = docs.handwritten.filter( hw => hw.after === name) || false;
@@ -134,6 +138,7 @@ export default function ReactDocSection({name, data, docs})
     const shapes = [];
     return (
         <section
+            ref={sectionRef}
             id={name}
             className="mb-5"
         >
@@ -144,6 +149,7 @@ export default function ReactDocSection({name, data, docs})
                     name
                 }
                 /&gt;
+                <SectionLink link={ doc.link } />
             </h2>
             {
                 !data && <p className="text-muted">

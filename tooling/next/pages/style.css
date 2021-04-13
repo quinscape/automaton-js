@@ -6,3 +6,34 @@ table.table th{
     background: #E8E8E8;
 }
     
+@supports (position: fixed) {
+    @media screen and (min-height: 500px) {
+        .sidebar {
+            position: fixed;
+            top: 0px;
+            height: 100%;
+            padding-top: 40px;
+        }
+    }
+}
+
+.sidebar .toc-link.reading {
+    color: white;
+    background-color: #0220b1;
+}
+
+.section-link {
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.7em;
+}
+
+/* h1:hover .section-link,
+h2:hover .section-link,
+h3:hover .section-link,
+h4:hover .section-link,
+h5:hover .section-link, */
+section:hover .section-link {
+    opacity: 1;
+}

@@ -1,3 +1,5 @@
+
+<section>
 ### Example
 ```js
     // language=GraphQL
@@ -10,4 +12,6 @@
 ```
 
 We most commonly use the declarative variant [graphql](/misc/#graphql) to enable data injection.
+
+</section>
 

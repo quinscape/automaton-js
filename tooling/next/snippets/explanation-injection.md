@@ -2,19 +2,23 @@
 title: GraphQL Injection 
 date: 2021-04-08
 ---
+
+<section>
 # GraphQL Injection
-
 This document explains how we use data injection to cut down on the common problem of asynchronous data fetching
+</section>
 
+<section>
 ## Wild West Async Fetching
-
 If we just head into things and follow the most common approach we write our frontend so that the react components 
 themselves or some kind of state handling library fetches the data we need.
 
 This often leads to two kinds of problems: First we incur a lot of request latency which quickly adds up to make our 
 application seem slow and sluggish. Second while the responses of all the async requests are coming in, we have a lot of 
 visual noise or even reflow while our components update to their final state.
+</section>
 
+<section>
 ### Cutting down the problem
 
 Assuming GraphQL as data fetching method, we can categorize the data acquired into three groups
@@ -29,12 +33,16 @@ Most of our data needs run along the lines of "Give me the first x rows of that 
 with a filter. This is exactly what the InteractiveQuery system encapsulates.
                                                  
 <InjectionDiagram/>
+</section>
 
+<section>
 ## Data Injection
 
 The data injection mechanism allows us to execute all GraphQL requests on the server and pass the data along the original
 HTML document and then inject it into our process scopes. 
+</section>
 
+<section>
 ### Direct Data Injection
 
 We started out with what we now call direct data injection.
@@ -112,7 +120,9 @@ For example, if we want to manually trigger pagination for our `myFoos` we can j
         // ... pagination has happened here ... 
     })
 ```
+</section>
 
+<section>
 ### Indirect Data Injection
 
 If you have a lot of injections, direct data injection can become very long and confusing. This is why we created indirect
@@ -122,7 +132,9 @@ With indirect data injection we introduce the concept of named queries. Named qu
 folder as a sibling to the "processes" folder or in a process inside a "queries" folder.
 
 No matter the location all queries share one namespace per application. 
+</section>
 
+<section>
 ### Indirect Injection Example
                                                         
 The query is defined in its own file. For this example we assume the location to be  
@@ -193,8 +205,9 @@ export default class MyScope
                              
 The import must have the same name as the named query and the module. The system will follow the import and provide
 the query data by executing the named query.
-        
+</section>
 
+<section>
 ## True async requests
 
 The remaining async requests are most often the direct result of user interaction. We get a list of the first five foos injected,
@@ -228,3 +241,4 @@ In this example we assume another, more detailed named queries `Q_FooDetail` whi
 config object.
 
 We use the FilterDSL API to define a condition on `Q_FooDetail`, i.e. that the id field should be our selected id value.
+</section>

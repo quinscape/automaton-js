@@ -1,30 +1,49 @@
 import React from "react"
 import cx from "classnames"
+import ReadingPosition from "./ReadingPosition";
 
 function TOCItem({item})
 {
     return (
-        <li>
-            <a className="btn btn-link" href={ "#" + item.name }>
-                {
-                    item.title
-                }
-            </a>
+        <ReadingPosition.Consumer>
             {
-                !!item.headings.length && (
-                    <ul className="list-unstyled pl-4">
-                        {
-                            item.headings.map( h => (
-                                <TOCItem
-                                    key={ h.name }
-                                    item={ h }
-                                />
-                            ))
-                        }
-                    </ul>
-                )
+                readingPosition => {
+                    const isReading = readingPosition != null && readingPosition.section === item.name;
+
+                    return (
+                        <li>
+                            <a
+                                className={
+                                    cx(
+                                        "btn btn-link toc-link",
+                                        isReading && "reading"
+                                    )
+                                }
+                                href={ "#" + item.name }
+                            >
+                                {
+                                    item.title
+                                }
+                            </a>
+                            {
+                                !!item.headings.length && (
+                                    <ul className="list-unstyled pl-4">
+                                        {
+                                            item.headings.map( h => (
+                                                <TOCItem
+                                                    key={ h.name }
+                                                    item={ h }
+                                                />
+                                            ))
+                                        }
+                                    </ul>
+                                )
+                            }
+                        </li>
+                    )
+                }
             }
-        </li>
+        </ReadingPosition.Consumer>
     )
 }
 

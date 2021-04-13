@@ -1,12 +1,14 @@
 import cx from "classnames";
-import React from "react";
+import React, { useContext } from "react";
 import { useRouter } from "next/router";
 import MarkdownTOC from "./MarkdownTOC";
+import ReadingPosition from "./ReadingPosition";
 
-
-export default function TOCLink({docs, name, short = false})
+const TOCLink = ({docs, name, short = false}) =>
 {
     const router = useRouter();
+    //const intersectionContext = useContext(IntersectionContext);
+
 
     const doc = docs.docs[name];
     const { handwritten } = docs;
@@ -27,21 +29,34 @@ export default function TOCLink({docs, name, short = false})
     }
 
     return (
-        <>
-            <a
-                className={
-                    cx(
-                        "btn btn-link"
+        <ReadingPosition.Consumer>
+            {
+                readingPosition => {
+                    const isReading = readingPosition != null && readingPosition.section === doc.name;
+
+                    return (
+                        <>
+                            <a
+                                className={
+                                    cx(
+                                        "btn btn-link toc-link",
+                                        isReading && "reading"
+                                    )
+                                }
+                                href={ router.basePath + "/" + doc.link }
+                            >
+                                {
+                                    doc.name
+                                }
+                            </a>
+                            <br/>
+                        </>
                     )
                 }
-                href={ router.basePath + "/" + doc.link }
-            >
-                {
-                    doc.name
-                }
-            </a>
-            <br/>
-        </>
+            }
+        </ReadingPosition.Consumer>
 
     );
-}
+};
+
+export default TOCLink;

@@ -1,7 +1,7 @@
 import Layout from "../../components/Layout";
 import React from "react";
 import MarkdownTOC from "../../components/MarkdownTOC";
-import MarkdownDiv from "../../components/MarkdownDiv";
+import MarkdownSection from "../../components/MarkdownSection";
 import { EXPLANATION, getStaticPathsByPrefix, getMarkdownPropsByPrefix } from "../../service/markdown-filter";
 
 export default function ExplanationPage(props) {
@@ -26,7 +26,7 @@ export default function ExplanationPage(props) {
             <div className="row">
                 <div className="col">
 
-                    <MarkdownDiv
+                    <MarkdownSection
                         markdown={ markdown }
                     />
                 </div>

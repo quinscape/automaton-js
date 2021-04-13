@@ -1,3 +1,5 @@
+
+<section>
 ## FKSelector Examples
 
 The new `<FKSelector/>` is a versatile widget but even easier to use and configure than before.
@@ -5,6 +7,9 @@ The new `<FKSelector/>` is a versatile widget but even easier to use and configu
 The FK selector expects each foreign-key field to come with a complex object giving detail information about the current
 selection. It will automatically both the scalar foreign key field as well as the associated reference object.
                 
+</section>
+
+<section>
 ### Simple Example
 
 ```js
@@ -35,6 +40,9 @@ Defining the `display` prop as string will automatically be null-safe.
 The `query` prop must be either a GraphQLQuery instance or an InteractiveQuery document. See [below](#in-memory-operation) how do to the latter.  
 
 
+</section>
+
+<section>
 ### Search Filter
 
 Adding the `searchFilter` prop will turn the fk-selector into an autocomplete input. The design tries to find a 
@@ -60,6 +68,9 @@ of the column filter. You can change that behavior with the `modalFilter` prop
     />
 ```
 
+</section>
+
+<section>
 #### modalFilter Prop
 
 option                      | description
@@ -68,6 +79,9 @@ FKSelector.NO_FILTER        | Don't show any filter in the modal.
 FKSelector.NO_SEARCH_FILTER | Suppress search filter and show the column filter in the modal instead.
 FKSelector.COLUMN_FILTER    | Show the column filter in addition to the search filter in the modal. 
 
+</section>
+
+<section>
 ### Complex Search Filter
                             
 The `searchFilter` prop can also be given a function that converts the current autocomplete input value into a FilterDSL
@@ -105,6 +119,9 @@ condition graph using the FilterDSL.
 
 Here we check of either the name field or the description field of the quxA row contain the current autocomplete value.
 
+</section>
+
+<section>
 ### Special Behavior: Ambiguous matches
 
 In the case of an ambiguous match where the search filter returns more than one result, the fk selector will preselect 
@@ -117,6 +134,9 @@ If no search filter is shown in the modal, but the search filter is a simple sea
 column filter of that column to preselect the ambiguous match.
 
 
+</section>
+
+<section>
 ## In-Memory Operation
 
 Instead of performing actual search queries for search filter and modal selection operations, the fk selector can operate
@@ -198,3 +218,5 @@ The fk selector will run the search Filter and the modal filtering, sorting, pag
 query implemention that can evaluate FilterDSL expressions on Javascript objects.
 
 This is of course just an example. You can just as well hardcode your cached source document or generate it in some way.
+
+</section>

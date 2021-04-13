@@ -1,3 +1,5 @@
+
+<section>
 ## &lt;Tree.Folder/&gt Example
 
 ```js
@@ -32,3 +34,5 @@
 
 We can use &lt;Tree.Objects/&gt or &lt;Tree.IndexedObjects/&gt to render the
 iQuery result.
+
+</section>

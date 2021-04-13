@@ -1,3 +1,5 @@
+
+<section>
 ## &lt;Tree.IndexedObjects/&gt Example
 
 IndexedObjects works very similar to Objects but it arranges the row
@@ -34,3 +36,5 @@ array of initial characters in sort order.
 The optional `renderIndex` render prop is used to render the initial
 letter tree group headers. Here we render it bold and add a colon.
 
+
+</section>

@@ -1,7 +1,7 @@
 import Layout from "../../components/Layout";
 import React from "react";
 import MarkdownTOC from "../../components/MarkdownTOC";
-import MarkdownDiv from "../../components/MarkdownDiv";
+import MarkdownSection from "../../components/MarkdownSection";
 import {
     DOCUMENTATION,
     getStaticPathsByPrefix,
@@ -77,7 +77,7 @@ export default function TutorialPage(props) {
             <div className="row">
                 <div className="col">
 
-                    <MarkdownDiv
+                    <MarkdownSection
                         markdown={ markdown }
                     />
                 </div>

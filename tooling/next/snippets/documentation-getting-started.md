@@ -2,6 +2,7 @@
 title: Getting started 
 date: 2021-04-09
 ---
+<section>
 # Getting started 
 
 The easiest way to get up and running at this point is to use a template application we have on github.
@@ -11,5 +12,6 @@ to get up and running with your own application
 
 
 [![Screenshot of automaton-template homepage on github](/media/automaton-template.png)](https://github.com/quinscape/automaton-template/#getting-started)
+</section>
 
 

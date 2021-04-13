@@ -2,12 +2,16 @@
 title: Filter DSL 
 date: 2021-04-08
 ---
+<section>
 # FilterDSL: Full-stack filtering 
 
 The FilterDSL was initially developed for the needs of the InteractiveQuery mechanism but quickly grew into the 
 general-purpose filtering tool it is now.
 
 
+</section>
+
+<section>
 ## Origins: JOOQ Conditions
 
 The JOOQ library on which DomainQL is offers a typed Java DSL for writing complex SQL statements in Java. A part of this
@@ -16,6 +20,9 @@ is the JOOQ conditions in, for example in the WHERE clause.
 The Automaton-Js FilterDSL is a JavaScript API modeled after that part of the JOOQ API.
                                                   
 
+</section>
+
+<section>
 ## Filter Execution Across the stack
 
 The FilterDSL functions produce a JSON graph that can be transmitted to the server and back and that can be transformed
@@ -28,6 +35,9 @@ into an actual filter in three different ways now:
 To be able to transmit the condition graphs from the server to the client and back via GraphQL, we have special scalar
 implementations that handle that with structural validation. Semantic validation is up to the filter transformer.
                                                                                                                   
+</section>
+
+<section>
 ### SQL Execution
 
 The SQL execution is baked into Interactive Query mechanism but can also be used independently of that.
@@ -53,6 +63,9 @@ The fieldResolver resolves `field("name")"` expressions to JOOQ field references
 SQL semantics.
 
 
+</section>
+
+<section>
 ### Java Execution
 
     
@@ -72,6 +85,9 @@ class JavaFilterExample
 }
 ```
 
+</section>
+
+<section>
 ### JavaScript Execution
 
 ```js
@@ -93,3 +109,5 @@ The [filterTransformer](/iquery#filterTransformer) returns a filter function tha
 factory.
 
 The default FieldResolver resolves fields with normal JavaScript Object graph semantics. (lodash style paths, e.g. "rows.0.name")
+
+</section>
