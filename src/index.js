@@ -67,6 +67,7 @@ import InteractiveQueryDefinition from "./model/InteractiveQueryDefinition"
 import { evaluateMemoryQuery } from "./util/evaluateMemoryQuery";
 import { MergeOperation } from "./merge/MergeOperation";
 import { openDialog } from "./util/openDialog";
+import ViewState from "./ViewState";
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -169,7 +170,9 @@ export {
     createFilteredMockQuery,
     evaluateMemoryQuery,
 
-    StartupRegistry
+    StartupRegistry,
+
+    ViewState
 }
 
 

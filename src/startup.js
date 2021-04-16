@@ -1,6 +1,6 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import { loadProcessDefinitions, onHistoryAction, renderProcess } from "./Process"
+import { registerProcessImporter, onHistoryAction, renderProcess } from "./Process"
 import config, { addConfig, DEFAULT_OPTS } from "./config"
 import Authentication from "./auth"
 import { FormContext, InputSchema, registerDomainObjectFactory } from "domainql-form"
@@ -361,13 +361,14 @@ export function automatonDomainObjectFactory(type, id) {
 /**
  * Entry point to the automaton client-side process engine
  *
- * @param ctx                   require.context with all .js files
- * @param {Object}initial       initial data pushed from server
- * @param {Function} initFn     init callback
+ * @param ctx                           require.context with all domain .js files
+ * @param {function} processImporter    dynamic import process loader (name => module )
+ * @param {Object} initial              initial data pushed from server
+ * @param {Function} initFn             init callback
  *
  * @return {ReactElement} initial component output
  */
-export function startup(ctx, initial, initFn)
+export function startup(ctx, processImporter, initial, initFn)
 {
 
     return (
@@ -390,7 +391,8 @@ export function startup(ctx, initial, initFn)
 
                 loadDomainDefinitions(ctx);
 
-                loadProcessDefinitions(ctx);
+                //loadProcessDefinitions(ctx);
+                registerProcessImporter(processImporter)
 
                 performFinalInitialization(initial);
 

@@ -73,7 +73,7 @@ export default class Transition {
     /**
      * Returns the current target state
      *
-     * @return {String}
+     * @return {ViewState}
      */
     get target()
     {

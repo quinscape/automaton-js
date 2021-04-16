@@ -60,7 +60,7 @@ const Button = props => {
             const entry = env.process.getTransition(transition);
             if (!entry)
             {
-                throw new Error("No transition '" + transition + "' in " + env.process.name + "/" + env.process.currentState)
+                throw new Error("No transition '" + transition + "' in " + env.process.name + " / " + env.process.currentState.name)
             }
 
             if (!entry.discard)
@@ -112,7 +112,7 @@ const Button = props => {
             const entry = env.process.getTransition(transition);
             if (!entry)
             {
-                throw new Error("No transition '" + transition + "' in " + env.process.name + "/" + env.process.currentState)
+                throw new Error("No transition '" + transition + "' in " + env.process.name + " / " + env.process.currentState)
             }
 
             // .. and we're not discarding and we have errors, then disable button

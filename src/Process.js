@@ -11,9 +11,16 @@ import i18n from "./i18n";
 import ProcessDialog from "./ProcessDialog";
 import { getWireFormat } from "./domain";
 import ProcessHistory from "./ProcessHistory";
-import matchPath from "./matchPath";
 import { renderImperativeDialogs } from "./ui/Dialog"
 import { backToHistoryId } from "./back-functions";
+
+
+let processImporter;
+
+export function registerProcessImporter(factory)
+{
+    processImporter = factory;
+}
 
 
 const secret = Symbol("ProcessSecret");
@@ -31,95 +38,95 @@ let historyCounter = -1;
 
 let processIdCounter = 0;
 
-function ProcessEntry(definition)
-{
-    this.definition = definition;
-    this.initProcess = null;
-    this.ScopeClass = null;
-}
-
-const processDefinitions = {};
-
-
-
-/**
- * Loads the process scope, initProcess and components from the given initial data and webpack require context
- *
- * @param ctx       webpack require context
- *
- * @return {{process: *, initProcess: *, ScopeClass: *}}    infrastructural process objects
- */
-export function loadProcessDefinitions(ctx)
-{
-    const keys = ctx.keys();
-
-    //console.log("Modules: ", keys);
-
-    for (let i = 0; i < keys.length; i++)
-    {
-        const moduleName = keys[i];
-
-        const { processName, shortName, isComposite } = matchPath(keys[i]);
-
-        if (!processName)
-        {
-            continue;
-        }
-
-        //console.log("loadProcessDefinitions", { moduleName, processName, shortName, isComposite });
-
-        if (!shortName)
-        {
-            throw new Error("Module name '" + keys[i] + "' does not match " + MODULE_REGEX);
-        }
-
-        //console.log("-- Process", m[1]);
-
-        let entry = processDefinitions[processName];
-        if (!entry)
-        {
-            entry = new ProcessEntry(
-                new ProcessDefinition(processName)
-            );
-            processDefinitions[processName] = entry;
-        }
-
-        const module = ctx(moduleName);
-        if (isComposite)
-        {
-            //console.log("process", process);
-            entry.definition.components[shortName] = module.default;
-        }
-    }
-
-    for (let processName in processDefinitions)
-    {
-        if (processDefinitions.hasOwnProperty(processName))
-        {
-            const entry = processDefinitions[processName];
-
-            const path = "./processes/" + processName + "/" + processName + ".js";
-            const processModule = ctx(path);
-            if (!processModule)
-            {
-                throw new Error("Could not find process exports module " + path);
-            }
-
-            const { default: ScopeClass, initProcess } = processModule;
-
-            if (!initProcess)
-            {
-                throw new Error("No initProcess defined in " + processName);
-            }
-
-            entry.name = processName;
-            entry.ScopeClass = ScopeClass;
-            entry.initProcess = initProcess;
-        }
-    }
-
-    return processDefinitions;
-}
+// XXX: remove when done
+//
+// function ProcessEntry(definition)
+// {
+//     this.definition = definition;
+//     this.initProcess = null;
+//     this.ScopeClass = null;
+// }
+// const processDefinitions = {};
+//
+//
+// /**
+//  * Loads the process scope, initProcess and components from the given initial data and webpack require context
+//  *
+//  * @param processImporter       dynamic import factory
+//  *
+//  * @return {{process: *, initProcess: *, ScopeClass: *}}    infrastructural process objects
+//  */
+// export function loadProcessDefinitions(processImporter)
+// {
+//     const keys = ctx.keys();
+//
+//     //console.log("Modules: ", keys);
+//
+//     for (let i = 0; i < keys.length; i++)
+//     {
+//         const moduleName = keys[i];
+//
+//         const { processName, shortName, isComposite } = matchPath(keys[i]);
+//
+//         if (!processName)
+//         {
+//             continue;
+//         }
+//
+//         //console.log("loadProcessDefinitions", { moduleName, processName, shortName, isComposite });
+//
+//         if (!shortName)
+//         {
+//             throw new Error("Module name '" + keys[i] + "' does not match " + MODULE_REGEX);
+//         }
+//
+//         //console.log("-- Process", m[1]);
+//
+//         let entry = processDefinitions[processName];
+//         if (!entry)
+//         {
+//             entry = new ProcessEntry(
+//                 new ProcessDefinition(processName)
+//             );
+//             processDefinitions[processName] = entry;
+//         }
+//
+//         const module = ctx(moduleName);
+//         if (isComposite)
+//         {
+//             //console.log("process", process);
+//             entry.definition.components[shortName] = module.default;
+//         }
+//     }
+//
+//     for (let processName in processDefinitions)
+//     {
+//         if (processDefinitions.hasOwnProperty(processName))
+//         {
+//             const entry = processDefinitions[processName];
+//
+//             const path = "./processes/" + processName + "/" + processName + ".js";
+//             const processModule = ctx(path);
+//             if (!processModule)
+//             {
+//                 throw new Error("Could not find process exports module " + path);
+//             }
+//
+//             const { default: ScopeClass, initProcess } = processModule;
+//
+//             if (!initProcess)
+//             {
+//                 throw new Error("No initProcess defined in " + processName);
+//             }
+//
+//             entry.name = processName;
+//             entry.ScopeClass = ScopeClass;
+//             entry.initProcess = initProcess;
+//         }
+//     }
+//
+//     return processDefinitions;
+// }
 
 
 function getLayout(process, currentState)
@@ -132,7 +139,7 @@ function getLayout(process, currentState)
         if (typeof layout !== "function" && currentState)
         {
             // use it as lookup map
-            const component = layout[currentState];
+            const component = layout[currentState.name];
             if (component)
             {
                 return component;
@@ -169,21 +176,6 @@ function findRootProcess(process)
 }
 
 
-function findViewComponent(rootProcess)
-{
-    // directly access secret process data
-    const { definition, currentState } = rootProcess[secret];
-
-    //console.log({ definition, currentState });
-
-    const ViewComponent = definition.components[currentState];
-    if (!ViewComponent)
-    {
-        throw new Error("No component '" + currentState + "' in process '" + rootProcess.name)
-    }
-
-    return ViewComponent;
-}
 
 
 function createEnv(process)
@@ -202,8 +194,9 @@ function renderCurrentView()
 {
     const rootProcess = findRootProcess(currentProcess);
 
-    const ViewComponent = findViewComponent(rootProcess);
-    const Layout = getLayout(rootProcess, rootProcess[secret].currentState);
+    const rootState = rootProcess[secret].currentState;
+    const ViewComponent = rootState.getViewStateComponent();
+    const Layout = getLayout(rootProcess, rootState);
 
     const env = createEnv(rootProcess);
 
@@ -214,7 +207,7 @@ function renderCurrentView()
     while (process !== rootProcess)
     {
         const subProcessEnv = createEnv(process);
-        const SubProcessViewComponent = findViewComponent(process);
+        const SubProcessViewComponent = process[secret].currentState.getViewStateComponent();
 
         dialogStack = (
             <ProcessDialog process={ process }>
@@ -278,14 +271,6 @@ function ensureNotInitialized(process)
     }
 }
 
-export class ProcessDefinition {
-    constructor(name)
-    {
-        this.name = name;
-        this.components = {};
-    }
-}
-
 /**
  * Access the resolve and reject functions stored for a sub-process or throws an error when the process is not a sub-process
  *
@@ -340,28 +325,6 @@ function versionCurrent(name)
 {
     return name.indexOf("current") === 0
 }
-
-let prevProcess;
-let prevState;
-let prevInputs;
-
-
-function findProcess(process)
-{
-    let current = currentProcess;
-    while (current)
-    {
-        if (current === process)
-        {
-            return true;
-        }
-        current = current[secret].parent;
-    }
-    return false;
-}
-
-
-
 
 /**
  *
@@ -438,7 +401,7 @@ function updateEffects(process, prevState, nextState)
 
     if (prevState === nextState)
     {
-        const effects = process[secret].effects.get(prevState);
+        const effects = process[secret].effects.get(prevState.name);
         if (effects)
         {
             for (let i = 0; i < effects.length; i++)
@@ -468,7 +431,7 @@ function updateEffects(process, prevState, nextState)
     {
         if (prevState)
         {
-            const effects = process[secret].effects.get(prevState);
+            const effects = process[secret].effects.get(prevState.name);
             if (effects)
             {
                 for (let i = 0; i < effects.length; i++)
@@ -480,7 +443,7 @@ function updateEffects(process, prevState, nextState)
 
         if (nextState)
         {
-            const effects = process[secret].effects.get(nextState);
+            const effects = process[secret].effects.get(nextState.name);
             if (effects)
             {
                 for (let i = 0; i < effects.length; i++)
@@ -514,14 +477,11 @@ function resetHistoryTo(historyIndex)
  *
  */
 export class Process {
-    constructor(id, definition, scope, input, parent, dialogOpts)
+    constructor(id, name, scope, input, parent, dialogOpts)
     {
-        const { name } = definition;
-
         this[secret] = {
             id,
             name,
-            definition,
             input,
             parent,
             scope,
@@ -689,7 +649,7 @@ export class Process {
         const storage = this[secret];
 
         const currentState = storage.currentState;
-        const transition = storage.states[currentState][name];
+        const transition = currentState.transitionMap[name];
         if (!transition)
         {
             throw new Error("Could not find transition '" + name + "' in Process '" + this.name + "'")
@@ -766,7 +726,7 @@ export class Process {
 
         //console.log("getTransition", storage.currentState, storage.states);
 
-        return storage.states[storage.currentState][name] || null;
+        return storage.currentState.transitionMap[name] || null;
     }
 
     addProcessEffect(fn)
@@ -1106,7 +1066,7 @@ function prepareMobXAction(storage, name, actionFn)
  *
  * @param {String} name                     Transition name
  * @param {Function} [actionFn]             Transition action function
- * @param {String} [target]                 transition target
+ * @param {ViewState} [target]              transition target
  * @param {object} [context]                domain object context
  * @param {String} [button]                 button name                    
  * @return {Promise<Transition| never>}     Resolves to the transition object
@@ -1153,6 +1113,8 @@ function executeTransition(name, actionFn, target, context, button)
             () => {
 
                 const { target = sourceState, isRecorded } = transition;
+
+                target.init(currentProcess);
 
                 // if isRecorded hasn't been explicitly defined
                 if (isRecorded === null)
@@ -1461,7 +1423,7 @@ function pushProcessState(replace = false)
             {
                 appName: config.appName,
                 processName: currentProcess.name,
-                stateName: currentState,
+                stateName: currentState.name,
                 info: getURIInfo()
             }, true
         ), {
@@ -1571,124 +1533,126 @@ function unregisterProcessEffects(process)
  */
 function renderProcessInternal(processName, input, injections, asSubProcess, processOpts = null)
 {
-
-    let process;
-
-    const entry = processDefinitions[processName];
-    if (!entry)
-    {
-        throw new Error("Could not find process '" + processName + "'");
-    }
-    //console.log("PROCESS-ENTRY", entry);
-
-    const { initProcess, ScopeClass } = entry;
-
-    let scope;
-    if (ScopeClass)
-    {
-        scope = new ScopeClass();
-        inject(scope, injections);
-    }
-    else
-    {
-        scope = null;
-    }
-
-    const prevProcess = currentProcess;
-    const noPriorProcess = !prevProcess;
-    if (noPriorProcess)
-    {
-        if (asSubProcess)
-        {
-            throw new Error("Cannot launch sub-process without root process");
-        }
-        config.rootProcess = processName;
-    }
-
-    process = new Process(
-        processIdCounter++,
-        entry.definition,
-        scope,
-        input,
-        asSubProcess ? currentProcess : null,
-        processOpts
-    );
-    processes.push(process);
-
-    const storage = process[secret];
-
-    return Promise.resolve(
-        initProcess(process, scope)
-    )
+    return processImporter(processName)
         .then(
-            ({ startState, states }) => {
+            module => {
+                let process;
 
-                if (process.options.forceSubProcess && !asSubProcess)
+                // const entry = processDefinitions[processName];
+                // if (!entry)
+                // {
+                //     throw new Error("Could not find process '" + processName + "'");
+                // }
+                //console.log("PROCESS-ENTRY", entry);
+
+
+                const { initProcess, default: ScopeClass } = module;
+
+                let scope;
+                if (ScopeClass)
                 {
-                    throw new Error("Process '" + process.name + "' must be run as sub-process");
-                }
-
-                storage.states = states;
-
-                finishInitialization(process);
-                currentProcess = process;
-
-                const startTransitionName = process.name + ".start";
-                if (typeof startState === "function")
-                {
-                    return executeTransition(startTransitionName, startState, null, null, null);
+                    scope = new ScopeClass();
+                    inject(scope, injections);
                 }
                 else
                 {
-                    return executeTransition(startTransitionName, null, startState, null, null);
+                    scope = null;
                 }
+
+                const prevProcess = currentProcess;
+                const noPriorProcess = !prevProcess;
+                if (noPriorProcess)
+                {
+                    if (asSubProcess)
+                    {
+                        throw new Error("Cannot launch sub-process without root process");
+                    }
+                    config.rootProcess = processName;
+                }
+
+                process = new Process(
+                    processIdCounter++,
+                    processName,
+                    scope,
+                    input,
+                    asSubProcess ? currentProcess : null,
+                    processOpts
+                );
+                processes.push(process);
+
+                const storage = process[secret];
+
+                return Promise.resolve(
+                        initProcess(process, scope)
+                    )
+                    .then(
+                        (startState) => {
+
+                            if (process.options.forceSubProcess && !asSubProcess)
+                            {
+                                throw new Error("Process '" + process.name + "' must be run as sub-process");
+                            }
+
+                            
+
+                            //storage.states = states;
+
+                            finishInitialization(process);
+                            currentProcess = process;
+
+                            const startTransitionName = process.name + ".start";
+                            return executeTransition(startTransitionName, null, startState, null, null);
+                        }
+                    )
+                    .then(
+                        transition => {
+
+                            //console.log("START TRANSITION", transition);
+
+                            const { target } = transition;
+
+                            if (!target)
+                            {
+                                throw new Error("No initial state");
+                            }
+
+                            if (prevProcess && !asSubProcess)
+                            {
+                                let process = prevProcess;
+                                do
+                                {
+                                    unregisterProcessEffects(process);
+                                    updateEffects(process, process.currentState, null);
+
+                                    process = process[secret].parent;
+                                } while (process);
+                            }
+                            registerProcessEffects(currentProcess);
+
+                            storage.currentState = target;
+
+                            updateEffects(process, null, storage.currentState);
+
+                            pushProcessState(noPriorProcess);
+
+                            return renderCurrentView();
+                        },
+                        err => {
+
+                            console.error("ERROR IN START PROCESS", err);
+
+                            return (
+                                <ErrorView
+                                    title={ i18n("Process Startup Error ") }
+                                    info={ String(err) }
+                                />
+                            );
+                        }
+                    )
+
             }
         )
-        .then(
-            transition => {
 
-                //console.log("START TRANSITION", transition);
-
-                const { target } = transition;
-
-                if (!target)
-                {
-                    throw new Error("No initial state");
-                }
-
-                if (prevProcess && !asSubProcess)
-                {
-                    let process = prevProcess;
-                    do
-                    {
-                        unregisterProcessEffects(process);
-                        updateEffects(process, process.currentState, null);
-
-                        process = process[secret].parent;
-                    } while (process);
-                }
-                registerProcessEffects(currentProcess);
-
-                storage.currentState = target;
-
-                updateEffects(process, null, storage.currentState);
-
-                pushProcessState(noPriorProcess);
-
-                return renderCurrentView();
-            },
-            err => {
-
-            console.error("ERROR IN START PROCESS", err);
-
-            return (
-                <ErrorView
-                    title={ i18n("Process Startup Error ") }
-                    info={ String(err) }
-                />
-            );
-        }
-    )
 }
 
 /**

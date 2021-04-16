@@ -14,13 +14,13 @@ import BigNumber from "bignumber.js";
 
 import Button from "../../src/ui/Button";
 import userEvent from "@testing-library/user-event";
-import { DecimalField, registerBigDecimalConverter } from "../../src";
+import { DecimalField, StartupRegistry, ViewState } from "../../src";
 class MockProcess
 {
     constructor()
     {
         this.name = "TestProcess";
-        this.currentState = "TestState"
+        this.currentState = new ViewState("TestState", () => {}, props => false)
 
         this.transitions = {
             "nonDiscard" : {
@@ -159,7 +159,7 @@ describe("Button", function () {
 
             __setWireFormatForTest(wireFormat);
 
-            registerBigDecimalConverter();
+            StartupRegistry.registerBigDecimalConverter();
         }
     )
 
