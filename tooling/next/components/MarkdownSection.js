@@ -1,7 +1,8 @@
 import React from "react";
 import useViewIntersect from "./useViewIntersect";
+import SectionLink from "./SectionLink";
 
-function Section({id, title, content, level, intersect = true})
+function Section({id, link, title, content, level, intersect = true})
 {
     const sectionRef = useViewIntersect();
     if (!intersect)
@@ -11,7 +12,9 @@ function Section({id, title, content, level, intersect = true})
                 id={id}
             >
                 {
-                    React.createElement("h" + level, null, title)
+                    React.createElement("h" + level, null, title,
+                        link && (<SectionLink link={ link } />)
+                    )
                 }
                 <div
                     dangerouslySetInnerHTML={{
@@ -27,7 +30,9 @@ function Section({id, title, content, level, intersect = true})
             id={id}
         >
             {
-                React.createElement("h" + level, null, title)
+                React.createElement("h" + level, null, title,
+                    link && (<SectionLink link={ link } />)
+                )
             }
             <div
                 dangerouslySetInnerHTML={{
@@ -50,6 +55,7 @@ function MarkdownSection({name, markdown})
                         <Section
                             key={section.stub}
                             id={name && idx === 0 ? name : section.stub}
+                            link={idx === 0 ? null : `${section.basePath}#${section.stub}`}
                             title={section.title}
                             content={section.content}
                             level={section.level}
