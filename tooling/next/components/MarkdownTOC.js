@@ -16,7 +16,7 @@ function TOCItem({item})
                                 className={
                                     cx(
                                         "btn btn-link toc-link",
-                                        isReading && "reading"
+                                        isReading ? "reading" : "text-muted"
                                     )
                                 }
                                 href={ "#" + item.name }

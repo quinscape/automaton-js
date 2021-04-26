@@ -55,7 +55,7 @@ function MarkdownSection({name, markdown})
                         <Section
                             key={section.stub}
                             id={name && idx === 0 ? name : section.stub}
-                            link={idx === 0 ? null : `${section.basePath}#${section.stub}`}
+                            link={idx === 0 ? null : `#${section.stub}`}
                             title={section.title}
                             content={section.content}
                             level={section.level}

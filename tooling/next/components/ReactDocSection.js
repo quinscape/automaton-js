@@ -149,7 +149,7 @@ export default function ReactDocSection({name, data, docs})
                     name
                 }
                 /&gt;
-                <SectionLink link={ doc.link } />
+                <SectionLink link={ `#${name}` } />
             </h2>
             {
                 !data && <p className="text-muted">

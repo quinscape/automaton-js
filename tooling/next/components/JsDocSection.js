@@ -47,7 +47,7 @@ const MethodDoc = (props) => {
                             }
                             {
                                 doc.link != null ? (
-                                    <SectionLink link={ doc.link } />
+                                    <SectionLink link={ `#${name}` } />
                                 ) : ""
                             }
                         </h3>
@@ -223,7 +223,7 @@ export function JsDocClassSection({name, doc, docs})
                 {
                     name
                 }
-                <SectionLink link={ doc.link } />
+                <SectionLink link={ `#${name}` } />
             </h2>
             <Description text={doc.description && doc.description.description}/>
             {

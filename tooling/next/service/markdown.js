@@ -360,7 +360,6 @@ export function processMarkdownSnippets(markdownSnippets)
                     .map(
                         section => ({
                             ...section,
-                            basePath: hw.src.replace(/-/g, "/").replace(/.md$/, ""),
                             content: renderToStaticMarkup(
                                 <MDXProvider
                                     components={components}

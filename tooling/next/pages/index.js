@@ -49,6 +49,7 @@ const ReferenceCategory = ({title, docs, names: names, search}) => {
                                 docs={ docs }
                                 name={ doc.name }
                                 short={ true }
+                                href={ doc.link }
                             />
                         </li>
                     ))

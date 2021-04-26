@@ -30,7 +30,7 @@ export class ReadingPositionState {
         // calculate the section link that should be marked
         const weighted = Object.values(this.intersections).sort(sortIntersections);
         this.section = weighted.length ? weighted[0].element.id : "";
-        console.log(this);
+        // console.log(this);
     }
 
     withIntersection = (element, ratio) =>

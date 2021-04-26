@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import MarkdownTOC from "./MarkdownTOC";
 import ReadingPosition from "./ReadingPosition";
 
-const TOCLink = ({docs, name, short = false}) =>
+const TOCLink = ({docs, name, href, short = false}) =>
 {
     const router = useRouter();
     //const intersectionContext = useContext(IntersectionContext);
@@ -40,10 +40,10 @@ const TOCLink = ({docs, name, short = false}) =>
                                 className={
                                     cx(
                                         "btn btn-link toc-link",
-                                        isReading && "reading"
+                                        isReading ? "reading" : !href && "text-muted"
                                     )
                                 }
-                                href={ router.basePath + "/" + doc.link }
+                                href={ href || `#${doc.name}` }
                             >
                                 {
                                     doc.name

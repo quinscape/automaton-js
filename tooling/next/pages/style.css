@@ -18,8 +18,7 @@ table.table th{
 }
 
 .sidebar .toc-link.reading {
-    color: white;
-    background-color: #0220b1;
+    color: black;
 }
 
 .section-link {
@@ -29,11 +28,6 @@ table.table th{
     font-size: 0.7em;
 }
 
-/* h1:hover .section-link,
-h2:hover .section-link,
-h3:hover .section-link,
-h4:hover .section-link,
-h5:hover .section-link, */
 section:hover .section-link {
     opacity: 1;
 }

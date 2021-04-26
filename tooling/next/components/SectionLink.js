@@ -7,8 +7,8 @@ const SectionLink = ({link}) =>
 
     return (
         <a
-            className="section-link text-muted"
-            href={ router.basePath + "/" + link }
+            className="btn btn-link section-link text-muted"
+            href={ link }
         >
             <i className="fas fa-link"></i>
         </a>
