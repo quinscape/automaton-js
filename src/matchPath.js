@@ -1,6 +1,6 @@
-const NO_MATCH = new MatchPathResult(null, null, false, false, false);
+const NO_MATCH = new MatchPathResult(null, null, false, false, false,false);
 
-const MODULE_REGEX = /^\.\/((processes\/(.*?)\/(composites\/|queries\/)?)|(domain\/)|(queries\/))?(.*?).js(on)?$/;
+const MODULE_REGEX = /^\.\/((processes\/(.*?)\/(composites\/|queries\/|states\/)?)|(domain\/)|(queries\/))?(.*?).js(on)?$/;
 
 /**
  *
@@ -11,15 +11,17 @@ const MODULE_REGEX = /^\.\/((processes\/(.*?)\/(composites\/|queries\/)?)|(domai
  * @param {boolean} isDomain        true if the file is a domain model
  * @param {boolean} isComposite     true if the file is composite model
  * @param {boolean} isQuery         true if the file is query model
+ * @param {boolean} isState         true if the file is state model
  * @constructor
  */
-function MatchPathResult(processName, shortName, isDomain, isComposite, isQuery)
+function MatchPathResult(processName, shortName, isDomain, isComposite, isQuery, isState)
 {
     this.processName = processName;
     this.shortName = shortName;
     this.isDomain = isDomain;
     this.isComposite = isComposite;
     this.isQuery = isQuery;
+    this.isState = isState;
 }
 
 /**
@@ -42,12 +44,14 @@ export default function matchPath(path)
     const isDomain = !!m[5];
     const isComposite = m[4] === "composites/";
     const isQuery = m[4] === "queries/" || !!m[6];
+    const isState = m[4] === "states/";
 
     return new MatchPathResult(
         processName !== undefined ? processName : null,
         shortName,
         isDomain,
         isComposite,
-        isQuery
+        isQuery,
+        isState
     );
 }
