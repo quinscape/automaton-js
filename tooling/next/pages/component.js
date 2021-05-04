@@ -21,17 +21,21 @@ export default function ComponentsAndHooks(props)
                         <h5>
                             Components
                         </h5>
+                        <ul className="markdown-doc list-unstyled">
                         {
                             docs.components.map(name => (<TOCLink key={name} docs={ docs } name={ name }/>))
 
                         }
+                        </ul>
                         <h5>
                         Hooks
                         </h5>
+                        <ul className="markdown-doc list-unstyled">
                         {
                             docs.hooks.map(name => (<TOCLink key={name} docs={ docs } name={ name }/>))
 
                         }
+                        </ul>
                     </>
                 )
 

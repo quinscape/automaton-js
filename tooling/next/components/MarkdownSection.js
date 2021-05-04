@@ -44,7 +44,7 @@ function Section({id, link, title, content, level, intersect = true})
 }
 
 
-function MarkdownSection({name, markdown})
+function MarkdownSection({name, markdown, inserted})
 {
     return (
         <>
@@ -54,12 +54,12 @@ function MarkdownSection({name, markdown})
                     return (
                         <Section
                             key={section.stub}
-                            id={name && idx === 0 ? name : section.stub}
-                            link={idx === 0 ? null : `#${section.stub}`}
+                            id={!inserted && name && idx === 0 ? name : section.stub}
+                            link={!inserted && idx === 0 ? null : `#${section.stub}`}
                             title={section.title}
                             content={section.content}
                             level={section.level}
-                            intersect={idx !== 0}
+                            intersect={!inserted || idx !== 0}
                         />
                     );
                 }

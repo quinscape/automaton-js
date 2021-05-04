@@ -45,7 +45,7 @@ module.exports = {
             src: "GraphQLQuery.md"
         },
         {
-            after: "DataGrid",
+            into: "DataGrid",
             src: "GridExamples.md"
         },
         // {
@@ -53,7 +53,7 @@ module.exports = {
         //     src: "RowSelectorExample.md"
         // },
         {
-            after: "Tree",
+            into: "Tree",
             src: "tree-navigation.md"
         },
         // {

@@ -20,6 +20,7 @@ export default function BrowserHelpers(props)
                         <h5>
                             Websocket Related Functions
                         </h5>
+                        <ul className="markdown-doc list-unstyled">
                         {
                             docs.utils
                                 .map( name => docs.docs[name])
@@ -30,6 +31,7 @@ export default function BrowserHelpers(props)
                                 .map( name => docs.docs[name])
                                 .map(doc => (<TOCLink key={doc.name} docs={ docs } name={ doc.name }/>))
                         }
+                        </ul>
                     </>
                 )
 

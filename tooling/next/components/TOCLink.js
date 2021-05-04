@@ -1,7 +1,7 @@
 import cx from "classnames";
 import React, { useContext } from "react";
 import { useRouter } from "next/router";
-import MarkdownTOC from "./MarkdownTOC";
+import MarkdownTOC, { TOCItem } from "./MarkdownTOC";
 import ReadingPosition from "./ReadingPosition";
 
 const TOCLink = ({docs, name, href, short = false}) =>
@@ -9,9 +9,9 @@ const TOCLink = ({docs, name, href, short = false}) =>
     const router = useRouter();
     //const intersectionContext = useContext(IntersectionContext);
 
-
     const doc = docs.docs[name];
     const { handwritten } = docs;
+    let inserted = null;
 
     if (!short)
     {
@@ -26,6 +26,11 @@ const TOCLink = ({docs, name, href, short = false}) =>
                 />
             )
         }
+
+        inserted = handwritten.find(hw => hw.into === name);
+        // if (inserted) {
+        //     console.log(inserted);
+        // }
     }
 
     return (
@@ -35,7 +40,7 @@ const TOCLink = ({docs, name, href, short = false}) =>
                     const isReading = readingPosition != null && readingPosition.section === doc.name;
 
                     return (
-                        <>
+                        <li>
                             <a
                                 className={
                                     cx(
@@ -49,8 +54,26 @@ const TOCLink = ({docs, name, href, short = false}) =>
                                     doc.name
                                 }
                             </a>
-                            <br/>
-                        </>
+                            {
+                                inserted && inserted.toc ? 
+                                    inserted.toc.title ? (
+                                        <ul className="markdown-doc list-unstyled pl-4">
+                                            <TOCItem
+                                                key={ inserted.toc.name }
+                                                item={ inserted.toc }
+                                            />
+                                        </ul>
+                                    ) : (
+                                        <MarkdownTOC
+                                            className="pl-4"
+                                            toc={ inserted.toc }
+                                        />
+                                    )
+                                : (
+                                    <br/>
+                                )
+                            }
+                        </li>
                     )
                 }
             }

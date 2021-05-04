@@ -2,7 +2,7 @@ import React from "react"
 import cx from "classnames"
 import ReadingPosition from "./ReadingPosition";
 
-function TOCItem({item})
+export const TOCItem = ({item}) =>
 {
     return (
         <ReadingPosition.Consumer>

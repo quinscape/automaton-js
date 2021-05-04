@@ -20,9 +20,11 @@ export default function ConfigurationFunctions(props)
                         <h5>
                             Automaton Configuration
                         </h5>
+                        <ul className="markdown-doc list-unstyled">
                         {
                             docs.utils.map( name => (<TOCLink key={name} docs={ docs } name={ name }/>))
                         }
+                        </ul>
                     </>
                 )
 

@@ -168,6 +168,7 @@ export default function ReactDocSection({name, data, docs})
                             toInsert ? <MarkdownSection
                                 name={ name + "-" + toInsert.src }
                                 markdown={ toInsert }
+                                inserted={ true }
                             /> : false
                         }
                         <h3>Props</h3>
@@ -199,6 +200,7 @@ export default function ReactDocSection({name, data, docs})
                                             key={ n }
                                             name={ n }
                                             markdown={hw}
+                                            inserted={ true }
                                         />
                                     );
                                 }

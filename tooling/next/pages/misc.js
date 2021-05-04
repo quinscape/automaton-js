@@ -18,6 +18,7 @@ export default function MiscFunctions(props) {
                         <h5>
                             Utils
                         </h5>
+                        <ul className="markdown-doc list-unstyled">
                         {
                             docs.utils
                                 .map(name => docs.docs[name])
@@ -31,9 +32,11 @@ export default function MiscFunctions(props) {
                                     )
                                 )
                         }
+                        </ul>
                         <h5>
                             Functions
                         </h5>
+                        <ul className="markdown-doc list-unstyled">
                         {
                             docs.functions
                                 .map(name => docs.docs[name])
@@ -48,6 +51,7 @@ export default function MiscFunctions(props) {
                                 )
 
                         }
+                        </ul>
                     </>
                 )
 

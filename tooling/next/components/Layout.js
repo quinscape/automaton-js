@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 import cx from "classnames"
 import TOCLink from "./TOCLink";
-import TOCSidebar from "./TOCSidebar";
 import { useRouter } from "next/router";
 import ReadingPosition, { ReadingPositionState } from "./ReadingPosition";
 

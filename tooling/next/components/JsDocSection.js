@@ -136,6 +136,7 @@ export function JsDocFunctionSection({ name, doc, docs, standalone = false })
             <MarkdownSection
                 name={ name }
                 markdown={ replacement }
+                inserted={ true }
             />
         )
     }
@@ -160,6 +161,7 @@ export function JsDocFunctionSection({ name, doc, docs, standalone = false })
                                 <MarkdownSection
                                     name={ name + "-" + toInsert.src }
                                     markdown={ toInsert }
+                                    inserted={ true }
                                 />
                             ) : false
                         )
@@ -173,6 +175,7 @@ export function JsDocFunctionSection({ name, doc, docs, standalone = false })
                                         key={ n }
                                         name={ n }
                                         markdown={ hw }
+                                        inserted={ true }
                                     />
                                 );
                             }
@@ -203,6 +206,7 @@ export function JsDocClassSection({name, doc, docs})
             <MarkdownSection
                 name={ name }
                 markdown={ replacement }
+                inserted={ true }
             />
         )
     }
@@ -230,6 +234,7 @@ export function JsDocClassSection({name, doc, docs})
                 toInsert ? <MarkdownSection
                     name={ name + "-" + toInsert.src }
                     markdown={ toInsert }
+                    inserted={ true }
                 /> : false
             }
             {
@@ -260,6 +265,7 @@ export function JsDocClassSection({name, doc, docs})
                                 key={ idx }
                                 name={ mDocName }
                                 markdown={ replacement }
+                                inserted={ true }
                             />
                         ) : (
                             <MethodDoc
@@ -281,6 +287,7 @@ export function JsDocClassSection({name, doc, docs})
                                 key={ n }
                                 name={ n }
                                 markdown={ hw }
+                                inserted={ true }
                             />
                         );
                     }

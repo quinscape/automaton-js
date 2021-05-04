@@ -21,9 +21,11 @@ export default function Classes(props)
                         <h5>
                             Classes
                         </h5>
+                        <ul className="markdown-doc list-unstyled">
                         {
                             docs.classes.map(name => (<TOCLink key={name} docs={ docs } name={ name }/>))
                         }
+                        </ul>
                     </>
                 )
 

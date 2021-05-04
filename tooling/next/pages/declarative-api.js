@@ -21,11 +21,13 @@ export default function BrowserHelpers(props)
                         <h5>
                             Declarative API
                         </h5>
+                        <ul className="markdown-doc list-unstyled">
                         {
                             docs.functions
                                 .map( name => docs.docs[name])
                                 .map(doc => (<TOCLink key={doc.name} docs={ docs } name={ doc.name }/>))
                         }
+                        </ul>
                     </>
                 )
 

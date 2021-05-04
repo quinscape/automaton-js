@@ -19,11 +19,13 @@ export default function DomainHelpers(props)
                         <h5>
                             Domain-Object Helpers
                         </h5>
+                        <ul className="markdown-doc list-unstyled">
                         {
                             docs.functions
                                 .map( name => docs.docs[name])
                                 .map(doc => (<TOCLink key={doc.name} docs={ docs } name={ doc.name }/>))
                         }
+                        </ul>
                     </>
                 )
 
