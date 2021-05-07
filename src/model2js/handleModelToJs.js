@@ -260,7 +260,7 @@ export const renderCompositeScript = (exportData,composite, shortName) => {
                 }
                 if (kidsOfRoot && kidsOfRoot.length > 0) {
                     componentScript += `>`
-                    commonKid(kidsOfRoot)
+                    handleKidsofRoot(kidsOfRoot)
                     componentScript += `
                 </${nameOfRoot}>
                     )
