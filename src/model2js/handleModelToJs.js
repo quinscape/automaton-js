@@ -436,6 +436,310 @@ export default ${exportData}`
     return componentScript;
 }
 
+export const renderStateScript = (state) => {
+    let stateScript = ''
+    const {name, composite, transitionMap} = state
+
+    stateScript += `
+    const ${name} = new ViewState(`
+
+    if (name) {
+        stateScript +=` "${name}", `
+    }
+
+    if (transitionMap) {
+        stateScript +=`(process, scope) => ({`
+
+        for (let transitionName in transitionMap) {
+            if (transitionMap.hasOwnProperty(transitionName)) {
+
+                const transition = transitionMap[transitionName];
+                const {to, action, discard, confirmation} = transition;
+
+                stateScript += `
+            "${transitionName}" : {`;
+
+                if (to) {
+                    stateScript += `
+                to: ${to},`
+                }
+                if (confirmation) {
+                    const paramExpression = confirmation.params.length === 1 ? confirmation.params[0] : "(" + confirmation.params.join(
+                        ", ") + ")";
+                    stateScript += `
+                confirmation: ${paramExpression} => ${confirmation.code},`
+                }
+                if (discard) {
+                    stateScript += `
+                discard: ${discard},`
+                }
+
+                if (action) {
+                    const paramExpression = action.params.length === 1 ? action.params[0] : "(" + action.params.join(
+                        ", ") + ")";
+                    stateScript += `
+                action: ${paramExpression} => 
+                    ${action.code},`
+                }
+                stateScript += `
+                },`;
+            }
+
+        }
+        stateScript += `
+    }),`
+    }
+
+    if (composite) {
+
+        let constant = ``
+        const {constants, root} = composite
+        const handleKidsofRoot = (kids) => {
+            const commonAttrs = (attrs) => {
+                if (attrs) {
+                    attrs.map(({ name, value }) => {
+
+                        if (value != null) {
+                            if(name === "renderedIf"){
+                                return
+                            }
+                            if (value.code) {
+                                stateScript += ` ${name}=${value.code}`
+                            }
+                            if (value.params) {
+                                let paramsName = [];
+
+                                value.params.map(({ name: nameOfParams }) => {
+                                    paramsName.push(nameOfParams)
+                                    return (paramsName)
+                                })
+
+                                paramsName = value.params.length === 0 ? `${paramsName} => ` : ` (${paramsName.join(', ')}) => (`
+
+                                stateScript += ` ${name}={`
+                                stateScript += `${paramsName} ${value.root.code}`
+                                if (value.params.length >= 1) { stateScript += `)` }
+                                stateScript += `}`
+                            }
+
+
+                        }
+                        else {
+                            stateScript += ` ${name} `
+                        }
+                    })
+                }
+            }
+            const renderedIf = (attrs) =>{
+                if(attrs){
+                    attrs.map(({name,value})=>{
+                        if(name === "renderedIf"){
+                            stateScript +=`
+                    {
+                        ${value.code} && (
+                `
+                        }
+                    })
+                }
+            }
+            const endOfRenderedIf = (attrs) =>{
+                if(attrs){
+                    attrs.map(({name})=>{
+                        if(name === "renderedIf"){
+                            stateScript +=`
+                            )
+                    }
+                            `
+                        }
+                    })
+                }
+            }
+            const commonRoot = (nameOfRoot, attrsOfRoot,kidsOfRoot, code) =>{
+                if (nameOfRoot) {
+                    stateScript += `(
+                    <${nameOfRoot}`
+                    if (attrsOfRoot && attrsOfRoot.length > 0) {
+                        commonAttrs(attrsOfRoot)
+                    }
+                    if (kidsOfRoot && kidsOfRoot.length > 0) {
+                        stateScript += `>`
+                        handleKidsofRoot(kidsOfRoot)
+                        stateScript += `
+                    </${nameOfRoot}>
+                        )
+                }`
+                    } else {
+                        stateScript += `/>
+                )
+                }`
+                    }
+                }
+                else if (code) {
+                    stateScript += `${code}
+                    }`
+                }
+            }
+
+            kids.map(({ name, attrs, value, code, root, params, kids,html }) => {
+
+                if ( root ) {
+
+                    stateScript += `
+                    {`
+
+                    params.map(({ name: nameOfParams }) => {
+                        stateScript += `
+                    ${nameOfParams} => `
+                    })
+
+                    if ( root.length >=1 ){
+                        root.map(({ name: nameOfRoot, attrs: attrsOfRoot, kids:kidsOfRoot, code })=>{
+
+                            commonRoot(nameOfRoot, attrsOfRoot,kidsOfRoot, code)
+                        })
+                    } else {
+                        const { name: nameOfRoot, attrs: attrsOfRoot, kids:kidsOfRoot, code } = root
+
+                        commonRoot(nameOfRoot, attrsOfRoot,kidsOfRoot, code)
+                    }
+                }
+
+                if (name) {
+                    kids && kids.length >= 1 ? stateScript += `
+                ` : stateScript += `
+                    `
+                    if (attrs && attrs.length >= 1) {
+                        renderedIf(attrs)
+                        stateScript += `<${name}`
+                        commonAttrs(attrs)
+                        kids && kids.length >= 1 ? stateScript += `>` : stateScript += `/>`
+                    }
+                    else{
+                        stateScript += `<${name}`
+                        kids && kids.length >= 1 ? stateScript += `>` : stateScript += `/>`
+                    }
+                }
+
+                if (value) {
+                    stateScript += `
+                    ${value}`
+                }
+
+                if (code) {
+                    stateScript += `
+                    ${code}`
+                }
+
+                if(html){
+
+                    if (attrs && attrs.length >= 1) {
+
+                        renderedIf(attrs)
+
+                        stateScript +=`
+                    <React.Fragment>
+                        ${html}
+                    </React.Fragment>`
+
+                    } else {
+
+                        stateScript +=`
+                    ${html}`
+
+                    }
+                }
+
+                if (kids && kids.length >= 1) {
+                    handleKidsofRoot(kids)
+                    stateScript += `</${name}>`
+                }
+
+                if(attrs && attrs.length >=1){
+                    endOfRenderedIf(attrs)
+                }
+
+                stateScript += `
+                `
+            })
+
+        }
+
+        if (constants.length > 0) {
+            constants.forEach(constantElement => {
+                const {kind, declarations} = constantElement
+                constant += `
+            ${kind} `
+
+                declarations.forEach(({id, init}) => {
+
+                    if (!id) {
+                        constant += `{control, setControl} = ${init}`
+                    } else {
+                        if (id.type === 'Identifier') {
+                            constant += `${id.name} = ${init}`
+                        }
+                        if (id.type === 'ObjectPattern') {
+                            const {properties} = id
+                            const map = Array.prototype.map
+                            const keys = map.call(properties, function (item) {
+                                return item.key;
+                            })
+                            properties.length === 0 ? constant += `${keys} = ${init}` : constant += `{${keys}} = ${init}`
+                        }
+                        if (id.type === 'ListPattern') {
+                            const { properties } = id
+                            const map = Array.prototype.map
+                            const keys = map.call(properties, function (item) {
+                                return item.key;
+                            })
+                            properties.length === 0 ? constant += `${keys} = ${init}` : constant += `[${keys}] = ${init}`
+                        }
+                        if (id.type === 'FunctionPattern') {
+                            const { properties } = id
+                            const map = Array.prototype.map
+                            const keys = map.call(properties, function (item) {
+                                return item.key;
+                            })
+                            constant += `${keys} = ${init}`
+                        }
+                        if (id.type === 'ArrayPattern') {
+                            const {elements} = id
+                            const map = Array.prototype.map
+                            const names = map.call(elements, function (item) {
+                                return item.name;
+                            })
+                            elements.length === 0 ? constant += `${names} = ${init}` : constant += `{${names}} = ${init}`
+                        }
+                    }
+                })
+                return constant
+            });
+
+        }
+
+        stateScript += ` props => {
+                ${constant}
+        
+                return(
+                    <${root.name}>
+                    `
+        if (root.kids){
+            handleKidsofRoot(root.kids)
+        }
+        stateScript +=`
+                    </${root.name}>
+                        )
+                    }`
+
+    }
+
+    stateScript +=`);
+    
+    export default ${name};`
+
+    return stateScript;
+}
+
 export const renderProcessExportScript = (processExports) => {
     let processScript = "";
 
@@ -468,7 +772,7 @@ export const renderProcessExportScript = (processExports) => {
         ${initValue}`
         })
     }
-    
+
     processScript +=`
     }`
 

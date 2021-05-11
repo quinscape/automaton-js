@@ -11,6 +11,7 @@ import {
     renderSessionScopeScript,
     renderProcessExportScript,
     renderCompositeScript,
+    renderStateScript,
     renderExtraConstantsScript,
     modelSchemaValidation} from "./handleModelToJs";
 
@@ -202,7 +203,12 @@ function convertComposite({export: exportData, composite, extraConstants }, proc
 
 function convertState ({state}, processName, shortName,content) {
     const path = `${shortPath}/processes/${processName}/states/${shortName}.js`
+    try {
+        content += renderStateScript(state)
 
+    } catch (err) {
+        console.error("\x1b[41m", `Error: ${path}`,err, "\x1b[0m")
+    }
     return {
         path,
         content
