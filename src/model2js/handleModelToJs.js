@@ -439,7 +439,8 @@ export default ${exportData}`
 export const renderProcessExportScript = (processExports) => {
     let processScript = "";
 
-    const { extraConstants, scope ,configuration,startState} = processExports;
+    const {init, extraConstants, scope ,configuration,startState} = processExports;
+
     if (extraConstants) {
         extraConstants.map((extraConstant) => {
             processScript += `${extraConstant}
@@ -457,9 +458,15 @@ export const renderProcessExportScript = (processExports) => {
         })
     }
 
-    processScript += `
-        return ${startState};
+    if (init && init.length >= 1) {
+
+        init.map ((initValue) => {
+            //console.log(initValue)
+            processScript += `
+        ${initValue}
     }`
+        })
+    }
 
     //End the section of EXPORT AND STATES
     if (scope !== null) {
