@@ -458,15 +458,19 @@ export const renderProcessExportScript = (processExports) => {
         })
     }
 
-    if (init && init.length >= 1) {
+    if (startState !== null) {
+        processScript += `
+        return ${startState}`
 
+    } else if (startState === null && init && init.length >= 1) {
         init.map ((initValue) => {
-            //console.log(initValue)
             processScript += `
-        ${initValue}
-    }`
+        ${initValue}`
         })
     }
+    
+    processScript +=`
+    }`
 
     //End the section of EXPORT AND STATES
     if (scope !== null) {
