@@ -201,9 +201,13 @@ function convertComposite({export: exportData, composite, extraConstants }, proc
     };
 }
 
-function convertState ({state}, processName, shortName,content) {
+function convertState ({state, extraConstants}, processName, shortName,content) {
     const path = `${shortPath}/processes/${processName}/states/${shortName}.js`
     try {
+        if (extraConstants) {
+            content += renderExtraConstantsScript(extraConstants)
+        }
+
         content += renderStateScript(state)
 
     } catch (err) {

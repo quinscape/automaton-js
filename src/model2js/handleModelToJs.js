@@ -211,11 +211,11 @@ export const renderCompositeScript = (exportData,composite, shortName) => {
                                 return (paramsName)
                             })
 
-                            paramsName = value.params.length === 0 ? `${paramsName} => ` : ` (${paramsName.join(', ')}) => (`
+                            paramsName = value.params.length === 1 ? `${paramsName} => ` : ` (${paramsName.join(', ')}) => (`
 
                             componentScript += ` ${name}={`
                             componentScript += `${paramsName} ${value.root.code}`
-                            if (value.params.length >= 1) { componentScript += `)` }
+                            if (value.params.length > 1) { componentScript += `)` }
                             componentScript += `}`
                         }
 
@@ -500,7 +500,8 @@ export const renderStateScript = (state) => {
                     attrs.map(({ name, value }) => {
 
                         if (value != null) {
-                            if(name === "renderedIf"){
+
+                            if(name=="renderedIf"){
                                 return
                             }
                             if (value.code) {
@@ -508,21 +509,49 @@ export const renderStateScript = (state) => {
                             }
                             if (value.params) {
                                 let paramsName = [];
-
                                 value.params.map(({ name: nameOfParams }) => {
                                     paramsName.push(nameOfParams)
                                     return (paramsName)
                                 })
 
-                                paramsName = value.params.length === 0 ? `${paramsName} => ` : ` (${paramsName.join(', ')}) => (`
+                                if (value.root.code) {
+                                    paramsName = value.params.length === 1 ? `${paramsName} => ` : ` (${paramsName.join(', ')}) => (`
 
-                                stateScript += ` ${name}={`
-                                stateScript += `${paramsName} ${value.root.code}`
-                                if (value.params.length >= 1) { stateScript += `)` }
-                                stateScript += `}`
+                                    stateScript += ` ${name}={ ${paramsName} ${value.root.code}
+                                        `
+                                    if (value.params.length > 1) { stateScript += `)` }
+                                    stateScript += `}`
+                                }
+
+                                if (value.root.attrs) {
+                                    const { name: nameOfRoot, attrs, kids } = value.root
+                                    paramsName = value.params.length === 1 ? `${paramsName} => ` : ` (${paramsName.join(', ')}) => {`
+
+                                    stateScript += ` ${name}={ ${paramsName}`
+
+                                    stateScript += `
+                                    return (
+                                        <${nameOfRoot}`
+                                    if (attrs && attrs.length > 0) {
+                                        commonAttrs(attrs)
+                                    }
+                                    if (kids && kids.length > 0) {
+                                        stateScript += `>`
+                                        handleKidsofRoot(kids)
+                                        stateScript += `
+                                        </${nameOfRoot}>
+                                        `
+                                    } else {
+                                        stateScript += `/>
+                                            `
+                                    }
+                                    stateScript += `
+                                        )`
+                                    if (value.params.length > 1) { stateScript += `}` }
+                                    stateScript += `}`
+                                }
+
                             }
-
-
                         }
                         else {
                             stateScript += ` ${name} `
@@ -892,12 +921,16 @@ export const renderDomainScript = (domain) => {
     const {computeds, observables, name} = domain
     domainScript += `
     export default class ${name} {`
-    observables.forEach(observable => {
-        const {name} = observable
-        domainScript += `
+
+    if (observables && observables.length >= 1) {
+        observables.forEach(observable => {
+            const {name} = observable
+            domainScript += `
         @observable ${name}
         `
-    })
+        })
+    }
+
     if (computeds && computeds.length >= 1) {
         computeds.forEach(computed => {
             const {name, code} = computed
@@ -905,10 +938,11 @@ export const renderDomainScript = (domain) => {
         @computed get ${name}()
         {
             ${code}
-        }
-    }`
+        }`
         })
     }
+    domainScript +=`
+    }`
     return beautify(domainScript)
 }
 

@@ -41,7 +41,6 @@ export const modelToJsSchema = {
                 },
                 "observables":{
                     "type": ["array","null"],
-                    "minItems": 1,
                     "items":{
                         "type": ["object","null"],
                         "properties":{
@@ -49,7 +48,7 @@ export const modelToJsSchema = {
                                 "type": "string"
                             },
                             "defaultValue":{
-                                "type":["string","null"]
+                                "type":["string","null", "number"]
                             },
                             "description":{
                                 "type":["string","null"]
@@ -62,7 +61,6 @@ export const modelToJsSchema = {
                 },
                 "computeds":{
                     "type": ["array","null"],
-                    "minItems": 1,
                     "items":{
                         "type": ["object","null"],
                         "properties":{
