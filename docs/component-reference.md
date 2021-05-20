@@ -791,3 +791,14 @@ onBlur | func | Optional blur handler to use
 onChange | func | Optional change handler to use
 placeholder | string | Placeholder text to render for text inputs.
 tooltip | string | Tooltip / title attribute for the input element
+## &lt;DropdownMenu/&gt;
+
+Simplified Dropdown Menu component with a local open state handling.
+
+Simply wrap Buttons or DropdownItems in this component.
+
+### Props
+
+ Name | Type | Description 
+------|------|-------------
+text | string or func | Optional text or render function to change the labeling of the dropdown button. Default is a vertical ellipsis icon.

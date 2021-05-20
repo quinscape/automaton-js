@@ -30,7 +30,8 @@ const COMPONENTS = [
             "../src/ui/AttachmentField.js",
             "../src/ui/AttachmentLink.js",
             "../src/ui/DecimalField.js",
-            "../src/ui/URLField.js"
+            "../src/ui/URLField.js",
+            "../src/ui/DropdownMenu.js"
         ]
     }
 ];
