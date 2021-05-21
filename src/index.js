@@ -54,7 +54,7 @@ import filterTransformer, { FieldResolver } from "./util/filterTransformer";
 import CollapsibleSidebar from "./ui/CollapsibleSidebar";
 
 import  { createMockedQuery, createFilteredMockQuery} from "./util/createMockedQuery"
-
+import DropdownMenu from "./ui/DropdownMenu"
 const AutomatonDevTools = "span";
 
 import Attachments from "./Attachments"
@@ -170,10 +170,7 @@ export {
     createFilteredMockQuery,
     evaluateMemoryQuery,
 
+    DropdownMenu,
     StartupRegistry,
-
     ViewState
 }
-
-
-
