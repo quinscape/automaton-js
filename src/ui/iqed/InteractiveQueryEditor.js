@@ -60,6 +60,8 @@ const InteractiveQueryEditor = fnObserver(({id, definition})=> {
 
     const state = useLocalStore(() => new EditorState())
 
+    const fieldFi = useLocalStore(() => new EditorState())
+
     // if (__DEV)
     // {
     //     useEffect(
@@ -127,8 +129,10 @@ const InteractiveQueryEditor = fnObserver(({id, definition})=> {
                             }
                         </h4>
                         <div className="field-selector row">
-                            <div className="col">
+                            <div className="col" >
                                 <FieldSelector
+                                    fieldFilter={ state.fieldFilter }
+                                    setFieldFilter={ state.setFieldFilter }
                                     node={root}
                                     state={state}
                                 />
@@ -152,34 +156,6 @@ const InteractiveQueryEditor = fnObserver(({id, definition})=> {
                             path={null}
                             state={state}
                         />
-                        <ButtonToolbar>
-
-                            <button
-                                type="button"
-                                className="btn btn-secondary mr-1"
-                                onClick={ executeQuery }
-                            >
-                                Test
-                            </button>
-                        </ButtonToolbar>
-                        <hr/>
-                        {
-                            queryResult && (
-                                <>
-                                    <JsonTable
-                                        key={ state.queryId }
-                                        domainType={ queryResult.type }
-                                        value={ queryResult.rows }
-                                        fields={ fields }
-                                        editorState={ state }
-                                    />
-                                    <Pagination
-                                        iQuery={ queryResult }
-                                        description={ i18n("Result Navigation") }
-                                    />
-                                </>
-                            )
-                        }
                     </>
                 )
             }

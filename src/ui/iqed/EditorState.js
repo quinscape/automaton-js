@@ -179,6 +179,8 @@ function getParentField(field)
 
 export class EditorState {
 
+    @observable fieldFilter = "";
+
     @observable root;
     @observable name;
     @observable rootConfirmed = false;
@@ -555,5 +557,11 @@ ${          this.graphQLFields}
 
 
         return renderFieldSelection(array);
+    }
+
+    @action.bound
+    setFieldFilter(fieldFilter)
+    {
+        this.fieldFilter = fieldFilter;
     }
 }
