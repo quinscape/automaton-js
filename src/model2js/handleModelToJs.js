@@ -441,7 +441,7 @@ export const renderStateScript = (state) => {
     const {name, composite, transitionMap} = state
 
     stateScript += `
-    const ${name} = new ViewState(`
+    export const ${name} = new ViewState(`
 
     if (name) {
         stateScript +=` "${name}", `
