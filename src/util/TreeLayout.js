@@ -1,3 +1,6 @@
+import AABB from "./AABB";
+
+
 /**
  * TreeLayout helper class. Can layout an hierarchical tree to be both space conserving and pretty.
  *
@@ -6,94 +9,94 @@
 const defaultOptions = {
     NODE_WIDTH: 50, /* Width of a node?       */
     NODE_HEIGHT: 20, /* Height of a node?      */
+
     SUBTREE_SEPARATION: 20, /* Gap between subtrees?  */
     SIBLING_SEPARATION: 10, /* Gap between siblings?  */
+
     LEVEL_GAP: 20, /* Gap between levels?    */
     MAXIMUM_DEPTH: 10, /* Biggest tree?          */
+
     ROOT_ORIENTATION: "WEST"
 };
 
+let idCounter = 0;
 
-class Node {
+export class LayoutNode {
+
+    // These define the tree structure and must be set before layouting.
+    parent = null;
+    offspring = null;
+    leftSibling = null;
+    rightSibling = null;
+
+    // must only be set for the root node
+    xCoordinate = 0;
+    yCoordinate = 0;
+
+    // these get calculated
+    prev = null;
+    flPrelim = 0;
+    flModifier = 0;
+
+    /**
+     * Node type field
+     */
+    type = "";
+
+    // react rendered UI element
+    elem = null;
+
+    // user data for the node 
+    data = null;
+
     /**
      * This class is mostly a suggestion. You can extend it in your own code or give
      * in your own type with the expected members.
      *
      */
-    constructor()
+    constructor(type, data)
     {
-        // These define the tree structure and must be set in advance.
-        this.parent = null;
-        this.offspring = null;
-        this.leftsibling = null;
-        this.rightsibling = null;
+        this.id = "tl-item-" + idCounter++;
 
-        // must only be set for the root node
-        this.xCoordinate = 0;
-        this.yCoordinate = 0;
-
-        // these get calculated
-        this.prev = null;
-        this.flPrelim = 0;
-        this.flModifier = 0;
-
+        this.type = type;
+        this.data = data;
     }
 
 
     addChild(node)
     {
         node.parent = this;
-        node.rightsibling = null;
+        node.rightSibling = null;
 
         if (this.offspring)
         {
             let rightmost = this.offspring;
             let rs;
-            while ((rs = rightmost.rightsibling))
+            while ((rs = rightmost.rightSibling))
             {
                 rightmost = rs;
             }
 
-            rightmost.rightsibling = node;
-            node.leftsibling = rightmost;
+            rightmost.rightSibling = node;
+            node.leftSibling = rightmost;
         }
         else
         {
             this.offspring = node;
-            node.leftsibling = null;
+            node.leftSibling = null;
         }
     }
-}
 
-
-class TreeLayoutAABB {
-    constructor()
+    get elem ()
     {
-        this.minX = Infinity;
-        this.minY = Infinity;
-        this.maxX = -Infinity;
-        this.maxY = -Infinity;
-    }
+        let { elem } = this;
 
-
-    add(x, y)
-    {
-        this.minX = Math.min(this.minX, x);
-        this.minY = Math.min(this.minY, y);
-        this.maxX = Math.max(this.maxX, x);
-        this.maxY = Math.max(this.maxY, y);
-    }
-
-
-    width()
-    {
-        return (this.maxX - this.minX) | 0;
-    }
-
-
-    height()
-    {
-        return (this.maxY - this.minY) | 0;
+        if (!elem)
+        {
+            elem = document.getElementById(this.id);
+            this.elem = elem;
+        }
+        return elem;
     }
 }
 
@@ -101,12 +104,16 @@ class TreeLayoutAABB {
 class TreeLayout {
     constructor(options)
     {
-        this.options = $.extend({}, defaultOptions, options);
+        this.options = {
+            ... defaultOptions,
+            ... options
+        };
+        
         this.flMeanWidth = 0;
 
         this.xTopAdjustment = 0;
         this.yTopAdjustment = 0;
-        this.aabb = new TreeLayoutAABB();
+        this.aabb = new AABB();
     }
 
 
@@ -187,9 +194,9 @@ class TreeLayout {
             pRightmost = pThisNode.offspring;
             pLeftmost = this._getLeftmost(pRightmost, nCurrentLevel + 1, nSearchDepth);
 
-            while ((pLeftmost === null) && (pRightmost.rightsibling))
+            while ((pLeftmost === null) && (pRightmost.rightSibling))
             {
-                pRightmost = pRightmost.rightsibling;
+                pRightmost = pRightmost.rightSibling;
                 pLeftmost = this._getLeftmost(pRightmost, nCurrentLevel + 1, nSearchDepth);
             }
             return pLeftmost;
@@ -282,7 +289,7 @@ class TreeLayout {
             {
                 /* Count the interior sibling subtrees        */
                 nLeftSiblings = 0;
-                for (pTempPtr = pThisNode; (pTempPtr) && (pTempPtr !== pAncestorNeighbor); pTempPtr = pTempPtr.leftsibling)
+                for (pTempPtr = pThisNode; (pTempPtr) && (pTempPtr !== pAncestorNeighbor); pTempPtr = pTempPtr.leftSibling)
                 {
                     nLeftSiblings++;
                 }
@@ -290,10 +297,10 @@ class TreeLayout {
                 if (pTempPtr)
                 {
                     /* Apply portions to appropriate          */
-                    /* leftsibling subtrees.                  */
+                    /* leftSibling subtrees.                  */
 
                     flPortion = flDistance / nLeftSiblings;
-                    for (pTempPtr = pThisNode; (pTempPtr !== pAncestorNeighbor); pTempPtr = pTempPtr.leftsibling)
+                    for (pTempPtr = pThisNode; (pTempPtr !== pAncestorNeighbor); pTempPtr = pTempPtr.leftSibling)
                     {
                         pTempPtr.flPrelim += flDistance;
                         pTempPtr.flModifier += flDistance;
@@ -389,7 +396,7 @@ class TreeLayout {
 
         if (!pThisNode.offspring || nCurrentLevel === this.options.MAXIMUM_DEPTH)
         {
-            if (pThisNode.leftsibling)
+            if (pThisNode.leftSibling)
             {
                 /*--------------------------------------------
                  * Determine the preliminary x-coordinate
@@ -399,8 +406,8 @@ class TreeLayout {
                  * - mean width of left sibling & current node.
                  *--------------------------------------------*/
                 /* Set the mean width of these two nodes */
-                this._meanNodeSize(pThisNode.leftsibling, pThisNode);
-                pThisNode.flPrelim = pThisNode.leftsibling.flPrelim + this.options.SIBLING_SEPARATION + this.flMeanWidth;
+                this._meanNodeSize(pThisNode.leftSibling, pThisNode);
+                pThisNode.flPrelim = pThisNode.leftSibling.flPrelim + this.options.SIBLING_SEPARATION + this.flMeanWidth;
             }
             else
             {
@@ -414,9 +421,9 @@ class TreeLayout {
             if (this._firstWalk(pLeftmost = pRightmost = pThisNode.offspring, nCurrentLevel + 1))
             {
                 /* Position each of its siblings to its right */
-                while (pRightmost.rightsibling)
+                while (pRightmost.rightSibling)
                 {
-                    if (!this._firstWalk(pRightmost = pRightmost.rightsibling, nCurrentLevel + 1))
+                    if (!this._firstWalk(pRightmost = pRightmost.rightSibling, nCurrentLevel + 1))
                     {
                         return false;
                     }
@@ -427,11 +434,11 @@ class TreeLayout {
                 flMidpoint = (pLeftmost.flPrelim + pRightmost.flPrelim) / 2;
 
                 /* Set global mean width of these two nodes */
-                this._meanNodeSize(pThisNode.leftsibling, pThisNode);
+                this._meanNodeSize(pThisNode.leftSibling, pThisNode);
 
-                if (pThisNode.leftsibling)
+                if (pThisNode.leftSibling)
                 {
-                    pThisNode.flPrelim = pThisNode.leftsibling.flPrelim + this.options.SIBLING_SEPARATION + this.flMeanWidth;
+                    pThisNode.flPrelim = pThisNode.leftSibling.flPrelim + this.options.SIBLING_SEPARATION + this.flMeanWidth;
                     pThisNode.flModifier = pThisNode.flPrelim - flMidpoint;
 
                     this._apportion(pThisNode, nCurrentLevel);
@@ -503,8 +510,8 @@ class TreeLayout {
             pThisNode.xCoordinate = lxTemp;
             pThisNode.yCoordinate = lyTemp;
 
-            this.aabb.add(lxTemp, lyTemp);
-            this.aabb.add(lxTemp + this.getConfigValue("NODE_WIDTH", pThisNode), lyTemp + this.getConfigValue("NODE_HEIGHT", pThisNode));
+            this.aabb.extend(lxTemp, lyTemp);
+            this.aabb.extend(lxTemp + this.getConfigValue("NODE_WIDTH", pThisNode), lyTemp + this.getConfigValue("NODE_HEIGHT", pThisNode));
 
             if (pThisNode.offspring)
             {
@@ -516,10 +523,10 @@ class TreeLayout {
                 flNewModsum = flNewModsum - pThisNode.flModifier;
             }
 
-            if (pThisNode.rightsibling && bResult)
+            if (pThisNode.rightSibling && bResult)
             {
                 this.flModsum = flNewModsum;
-                bResult = this._secondWalk(pThisNode.rightsibling, nCurrentLevel, curHeight);
+                bResult = this._secondWalk(pThisNode.rightSibling, nCurrentLevel, curHeight);
             }
         }
         return bResult;
@@ -585,7 +592,4 @@ class TreeLayout {
 }
 
 
-export default {
-    Layout: TreeLayout,
-    Node: Node
-}
+export default TreeLayout;

@@ -1,20 +1,30 @@
 import { action, computed, observable, toJS } from "mobx";
 import { parse } from "graphql/language/parser";
 import { getGraphQLMethodType } from "../../Process";
-import { findNamed, getIQueryPayloadType, lookupType, unwrapNonNull } from "../../util/type-utils";
+import {
+    findNamed,
+    getFields,
+    getIQueryPayloadType,
+    lookupType,
+    unwrapAll,
+    unwrapNonNull
+} from "../../util/type-utils";
 import get from "lodash.get";
 import config from "../../config";
-import { condition, Type } from "../../FilterDSL";
+import { condition, isLogicalCondition, Type } from "../../FilterDSL";
 import set from "lodash.set";
-import { getArgumentCount } from "./InteractiveQueryEditor";
+import { getArgumentCount, join } from "./InteractiveQueryEditor";
 import InteractiveQueryDefinition from "../../model/InteractiveQueryDefinition";
 import { INTERACTIVE_QUERY } from "../../domain";
 import uuid from "uuid";
+import { LayoutNode } from "../../util/TreeLayout";
+import LayoutNodeType from "./LayoutNodeType";
+
 
 function indent(n)
 {
     let s = "";
-    for (let i=0; i < n; i++)
+    for (let i = 0; i < n; i++)
     {
         s += "    ";
     }
@@ -37,7 +47,7 @@ function closeBraces(length, prevLen)
 
 export function renderRows(fieldSet)
 {
-    const fields = [ ... fieldSet ];
+    const fields = [...fieldSet];
     fields.sort();
     let prevLen = 1;
 
@@ -47,13 +57,13 @@ export function renderRows(fieldSet)
     {
         const path = fields[i].split(/\./g);
 
-        const { length } = path;
+        const {length} = path;
 
         if (i > 0)
         {
             s += length > prevLen ? " {\n" : "\n";
 
-            s += closeBraces(length,prevLen);
+            s += closeBraces(length, prevLen);
         }
         const last = length - 1;
         s += indent(last);
@@ -172,8 +182,199 @@ function addSelectedFields(fields, rowSelection, parent = "")
 
 function getParentField(field)
 {
-    const pos = field.lastIndexOf('.');
+    const pos = field.lastIndexOf(".");
     return pos < 0 ? null : field.substr(0, pos);
+}
+
+
+function layoutOperands(layoutNode, node)
+{
+    const {operands} = node;
+
+    const numOperands = operands.length;
+
+    if (numOperands)
+    {
+        const middle = operands.length >> 1;
+
+        const middleNode = getLayoutNode(layoutNode, operands[middle]);
+
+        let current = middleNode;
+        for (let i = middle - 1; i >= 0; i--)
+        {
+            const left = getLayoutNode(layoutNode, operands[i]);
+            current.leftSibling = left;
+            left.rightSibling = current;
+            current = left;
+        }
+
+        current = middleNode;
+        for (let i = middle + 1; i < numOperands; i++)
+        {
+            const right = getLayoutNode(layoutNode, operands[i]);
+            current.rightSibling = right;
+            right.leftSibling = current;
+            current = right;
+        }
+    }
+}
+
+function isStructuralNode(node)
+{
+    return node.type === Type.CONDITION && isLogicalCondition(node) || node.name === "not";
+}
+
+
+function isOperationNode(node)
+{
+    return node.type === Type.OPERATION || node.type === Type.CONDITION && !isStructuralNode(node)
+}
+
+
+function appendFlat(parent, array, condition)
+{
+    if (isOperationNode(condition))
+    {
+        const { operands } = condition;
+        for (let i = 0; i < operands.length; i++)
+        {
+            if (i > 0)
+            {
+                array.push(condition)
+            }
+            const operand = operands[i];
+            appendFlat(condition, array, operand)
+        }
+    }
+    else
+    {
+        array.push(
+            getLayoutNode(parent, condition)
+        )
+    }
+}
+
+
+function flattenOperations(parent, condition)
+{
+
+    const { operands } = condition;
+
+    const array = [];
+
+    for (let i = 0; i < operands.length; i++)
+    {
+        const operand = operands[i];
+        appendFlat(condition, array, operand)
+    }
+
+
+    for (let i = 0; i < operands.length; i++)
+    {
+        const layoutNode =  getLayoutNode(parent, op)
+    }
+
+    return null;
+}
+
+
+function getLayoutNode(parent, condition)
+{
+    if (!condition)
+    {
+        return null;
+    }
+
+    const {type, name} = condition;
+
+    let layoutNode = null;
+
+    // logical conditions (including not) are structural nodes
+    if (isStructuralNode(condition))
+    {
+        layoutNode = new LayoutNode(LayoutNodeType.LOGICAL, condition);
+        layoutNode.parent = parent;
+        layoutOperands(layoutNode, condition);
+    }
+    else
+    {
+        if (isOperationNode(condition))
+        {
+            layoutNode = flattenOperations(parent, condition)
+        }
+        else if (type === Type.FIELD)
+        {
+            layoutNode = new LayoutNode(LayoutNodeType.FIELD, condition);
+        }
+        else if (type === Type.VALUE)
+        {
+            layoutNode = new LayoutNode(LayoutNodeType.VALUE, condition);
+        }
+        else if (type === Type.VALUES)
+        {
+            layoutNode = new LayoutNode(LayoutNodeType.VALUES, condition);
+        }
+        else if (type === Type.COMPONENT)
+        {
+            return getLayoutNode(parent, condition.component);
+        }
+        else
+        {
+            throw new Error("Unhandled type: " + type);
+        }
+    }
+
+    if (layoutNode)
+    {
+        layoutNode.parent = parent;
+    }
+
+    return layoutNode;
+}
+
+
+function collectFields(array, type, searchTerm, maxDepth, path)
+{
+
+    const { types } = config.inputSchema.schema;
+
+    const typeDef = findNamed(types, type);
+    if (!typeDef)
+    {
+        throw new Error("Error finding fields for searchTerm '" + searchTerm + "': Unknown type '" + type + "'");
+    }
+    
+    const fields = getFields(typeDef);
+    for (let i = 0; i < fields.length; i++)
+    {
+        const field = fields[i];
+
+        const { name, description } = field;
+
+        const fieldPath = join(path, name);
+        if (name.toLocaleLowerCase().indexOf(searchTerm) >= 0 || description.toLocaleLowerCase().indexOf(searchTerm) >= 0)
+        {
+            array.push({ path : fieldPath.join("."), field });
+        }
+
+        const type = unwrapAll(field.type);
+        if ( fieldPath.length < maxDepth && type.kind !== "SCALAR")
+        {
+            collectFields(array, type.name, searchTerm, maxDepth, fieldPath)
+        }
+    }
+}
+
+export function findField(type, searchTerm, maxDepth = 3)
+{
+    searchTerm = searchTerm.toLocaleLowerCase();
+
+    const array = [];
+
+    collectFields(array, type, searchTerm, maxDepth, []);
+
+    return array;
+
 }
 
 
@@ -202,6 +403,7 @@ export class EditorState {
     @observable queryResult = null;
     @observable queryId = null;
 
+
     @action
     updateJSON(path)
     {
@@ -223,7 +425,8 @@ export class EditorState {
             this.json.json = "";
         }
     }
-    
+
+
     @action
     importFrom(definition)
     {
@@ -319,6 +522,7 @@ export class EditorState {
         this.rootConfirmed = true;
     }
 
+
     @action
     setNodeValue(path, value)
     {
@@ -332,6 +536,7 @@ export class EditorState {
         }
 
     }
+
 
     toInteractiveQueryDefinition()
     {
@@ -431,6 +636,7 @@ export class EditorState {
         //console.log("TOGGLED", field, toJS(this.fields));
     }
 
+
     _selectField(field)
     {
         if (!this.fields.has(field))
@@ -445,6 +651,7 @@ export class EditorState {
         }
     }
 
+
     @action.bound
     toggleJSONDialog()
     {
@@ -454,7 +661,7 @@ export class EditorState {
 
     renderQuery()
     {
-        const { name, queryMethod } = this;
+        const {name, queryMethod} = this;
 
         return (
             `query ${name}($config: QueryConfigInput!)
@@ -475,7 +682,7 @@ export class EditorState {
             sortFields
         }
         rows{
-${          this.graphQLFields}
+${this.graphQLFields}
         }
         rowCount
     }
@@ -483,10 +690,11 @@ ${          this.graphQLFields}
         )
     }
 
+
     @action
     setQueryResult(queryResult)
     {
-        const { _type : type } = queryResult;
+        const {_type: type} = queryResult;
 
         if (!getIQueryPayloadType(type))
         {
@@ -497,10 +705,11 @@ ${          this.graphQLFields}
         this.queryId = uuid.v4();
     }
 
+
     @computed
     get graphQLFields()
     {
-        const fields = [ ...this.fields ];
+        const fields = [...this.fields];
         fields.sort();
 
         const array = [];
@@ -512,12 +721,12 @@ ${          this.graphQLFields}
 
             let curr = array;
             const last = path.length - 1;
-            for (let i=0; i < last; i++)
+            for (let i = 0; i < last; i++)
             {
                 curr = findNamed(curr, path[i]).subsel;
                 if (!curr)
                 {
-                    throw new Error("Could not find entry for path"+ path.slice(0,i+1))
+                    throw new Error("Could not find entry for path" + path.slice(0, i + 1))
                 }
             }
 
@@ -536,8 +745,7 @@ ${          this.graphQLFields}
             let s = "";
             for (let i = 0; i < array.length; i++)
             {
-                const { name, subsel } = array[i];
-
+                const {name, subsel} = array[i];
 
                 s += indent(level) + name;
                 if (subsel.length)
@@ -555,13 +763,27 @@ ${          this.graphQLFields}
             return s;
         }
 
-
         return renderFieldSelection(array);
     }
+
 
     @action.bound
     setFieldFilter(fieldFilter)
     {
         this.fieldFilter = fieldFilter;
+    }
+
+
+    /**
+     * Alternate view on the current condition to be layed out by the treelayout
+     */
+    @computed
+    get layoutNodes()
+    {
+        const {queryConfig} = this;
+
+        const condition = queryConfig && queryConfig.condition
+
+        return getLayoutNode(null, condition)
     }
 }
