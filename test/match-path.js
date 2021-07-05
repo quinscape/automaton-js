@@ -12,6 +12,7 @@ describe("matchPath", function () {
                 processName: "test",
                 shortName: "test",
                 isDomain: false,
+                isState: false,
                 isComposite: false,
                 isQuery: false
             }
@@ -24,6 +25,7 @@ describe("matchPath", function () {
                 processName: "test",
                 shortName: "Composite",
                 isDomain: false,
+                isState: false,
                 isComposite: true,
                 isQuery: false
 
@@ -36,6 +38,7 @@ describe("matchPath", function () {
                 processName: null,
                 shortName: "Foo",
                 isDomain: true,
+                isState: false,
                 isComposite: false,
                 isQuery: false
 
@@ -49,6 +52,7 @@ describe("matchPath", function () {
                 processName: null,
                 shortName: "scopes",
                 isDomain: false,
+                isState: false,
                 isComposite: false,
                 isQuery: false
             }
@@ -60,6 +64,7 @@ describe("matchPath", function () {
                 processName: "test",
                 shortName: "Q_Test",
                 isDomain: false,
+                isState: false,
                 isComposite: false,
                 isQuery: true
             }
@@ -71,8 +76,21 @@ describe("matchPath", function () {
                 processName: null,
                 shortName: "Q_Test",
                 isDomain: false,
+                isState: false,
                 isComposite: false,
                 isQuery: true
+            }
+        );
+
+        assert.deepEqual(
+            matchPath("./processes/test/states/MyState.js"),
+            {
+                processName: "test",
+                shortName: "MyState",
+                isDomain: false,
+                isState: true,
+                isComposite: false,
+                isQuery: false
             }
         );
     });
