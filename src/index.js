@@ -4,8 +4,8 @@ import injection from "./injection";
 import i18n from "./i18n";
 import uri from "./uri";
 import config, { addConfig } from "./config";
-import { Process, getCurrentProcess } from "./Process";
-import runProcess, { runProcessURI } from "./runProcess";
+import { Process, getCurrentProcess } from "./process/Process";
+import runProcess, { runProcessURI } from "./process/runProcess";
 
 import DataGrid from "./ui/datagrid/DataGrid"
 import Button from "./ui/Button"
@@ -17,7 +17,7 @@ import graphql, { registerGraphQLPostProcessor, registerGenericGraphQLPostProces
 import GraphQLQuery from "./GraphQLQuery"
 import { storeDomainObject, deleteDomainObject, storeDomainObjects, generateDomainObjectId, updateAssociations } from "./standard-queries"
 
-import { backToParent } from "./back-functions"
+import { backToParent } from "./process/back-functions"
 import { registerGenericType, registerType, getGenericType, getWireFormat, registerAutomatonConverters } from "./domain"
 import InteractiveQuery, { getFirstValue } from "./model/InteractiveQuery"
 import createDomainObject from "./createDomainObject"
@@ -67,7 +67,7 @@ import InteractiveQueryDefinition from "./model/InteractiveQueryDefinition"
 import { evaluateMemoryQuery } from "./util/evaluateMemoryQuery";
 import { MergeOperation } from "./merge/MergeOperation";
 import { openDialog } from "./util/openDialog";
-import ViewState from "./ViewState";
+import ViewState from "./process/ViewState";
 
 // noinspection JSUnusedGlobalSymbols
 export {

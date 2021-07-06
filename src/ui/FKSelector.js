@@ -30,7 +30,7 @@ import get from "lodash.get"
 import { getIQueryPayloadType, getOutputTypeName, lookupType, unwrapAll, unwrapNonNull } from "../util/type-utils"
 
 import { field, Type, value, condition, component } from "../FilterDSL"
-import { getGraphQLMethodType } from "../Process";
+import { getGraphQLMethodType } from "../process/Process";
 import { isNonNull } from "domainql-form/lib/InputSchema";
 import { SCALAR } from "domainql-form/lib/kind";
 import CachedQuery from "../model/CachedQuery";

@@ -1,5 +1,5 @@
 import { findBackStateIndex } from "./Process";
-import config from "./config";
+import config from "../config";
 
 
 const secret = Symbol("TransitionSecret");

@@ -9,7 +9,7 @@ import config from "../../src/config"
 import { __setWireFormatForTest } from "../../src/domain";
 import { observable } from "mobx";
 
-import { AutomatonEnv } from "../../src/Process";
+import { AutomatonEnv } from "../../src/process/Process";
 import BigNumber from "bignumber.js";
 
 import Button from "../../src/ui/Button";

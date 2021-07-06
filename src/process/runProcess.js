@@ -1,6 +1,6 @@
 import { fetchProcessInjections, renderProcess, ErrorView } from "./Process";
-import config from "./config";
-import render from "./render";
+import config from "../config";
+import render from "../render";
 import url from "url";
 import React from "react";
 

@@ -1,6 +1,6 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import { registerProcessImporter, onHistoryAction, renderProcess } from "./Process"
+import { registerProcessImporter, onHistoryAction, renderProcess } from "./process/Process"
 import config, { addConfig, DEFAULT_OPTS } from "./config"
 import Authentication from "./auth"
 import { FormContext, InputSchema, registerDomainObjectFactory } from "domainql-form"

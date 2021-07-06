@@ -1,6 +1,6 @@
 import { action, computed, observable, toJS } from "mobx";
 import { parse } from "graphql/language/parser";
-import { getGraphQLMethodType } from "../../Process";
+import { getGraphQLMethodType } from "../../process/Process";
 import { findNamed, getIQueryPayloadType, lookupType, unwrapNonNull } from "../../util/type-utils";
 import get from "lodash.get";
 import config from "../../config";

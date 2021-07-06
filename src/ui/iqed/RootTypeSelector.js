@@ -6,7 +6,7 @@ import { INTERACTIVE_QUERY } from "../../domain";
 
 import { ButtonToolbar } from "reactstrap"
 import { getIQueryPayloadType } from "../../util/type-utils";
-import { getGraphQLMethodType } from "../../Process";
+import { getGraphQLMethodType } from "../../process/Process";
 import { OBJECT } from "domainql-form/lib/kind";
 
 

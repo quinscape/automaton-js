@@ -1,7 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 import cx from "classnames"
-import { runProcessURI } from "../runProcess";
+import { runProcessURI } from "../process/runProcess";
 
 
 /**

@@ -1,17 +1,17 @@
 import React from "react";
-import render from "./render";
+import render from "../render";
 import { action, get, keys, set } from "mobx";
 
-import GraphQLQuery from "./GraphQLQuery";
+import GraphQLQuery from "../GraphQLQuery";
 import { FormConfigProvider } from "domainql-form";
-import config from "./config";
+import config from "../config";
 import Transition from "./Transition";
-import uri from "./uri";
-import i18n from "./i18n";
+import uri from "../uri";
+import i18n from "../i18n";
 import ProcessDialog from "./ProcessDialog";
-import { getWireFormat } from "./domain";
+import { getWireFormat } from "../domain";
 import ProcessHistory from "./ProcessHistory";
-import { renderImperativeDialogs } from "./ui/Dialog"
+import { renderImperativeDialogs } from "../ui/Dialog"
 import { backToHistoryId } from "./back-functions";
 
 
