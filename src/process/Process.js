@@ -1091,7 +1091,7 @@ function executeTransition(name, actionFn, target, context, button)
 
     const mobxAction = actionFn && prepareMobXAction(storage, sourceState + "." + name, actionFn);
 
-    const { history } = storage;
+    const { history, transitionMaps } = storage;
 
     const historyPosBeforeTransition = history.getCurrentPos();
 
@@ -1116,7 +1116,10 @@ function executeTransition(name, actionFn, target, context, button)
 
                 const { target = sourceState, isRecorded } = transition;
 
-                storage.transitionMaps.set(target, target.createTransitionMap(currentProcess))
+                if (!transitionMaps.has(target))
+                {
+                    transitionMaps.set(target, target.createTransitionMap(currentProcess))
+                }
 
                 // if isRecorded hasn't been explicitly defined
                 if (isRecorded === null)
