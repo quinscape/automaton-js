@@ -507,6 +507,8 @@ export class Process {
             initialized: false,
             effects: new Map(),
 
+            transitionMaps: new Map(),
+
             cleanup: () => {
                 // clean up history
                 this[secret].history.dispose();
@@ -649,7 +651,7 @@ export class Process {
         const storage = this[secret];
 
         const currentState = storage.currentState;
-        const transition = currentState.transitionMap[name];
+        const transition = storage.transitionMaps.get(currentState)[name];
         if (!transition)
         {
             throw new Error("Could not find transition '" + name + "' in Process '" + this.name + "'")
@@ -726,7 +728,7 @@ export class Process {
 
         //console.log("getTransition", storage.currentState, storage.states);
 
-        return storage.currentState.transitionMap[name] || null;
+        return storage.transitionMaps.get(storage.currentState)[name] || null;
     }
 
     addProcessEffect(fn)
@@ -1114,7 +1116,7 @@ function executeTransition(name, actionFn, target, context, button)
 
                 const { target = sourceState, isRecorded } = transition;
 
-                target.init(currentProcess);
+                storage.transitionMaps.set(target, target.createTransitionMap(currentProcess))
 
                 // if isRecorded hasn't been explicitly defined
                 if (isRecorded === null)
