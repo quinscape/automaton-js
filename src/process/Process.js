@@ -520,6 +520,11 @@ export class Process {
         //console.log("PROCESS '" + name +"'", this);
     }
 
+    get id()
+    {
+        return this[secret].id;
+    }
+
     get name()
     {
         return this[secret].name;
