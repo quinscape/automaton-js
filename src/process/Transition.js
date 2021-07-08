@@ -93,22 +93,18 @@ export default class Transition {
 
     /**
      * Sets the current target state
-     * @param name
+     *
+     * @param state     ViewState instance to transition to
      */
-    set target(name)
+    set target(state)
     {
         const storage = this[secret];
 
         const { process } = storage;
 
-        // console.log("Process of transition", process);
-
-        if (!process.states[name])
-        {
-            throw new Error("'" + name + "' is no valid target state in process '" + process.name + "'");
-        }
-
-        storage.target = name;
+        console.log(`Process #${process.id}: transition to`, state);
+        
+        storage.target = state;
     }
 
 
