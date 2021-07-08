@@ -486,7 +486,6 @@ export class Process {
             parent,
             scope,
 
-            states: null,
             currentState: null,
 
             options: {
@@ -535,13 +534,6 @@ export class Process {
     {
         return this[secret].startState;
     }
-
-
-    get states()
-    {
-        return this[secret].states;
-    }
-
 
     get scope()
     {
@@ -726,7 +718,7 @@ export class Process {
     {
         const storage = this[secret];
 
-        //console.log("getTransition", storage.currentState, storage.states);
+        //console.log("getTransition", storage.currentState, name);
 
         return storage.transitionMaps.get(storage.currentState)[name] || null;
     }
@@ -1597,10 +1589,6 @@ function renderProcessInternal(processName, input, injections, asSubProcess, pro
                             {
                                 throw new Error("Process '" + process.name + "' must be run as sub-process");
                             }
-
-                            
-
-                            //storage.states = states;
 
                             finishInitialization(process);
                             currentProcess = process;
