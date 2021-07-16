@@ -4,8 +4,8 @@ import {
     Icon
 } from "domainql-form"
 import cx from "classnames";
+import StickyResizingSidebar from "./StickyResizingSidebar";
 import useWindowSize from "../util/useWindowSize";
-import useWindowScroll from "../util/useWindowScroll";
 
 /**
  * Create a Column, that can be expanded/collapsed.
@@ -50,72 +50,14 @@ const CollapsibleSidebar = ({
 }) => {
 
     const [expanded, setExpanded] = useState(false);
-    const {width: windowWidth, height: windowHeight} = useWindowSize();
-    const {scrollY, scrollHeight} = useWindowScroll();
-    const sidebarRef = useRef();
-
-    function resizeElement(sidebarEl) {
-        const cntH = windowHeight - (scrollPaddingBottom + scrollPaddingTop);
-        const parentEl = sidebarEl.parentElement;
-        const rect = parentEl.getBoundingClientRect();
-        const curTop = rect.top - scrollPaddingTop;
-        const curBottom = cntH - (rect.bottom - scrollPaddingTop);
-        /* --- */
-        console.log(curTop, curBottom);
-        if (curTop > 0 && curBottom > 0) {
-            console.log("1");
-            const resH = cntH - curTop - curBottom;
-            sidebarEl.style.height = `${resH}px`;
-        } else if (curTop > 0) {
-            console.log("2");
-            const resH = cntH - curTop;
-            sidebarEl.style.height = `${resH}px`;
-        } else if (curBottom > 0) {
-            console.log("3");
-            const resH = cntH - curBottom;
-            sidebarEl.style.height = `${resH}px`;
-        } else {
-            console.log("4");
-            sidebarEl.style.height = `${cntH}px`;
-        }
-    }
-
-    useLayoutEffect(() => {
-        const sidebarEl = sidebarRef.current;
-        if (sidebarEl != null) {
-            if (windowWidth >= 768) {
-                if (scrollHeight != null) {
-                    sidebarEl.style.top = scrollPaddingTop;
-                    sidebarEl.style.bottom = scrollPaddingTop;
-                    sidebarEl.style.height = `${0}px`;
-                    resizeElement(sidebarEl);
-                }
-            } else {
-                sidebarEl.style.top = "";
-                sidebarEl.style.bottom = "";
-                sidebarEl.style.height = "";
-            }
-        }
-    }, [windowWidth, windowHeight]);
-
-    useLayoutEffect(() => {
-        if (windowWidth >= 768) {
-            const sidebarEl = sidebarRef.current;
-            if (sidebarEl != null) {
-                resizeElement(sidebarEl);
-            }
-        }
-    }, [scrollY]);
+    const {width: windowWidth} = useWindowSize();
 
     return (
-        <div
-            ref={sidebarRef}
-            style={{
-                top: `${scrollPaddingTop}px`,
-                bottom: `${scrollPaddingBottom}px`
-            }}
+        <StickyResizingSidebar
             id={id}
-            className={ cx(className, "col", "collapsible-sidebar", expanded > 0 ? "expanded" : "collapsed") }
+            scrollPaddingTop={scrollPaddingTop}
+            scrollPaddingBottom={scrollPaddingBottom}
+            className={ cx(className, "collapsible-sidebar", expanded > 0 ? "expanded" : "collapsed") }
         >
             <div className="button-wrapper text-muted small">
                 <button
@@ -157,7 +99,7 @@ const CollapsibleSidebar = ({
             <div className="label">
                 {collapsedLabelText}
             </div>
-        </div>
+        </StickyResizingSidebar>
     )
 };
 
