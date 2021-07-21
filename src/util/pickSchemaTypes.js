@@ -73,11 +73,13 @@ const filterObject = (obj, knownTypes) => {
  * Filters a raw input schema JSON structure to only include the types reachable by a given list of type names
  * as starting points.
  *
- * @param {Object} rawSchema            raw input schema data  / introspection result
+ * @param {object} inputSchema          inputSchema or other object containing a "schema" and a "meta" property.
  * @param {Array<String>} typeNames     types to start at. Queries and Mutations can be referenced by prefixing the method name with "q:" or "m:" (e.g. "q:iQueryFoo")
  */
-export default function pickSchemaTypes(rawSchema, typeNames)
+export default function pickSchemaTypes(inputSchema, typeNames)
 {
+    const rawSchema = inputSchema.schema;
+
     const knownTypes = new Set();
 
     const queryType = { ... findNamed(rawSchema.types, "QueryType") };
@@ -123,13 +125,26 @@ export default function pickSchemaTypes(rawSchema, typeNames)
 
     //console.log("TYPES:", [... knownTypes])
 
+    const metaInput = inputSchema.meta;
+
+    const newTypes = {};
+
+    for (let name in metaInput.types)
+    {
+        if (knownTypes.has(name) && metaInput.types.hasOwnProperty(name))
+        {
+            newTypes[name] = metaInput.types[name];
+        }
+    }
+
+    const meta = {
+        types: newTypes,
+        relations: metaInput.relations.filter( r => knownTypes.has(r.sourceType) && knownTypes.has(r.targetType)),
+        genericTypes: metaInput.genericTypes.filter( gt => knownTypes.has(gt.type)),
+    }
+
     const schema = {
-        types: rawSchema.types.filter( td => knownTypes.has(td.name) ),
-        relations: rawSchema.relations.filter( r => knownTypes.has(r.sourceType) && knownTypes.has(r.targetType)),
-        nameFields: filterObject(rawSchema.nameFields, knownTypes),
-        genericTypes: rawSchema.genericTypes.filter( gt => knownTypes.has(gt.type)),
-        decimalPrecision: rawSchema.decimalPrecision.filter( dp => knownTypes.has(dp.domainType)),
-        fieldLengths: rawSchema.fieldLengths.filter( fl => knownTypes.has(fl.domainType))
+        types: rawSchema.types.filter( td => knownTypes.has(td.name) )
     };
 
     queryType.fields = queryType.fields.filter( f => knownQueries.has(f.name));
@@ -138,6 +153,6 @@ export default function pickSchemaTypes(rawSchema, typeNames)
     schema.types.push(queryType);
     schema.types.push(mutationType);
 
-    return schema
+    return { schema, meta }
 
 }

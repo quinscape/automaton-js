@@ -82,7 +82,7 @@ function getPrecision(ctx, opts)
 
     if (!p)
     {
-        const { inputSchema, decimalPrecision } = config;
+        const { inputSchema } = config;
 
         let type;
         const { length: pathLength } = path;
@@ -96,18 +96,10 @@ function getPrecision(ctx, opts)
             type = getOutputTypeName(inputSchema.resolveType(rootType, path.slice(0, -1)))
         }
 
-        for (let i = 0; i < decimalPrecision.length; i++)
+        const metaPrecision = inputSchema.getFieldMeta(type, path[pathLength - 1], "decimalPrecision")
+        if (metaPrecision !== null)
         {
-            const { domainType, fieldName, precision, scale } = decimalPrecision[i];
-
-            if (type === domainType && fieldName === path[pathLength - 1])
-            {
-                p = {
-                    precision,
-                    scale
-                }
-            }
-
+            p = metaPrecision
         }
 
         if (p === null)

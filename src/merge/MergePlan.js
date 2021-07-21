@@ -123,8 +123,8 @@ export default class MergePlan {
                 {
                     const linkTypeName = unwrapAll(type).name;
 
-                    const leftSideRelation = config.inputSchema.schema.relations.find(r => r.sourceType === linkTypeName && r.targetType === typeName );
-                    const rightSideRelation = config.inputSchema.schema.relations.find(r => r.sourceType === linkTypeName && r.targetType !== typeName && r.leftSideObjectName );
+                    const leftSideRelation = config.inputSchema.getRelations().find(r => r.sourceType === linkTypeName && r.targetType === typeName );
+                    const rightSideRelation = config.inputSchema.getRelations().find(r => r.sourceType === linkTypeName && r.targetType !== typeName && r.leftSideObjectName );
                     embedded.push({
                         name,
                         isManyToMany: true,
@@ -132,9 +132,6 @@ export default class MergePlan {
                         leftSideRelation,
                         rightSideRelation
                     });
-
-                    // manyToManyLinkTypes.push(linkTypeName);
-                    // manyToManyRelations.push(config.inputSchema.schema.relations.find(r => r.sourceType === linkTypeName && r.targetType === typeName))
 
                     if (leftSideRelation.rightSideObjectName)
                     {

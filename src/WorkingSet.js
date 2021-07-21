@@ -914,7 +914,7 @@ export default class WorkingSet {
                     }
 
                     // find relations originating from element type of the embedded list that do not point the type we're coming from
-                    const relations = inputSchema.schema.relations.filter(r => r.sourceType === linkTypeName && r.targetType !== _type);
+                    const relations = inputSchema.getRelations().filter(r => r.sourceType === linkTypeName && r.targetType !== _type);
 
                     for (let j = 0; j < relations.length; j++)
                     {
@@ -1096,7 +1096,7 @@ export default class WorkingSet {
                     }
 
                     // find relations originating from element type of the embedded list that do not point the type we're coming from
-                    const relations = inputSchema.schema.relations.filter(r => r.sourceType === linkTypeName && r.targetType !== _type);
+                    const relations = inputSchema.getRelations().filter(r => r.sourceType === linkTypeName && r.targetType !== _type);
 
                     for (let j = 0; j < relations.length; j++)
                     {

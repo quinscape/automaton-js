@@ -169,7 +169,7 @@ export function isWrappedScalarType(type)
  */
 export function getIQueryPayloadType(iQueryType)
 {
-    const genericTypes = config.inputSchema.schema.genericTypes.filter(
+    const genericTypes = config.inputSchema.getGenericTypes().filter(
         genericType => genericType.type === iQueryType
     );
 

@@ -88,7 +88,7 @@ export function registerGraphQLPostProcessor(type, fn)
 
 export function registerGenericGraphQLPostProcessor(type, fn)
 {
-    const { genericTypes } = config.inputSchema.schema;
+    const { genericTypes } = config.inputSchema.meta;
 
     for (let i = 0; i < genericTypes.length; i++)
     {

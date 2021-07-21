@@ -262,7 +262,7 @@ const FKSelector = fnObserver(props => {
                                 fieldName = path[path.length - 1];
                             }
 
-                            const relations = inputSchema.schema.relations.filter(
+                            const relations = inputSchema.getRelations().filter(
                                 r => r.sourceType === objectType && r.sourceFields[0] === fieldName
                             );
 

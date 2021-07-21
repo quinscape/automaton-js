@@ -84,11 +84,9 @@ function defaultInit(ctx, initial)
         authentication,
         csrfToken,
         processName,
-        schema,
+        domainQL : rawSchema,
         alternateStyles,
         mergeOptions,
-        decimalPrecision,
-        fieldLengths,
         [APP_SCOPE]: appScopeFromInitial,
         [USER_SCOPE]: userScopeFromInitial
     } = initial;
@@ -102,10 +100,7 @@ function defaultInit(ctx, initial)
 
     config.auth = new Authentication(authentication);
 
-    schema.decimalPrecision = decimalPrecision;
-    schema.fieldLengths = fieldLengths;
-
-    config.inputSchema = new InputSchema(schema);
+    config.inputSchema = new InputSchema(rawSchema);
 
     new FormContext(config.inputSchema)
         .useAsDefault()
@@ -120,9 +115,6 @@ function defaultInit(ctx, initial)
 
     config.mergeOptions = mergeOptions;
 
-    config.decimalPrecision = decimalPrecision;
-    
-    config.fieldLengths = fieldLengths;
 
     let promises = [];
 

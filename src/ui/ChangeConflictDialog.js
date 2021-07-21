@@ -91,13 +91,13 @@ function createInfoMap(typeName)
 
         if (isListType(type))
         {
-            const leftSideRelation = inputSchema.schema.relations.find( r => r.targetType === typeName && r.rightSideObjectName === name);
+            const leftSideRelation = inputSchema.getRelations().find( r => r.targetType === typeName && r.rightSideObjectName === name);
             if (!leftSideRelation)
             {
                 throw new Error("Could not find left side relation for type '" + typeName +"' and object field '" + name + "'");
             }
 
-            const rightSideRelation = inputSchema.schema.relations.find( r => r.sourceType === leftSideRelation.sourceType && r.targetType !== leftSideRelation.targetType);
+            const rightSideRelation = inputSchema.getRelations().find( r => r.sourceType === leftSideRelation.sourceType && r.targetType !== leftSideRelation.targetType);
             if (rightSideRelation)
             {
                 out.set(name, {
@@ -123,7 +123,7 @@ function createInfoMap(typeName)
             const unwrapped = unwrapAll(type);
             if (unwrapped.kind === OBJECT)
             {
-                const relation = inputSchema.schema.relations.find( r => r.sourceType === typeName && r.leftSideObjectName === name);
+                const relation = inputSchema.getRelations().find( r => r.sourceType === typeName && r.leftSideObjectName === name);
 
                 if (!relation)
                 {

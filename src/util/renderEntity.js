@@ -22,10 +22,8 @@ export function registerEntityRenderer(type, fn)
  */
 function defaultRenderer(domainObject, textOnly)
 {
-    const { nameFields } = config.inputSchema.schema
     const { _type : type } = domainObject;
-
-    const fields = nameFields[type];
+    const fields = config.inputSchema.getTypeMeta(type, "nameFields")
     if (!fields)
     {
         return type + "@" + domainObject.id;

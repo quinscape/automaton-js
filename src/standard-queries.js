@@ -161,7 +161,7 @@ export function generateDomainObjectId(domainType)
 
 function findRelationById(id)
 {
-    const relations = config.inputSchema.schema.relations.filter(r => r.id === id);
+    const relations = config.inputSchema.getRelations().filter(r => r.id === id);
     if (!relations.length)
     {
         throw new Error("Could not find relation with id '" + id + "'");
@@ -171,7 +171,7 @@ function findRelationById(id)
 
 function findRelationByTargetType(sourceType, type)
 {
-    const relations = config.inputSchema.schema.relations.filter(r => r.sourceType === sourceType && r.targetType === type);
+    const relations = config.inputSchema.getRelations().filter(r => r.sourceType === sourceType && r.targetType === type);
     if (!relations.length)
     {
         throw new Error("Could not find relation with target type '" + type + "' and source type '" + sourceType + "'");

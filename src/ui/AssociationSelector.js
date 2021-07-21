@@ -67,7 +67,7 @@ function createNewLink(generateId, valuePath, linkedObj, root, linkObjectsField,
     const type = root._type;
     const targetField = valuePath[0];
 
-    const leftSideRelation = config.inputSchema.schema.relations.find(r => r.rightSideObjectName === linkObjectsField && r.targetType === type);
+    const leftSideRelation = config.inputSchema.getRelations().find(r => r.rightSideObjectName === linkObjectsField && r.targetType === type);
     if (!leftSideRelation)
     {
         throw new Error("Could not find left side relation for type '" + type + "' and linked objects field '" + linkObjectsField  + "'");
@@ -75,7 +75,7 @@ function createNewLink(generateId, valuePath, linkedObj, root, linkObjectsField,
 
     const linkType = leftSideRelation.sourceType;
 
-    const rightSideRelation = config.inputSchema.schema.relations.find(r => r.sourceType === linkType && r.leftSideObjectName === targetField);
+    const rightSideRelation = config.inputSchema.getRelations().find(r => r.sourceType === linkType && r.leftSideObjectName === targetField);
     if (!rightSideRelation)
     {
         throw new Error("Could not find right side relation with source type '" + linkType + "' and left side object field '" + targetField + "'");

@@ -1,122 +1,559 @@
 {
-    "types": [
-        {
-            "kind": "OBJECT",
-            "name": "AppUser",
-            "description": "Generated from public.app_user",
-            "fields": [
-                {
-                    "name": "lastLogin",
-                    "description": "DB column 'last_login'",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Timestamp",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "password",
-                    "description": "DB column 'password'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "created",
-                    "description": "DB column 'created'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
+    "schema": {
+        "types": [
+            {
+                "kind": "OBJECT",
+                "name": "AppUser",
+                "description": "Generated from public.app_user",
+                "fields": [
+                    {
+                        "name": "lastLogin",
+                        "description": "DB column 'last_login'",
+                        "args": [],
+                        "type": {
                             "kind": "SCALAR",
                             "name": "Timestamp",
                             "ofType": null
-                        }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "roles",
-                    "description": "DB column 'roles'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
+                    {
+                        "name": "password",
+                        "description": "DB column 'password'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "created",
+                        "description": "DB column 'created'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "Timestamp",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "roles",
+                        "description": "DB column 'roles'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "disabled",
+                        "description": "DB column 'disabled'",
+                        "args": [],
+                        "type": {
+                            "kind": "SCALAR",
+                            "name": "Boolean",
+                            "ofType": null
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "id",
+                        "description": "DB column 'id'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "login",
+                        "description": "DB column 'login'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "foos",
+                        "description": "Many-to-many objects from 'foo.owner_id'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "LIST",
+                                "name": null,
+                                "ofType": {
+                                    "kind": "OBJECT",
+                                    "name": "Foo",
+                                    "ofType": null
+                                }
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    }
+                ],
+                "inputFields": null,
+                "interfaces": [],
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "SCALAR",
+                "name": "String",
+                "description": "Built-in String",
+                "fields": null,
+                "inputFields": null,
+                "interfaces": null,
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "description": "Built-in Boolean",
+                "fields": null,
+                "inputFields": null,
+                "interfaces": null,
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "OBJECT",
+                "name": "QueryConfig",
+                "description": "Encapsulates all parameters of an interactive query.",
+                "fields": [
+                    {
+                        "name": "pageSize",
+                        "description": "Maximum number of paginated results.,",
+                        "args": [],
+                        "type": {
+                            "kind": "SCALAR",
+                            "name": "Int",
+                            "ofType": null
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "condition",
+                        "description": "FilterDSL condition graph or null",
+                        "args": [],
+                        "type": {
+                            "kind": "SCALAR",
+                            "name": "Condition",
+                            "ofType": null
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "sortFields",
+                        "description": "Current sort order for the query.",
+                        "args": [],
+                        "type": {
+                            "kind": "LIST",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "FieldExpression",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "id",
+                        "description": "Optional unique query identifier. Useful for server-side query implementations.",
+                        "args": [],
+                        "type": {
                             "kind": "SCALAR",
                             "name": "String",
                             "ofType": null
-                        }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "disabled",
-                    "description": "DB column 'disabled'",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Boolean",
-                        "ofType": null
+                    {
+                        "name": "offset",
+                        "description": "Current offset within the paginated results",
+                        "args": [],
+                        "type": {
+                            "kind": "SCALAR",
+                            "name": "Int",
+                            "ofType": null
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    }
+                ],
+                "inputFields": null,
+                "interfaces": [],
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "OBJECT",
+                "name": "InteractiveQueryBar",
+                "description": "Interactive Query with Bar payload.",
+                "fields": [
+                    {
+                        "name": "rowCount",
+                        "description": "Total row count available.",
+                        "args": [],
+                        "type": {
+                            "kind": "SCALAR",
+                            "name": "Int",
+                            "ofType": null
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "id",
-                    "description": "DB column 'id'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
+                    {
+                        "name": "rows",
+                        "description": "List with current rows of Bar.",
+                        "args": [],
+                        "type": {
+                            "kind": "LIST",
+                            "name": null,
+                            "ofType": {
+                                "kind": "OBJECT",
+                                "name": "Bar",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "type",
+                        "description": "Name of payload type (always 'Bar')",
+                        "args": [],
+                        "type": {
                             "kind": "SCALAR",
                             "name": "String",
                             "ofType": null
-                        }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "login",
-                    "description": "DB column 'login'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
+                    {
+                        "name": "queryConfig",
+                        "description": "Query configuration the current result was produced with.",
+                        "args": [],
+                        "type": {
+                            "kind": "OBJECT",
+                            "name": "QueryConfig",
+                            "ofType": null
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "columnStates",
+                        "description": "Column states for the current result.",
+                        "args": [],
+                        "type": {
+                            "kind": "LIST",
+                            "name": null,
+                            "ofType": {
+                                "kind": "OBJECT",
+                                "name": "ColumnState",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    }
+                ],
+                "inputFields": null,
+                "interfaces": [],
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "OBJECT",
+                "name": "Foo",
+                "description": "Generic domain object. Used as target in datagrid-test. Generated from public.foo in the database dump.",
+                "fields": [
+                    {
+                        "name": "flag",
+                        "description": "DB column 'flag'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "Boolean",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "created",
+                        "description": "DB column 'created'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "Timestamp",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "num",
+                        "description": "DB column 'num'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "name",
+                        "description": "DB column 'name'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "description",
+                        "description": "DB column 'description'",
+                        "args": [],
+                        "type": {
                             "kind": "SCALAR",
                             "name": "String",
                             "ofType": null
-                        }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "foos",
-                    "description": "Many-to-many objects from 'foo.owner_id'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
+                    {
+                        "name": "id",
+                        "description": "DB column 'id'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "type",
+                        "description": "DB foreign key column 'type'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "owner",
+                        "description": "Target of 'owner_id'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "OBJECT",
+                                "name": "AppUser",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    }
+                ],
+                "inputFields": null,
+                "interfaces": [],
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "SCALAR",
+                "name": "FieldExpression",
+                "description": "Map graph representing a JOOQ field expression",
+                "fields": null,
+                "inputFields": null,
+                "interfaces": null,
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "OBJECT",
+                "name": "ColumnState",
+                "description": "The state of a column within an interactive query.",
+                "fields": [
+                    {
+                        "name": "name",
+                        "description": "Column name",
+                        "args": [],
+                        "type": {
+                            "kind": "SCALAR",
+                            "name": "String",
+                            "ofType": null
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "enabled",
+                        "description": "True if column is enabled. Server might disabled columns.",
+                        "args": [],
+                        "type": {
+                            "kind": "SCALAR",
+                            "name": "Boolean",
+                            "ofType": null
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "sortable",
+                        "description": "True if the column is sortable.",
+                        "args": [],
+                        "type": {
+                            "kind": "SCALAR",
+                            "name": "Boolean",
+                            "ofType": null
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    }
+                ],
+                "inputFields": null,
+                "interfaces": [],
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "SCALAR",
+                "name": "Timestamp",
+                "description": "SQL timestamp equivalent",
+                "fields": null,
+                "inputFields": null,
+                "interfaces": null,
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "SCALAR",
+                "name": "Int",
+                "description": "Built-in Int",
+                "fields": null,
+                "inputFields": null,
+                "interfaces": null,
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "SCALAR",
+                "name": "Condition",
+                "description": "Map graph representing JOOQ conditions",
+                "fields": null,
+                "inputFields": null,
+                "interfaces": null,
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "OBJECT",
+                "name": "InteractiveQueryFoo",
+                "description": "Interactive Query with Foo payload.",
+                "fields": [
+                    {
+                        "name": "rowCount",
+                        "description": "Total row count available.",
+                        "args": [],
+                        "type": {
+                            "kind": "SCALAR",
+                            "name": "Int",
+                            "ofType": null
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    },
+                    {
+                        "name": "rows",
+                        "description": "List with current rows of Foo.",
+                        "args": [],
+                        "type": {
                             "kind": "LIST",
                             "name": null,
                             "ofType": {
@@ -124,578 +561,154 @@
                                 "name": "Foo",
                                 "ofType": null
                             }
-                        }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "SCALAR",
-            "name": "String",
-            "description": "Built-in String",
-            "fields": null,
-            "inputFields": null,
-            "interfaces": null,
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "SCALAR",
-            "name": "Boolean",
-            "description": "Built-in Boolean",
-            "fields": null,
-            "inputFields": null,
-            "interfaces": null,
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "QueryConfig",
-            "description": "Encapsulates all parameters of an interactive query.",
-            "fields": [
-                {
-                    "name": "pageSize",
-                    "description": "Maximum number of paginated results.,",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Int",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "condition",
-                    "description": "FilterDSL condition graph or null",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Condition",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "sortFields",
-                    "description": "Current sort order for the query.",
-                    "args": [],
-                    "type": {
-                        "kind": "LIST",
-                        "name": null,
-                        "ofType": {
+                    {
+                        "name": "type",
+                        "description": "Name of payload type (always 'Foo')",
+                        "args": [],
+                        "type": {
                             "kind": "SCALAR",
-                            "name": "FieldExpression",
+                            "name": "String",
                             "ofType": null
-                        }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "id",
-                    "description": "Optional unique query identifier. Useful for server-side query implementations.",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "offset",
-                    "description": "Current offset within the paginated results",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Int",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "InteractiveQueryBar",
-            "description": "Interactive Query with Bar payload.",
-            "fields": [
-                {
-                    "name": "rowCount",
-                    "description": "Total row count available.",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Int",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "rows",
-                    "description": "List with current rows of Bar.",
-                    "args": [],
-                    "type": {
-                        "kind": "LIST",
-                        "name": null,
-                        "ofType": {
+                    {
+                        "name": "queryConfig",
+                        "description": "Query configuration the current result was produced with.",
+                        "args": [],
+                        "type": {
                             "kind": "OBJECT",
-                            "name": "Bar",
+                            "name": "QueryConfig",
                             "ofType": null
-                        }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "type",
-                    "description": "Name of payload type (always 'Bar')",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
+                    {
+                        "name": "columnStates",
+                        "description": "Column states for the current result.",
+                        "args": [],
+                        "type": {
+                            "kind": "LIST",
+                            "name": null,
+                            "ofType": {
+                                "kind": "OBJECT",
+                                "name": "ColumnState",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    }
+                ],
+                "inputFields": null,
+                "interfaces": [],
+                "enumValues": null,
+                "possibleTypes": null
+            },
+            {
+                "kind": "OBJECT",
+                "name": "Bar",
+                "description": "Domain object used in ext-filter-test. Generated from public.bar in the database dump.",
+                "fields": [
+                    {
+                        "name": "numa",
+                        "description": "DB column 'numa'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "queryConfig",
-                    "description": "Query configuration the current result was produced with.",
-                    "args": [],
-                    "type": {
-                        "kind": "OBJECT",
-                        "name": "QueryConfig",
-                        "ofType": null
+                    {
+                        "name": "name",
+                        "description": "DB column 'name'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "columnStates",
-                    "description": "Column states for the current result.",
-                    "args": [],
-                    "type": {
-                        "kind": "LIST",
-                        "name": null,
-                        "ofType": {
-                            "kind": "OBJECT",
-                            "name": "ColumnState",
-                            "ofType": null
-                        }
+                    {
+                        "name": "id",
+                        "description": "DB column 'id'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "Foo",
-            "description": "Generic domain object. Used as target in datagrid-test. Generated from public.foo in the database dump.",
-            "fields": [
-                {
-                    "name": "flag",
-                    "description": "DB column 'flag'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "Boolean",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "created",
-                    "description": "DB column 'created'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
+                    {
+                        "name": "created",
+                        "description": "DB column 'created'",
+                        "args": [],
+                        "type": {
                             "kind": "SCALAR",
                             "name": "Timestamp",
                             "ofType": null
-                        }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
                     },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "num",
-                    "description": "DB column 'num'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "Int",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "name",
-                    "description": "DB column 'name'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "description",
-                    "description": "DB column 'description'",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "id",
-                    "description": "DB column 'id'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "type",
-                    "description": "DB foreign key column 'type'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "owner",
-                    "description": "Target of 'owner_id'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "OBJECT",
-                            "name": "AppUser",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "SCALAR",
-            "name": "FieldExpression",
-            "description": "Map graph representing a JOOQ field expression",
-            "fields": null,
-            "inputFields": null,
-            "interfaces": null,
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "ColumnState",
-            "description": "The state of a column within an interactive query.",
-            "fields": [
-                {
-                    "name": "name",
-                    "description": "Column name",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "enabled",
-                    "description": "True if column is enabled. Server might disabled columns.",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Boolean",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "sortable",
-                    "description": "True if the column is sortable.",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Boolean",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "SCALAR",
-            "name": "Timestamp",
-            "description": "SQL timestamp equivalent",
-            "fields": null,
-            "inputFields": null,
-            "interfaces": null,
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "SCALAR",
-            "name": "Int",
-            "description": "Built-in Int",
-            "fields": null,
-            "inputFields": null,
-            "interfaces": null,
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "SCALAR",
-            "name": "Condition",
-            "description": "Map graph representing JOOQ conditions",
-            "fields": null,
-            "inputFields": null,
-            "interfaces": null,
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "InteractiveQueryFoo",
-            "description": "Interactive Query with Foo payload.",
-            "fields": [
-                {
-                    "name": "rowCount",
-                    "description": "Total row count available.",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Int",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "rows",
-                    "description": "List with current rows of Foo.",
-                    "args": [],
-                    "type": {
-                        "kind": "LIST",
-                        "name": null,
-                        "ofType": {
-                            "kind": "OBJECT",
-                            "name": "Foo",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "type",
-                    "description": "Name of payload type (always 'Foo')",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "queryConfig",
-                    "description": "Query configuration the current result was produced with.",
-                    "args": [],
-                    "type": {
-                        "kind": "OBJECT",
-                        "name": "QueryConfig",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "columnStates",
-                    "description": "Column states for the current result.",
-                    "args": [],
-                    "type": {
-                        "kind": "LIST",
-                        "name": null,
-                        "ofType": {
-                            "kind": "OBJECT",
-                            "name": "ColumnState",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "Bar",
-            "description": "Domain object used in ext-filter-test. Generated from public.bar in the database dump.",
-            "fields": [
-                {
-                    "name": "numa",
-                    "description": "DB column 'numa'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "Int",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "name",
-                    "description": "DB column 'name'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "id",
-                    "description": "DB column 'id'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "created",
-                    "description": "DB column 'created'",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "Timestamp",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "numb",
-                    "description": "DB column 'numb'",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "Int",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
+                    {
+                        "name": "numb",
+                        "description": "DB column 'numb'",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "Int",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    }
+                ],
+                "inputFields": null,
+                "interfaces": [],
+                "enumValues": null,
+                "possibleTypes": null
+            }
+        ]
+    },
+    "meta": {
+        "types": {
+            "AppUser": {},
+            "QueryConfig": {},
+            "InteractiveQueryBar": {},
+            "Foo": {},
+            "ColumnState": {},
+            "InteractiveQueryFoo": {},
+            "Bar": {}
         }
-    ]
+    }
 }

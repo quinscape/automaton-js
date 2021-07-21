@@ -1,102 +1,103 @@
 {
-    "types": [
-        {
-            "kind": "SCALAR",
-            "name": "String",
-            "description": "Built-in String",
-            "fields": null,
-            "inputFields": null,
-            "interfaces": null,
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "SCALAR",
-            "name": "BigDecimal",
-            "description": "BigDecimal wrapped as string",
-            "fields": null,
-            "inputFields": null,
-            "interfaces": null,
-            "enumValues": null,
-            "possibleTypes": null
-        },
-        {
-            "kind": "OBJECT",
-            "name": "Garply",
-            "description": "Entity containing BigDecimal fields",
-            "fields": [
-                {
-                    "name": "name",
-                    "description": "garply name",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "opt",
-                    "description": "optional big decimal field",
-                    "args": [],
-                    "type": {
-                        "kind": "SCALAR",
-                        "name": "BigDecimal",
-                        "ofType": null
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "id",
-                    "description": "garply id",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                            "kind": "SCALAR",
-                            "name": "String",
-                            "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                },
-                {
-                    "name": "value",
-                    "description": "big decimal field",
-                    "args": [],
-                    "type": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
+    "schema": {
+        "types": [
+            {
+                "kind": "SCALAR",
+                "name": "String",
+                "description": "Built-in String",
+                "fields": null,
+                "inputFields": null,
+                "interfaces": null,
+                "enumValues": null,
+                "possibleTypes": null
+            }, {
+                "kind": "SCALAR",
+                "name": "BigDecimal",
+                "description": "BigDecimal wrapped as string",
+                "fields": null,
+                "inputFields": null,
+                "interfaces": null,
+                "enumValues": null,
+                "possibleTypes": null
+            }, {
+                "kind": "OBJECT",
+                "name": "Garply",
+                "description": "Entity containing BigDecimal fields",
+                "fields": [
+                    {
+                        "name": "name",
+                        "description": "garply name",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    }, {
+                        "name": "opt",
+                        "description": "optional big decimal field",
+                        "args": [],
+                        "type": {
                             "kind": "SCALAR",
                             "name": "BigDecimal",
                             "ofType": null
-                        }
-                    },
-                    "isDeprecated": false,
-                    "deprecationReason": null
-                }
-            ],
-            "inputFields": null,
-            "interfaces": [],
-            "enumValues": null,
-            "possibleTypes": null
-        }
-    ],
-    "relations": [],
-    "nameFields": {
-        "Garply": [
-            "name"
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    }, {
+                        "name": "id",
+                        "description": "garply id",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "String",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    }, {
+                        "name": "value",
+                        "description": "big decimal field",
+                        "args": [],
+                        "type": {
+                            "kind": "NON_NULL",
+                            "name": null,
+                            "ofType": {
+                                "kind": "SCALAR",
+                                "name": "BigDecimal",
+                                "ofType": null
+                            }
+                        },
+                        "isDeprecated": false,
+                        "deprecationReason": null
+                    }
+                ],
+                "inputFields": null,
+                "interfaces": [],
+                "enumValues": null,
+                "possibleTypes": null
+            }
         ]
     },
-    "genericTypes": []
+    "meta": {
+        "types": {
+            "Garply": {
+                "meta": {
+                    "nameFields": ["name"]
+                }
+            }
+        },
+        "relations": [],
+        "genericTypes": []
+    }
 }

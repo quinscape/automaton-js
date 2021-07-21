@@ -61,7 +61,7 @@ const AttachmentField = React.forwardRef(
         const attachmentPath = useMemo(
             () => {
 
-                const relations = config.inputSchema.schema.relations.filter(r => r.targetType === "AppAttachment" && r.sourceFields[0] === name );
+                const relations = config.inputSchema.getRelations().filter(r => r.targetType === "AppAttachment" && r.sourceFields[0] === name );
                 if (!relations.length)
                 {
                     throw new Error("Could not find attachment relation using '" + name + "' as source field");

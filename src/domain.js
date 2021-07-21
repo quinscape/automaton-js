@@ -28,7 +28,7 @@ let wireFormat = {
  */
 export function registerGenericType(genericType, DomainClass)
 {
-    const { genericTypes } = config.inputSchema.schema;
+    const { genericTypes } = config.inputSchema.meta;
 
     const typesForGenericType = genericTypes.filter(ref => ref.genericType === genericType);
 
@@ -70,7 +70,7 @@ export const INTERACTIVE_QUERY_DEFINITION = "de.quinscape.automaton.model.data.I
  */
 export function getGenericType(typeName)
 {
-    const { genericTypes } = config.inputSchema.schema;
+    const { genericTypes } = config.inputSchema.meta;
 
     for (let i = 0; i < genericTypes.length; i++)
     {
@@ -196,9 +196,8 @@ function getMaxLength(ctx)
         return maxLength;
     }
 
-    const {path, rootType, maxLength : maxLengthFromCtx} = ctx;
+    const { path, rootType, maxLength : maxLengthFromCtx } = ctx;
 
-    // are both precision and scale specified on the field
     if (maxLengthFromCtx !== undefined)
     {
         maxLength = maxLengthFromCtx;
@@ -206,7 +205,7 @@ function getMaxLength(ctx)
 
     if (maxLength === undefined && rootType)
     {
-        const { inputSchema, fieldLengths } = config;
+        const { inputSchema } = config;
 
         let type;
         const { length: pathLength } = path;
@@ -220,13 +219,12 @@ function getMaxLength(ctx)
             type = getOutputTypeName(inputSchema.resolveType(rootType, path.slice(0, -1)))
         }
 
-        for (let i = 0; i < fieldLengths.length; i++)
+
+
+        const metaLength = config.inputSchema.getFieldMeta(type, path[pathLength - 1], "maxLength")
+        if (metaLength !== null)
         {
-            const { domainType, fieldName, length } = fieldLengths[i];
-            if (type === domainType && fieldName === path[pathLength - 1])
-            {
-                maxLength = length
-            }
+            maxLength = metaLength
         }
     }
 
