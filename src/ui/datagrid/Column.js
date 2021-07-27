@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react"
 import get from "lodash.get"
+import cx from "classnames"
 import { GlobalConfig } from "domainql-form"
 import { observer as fnObserver } from "mobx-react-lite"
 import { lookupType, unwrapNonNull } from "../../util/type-utils";
@@ -13,7 +14,7 @@ import { lookupType, unwrapNonNull } from "../../util/type-utils";
  */
 const Column = fnObserver(props => {
 
-    const { name, context, className, children} = props;
+    const { name, context, width, minWidth, maxWidth, nobreak, className, children} = props;
 
     const scalarType = useMemo(
         () => {
@@ -44,6 +45,7 @@ const Column = fnObserver(props => {
         return (
             <td
                 className={ effectiveClass }
+                style={ { width, minWidth, maxWidth } }
             >
                 {
                     React.isValidElement(result) ?
@@ -72,18 +74,21 @@ const Column = fnObserver(props => {
     //console.log("context[name] = ", context[name]);
 
     const value = get(context, name);
+
+    const renderedValue = value === null || value === undefined || value === "" ?
+        GlobalConfig.none() :
+        GlobalConfig.renderStatic(scalarType, value);
+
     return (
         <td
             className={ effectiveClass }
+            style={ { width, minWidth, maxWidth } }
         >
             <p
-                className="form-control-plaintext"
+                className={ cx("form-control-plaintext", nobreak && "nobreak") }
+                title={ nobreak && renderedValue }
             >
-                {
-                    value === null || value === undefined || value === "" ?
-                        GlobalConfig.none() :
-                        GlobalConfig.renderStatic(scalarType, value)
-                }
+                { renderedValue }
             </p>
         </td>
     )
@@ -94,6 +99,34 @@ Column.propTypes = {
      * Column name / path expression. (e.g. "name", but also "foo.owner.name")
      */
     name: PropTypes.string,
+
+    /**
+     * Column width. Can be a css size string (e.g. "20vw", "50%" or "10xm") or a number for pixels.
+     */
+    width: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
+    /**
+     * Column minimal width. Can be a css size string (e.g. "20vw", "50%" or "10xm") or a number for pixels.
+     */
+    minWidth: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
+    /**
+     * Column maximal width. Can be a css size string (e.g. "20vw", "50%" or "10xm") or a number for pixels.
+     * Takes effect only after the table stretches beyond its boundaries.
+     */
+    maxWidth: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
+    /**
+     * Defines if the column contents should be ellipsed instead of using linebreaks after it reaches its maximal width.
+     * Additionally sets a title attribute containing the full content.
+     */
+    nobreak: PropTypes.bool,
 
     /**
      * Additional classes to add to the cells for this column. Can be either string to apply to all columns or a function

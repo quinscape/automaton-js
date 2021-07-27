@@ -42,7 +42,7 @@ const COLUMN_CONFIG_INPUT_OPTS = {
  */
 const DataGrid = fnObserver(props => {
 
-    const { id, value, tableClassName, rowClasses, filterTimeout, workingSet, children } = props;
+    const { id, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, children } = props;
 
     const { type, columnStates } = value;
 
@@ -78,7 +78,7 @@ const DataGrid = fnObserver(props => {
                     return;
                 }
 
-                const {name, filter, heading, sort, renderFilter } = columnElem.props;
+                const {name, width, minWidth, filter, heading, sort, renderFilter } = columnElem.props;
 
                 let typeRef = null, sortable = false, enabled = false;
                 if (name)
@@ -109,6 +109,8 @@ const DataGrid = fnObserver(props => {
 
                 columns.push({
                     name,
+                    width,
+                    minWidth,
                     sortable,
                     filter,
                     enabled,
@@ -149,59 +151,123 @@ const DataGrid = fnObserver(props => {
             componentId={ id }
             filterTimeout={ filterTimeout }
         >
-            <table
+            <div
                 className={
                     cx(
-                        // reduced bottom margin to visually connect pagination
-                        "data-grid table",
-                        tableClassName
+                        "data-grid-container mt-3 mb-2",
+                        isCompact && "data-grid-compact"
                     )
                 }
             >
-                <thead>
-                <tr className="headers">
-                    {
-                        columns.map(
-                            (col, idx) => col.enabled && (
-                                <th
-                                    key={ idx }
-                                >
-                                    <SortLink
-                                        iQuery={ value }
-                                        column={ col }
-                                    />
-                                </th>
+                <div className="data-grid-scrollcontainer">
+                    <table
+                        className={
+                            cx(
+                                // reduced bottom margin to visually connect pagination
+                                "data-grid table",
+                                tableClassName
                             )
-                        )
-                    }
-                </tr>
+                        }
+                    >
+                        <thead>
+                        <tr className="headers">
+                            {
+                                columns.map(
+                                    (col, idx) => col.enabled && (
+                                        <th
+                                            key={ idx }
+                                            style={
+                                                {
+                                                    width: col.width,
+                                                    minWidth: col.minWidth,
+                                                    maxWidth: col.maxWidth
+                                                }
+                                            }
+                                        >
+                                            <SortLink
+                                                iQuery={ value }
+                                                column={ col }
+                                            />
+                                        </th>
+                                    )
+                                )
+                            }
+                        </tr>
 
-                <FilterRow
-                    columns={ columns }
-                />
-                </thead>
-                <tbody>
-                {
-                    workingSet && queryConfig.offset === 0 && (function () {
+                        <FilterRow
+                            columns={ columns }
+                        />
+                        </thead>
+                        <tbody>
+                        {
+                            workingSet && queryConfig.offset === 0 && (function () {
 
-                        const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
+                                const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
 
-                        const newObjects = workingSet.newObjects(type);
-                        const filtered = newObjects.filter( obj => {
-                            fieldResolver.current = obj;
-                            return filterFn();
-                        });
+                                const newObjects = workingSet.newObjects(type);
+                                const filtered = newObjects.filter( obj => {
+                                    fieldResolver.current = obj;
+                                    return filterFn();
+                                });
 
-                        //console.log(id, "newObjects, filtered",newObjects, filtered);
+                                //console.log(id, "newObjects, filtered",newObjects, filtered);
 
-                        return (
-                            filtered
-                                .map(
-                                    (context, idx) => (
+                                return (
+                                    filtered
+                                        .map(
+                                            (context, idx) => (
+                                                <tr
+                                                    key={"ws" + idx}
+                                                    className={
+                                                        cx("data", rowClasses ? rowClasses(context) : null, "new-object")
+                                                    }
+                                                >
+                                                    {
+                                                        columns.map(
+                                                            (column, columnIdx) => column.enabled && (
+                                                                React.cloneElement(
+                                                                    column.columnElem,
+                                                                    {
+                                                                        key: columnIdx,
+                                                                        context
+                                                                    }
+                                                                )
+                                                            )
+                                                        )
+                                                    }
+                                                </tr>
+                                            )
+                                        )
+                                )
+                            })()
+                        }
+                        {
+                            rows.map(
+                                (context, idx) => {
+
+                                    let workingSetClass = null;
+                                    if (workingSet)
+                                    {
+                                        const entry = workingSet.lookup(context._type, context.id);
+                                        if (entry)
+                                        {
+                                            if (entry.status === WorkingSetStatus.DELETED)
+                                            {
+                                                workingSetClass = "deleted-object";
+                                            }
+                                            else if (workingSet.isModified(context))
+                                            {
+                                                workingSetClass = "changed-object";
+                                                context = entry.domainObject;
+                                            }
+                                        }
+                                    }
+
+                                    return (
                                         <tr
-                                            key={"ws" + idx}
+                                            key={idx}
                                             className={
-                                                cx("data", rowClasses ? rowClasses(context) : null, "new-object")
+                                                cx("data", rowClasses ? rowClasses(context) : null, workingSetClass)
                                             }
                                         >
                                             {
@@ -218,71 +284,25 @@ const DataGrid = fnObserver(props => {
                                                 )
                                             }
                                         </tr>
-                                    )
-                                )
-                        )
-                    })()
-                }
-                {
-                    rows.map(
-                        (context, idx) => {
-
-                            let workingSetClass = null;
-                            if (workingSet)
-                            {
-                                const entry = workingSet.lookup(context._type, context.id);
-                                if (entry)
-                                {
-                                    if (entry.status === WorkingSetStatus.DELETED)
-                                    {
-                                        workingSetClass = "deleted-object";
-                                    }
-                                    else if (workingSet.isModified(context))
-                                    {
-                                        workingSetClass = "changed-object";
-                                        context = entry.domainObject;
-                                    }
+                                    );
                                 }
-                            }
-
-                            return (
-                                <tr
-                                    key={idx}
-                                    className={
-                                        cx("data", rowClasses ? rowClasses(context) : null, workingSetClass)
-                                    }
-                                >
-                                    {
-                                        columns.map(
-                                            (column, columnIdx) => column.enabled && (
-                                                React.cloneElement(
-                                                    column.columnElem,
-                                                    {
-                                                        key: columnIdx,
-                                                        context
-                                                    }
-                                                )
-                                            )
-                                        )
-                                    }
-                                </tr>
-                            );
+                            )
                         }
-                    )
-                }
-                {
-                    rows.length === 0 && (
-                        <tr>
-                            <td colSpan={ columns[0].enabledCount }>
-                                {
-                                    i18n("DataGrid:No Rows")
-                                }
-                            </td>
-                        </tr>
-                    )
-                }
-                </tbody>
-            </table>
+                        {
+                            rows.length === 0 && (
+                                <tr>
+                                    <td colSpan={ columns[0].enabledCount }>
+                                        {
+                                            i18n("DataGrid:No Rows")
+                                        }
+                                    </td>
+                                </tr>
+                            )
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             <Pagination
                 iQuery={ value }
                 description={ i18n("Result Navigation") }
@@ -292,7 +312,7 @@ const DataGrid = fnObserver(props => {
 });
 
 DataGrid.defaultProps = {
-    tableClassName: "table-hover table-striped table-bordered table-sm mt-3 mb-2",
+    tableClassName: "table-hover table-striped table-bordered table-sm",
     filterTimeout: 350,
     workingSet: null
 };
@@ -311,6 +331,12 @@ DataGrid.propTypes = {
      * milliseconds have passed since the last filter change.
      */
     filterTimeout: PropTypes.number,
+
+    /**
+     * use compact datagrid mode where by defaul all colums use minimal space (except for the last)
+     * and enhanced size parameters are enabled per column
+     */
+    isCompact: PropTypes.bool,
 
     /**
      * Working set with in-memory objects to be mixed in
