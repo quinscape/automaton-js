@@ -58,7 +58,7 @@ const SortLink = props => {
             sortable ? {
                 className: "d-block text-center text-dark",
                 href: "#",
-                onClick: changeSorting
+                onClick: ev => { ev.preventDefault() ; changeSorting() }
             } : {
                 className: "d-block text-center text-dark",
             },
