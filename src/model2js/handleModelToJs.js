@@ -1,7 +1,9 @@
 import {modelToJsSchema} from "./schemaDeclaration"
 import Ajv from "ajv";
 import jsonMap from "json-source-map"
-import {js as beautify} from "js-beautify"
+import {js as jsBeautify} from "js-beautify"
+import {html as htmlBeautify} from  "js-beautify"
+//var htmlBeautify = require('js-beautify').html;
 
 const ajvInstance = new Ajv({allErrors: true, jsonPointers: true});
 
@@ -200,7 +202,8 @@ export const renderStateScript = (state) => {
     }
 
     if (transitionMap) {
-        stateScript += `(process, scope) => ({`
+        let transitionScript = ''
+        transitionScript += `(process, scope) => ({`
 
         for (let transitionName in transitionMap) {
             if (transitionMap.hasOwnProperty(transitionName)) {
@@ -208,41 +211,42 @@ export const renderStateScript = (state) => {
                 const transition = transitionMap[transitionName];
                 const {to, action, discard, confirmation} = transition;
 
-                stateScript += `
+                transitionScript += `
             "${transitionName}" : {`;
 
                 if (to) {
-                    stateScript += `
+                    transitionScript += `
                 to: ${to},`
                 }
                 if (confirmation) {
                     const paramExpression = confirmation.params.length === 1 ? confirmation.params[0] : "(" + confirmation.params.join(
                         ", ") + ")";
-                    stateScript += `
+                    transitionScript += `
                 confirmation: ${paramExpression} => ${confirmation.code},`
                 }
                 if (discard) {
-                    stateScript += `
+                    transitionScript += `
                 discard: ${discard},`
                 }
 
                 if (action) {
                     const paramExpression = action.params.length === 1 ? action.params[0] : "(" + action.params.join(
                         ", ") + ")";
-                    stateScript += `
+                    transitionScript += `
                 action: ${paramExpression} => 
                     ${action.code},`
                 }
-                stateScript += `},`;
+                transitionScript += `},`;
             }
 
         }
-        stateScript += `
+        transitionScript += `
     }),`
-        stateScript = `${beautify(stateScript)}`;
+        stateScript += `${jsBeautify(transitionScript)}`;
     }
 
     if (composite) {
+        let compositeScript = '';
         const {constants, root} = composite
 
         const handleConstatnts = (constants) => {
@@ -312,7 +316,7 @@ export const renderStateScript = (state) => {
                                 return
                             }
                             if (value.code) {
-                                stateScript += ` ${name} = ${value.code}`
+                                compositeScript += ` ${name} = ${value.code}`
                             }
                             if (value.params) {
                                 let paramsName = [];
@@ -324,47 +328,47 @@ export const renderStateScript = (state) => {
                                 if (value.root.code) {
                                     paramsName = value.params.length === 1 ? `${paramsName} => ` : ` (${paramsName.join(', ')}) => (`
 
-                                    stateScript += ` ${name}={ ${paramsName} ${value.root.code}
+                                    compositeScript += ` ${name}={ ${paramsName} ${value.root.code}
                                         `
                                     if (value.params.length > 1) {
-                                        stateScript += `)`
+                                        compositeScript += `)`
                                     }
-                                    stateScript += `}`
+                                    compositeScript += `}`
                                 }
 
                                 if (value.root.attrs) {
                                     const {name: nameOfRoot, attrs, kids} = value.root
                                     paramsName = value.params.length === 1 ? `${paramsName} => ` : ` (${paramsName.join(', ')}) => {`
 
-                                    stateScript += ` ${name}={ ${paramsName}`
+                                    compositeScript += ` ${name}={ ${paramsName}`
 
-                                    stateScript += `
+                                    compositeScript += `
                                     return (
                                         <${nameOfRoot}`
                                     if (attrs && attrs.length > 0) {
                                         commonAttrs(attrs)
                                     }
                                     if (kids && kids.length > 0) {
-                                        stateScript += `>`
+                                        compositeScript += `>`
                                         handleKidsofRoot(kids)
-                                        stateScript += `
+                                        compositeScript += `
                                         </${nameOfRoot}>
                                         `
                                     } else {
-                                        stateScript += `/>
+                                        compositeScript += `/>
                                             `
                                     }
-                                    stateScript += `
+                                    compositeScript += `
                                         )`
                                     if (value.params.length > 1) {
-                                        stateScript += `}`
+                                        compositeScript += `}`
                                     }
-                                    stateScript += `}`
+                                    compositeScript += `}`
                                 }
 
                             }
                         } else {
-                            stateScript += ` ${name} `
+                            compositeScript += ` ${name} `
                         }
                     })
                 }
@@ -373,7 +377,7 @@ export const renderStateScript = (state) => {
                 if (attrs) {
                     attrs.map(({name, value}) => {
                         if (name === "renderedIf") {
-                            stateScript += `
+                            compositeScript += `
                     {
                         ${value.code} && (
                 `
@@ -385,7 +389,7 @@ export const renderStateScript = (state) => {
                 if (attrs) {
                     attrs.map(({name}) => {
                         if (name === "renderedIf") {
-                            stateScript += `
+                            compositeScript += `
                             )
                     }
                             `
@@ -395,25 +399,25 @@ export const renderStateScript = (state) => {
             }
             const commonRoot = (nameOfRoot, attrsOfRoot, kidsOfRoot, code) => {
                 if (nameOfRoot) {
-                    stateScript += `(
+                    compositeScript += `(
                     <${nameOfRoot}`
                     if (attrsOfRoot && attrsOfRoot.length > 0) {
                         commonAttrs(attrsOfRoot)
                     }
                     if (kidsOfRoot && kidsOfRoot.length > 0) {
-                        stateScript += `>`
+                        compositeScript += `>`
                         handleKidsofRoot(kidsOfRoot)
-                        stateScript += `
+                        compositeScript += `
                     </${nameOfRoot}>
                         )
                 }`
                     } else {
-                        stateScript += `/>
+                        compositeScript += `/>
                 )
                 }`
                     }
                 } else if (code) {
-                    stateScript += `${code}
+                    compositeScript += `${code}
                     }`
                 }
             }
@@ -422,11 +426,11 @@ export const renderStateScript = (state) => {
 
                 if (root) {
 
-                    stateScript += `
+                    compositeScript += `
                     {`
 
                     params.map(({name: nameOfParams}) => {
-                        stateScript += `
+                        compositeScript += `
                     ${nameOfParams} => `
                     })
 
@@ -443,27 +447,27 @@ export const renderStateScript = (state) => {
                 }
 
                 if (name) {
-                    kids && kids.length >= 1 ? stateScript += `
-                ` : stateScript += `
+                    kids && kids.length >= 1 ? compositeScript += `
+                ` : compositeScript += `
                     `
                     if (attrs && attrs.length >= 1) {
                         renderedIf(attrs)
-                        stateScript += `<${name}`
+                        compositeScript += `<${name}`
                         commonAttrs(attrs)
-                        kids && kids.length >= 1 ? stateScript += `>` : stateScript += `/>`
+                        kids && kids.length >= 1 ? compositeScript += `>` : compositeScript += `/>`
                     } else {
-                        stateScript += `<${name}`
-                        kids && kids.length >= 1 ? stateScript += `>` : stateScript += `/>`
+                        compositeScript += `<${name}`
+                        kids && kids.length >= 1 ? compositeScript += `>` : compositeScript += `/>`
                     }
                 }
 
                 if (value) {
-                    stateScript += `
+                    compositeScript += `
                     ${value}`
                 }
 
                 if (code) {
-                    stateScript += `
+                    compositeScript += `
                     ${code}`
                 }
 
@@ -473,14 +477,14 @@ export const renderStateScript = (state) => {
 
                         renderedIf(attrs)
 
-                        stateScript += `
+                        compositeScript += `
                     <React.Fragment>
                         ${html}
                     </React.Fragment>`
 
                     } else {
 
-                        stateScript += `
+                        compositeScript += `
                     ${html}`
 
                     }
@@ -488,20 +492,20 @@ export const renderStateScript = (state) => {
 
                 if (kids && kids.length >= 1) {
                     handleKidsofRoot(kids)
-                    stateScript += `</${name}>`
+                    compositeScript += `</${name}>`
                 }
 
                 if (attrs && attrs.length >= 1) {
                     endOfRenderedIf(attrs)
                 }
 
-                stateScript += `
+                compositeScript += `
                 `
             })
 
         }
 
-        stateScript += ` props => {
+        compositeScript += ` props => {
             ${handleConstatnts(constants)}
     
             return(
@@ -510,10 +514,11 @@ export const renderStateScript = (state) => {
         if (root.kids) {
             handleKidsofRoot(root.kids)
         }
-        stateScript += `
+        compositeScript += `
                 </${root.name}>
                     )
                 }`
+        stateScript += `${htmlBeautify(compositeScript)}`;
     }
 
     stateScript += `);
@@ -631,7 +636,7 @@ export default class ${name} {
     }
     processScript += `}`;
     //END the section of SCOPE
-    return beautify(processScript);
+    return jsBeautify(processScript);
 }
 
 export const renderUserScopeScript = (userScope) => {
@@ -699,7 +704,7 @@ export const renderDomainScript = (domain) => {
     }
     domainScript += `
     }`
-    return beautify(domainScript)
+    return jsBeautify(domainScript)
 }
 
 
