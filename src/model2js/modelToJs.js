@@ -10,7 +10,6 @@ import {
     renderUserScopeScript,
     renderSessionScopeScript,
     renderProcessExportScript,
-    renderCompositeScript,
     renderStateScript,
     renderExtraConstantsScript,
     modelSchemaValidation} from "./handleModelToJs";
@@ -84,7 +83,7 @@ recursiveReadDir(MODEL_PATH, ["!*.json","**/lisa-web/meta"], function (err, file
         const appName = getFirstSegment(internalPath);
 
         const inAppPath = "." + internalPath.substr(appName.length);
-        const {processName, shortName, isDomain, isComposite,isQuery,isState} = matchPath(inAppPath);
+        const {processName, shortName, isDomain,isQuery,isState} = matchPath(inAppPath);
 
         createProjectFolders(processName)
 
@@ -109,10 +108,7 @@ recursiveReadDir(MODEL_PATH, ["!*.json","**/lisa-web/meta"], function (err, file
         }
         else if (processName != null) {
 
-            if (isComposite) {
-                fileConfig=convertComposite(jsonData, processName, shortName,content);
-            }
-            else if (isState) {
+            if (isState) {
                 fileConfig = convertState(jsonData, processName, shortName,content)
             }
             else if (isQuery) {
@@ -126,7 +122,7 @@ recursiveReadDir(MODEL_PATH, ["!*.json","**/lisa-web/meta"], function (err, file
             fileConfig=convertMisc(jsonData, shortName,content);
         }
 
-        console.log({appName, processName,shortName, isComposite,isQuery,isState});
+        console.log({appName, processName,shortName,isQuery,isState});
         fs.writeFile(fileConfig.path, fileConfig.content, (err) => {
             if (err) console.log("\x1b[41m",err,"\x1b[0m") ;
         })
@@ -151,7 +147,6 @@ function createProjectFolders(processName) {
         }
         if (!fs.existsSync(`${shortPath}/processes/${processName}`)) {
             fs.mkdirSync(`${shortPath}/processes/${processName}`)
-            fs.mkdirSync(`${shortPath}/processes/${processName}/composites`)
             fs.mkdirSync(`${shortPath}/processes/${processName}/states`)
             fs.mkdirSync(`${shortPath}/processes/${processName}/queries`)
         }
@@ -178,26 +173,6 @@ function convertDomainModel({domain }, shortName,content) {
     return {
         path,
         content
-    };
-}
-
-function convertComposite({export: exportData, composite, extraConstants }, processName, shortName,content) {
-    const path = `${shortPath}/processes/${processName}/composites/${shortName}.js`
-    try {
-        if (extraConstants) {
-            content += renderExtraConstantsScript(extraConstants)
-        }
-
-        if (composite) {
-            content += renderCompositeScript(exportData, composite, shortName)
-        }
-
-    } catch (err) {
-        console.error("\x1b[41m", `Error: ${path}`,err, "\x1b[0m")
-    }
-    return {
-        path,
-        content: content
     };
 }
 
