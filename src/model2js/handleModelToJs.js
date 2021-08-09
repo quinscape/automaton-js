@@ -2,22 +2,23 @@ import {modelToJsSchema} from "./schemaDeclaration"
 import Ajv from "ajv";
 import jsonMap from "json-source-map"
 import {js as beautify} from "js-beautify"
-const ajvInstance = new Ajv({allErrors: true,jsonPointers: true});
 
-export const modelSchemaValidation =(jsonData)=>{
-        const valid = ajvInstance.validate(modelToJsSchema, jsonData);
-        if (!valid) {
-            const sourceMap = jsonMap.stringify(jsonData, null, 2);
-            const jsonLines = sourceMap.json.split('\n');
-            ajvInstance.errors.forEach(error => {
-                let errorMessage = '';
-                errorMessage += ajvInstance.errorsText([ error ]);
-                let errorPointer = sourceMap.pointers[error.dataPath];
-                errorMessage = `\n> Line ${errorPointer.value.line +1} ` + errorMessage;
-                console.log("\x1b[41m",errorMessage,"\x1b[0m");
-            });
-        }
-        return valid
+const ajvInstance = new Ajv({allErrors: true, jsonPointers: true});
+
+export const modelSchemaValidation = (jsonData) => {
+    const valid = ajvInstance.validate(modelToJsSchema, jsonData);
+    if (!valid) {
+        const sourceMap = jsonMap.stringify(jsonData, null, 2);
+        const jsonLines = sourceMap.json.split('\n');
+        ajvInstance.errors.forEach(error => {
+            let errorMessage = '';
+            errorMessage += ajvInstance.errorsText([error]);
+            let errorPointer = sourceMap.pointers[error.dataPath];
+            errorMessage = `\n> Line ${errorPointer.value.line + 1} ` + errorMessage;
+            console.log("\x1b[41m", errorMessage, "\x1b[0m");
+        });
+    }
+    return valid
 }
 
 export const renderImportStatements = (importDeclarations) => {
@@ -28,24 +29,24 @@ export const renderImportStatements = (importDeclarations) => {
 
         importStatements += "import "
 
-        specifiers.map((specifier, index,specifiers) => {
+        specifiers.map((specifier, index, specifiers) => {
             const specifierType = specifiers[0].type
             const {type, name, aliasOf} = specifier
 
             if (type === "ImportDefaultSpecifier") {
                 importStatements += name
 
-                if(specifiers [1]) {
+                if (specifiers [1]) {
                     importStatements += ", {"
                 }
             }
 
-            if (type === "ImportSpecifier" ) {
+            if (type === "ImportSpecifier") {
                 if (index === 0) {
                     importStatements += "{"
                 }
 
-                if ((index > 0 && specifierType === "ImportSpecifier") || (index > 1 && specifierType === "ImportDefaultSpecifier") ) {
+                if ((index > 0 && specifierType === "ImportSpecifier") || (index > 1 && specifierType === "ImportDefaultSpecifier")) {
                     importStatements += ", "
                 }
 
@@ -72,7 +73,7 @@ export const renderExtraConstantsScript = (extraConstants) => {
         extraConstantsScript += `${extraConstant}
     `
     })
-    return beautify(extraConstantsScript);
+    return extraConstantsScript;
 }
 
 export const renderQueryScript = (query) => {
@@ -135,7 +136,7 @@ export const renderQueryScript = (query) => {
     queryScript += `
 export default query(
     // language=GraphQL
-        \`${queryElement}\``
+        \` ${queryElement}\``
 
     if (variables != null) {
         const {config, domainType, field, condition} = variables
@@ -184,256 +185,7 @@ export default query(
     queryScript += `
         )`
 
-    return beautify(queryScript)
-}
-
-export const renderCompositeScript = (exportData,composite, shortName) => {
-    let componentScript = "";
-    let constant = ``
-    const {constants, root} = composite
-    const handleKidsofRoot = (kids) => {
-        const commonAttrs = (attrs) => {
-            if (attrs) {
-                attrs.map(({ name, value }) => {
-
-                    if (value != null) {
-                        if(name === "renderedIf"){
-                            return
-                        }
-                        if (value.code) {
-                            componentScript += ` ${name}=${value.code}`
-                        }
-                        if (value.params) {
-                            let paramsName = [];
-
-                            value.params.map(({ name: nameOfParams }) => {
-                                paramsName.push(nameOfParams)
-                                return (paramsName)
-                            })
-
-                            paramsName = value.params.length === 1 ? `${paramsName} => ` : ` (${paramsName.join(', ')}) => (`
-
-                            componentScript += ` ${name}={`
-                            componentScript += `${paramsName} ${value.root.code}`
-                            if (value.params.length > 1) { componentScript += `)` }
-                            componentScript += `}`
-                        }
-
-
-                    }
-                    else {
-                        componentScript += ` ${name} `
-                    }
-                })
-            }
-        }
-        const renderedIf = (attrs) =>{
-            if(attrs){
-                attrs.map(({name,value})=>{
-                    if(name === "renderedIf"){
-                        componentScript +=`
-                {
-                    ${value.code} && (
-            `
-                    }
-                })
-            }
-        }
-        const endOfRenderedIf = (attrs) =>{
-            if(attrs){
-                attrs.map(({name})=>{
-                    if(name === "renderedIf"){
-                        componentScript +=`
-                        )
-                }
-                        `
-                    }
-                })
-            }
-        }
-        const commonRoot = (nameOfRoot, attrsOfRoot,kidsOfRoot, code) =>{
-            if (nameOfRoot) {
-                componentScript += `(
-                <${nameOfRoot}`
-                if (attrsOfRoot && attrsOfRoot.length > 0) {
-                    commonAttrs(attrsOfRoot)
-                }
-                if (kidsOfRoot && kidsOfRoot.length > 0) {
-                    componentScript += `>`
-                    handleKidsofRoot(kidsOfRoot)
-                    componentScript += `
-                </${nameOfRoot}>
-                    )
-            }`
-                } else {
-                    componentScript += `/>
-            )
-            }`
-                }
-            }
-            else if (code) {
-                componentScript += `${code}
-                }`
-            }
-        }
-
-        kids.map(({ name, attrs, value, code, root, params, kids,html }) => {
-
-            if ( root ) {
-
-                componentScript += `
-                {`
-
-                params.map(({ name: nameOfParams }) => {
-                    componentScript += `
-                ${nameOfParams} => `
-                })
-
-                if ( root.length >=1 ){
-                    root.map(({ name: nameOfRoot, attrs: attrsOfRoot, kids:kidsOfRoot, code })=>{
-
-                        commonRoot(nameOfRoot, attrsOfRoot,kidsOfRoot, code)
-                    })
-                } else {
-                    const { name: nameOfRoot, attrs: attrsOfRoot, kids:kidsOfRoot, code } = root
-
-                    commonRoot(nameOfRoot, attrsOfRoot,kidsOfRoot, code)
-                }
-            }
-
-            if (name) {
-                kids && kids.length >= 1 ? componentScript += `
-            ` : componentScript += `
-                `
-                if (attrs && attrs.length >= 1) {
-                    renderedIf(attrs)
-                    componentScript += `<${name}`
-                    commonAttrs(attrs)
-                    kids && kids.length >= 1 ? componentScript += `>` : componentScript += `/>`
-                }
-                else{
-                    componentScript += `<${name}`
-                    kids && kids.length >= 1 ? componentScript += `>` : componentScript += `/>`
-                }
-            }
-
-            if (value) {
-                componentScript += `
-                ${value}`
-            }
-
-            if (code) {
-                componentScript += `
-                ${code}`
-            }
-
-            if(html){
-
-                if (attrs && attrs.length >= 1) {
-
-                    renderedIf(attrs)
-
-                    componentScript +=`
-                <React.Fragment>
-                    ${html}
-                </React.Fragment>`
-
-                } else {
-
-                    componentScript +=`
-                ${html}`
-
-                }
-            }
-
-            if (kids && kids.length >= 1) {
-                handleKidsofRoot(kids)
-                componentScript += `</${name}>`
-            }
-
-            if(attrs && attrs.length >=1){
-                endOfRenderedIf(attrs)
-            }
-
-            componentScript += `
-            `
-        })
-
-    }
-
-    if (constants.length > 0) {
-        constants.forEach(constantElement => {
-            const {kind, declarations} = constantElement
-            constant += `
-        ${kind} `
-
-            declarations.forEach(({id, init}) => {
-
-                if (!id) {
-                    constant += `{control, setControl} = ${init}`
-                } else {
-                    if (id.type === 'Identifier') {
-                        constant += `${id.name} = ${init}`
-                    }
-                    if (id.type === 'ObjectPattern') {
-                        const {properties} = id
-                        const map = Array.prototype.map
-                        const keys = map.call(properties, function (item) {
-                            return item.key;
-                        })
-                        properties.length === 0 ? constant += `${keys} = ${init}` : constant += `{${keys}} = ${init}`
-                    }
-                    if (id.type === 'ListPattern') {
-                        const { properties } = id
-                        const map = Array.prototype.map
-                        const keys = map.call(properties, function (item) {
-                            return item.key;
-                        })
-                        properties.length === 0 ? constant += `${keys} = ${init}` : constant += `[${keys}] = ${init}`
-                    }
-                    if (id.type === 'FunctionPattern') {
-                        const { properties } = id
-                        const map = Array.prototype.map
-                        const keys = map.call(properties, function (item) {
-                            return item.key;
-                        })
-                        constant += `${keys} = ${init}`
-                    }
-                    if (id.type === 'ArrayPattern') {
-                        const {elements} = id
-                        const map = Array.prototype.map
-                        const names = map.call(elements, function (item) {
-                            return item.name;
-                        })
-                        elements.length === 0 ? constant += `${names} = ${init}` : constant += `{${names}} = ${init}`
-                    }
-                }
-            })
-            return constant
-        });
-
-    }
-
-    componentScript += `
-    
-    const ${shortName} = (props) => {
-    ${constant}
-
-return(
-<${root.name}>
-`;
-    if (root.kids) {
-        handleKidsofRoot(root.kids)
-    }
-        componentScript += `
-</${root.name}>
-)
-};
-`
-    componentScript += `
-export default ${exportData}`
-
-    return componentScript;
+    return queryScript
 }
 
 export const renderStateScript = (state) => {
@@ -444,11 +196,11 @@ export const renderStateScript = (state) => {
     export const ${name} = new ViewState(`
 
     if (name) {
-        stateScript +=` "${name}", `
+        stateScript += ` "${name}", `
     }
 
     if (transitionMap) {
-        stateScript +=`(process, scope) => ({`
+        stateScript += `(process, scope) => ({`
 
         for (let transitionName in transitionMap) {
             if (transitionMap.hasOwnProperty(transitionName)) {
@@ -481,35 +233,90 @@ export const renderStateScript = (state) => {
                 action: ${paramExpression} => 
                     ${action.code},`
                 }
-                stateScript += `
-                },`;
+                stateScript += `},`;
             }
 
         }
         stateScript += `
     }),`
+        stateScript = `${beautify(stateScript)}`;
     }
 
     if (composite) {
-
-        let constant = ``
         const {constants, root} = composite
+
+        const handleConstatnts = (constants) => {
+            let constant = ``
+            if (constants.length > 0) {
+                constants.forEach(constantElement => {
+                    const {kind, declarations} = constantElement
+                    constant += `
+        ${kind} `
+
+                    declarations.forEach(({id, init}) => {
+
+                        if (!id) {
+                            constant += `{control, setControl} = ${init}`
+                        } else {
+                            if (id.type === 'Identifier') {
+                                constant += `${id.name} = ${init}`
+                            }
+                            if (id.type === 'ObjectPattern') {
+                                const {properties} = id
+                                const map = Array.prototype.map
+                                const keys = map.call(properties, function (item) {
+                                    return item.key;
+                                })
+                                properties.length === 0 ? constant += `${keys} = ${init}` : constant += `{${keys}} = ${init}`
+                            }
+                            if (id.type === 'ListPattern') {
+                                const {properties} = id
+                                const map = Array.prototype.map
+                                const keys = map.call(properties, function (item) {
+                                    return item.key;
+                                })
+                                properties.length === 0 ? constant += `${keys} = ${init}` : constant += `[${keys}] = ${init}`
+                            }
+                            if (id.type === 'FunctionPattern') {
+                                const {properties} = id
+                                const map = Array.prototype.map
+                                const keys = map.call(properties, function (item) {
+                                    return item.key;
+                                })
+                                constant += `${keys} = ${init}`
+                            }
+                            if (id.type === 'ArrayPattern') {
+                                const {elements} = id
+                                const map = Array.prototype.map
+                                const names = map.call(elements, function (item) {
+                                    return item.name;
+                                })
+                                elements.length === 0 ? constant += `${names} = ${init}` : constant += `{${names}} = ${init}`
+                            }
+                        }
+                    })
+
+                });
+            }
+            return constant
+        }
+
         const handleKidsofRoot = (kids) => {
             const commonAttrs = (attrs) => {
                 if (attrs) {
-                    attrs.map(({ name, value }) => {
+                    attrs.map(({name, value}) => {
 
                         if (value != null) {
 
-                            if(name=="renderedIf"){
+                            if (name == "renderedIf") {
                                 return
                             }
                             if (value.code) {
-                                stateScript += ` ${name}=${value.code}`
+                                stateScript += ` ${name} = ${value.code}`
                             }
                             if (value.params) {
                                 let paramsName = [];
-                                value.params.map(({ name: nameOfParams }) => {
+                                value.params.map(({name: nameOfParams}) => {
                                     paramsName.push(nameOfParams)
                                     return (paramsName)
                                 })
@@ -519,12 +326,14 @@ export const renderStateScript = (state) => {
 
                                     stateScript += ` ${name}={ ${paramsName} ${value.root.code}
                                         `
-                                    if (value.params.length > 1) { stateScript += `)` }
+                                    if (value.params.length > 1) {
+                                        stateScript += `)`
+                                    }
                                     stateScript += `}`
                                 }
 
                                 if (value.root.attrs) {
-                                    const { name: nameOfRoot, attrs, kids } = value.root
+                                    const {name: nameOfRoot, attrs, kids} = value.root
                                     paramsName = value.params.length === 1 ? `${paramsName} => ` : ` (${paramsName.join(', ')}) => {`
 
                                     stateScript += ` ${name}={ ${paramsName}`
@@ -547,23 +356,24 @@ export const renderStateScript = (state) => {
                                     }
                                     stateScript += `
                                         )`
-                                    if (value.params.length > 1) { stateScript += `}` }
+                                    if (value.params.length > 1) {
+                                        stateScript += `}`
+                                    }
                                     stateScript += `}`
                                 }
 
                             }
-                        }
-                        else {
+                        } else {
                             stateScript += ` ${name} `
                         }
                     })
                 }
             }
-            const renderedIf = (attrs) =>{
-                if(attrs){
-                    attrs.map(({name,value})=>{
-                        if(name === "renderedIf"){
-                            stateScript +=`
+            const renderedIf = (attrs) => {
+                if (attrs) {
+                    attrs.map(({name, value}) => {
+                        if (name === "renderedIf") {
+                            stateScript += `
                     {
                         ${value.code} && (
                 `
@@ -571,11 +381,11 @@ export const renderStateScript = (state) => {
                     })
                 }
             }
-            const endOfRenderedIf = (attrs) =>{
-                if(attrs){
-                    attrs.map(({name})=>{
-                        if(name === "renderedIf"){
-                            stateScript +=`
+            const endOfRenderedIf = (attrs) => {
+                if (attrs) {
+                    attrs.map(({name}) => {
+                        if (name === "renderedIf") {
+                            stateScript += `
                             )
                     }
                             `
@@ -583,7 +393,7 @@ export const renderStateScript = (state) => {
                     })
                 }
             }
-            const commonRoot = (nameOfRoot, attrsOfRoot,kidsOfRoot, code) =>{
+            const commonRoot = (nameOfRoot, attrsOfRoot, kidsOfRoot, code) => {
                 if (nameOfRoot) {
                     stateScript += `(
                     <${nameOfRoot}`
@@ -602,34 +412,33 @@ export const renderStateScript = (state) => {
                 )
                 }`
                     }
-                }
-                else if (code) {
+                } else if (code) {
                     stateScript += `${code}
                     }`
                 }
             }
 
-            kids.map(({ name, attrs, value, code, root, params, kids,html }) => {
+            kids.map(({name, attrs, value, code, root, params, kids, html}) => {
 
-                if ( root ) {
+                if (root) {
 
                     stateScript += `
                     {`
 
-                    params.map(({ name: nameOfParams }) => {
+                    params.map(({name: nameOfParams}) => {
                         stateScript += `
                     ${nameOfParams} => `
                     })
 
-                    if ( root.length >=1 ){
-                        root.map(({ name: nameOfRoot, attrs: attrsOfRoot, kids:kidsOfRoot, code })=>{
+                    if (root.length >= 1) {
+                        root.map(({name: nameOfRoot, attrs: attrsOfRoot, kids: kidsOfRoot, code}) => {
 
-                            commonRoot(nameOfRoot, attrsOfRoot,kidsOfRoot, code)
+                            commonRoot(nameOfRoot, attrsOfRoot, kidsOfRoot, code)
                         })
                     } else {
-                        const { name: nameOfRoot, attrs: attrsOfRoot, kids:kidsOfRoot, code } = root
+                        const {name: nameOfRoot, attrs: attrsOfRoot, kids: kidsOfRoot, code} = root
 
-                        commonRoot(nameOfRoot, attrsOfRoot,kidsOfRoot, code)
+                        commonRoot(nameOfRoot, attrsOfRoot, kidsOfRoot, code)
                     }
                 }
 
@@ -642,8 +451,7 @@ export const renderStateScript = (state) => {
                         stateScript += `<${name}`
                         commonAttrs(attrs)
                         kids && kids.length >= 1 ? stateScript += `>` : stateScript += `/>`
-                    }
-                    else{
+                    } else {
                         stateScript += `<${name}`
                         kids && kids.length >= 1 ? stateScript += `>` : stateScript += `/>`
                     }
@@ -659,20 +467,20 @@ export const renderStateScript = (state) => {
                     ${code}`
                 }
 
-                if(html){
+                if (html) {
 
                     if (attrs && attrs.length >= 1) {
 
                         renderedIf(attrs)
 
-                        stateScript +=`
+                        stateScript += `
                     <React.Fragment>
                         ${html}
                     </React.Fragment>`
 
                     } else {
 
-                        stateScript +=`
+                        stateScript += `
                     ${html}`
 
                     }
@@ -683,7 +491,7 @@ export const renderStateScript = (state) => {
                     stateScript += `</${name}>`
                 }
 
-                if(attrs && attrs.length >=1){
+                if (attrs && attrs.length >= 1) {
                     endOfRenderedIf(attrs)
                 }
 
@@ -693,76 +501,22 @@ export const renderStateScript = (state) => {
 
         }
 
-        if (constants.length > 0) {
-            constants.forEach(constantElement => {
-                const {kind, declarations} = constantElement
-                constant += `
-            ${kind} `
-
-                declarations.forEach(({id, init}) => {
-
-                    if (!id) {
-                        constant += `{control, setControl} = ${init}`
-                    } else {
-                        if (id.type === 'Identifier') {
-                            constant += `${id.name} = ${init}`
-                        }
-                        if (id.type === 'ObjectPattern') {
-                            const {properties} = id
-                            const map = Array.prototype.map
-                            const keys = map.call(properties, function (item) {
-                                return item.key;
-                            })
-                            properties.length === 0 ? constant += `${keys} = ${init}` : constant += `{${keys}} = ${init}`
-                        }
-                        if (id.type === 'ListPattern') {
-                            const { properties } = id
-                            const map = Array.prototype.map
-                            const keys = map.call(properties, function (item) {
-                                return item.key;
-                            })
-                            properties.length === 0 ? constant += `${keys} = ${init}` : constant += `[${keys}] = ${init}`
-                        }
-                        if (id.type === 'FunctionPattern') {
-                            const { properties } = id
-                            const map = Array.prototype.map
-                            const keys = map.call(properties, function (item) {
-                                return item.key;
-                            })
-                            constant += `${keys} = ${init}`
-                        }
-                        if (id.type === 'ArrayPattern') {
-                            const {elements} = id
-                            const map = Array.prototype.map
-                            const names = map.call(elements, function (item) {
-                                return item.name;
-                            })
-                            elements.length === 0 ? constant += `${names} = ${init}` : constant += `{${names}} = ${init}`
-                        }
-                    }
-                })
-                return constant
-            });
-
-        }
-
         stateScript += ` props => {
-                ${constant}
-        
-                return(
-                    <${root.name}>
+            ${handleConstatnts(constants)}
+    
+            return(
+                <${root.name}>
                     `
-        if (root.kids){
+        if (root.kids) {
             handleKidsofRoot(root.kids)
         }
-        stateScript +=`
-                    </${root.name}>
-                        )
-                    }`
-
+        stateScript += `
+                </${root.name}>
+                    )
+                }`
     }
 
-    stateScript +=`);
+    stateScript += `);
     
     export default ${name};`
 
@@ -772,7 +526,7 @@ export const renderStateScript = (state) => {
 export const renderProcessExportScript = (processExports) => {
     let processScript = "";
 
-    const {init, extraConstants, scope ,configuration,startState} = processExports;
+    const {init, extraConstants, scope, configuration, startState} = processExports;
 
     if (extraConstants) {
         extraConstants.map((extraConstant) => {
@@ -796,18 +550,18 @@ export const renderProcessExportScript = (processExports) => {
         return ${startState}`
 
     } else if (startState === null && init && init.length >= 1) {
-        init.map ((initValue) => {
+        init.map((initValue) => {
             processScript += `
         ${initValue}`
         })
     }
 
-    processScript +=`
+    processScript += `
     }`
 
     //End the section of EXPORT AND STATES
     if (scope !== null) {
-        const { name, observables, actions, computeds, helpers } = scope
+        const {name, observables, actions, computeds, helpers} = scope
         processScript += `
 export default class ${name} {
 `;
@@ -829,28 +583,30 @@ export default class ${name} {
     `
         })
 
-        if(helpers && helpers.length >= 1){
+        if (helpers && helpers.length >= 1) {
 
-            helpers.map((helper)=>{
+            helpers.map((helper) => {
                 const {name, defaultValue, code, params} = helper
-                if(params) { params.length === 1 ? params : params.join(', ') }
+                if (params) {
+                    params.length === 1 ? params : params.join(', ')
+                }
 
                 processScript += `  
             ${name} =`
 
-                if( defaultValue ){
+                if (defaultValue) {
 
                     processScript += ` ${defaultValue}
                 `
                 }
 
-                if(code && params){
+                if (code && params) {
 
                     processScript += ` (${params}) => {
                     ${code}
                 }
                 `
-                } else if(code) {
+                } else if (code) {
                     processScript += ` () => {
                         ${code}
                     }
@@ -861,8 +617,8 @@ export default class ${name} {
 
         if (computeds && computeds.length >= 1) {
 
-            computeds.map((computed)=>{
-                const { name, code } = computed
+            computeds.map((computed) => {
+                const {name, code} = computed
 
                 processScript += `
         @computed get ${name}()
@@ -875,7 +631,7 @@ export default class ${name} {
     }
     processScript += `}`;
     //END the section of SCOPE
-    return processScript;
+    return beautify(processScript);
 }
 
 export const renderUserScopeScript = (userScope) => {
@@ -888,26 +644,26 @@ export class ${name}
 
     observables.forEach(observable => {
         const {name, defaultValue} = observable
-    userScopeScript += `
+        userScopeScript += `
     @observable ${name} = ${defaultValue};`
     })
 
-    userScopeScript +=`
+    userScopeScript += `
  }`
     return userScopeScript
 }
 
 export const renderSessionScopeScript = (sessionScope) => {
     let sessionScopeScript = ''
-    const { name, observables, actions, computeds, helpers } = sessionScope
+    const {name, observables, actions, computeds, helpers} = sessionScope
 
     sessionScopeScript += `
 export class ${name}
  {`
 
     observables.forEach(observable => {
-        const { name, defaultValue } = observable
-    sessionScopeScript += `
+        const {name, defaultValue} = observable
+        sessionScopeScript += `
     @observable ${name} = ${defaultValue};`
     })
 
@@ -941,7 +697,7 @@ export const renderDomainScript = (domain) => {
         }`
         })
     }
-    domainScript +=`
+    domainScript += `
     }`
     return beautify(domainScript)
 }
