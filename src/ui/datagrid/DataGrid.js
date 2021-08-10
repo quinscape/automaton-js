@@ -6,7 +6,7 @@ import i18n from "../../i18n";
 import GridStateForm from "./GridStateForm";
 import Pagination from "../Pagination";
 import FilterRow from "./FilterRow";
-import { lookupType } from "../../util/type-utils";
+import { lookupType, lookupTypeContext, unwrapAll } from "../../util/type-utils";
 import SortLink from "./SortLink";
 import useObservableInput from "../../util/useObservableInput";
 import Column from "./Column";
@@ -15,6 +15,7 @@ import WorkingSet, { WorkingSetStatus } from "../../WorkingSet";
 import WorkingSetStatusComponent from "./WorkingSetStatus";
 import { FieldResolver } from "../..";
 import filterTransformer from "../../util/filterTransformer";
+import config from "../../config"
 import { toJS } from "mobx";
 
 
@@ -88,7 +89,18 @@ const DataGrid = fnObserver(props => {
                     if (columnState && columnState.enabled)
                     {
                         sortable = columnState.sortable;
-                        typeRef = lookupType(type, name);
+                        const typeContext = lookupTypeContext(type, name);
+
+                        if (typeof filter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
+                        {
+                            throw new Error(
+                                "Computed column '" + typeContext.field.name + "' cannot be filtered with a simple filter.\n" +
+                                "You need to write a custom filter function that basically reimplements the computed in SQL and produces a matching filter expression."
+                            )
+                        }
+
+
+                        typeRef = unwrapAll(typeContext.field.type);
                         if (typeRef.kind !== "SCALAR")
                         {
                             throw new Error("Column type is no scalar: " + name);
