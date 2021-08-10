@@ -1,7 +1,9 @@
 import React from "react"
+import cx from "classnames"
 import PropTypes from "prop-types"
-import { Field, FieldMode, GlobalConfig, FormGroup, Addon } from "domainql-form";
+import { Field, FieldMode, GlobalConfig, FormGroup, Addon, Icon } from "domainql-form";
 
+const LINK_RE = /\/\//
 
 const URLField = (props) => {
 
@@ -52,7 +54,31 @@ const URLField = (props) => {
                     }
 
                     const renderFn = GlobalConfig.getRenderFn(formConfig, fieldContext);
-                    return renderFn(formConfig, fieldContext);
+
+                    const haveLink = value && LINK_RE.test(value);
+
+                    const newCtx = {
+                        ... fieldContext,
+                        addons: [
+                            ... fieldContext.addons,
+                            <Addon placement={ Addon.LEFT }>
+                                {
+                                    React.createElement(
+                                        haveLink ? "a" : "span",
+                                        {
+                                            className: cx("btn btn-light border", !haveLink && "disabled"),
+                                            href: value,
+                                            target: "_blank",
+                                            rel: "noopener noreferrer"
+                                        },
+                                        <Icon className="fa-link"/>
+                                    )
+                                }
+                            </Addon>
+                        ]
+                    }
+
+                    return renderFn(formConfig, newCtx);
                 }
             }
         </Field>
