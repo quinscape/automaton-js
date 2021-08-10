@@ -1,6 +1,15 @@
 import React, { useEffect, useMemo } from "react"
 import { comparer, observable, reaction, toJS } from "mobx"
-import { and, condition, field, findComponentNode, getConditionArgCount, Type, value } from "../../FilterDSL";
+import {
+    and,
+    condition,
+    field,
+    findComponentNode,
+    getConditionArgCount,
+    isLogicalCondition,
+    Type,
+    value
+} from "../../FilterDSL";
 import i18n from "../../i18n";
 import { Form, FormLayout } from "domainql-form"
 import compareConditions from "../../util/compareConditions";
@@ -62,13 +71,15 @@ function createValues(filter, column, columnCondition)
 
     const valueNodes = extractValueNodes(columnCondition);
 
+    const numNodes = valueNodes.length;
+
     //console.log("VALUE NODES", toJS(columnCondition), JSON.stringify(valueNodes, null, 4));
 
     const numValues = getConditionArgCount(filter);
     const list = new Array(numValues);
     for (let i=0; i < numValues; i++)
     {
-        const valueNode = valueNodes[i];
+        const valueNode = numNodes >= numValues ? valueNodes[numNodes - numValues + i] : null;
 
         list[i] = {
             type: valueNode ? valueNode.scalarType : column.type,
@@ -96,13 +107,50 @@ function allValuesSet(values)
     return true;
 }
 
+let stateCounter = 0;
 
 /**
  * IQueryGrid Internal Filter context
  */
 export const FilterContext = React.createContext(null);
 
-function findColumnCondition(componentId, name, currentCondition)
+function findFieldRef(state, condition, name)
+{
+    if (state.disqualified)
+    {
+        return state;
+    }
+    
+    const { type } = condition;
+    if (type === Type.CONDITION || type === Type.OPERATION)
+    {
+        const {operands} = condition;
+        for (let i = 0; i < operands.length; i++)
+        {
+            findFieldRef(state, operands[i], name);
+        }
+
+        return state;
+    }
+    else if (type === Type.FIELD)
+    {
+        if (!state.name && !state.disqualified && condition.name === name)
+        {
+            state.name = name;
+        }
+        else if (state.name !== condition.name)
+        {
+            state.name = null;
+            state.disqualified = true;
+        }
+        
+        return state;
+    }
+    return state;
+}
+
+
+function findColumnCondition(componentId = null, name, currentCondition)
 {
     if (currentCondition === null)
     {
@@ -122,24 +170,49 @@ function findColumnCondition(componentId, name, currentCondition)
         return null;
     }
 
-    const { operands } = cond;
-
-    for (let i = 0; i < operands.length; i++)
+    if (isLogicalCondition(cond))
     {
-        const candidate = operands[i];
+        const { operands } = cond;
 
-        const { operands : fieldOrValues } = candidate;
-
-        for (let j = 0; j < fieldOrValues.length; j++)
+        for (let i = 0; i < operands.length; i++)
         {
-            const fieldOrValue = fieldOrValues[j];
-            if (fieldOrValue.type === Type.FIELD && fieldOrValue.name === name)
+            const candidate = operands[i];
+
+            const result = findFieldRef(
+                {
+                    name: null,
+                    disqualified: false,
+                    id: stateCounter++
+                },
+                candidate,
+                name
+            );
+
+            if (result.name && !result.disqualified)
             {
                 return candidate;
             }
         }
     }
+    else
+    {
+        const result = findFieldRef(
+            {
+                name: null,
+                disqualified: false,
+                id: stateCounter++
+            },
+            cond,
+            name
+        );
+        if (result.name && !result.disqualified)
+        {
+            return cond;
+        }
+
+    }
     return null;
+
 }
 
 
@@ -157,7 +230,7 @@ export function invokeForTemplate(filter)
 }
 
 
-function findConditionByTemplate(componentId, template, currentCondition)
+function findConditionByTemplate(componentId = null, template, currentCondition)
 {
     if (currentCondition === null)
     {
@@ -177,18 +250,25 @@ function findConditionByTemplate(componentId, template, currentCondition)
         return null;
     }
 
-    // cond assumed to be an and() condition
-    
 
-    const { operands } = cond;
-
-    for (let i = 0; i < operands.length; i++)
+    if (isLogicalCondition(cond))
     {
-        const candidate = operands[i];
+        const { operands } = cond;
 
-        if (compareConditions(template, candidate))
+        for (let i = 0; i < operands.length; i++)
         {
-            return candidate;
+            const candidate = operands[i];
+            if (compareConditions(template, candidate))
+            {
+                return candidate;
+            }
+        }
+    }
+    else
+    {
+        if (compareConditions(template, cond))
+        {
+            return cond;
         }
     }
     return null;
@@ -214,15 +294,16 @@ function resolveFilters(columns, componentId, currentCondition)
                     template,
                     currentCondition
                 );
-                
+
+                const values = createValues(
+                    filter,
+                    column,
+                    columnCondition || template
+                );
                 filters.push(
                     {
                         filter,
-                        values: createValues(
-                            filter,
-                            column,
-                            columnCondition || template
-                        ),
+                        values,
                         columnIndex: i
                     }
                 )
@@ -230,18 +311,22 @@ function resolveFilters(columns, componentId, currentCondition)
             }
             else
             {
+                const columnCondition = findColumnCondition(
+                    componentId,
+                    column.name,
+                    currentCondition
+                );
+
+                const values = createValues(
+                    filter,
+                    column,
+                    columnCondition
+                );
+                
                 filters.push(
                     {
                         filter,
-                        values: createValues(
-                            filter,
-                            column,
-                            findColumnCondition(
-                                componentId,
-                                column.name,
-                                currentCondition
-                            )
-                        ),
+                        values,
                         columnIndex: i
                     }
                 )
@@ -250,6 +335,9 @@ function resolveFilters(columns, componentId, currentCondition)
 
         }
     }
+
+    //console.log("resolveFilters", filters);
+
     return filters;
 }
 
