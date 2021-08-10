@@ -245,6 +245,10 @@ const operationImpl = {
 
     toString: (a) => {
         return a !== null && a !== undefined ?  String(a) : null;
+    },
+
+    concat: (a,b) => {
+        return (a !== null && a !== undefined ?  String(a) : "") + (b !== null && b !== undefined ?  String(b) : "");
     }
 };
 

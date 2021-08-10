@@ -256,6 +256,9 @@ describe("filterTransformer", function () {
 
         assert( exec(operation("toString", [value(123)])) === "123");
 
+        assert( exec(operation("concat", [value("aaa"), value(234)])) === "aaa234");
+        assert( exec(operation("concat", [value(null, "String"), value("bbb")])) === "bbb");
+
     });
 
     it("resolves fields references at runtime", () => {

@@ -191,6 +191,9 @@ export const FIELD_OPERATIONS = {
     "unaryPlus":0,
     "lower":0,
     "upper":0,
+    "concat": 1,
+
+    // toString is special and gets translated into a cast(String.class)
     "toString":0,
 
     // for sort order fields
