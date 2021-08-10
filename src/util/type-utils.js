@@ -39,6 +39,22 @@ export function getFields(type)
  */
 export function lookupType(name, path)
 {
+    const { field } = lookupTypeContext(name, path);
+    return unwrapAll(field.type);
+}
+
+
+/**
+ * Resolves the type context of a given path expression relative to given base domain type.
+ *
+ * In contrast to the paths InputSchema uses, it handles List constructs differently, that is it ignores
+ * them like GraphQL does internally.
+ *
+ * @param {String} name     base domain type
+ * @param {String} path     path separated by dots, ignoring lists
+ */
+export function lookupTypeContext(name, path)
+{
     let type = config.inputSchema.getType(name);
     if (!type)
     {
@@ -50,12 +66,12 @@ export function lookupType(name, path)
     const { length } = pathArray;
     const last = length - 1;
 
-    let fieldTypeRef;
+    let fieldTypeRef, field;
     for (let i = 0; i < length; i++)
     {
         let segment = pathArray[i];
         const fields = getFields(type);
-        const field = findNamed(fields, segment);
+        field = findNamed(fields, segment);
         if (!field)
         {
             throw new Error("Cannot find field '" + segment + "' in type '" + type.name + "'");
@@ -78,7 +94,10 @@ export function lookupType(name, path)
             }
         }
     }
-    return fieldTypeRef;
+    return {
+        domainType: type.name,
+        field
+    };
 }
 
 export const INPUT = "Input";
