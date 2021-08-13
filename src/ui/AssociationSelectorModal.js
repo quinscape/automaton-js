@@ -31,6 +31,7 @@ const AssociationSelectorModal = fnObserver(props => {
                                 id="fk-selector-grid"
                                 tableClassName="table-hover table-striped table-bordered table-sm"
                                 value={ iQuery }
+                                isCompact
                             >
                                 <DataGrid.Column
                                     heading={ "Selection" }

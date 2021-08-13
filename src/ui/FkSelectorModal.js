@@ -162,6 +162,7 @@ const FkSelectorModal = fnObserver(
                                     }
                                     value={ iQuery }
                                     filterTimeout={ searchTimeout }
+                                    isCompact
                                 >
                                     <DataGrid.Column
                                         heading={ "Action" }
