@@ -34,7 +34,6 @@ export default class ViewState
 
         const storage = {
             name,
-            process: "",
             Component: observer(renderFn),
             transitionFn
         };

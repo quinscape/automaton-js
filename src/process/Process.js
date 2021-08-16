@@ -273,7 +273,6 @@ function addEffect(process, view, effect)
  */
 function isArrayEqual(arrayA, arrayB)
 {
-    //console.log("isArrayEqual", arrayA, arrayB);
 
 
     if (arrayA.length !== arrayB.length)
@@ -372,7 +371,7 @@ function resetHistoryTo(historyIndex)
 
     const delta = currentHistoryPos - oldIndex;
 
-    console.log("resetHistoryTo", currentHistoryPos, "go to", delta);
+    config.logHistory && console.log("resetHistoryTo", currentHistoryPos, "go to", delta);
     config.logHistory && logHistory();
 
     config.history.go(delta);
@@ -557,7 +556,7 @@ export class Process {
         const storage = this[secret];
 
         const currentState = storage.currentState;
-        const transition = storage.transitionMaps.get(currentState)[name];
+        const transition = this.getTransition(name);
         if (!transition)
         {
             throw new Error("Could not find transition '" + name + "' in Process '" + this.name + "'")
@@ -583,7 +582,7 @@ export class Process {
             )
                 .then(transition => {
 
-                    console.log("TRANSITION END", "transition = ", transition);
+                    //console.log("TRANSITION END", "transition = ", transition);
 
                     const { historyIndex } = transition;
                     if (historyIndex >= 0)
@@ -630,11 +629,14 @@ export class Process {
      */
     getTransition(name)
     {
-        const storage = this[secret];
+        const { transitionMaps, currentState } = this[secret];
 
-        //console.log("getTransition", storage.currentState, name);
-
-        return storage.transitionMaps.get(storage.currentState)[name] || null;
+        const transition = (transitionMaps.get(currentState))[name];
+        if (!transition)
+        {
+            throw new Error("No transition '" + name + "' in process " + this.name);
+        }
+        return transition;
     }
 
     addProcessEffect(fn)
@@ -960,10 +962,14 @@ function prepareMobXAction(storage, name, actionFn)
     let mobxAction = storage[mobXActionKey];
     if (!mobxAction)
     {
+        const actionName = currentProcess.name + "." + name;
         mobxAction = action(
-            currentProcess.name + "." + name,
+            actionName,
             actionFn
         );
+
+        //console.log("WRAPPED ", actionName , "AS MOBX ACTION #", FormContext.getUniqueId(mobxAction));
+
         storage[mobXActionKey] = mobxAction;
     }
     return mobxAction;
@@ -995,7 +1001,7 @@ function executeTransition(name, actionFn, target, context, button)
         button
     );
 
-    const mobxAction = actionFn && prepareMobXAction(storage, sourceState + "." + name, actionFn);
+    const mobxAction = actionFn && prepareMobXAction(storage, sourceState.name + "." + name, actionFn);
 
     const { history, transitionMaps } = storage;
 
@@ -1005,7 +1011,7 @@ function executeTransition(name, actionFn, target, context, button)
         (resolve, reject) => {
             try
             {
-                //console.log("EXECUTE MOB-X TRANSITION", mobxAction, transition);
+                //console.log("EXECUTE MOB-X TRANSITION", mobxAction, "#" + FormContext.getUniqueId(mobxAction), transition);
 
                 // make sure to resolve a potential promise return from the transition before ending the transition
                 resolve(
@@ -1024,6 +1030,7 @@ function executeTransition(name, actionFn, target, context, button)
 
                 if (!transitionMaps.has(target))
                 {
+                    //console.log("CREATE TRANSITION MAP FOR", target.name);
                     transitionMaps.set(target, target.createTransitionMap(currentProcess))
                 }
 
