@@ -15,7 +15,7 @@ function toggleValue(open)
 
 const CalendarField = props => {
 
-    const { minDate, maxDate, addonClass = "btn-outline-secondary", autoFocus, children, dateFormat = config.dateFormat, timestampFormat = config.timestampFormat,... fieldProps} = props;
+    const { minDate, maxDate, addonClass = "btn-light", autoFocus, children, dateFormat = config.dateFormat, timestampFormat = config.timestampFormat,... fieldProps} = props;
 
     const [ isOpen, setOpen] = useState(false);
 

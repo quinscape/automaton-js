@@ -523,7 +523,7 @@ const FKSelector = fnObserver(props => {
                     newAddons.push(
                         <Addon placement={ Addon.RIGHT }>
                             <button
-                                className="btn btn-light border"
+                                className="btn btn-light"
                                 type="button"
                                 title={ modalTitle }
                                 disabled={mode !== FieldMode.NORMAL }
@@ -550,7 +550,7 @@ const FKSelector = fnObserver(props => {
                                         className={
                                             cx(
                                                 inputClass,
-                                                "fks-display form-control border rounded pl-2",
+                                                "fks-display form-control pl-2",
                                                 mode !== FieldMode.NORMAL && "disabled",
                                                 haveErrors && "is-invalid"
                                             )
