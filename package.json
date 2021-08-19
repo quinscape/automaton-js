@@ -81,8 +81,7 @@
         "use-debounce": "^3.1.0"
     },
     "bin": {
-        "model-to-js": "lib/model2js/modelToJs.js",
-        "alt-model-to-js": "lib/model2js/altModelToJs.js"
+        "model-to-js": "lib/model2js/modelToJs.js"
     },
     "scripts": {
         "prepublish": "cross-env NODE_ENV=production BABEL_ENV=package; node tooling/package.js",
