@@ -571,13 +571,7 @@ export class Process {
 
         const storage = this[secret];
 
-        const currentState = storage.currentState;
         const transition = this.getTransition(name);
-        if (!transition)
-        {
-            throw new Error("Could not find transition '" + name + "' in Process '" + this.name + "'")
-        }
-
         //console.log("TRANSITION", transition);
 
         const { confirmation } = transition;
