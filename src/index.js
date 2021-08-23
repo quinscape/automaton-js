@@ -52,6 +52,8 @@ import DecimalField from "./ui/DecimalField";
 import URLField from "./ui/URLField";
 import filterTransformer, { FieldResolver } from "./util/filterTransformer";
 import CollapsibleSidebar from "./ui/CollapsibleSidebar";
+import ShortcutSidebar from "./ui/shortcut/ShortcutSidebar";
+import Section from "./ui/shortcut/Section";
 
 import  { createMockedQuery, createFilteredMockQuery} from "./util/createMockedQuery"
 import DropdownMenu from "./ui/DropdownMenu"
@@ -157,6 +159,8 @@ export {
     URLField,
 
     CollapsibleSidebar,
+    ShortcutSidebar,
+    Section,
 
     printSchema,
 

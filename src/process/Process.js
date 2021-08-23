@@ -14,6 +14,8 @@ import ProcessHistory from "./ProcessHistory";
 import { renderImperativeDialogs } from "../ui/Dialog"
 import { backToHistoryId } from "./back-functions";
 
+import ShortcutContext, { ShortcutContextState } from "../ui/shortcut/ShortcutContext";
+
 
 let processImporter;
 
@@ -123,10 +125,14 @@ function renderCurrentView()
                 <AutomatonEnv.Provider
                     value={ subProcessEnv }
                 >
-                    <SubProcessViewComponent env={ subProcessEnv }/>
-                    {
-                        dialogStack
-                    }
+                    <ShortcutContext.Provider
+                        value={ process.shortcutContext }
+                    >
+                        <SubProcessViewComponent env={ subProcessEnv }/>
+                        {
+                            dialogStack
+                        }
+                    </ShortcutContext.Provider>
                 </AutomatonEnv.Provider>
             </ProcessDialog>
         );
@@ -141,17 +147,21 @@ function renderCurrentView()
             <FormConfigProvider
                 schema={ config.inputSchema }
             >
-                <Layout
-                    env={ env }
+                <ShortcutContext.Provider
+                    value={ rootProcess.shortcutContext }
                 >
-                    {
-                        ViewComponent && (
-                            <ViewComponent
-                                env={ env }
-                            />
-                        )
-                    }
-                </Layout>
+                    <Layout
+                        env={ env }
+                    >
+                            {
+                                ViewComponent && (
+                                    <ViewComponent
+                                        env={ env }
+                                    />
+                                )
+                            }
+                    </Layout>
+                </ShortcutContext.Provider>
                 {
                     dialogStack
                 }
@@ -415,6 +425,7 @@ export class Process {
             effects: new Map(),
 
             transitionMaps: new Map(),
+            shortcutContext: new ShortcutContextState(),
 
             cleanup: () => {
                 // clean up history
@@ -520,6 +531,11 @@ export class Process {
     get isSubProcess()
     {
         return !!this[secret].parent;
+    }
+    
+    get shortcutContext()
+    {
+        return this[secret].shortcutContext;
     }
 
     /**
