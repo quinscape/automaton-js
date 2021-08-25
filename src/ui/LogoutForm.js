@@ -1,64 +1,79 @@
 import React from "react"
+import PropTypes from "prop-types"
 
 import config from "../config"
+
 import { Icon } from "domainql-form"
-import PropTypes from "prop-types";
+
+function defaultRenderUser()
+{
+    const { auth } = config;
+
+    const { login } = auth;
+
+    const devRoles = __DEV ? auth.roles.join(", ") : null;
+
+    return (
+        <>
+            {"Logged in as\u00a0"}
+            <span className="text-primary">
+                <Icon className="fa-id-card-alt" title={ devRoles }/>
+                {" " + login}
+            </span>
+            {
+                ":"
+            }
+        </>
+    );
+}
 
 /**
  * A CSRF-protection-compliant Spring security log out-form
  */
-function LogoutForm({userString})
+function LogoutForm({renderUser = defaultRenderUser })
 {
-
-    const { auth , contextPath, csrfToken } = config;
-
+    const { auth, contextPath, csrfToken} = config;
     const { login } = auth;
 
     const isAnonymous = login === "anonymous";
 
-    const jsonTitle = __DEV ? auth.roles.join(", ") : null;
+    if (!isAnonymous)
+    {
+        return (
 
-    return !isAnonymous ? 
-        (
-            <>
-                <form method="POST" action={ contextPath + "/logout" } className="form-inline fa-pull-right">
-                    { "Logged in as\u00a0" }
-                    <span className="text-primary">
+            <form method="POST" action={contextPath + "/logout"} className="form-inline fa-pull-right">
+                {
+                    renderUser()
+                }
+                <button type="submit" className="btn btn-link ">
+                    Log out
+                </button>
+                <input type="hidden" name={ csrfToken.param } value={ csrfToken.value }/>
+            </form>
 
-                        <Icon className="fa-id-card-alt" title={ jsonTitle }/>
-                        { " " + (!userString ? login : (typeof userString === "function" ? userString() : userString)) }
-                    </span>
-                    :
-                    <button type="submit" className="btn btn-link ">
-                        Log out
-                    </button>
-                    <input type="hidden" name={ csrfToken.param } value={ csrfToken.value }/>
-                </form>
-            </>
         )
-        :
-        (
-            <>
-                <div className="fa-pull-right">
-                    <a
-                        className="btn btn-link"
-                        href={ contextPath + "/login" }
-                    >
-                        Login...
-                    </a>
-                </div>
-            </>
+    }
+    else
+    {
+        return (
+            <div className="fa-pull-right">
+                <a
+                    className="btn btn-link"
+                    href={contextPath + "/login"}
+                >
+                    Login...
+                </a>
+            </div>
         )
+    }
 }
+
 
 LogoutForm.propTypes = {
     /**
-     * optional template for displaying the username reading
+     * Optional render function to render the part before the logout button.
      */
-     userString: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.func
-    ])
+    renderUser: PropTypes.func
 }
 
 export default LogoutForm
