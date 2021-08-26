@@ -1,7 +1,6 @@
 import React from "react"
 import { action, toJS } from "mobx"
 import PropTypes from "prop-types"
-import { PropTypes as MobxPropTypes } from "mobx-react";
 import AutomatonPropTypes from "../../util/AutomatonPropTypes";
 import { observer as fnObserver } from "mobx-react-lite";
 
@@ -78,7 +77,7 @@ RowSelector.propTypes = {
     selectedValues:
     PropTypes.oneOfType([
         AutomatonPropTypes.isObservableSet,
-        MobxPropTypes.observableArray
+        PropTypes.array
     ]).isRequired
 };
 

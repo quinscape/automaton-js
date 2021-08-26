@@ -7,7 +7,7 @@ import { observer as fnObserver, useLocalStore } from "mobx-react-lite";
 import toPath from "lodash.topath"
 import get from "lodash.get"
 import set from "lodash.set"
-import uuid from "uuid"
+import { v4 } from "uuid"
 
 import config from "../config";
 import i18n from "../i18n";
@@ -480,7 +480,7 @@ AssociationSelector.propTypes = {
 AssociationSelector.defaultProps = {
     modalTitle: i18n("Select Associated Objects"),
     fade: false,
-    generateId: uuid.v4
+    generateId: v4
 };
 
 AssociationSelector.displayName = "AssociationSelector";
