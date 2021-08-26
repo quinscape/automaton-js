@@ -11,7 +11,7 @@ function defaultRenderUser()
 
     const { login } = auth;
 
-    const devRoles = __DEV ? auth.roles.join(", ") : null;
+    const devRoles = __DEV ? auth.roles.join(", ") + " ( id = '" + auth.id + "')" : null;
 
     return (
         <>
