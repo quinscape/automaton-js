@@ -1,6 +1,5 @@
 import React, { useEffect } from "react"
-import { useFormConfig } from "domainql-form";
-import { Icon } from "domainql-form";
+import { useFormConfig, Icon } from "domainql-form";
 import { observer as fnObserver } from "mobx-react-lite"
 import cx from "classnames";
 import i18n from "../../i18n";

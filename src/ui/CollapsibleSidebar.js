@@ -4,6 +4,8 @@ import {
     Icon
 } from "domainql-form"
 import cx from "classnames";
+import PropTypes from "prop-types";
+
 import StickyResizingSidebar from "./StickyResizingSidebar";
 import useWindowSize from "../util/useWindowSize";
 
@@ -11,31 +13,6 @@ import useWindowSize from "../util/useWindowSize";
  * Create a Column, that can be expanded/collapsed.
  * 
  * This component is supposed to be used inside a flex layout (like bootstraps grid system)
- * 
- * @param id
- * the id of the resulting html element
- * @param width
- * the initial width, that will be used if the device is at least a medum size device\
- * allowed units: px, vw, vh\
- * defaults to 200px
- * @param minWidth
- * the lower boundary that will be used for drag resizing\
- * allowed units: px, vw, vh\
- * defaults to 100px
- * @param maxWidth
- * the upper boundary that will be used for drag resizing\
- * allowed units: px, vw, vh\
- * defaults to 400px
- * @param collapsedLabelText
- * the text will be shown, if the element is collapsed
- * @param scrollPaddingTop
- * the top padding to viewport in pixel to calculate size on scroll/resize\
- * defaults to 15
- * @param scrollPaddingBottom
- * the bottom padding to viewport in pixel to calculate size on scroll/resize\
- * defaults to 15
- * 
- * @constructor
  */
 const CollapsibleSidebar = ({
     id,
@@ -43,8 +20,6 @@ const CollapsibleSidebar = ({
     minWidth = "100px",
     maxWidth = "400px",
     collapsedLabelText = "",
-    scrollPaddingTop = 15,
-    scrollPaddingBottom = 30,
     className,
     children
 }) => {
@@ -55,8 +30,6 @@ const CollapsibleSidebar = ({
     return (
         <StickyResizingSidebar
             id={id}
-            scrollPaddingTop={scrollPaddingTop}
-            scrollPaddingBottom={scrollPaddingBottom}
             className={ cx(className, "collapsible-sidebar", expanded > 0 ? "expanded" : "collapsed") }
         >
             <div className="button-wrapper text-muted small">
@@ -102,5 +75,30 @@ const CollapsibleSidebar = ({
         </StickyResizingSidebar>
     )
 };
+
+CollapsibleSidebar.propTypes = {
+    /**
+     * The text shown, if the element is collapsed
+     */
+    collapsedLabelText: PropTypes.string,
+    /**
+     * the upper boundary that will be used for drag resizing\
+     * allowed units: px, vw, vh\
+     * defaults to 400px
+     */
+    maxWidth: PropTypes.string,
+    /**
+     * the lower boundary that will be used for drag resizing\
+     * allowed units: px, vw, vh\
+     * defaults to 100px
+     */
+    minWidth: PropTypes.string,
+    /**
+     * the initial width, that will be used if the device is at least a medum size device\
+     * allowed units: px, vw, vh\
+     * defaults to 200px
+     */
+    width: PropTypes.string
+}
 
 export default CollapsibleSidebar;

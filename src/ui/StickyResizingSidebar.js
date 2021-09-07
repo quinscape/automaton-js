@@ -6,31 +6,22 @@ import {
 import cx from "classnames";
 import useWindowSize from "../util/useWindowSize";
 import useWindowScroll from "../util/useWindowScroll";
+import config from "../config";
 
 /**
  * Create a Column, that is sticky and resizes inside its parameters.
  * 
  * This component is supposed to be used inside a flex layout (like bootstraps grid system)
- * 
- * @param id
- * the id of the resulting html element
- * @param scrollPaddingTop
- * the top padding to viewport in pixel to calculate size on scroll/resize\
- * defaults to 15
- * @param scrollPaddingBottom
- * the bottom padding to viewport in pixel to calculate size on scroll/resize\
- * defaults to 15
- * 
- * @constructor
  */
 const StickyResizingSidebar = ({
     id,
-    scrollPaddingTop = 15,
-    scrollPaddingBottom = 30,
     className,
     style,
     children
 }) => {
+
+    const scrollPaddingTop = config.ui.stickyTopPadding;
+    const scrollPaddingBottom = config.ui.stickyBottomPadding;
 
     const {width: windowWidth, height: windowHeight} = useWindowSize();
     const {scrollY, scrollHeight} = useWindowScroll();

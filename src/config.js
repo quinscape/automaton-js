@@ -81,7 +81,12 @@ export const DEFAULT_OPTS = {
     userInfo: null,
 
     timestampFormat: "d.M.yyyy H:mm:ss.SSS",
-    dateFormat: "d.M.yyyy"
+    dateFormat: "d.M.yyyy",
+
+    ui: {
+        stickyTopPadding: 15,
+        stickyBottomPadding: 15
+    }
 };
 
 

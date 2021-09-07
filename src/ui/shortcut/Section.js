@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { FormContext } from "domainql-form";
 import {Card, CardBody, CardHeader} from "reactstrap";
-import useAutomatonEnv from "../../useAutomatonEnv";
-
 import PropTypes from "prop-types";
 
+import useAutomatonEnv from "../../useAutomatonEnv";
+import config from "../../config";
 import ShortcutContext from "./ShortcutContext";
 
 /**
@@ -17,9 +17,10 @@ const Section = ({
     id,
     icon,
     heading,
-    scrollPaddingTop=15,
     children
 }) => {
+
+    const scrollPaddingTop = config.ui.stickyTopPadding;
 
     const env = useAutomatonEnv();
     const shortcutState = useContext(ShortcutContext);
@@ -53,6 +54,8 @@ Section.propTypes = {
     id: PropTypes.string.isRequired,
     /**
      * the icon used for the shortcut link
+     * 
+     * can either be a fontawesome key or a render function
      */
     icon: PropTypes.oneOfType([
         PropTypes.string,
