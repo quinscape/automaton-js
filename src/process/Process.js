@@ -1123,7 +1123,7 @@ function findHistoryIndex(navigationId)
 }
 
 
-export function onHistoryAction(location, action)
+export function onHistoryAction({ action, location })
 {
     const { state } = location;
     if (action === "POP")
