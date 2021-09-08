@@ -1643,6 +1643,14 @@ export function findBackStateIndex(n)
             const e = processHistory[i];
             const result = n(e);
 
+            if (__DEV)
+            {
+                if (typeof result === "function")
+                {
+                    throw new Error("Invalid result of back state search. Make sure to invoke the back function with the transition (e.g. 't.back(backToParent(t))'). Don't forget the final '(t)'.");
+                }
+            }
+
             config.logHistory && console.log("BACK", e, "=>", result);
 
             if (result === true)
