@@ -1194,7 +1194,7 @@ const renderRestoredView = action(
 
         const { processId, state: nextState, historyPos } = historyEntry;
 
-        config.logHistory && console.log("renderRestoredView", { processId, state, historyPos });
+        config.logHistory && console.log("renderRestoredView: processId = ", processId, ", nextState = ", nextState.name, ", historyPos = ", historyPos );
 
         const prevProcess = currentProcess;
         const nextProcess = processes[processId];
@@ -1265,7 +1265,7 @@ function logHistory()
 {
     console.log(`HISTORY (currentHistoryPos = ${currentHistoryPos} )`, processHistory.map(({ id, processId, state, historyPos }, idx) => {
 
-        const msg = `id: ${id} processId: ${processId} state: ${state} historyPos: ${historyPos}`;
+        const msg = `id: ${id} processId: ${processId} state: ${state.name} historyPos: ${historyPos}`;
 
 
         return currentHistoryPos === idx ? "[[" + msg + "]]" : msg;
