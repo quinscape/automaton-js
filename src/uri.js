@@ -1,6 +1,5 @@
-import url from "url";
-
 import config from "./config";
+import searchParams from "./util/searchParams";
 
 
 function evaluateParams(params, usedInPath)
@@ -61,8 +60,8 @@ export default function uri(location, params, containsContextPath) {
     const qPos = location.indexOf("?");
     if (qPos >= 0)
     {
-        const current = url.parse(location, true);
-        params = Object.assign(current.query, params);
+
+        params = Object.assign(searchParams(location), params);
         location = location.substring(0, qPos);
     }
 

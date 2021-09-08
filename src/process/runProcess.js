@@ -1,8 +1,8 @@
 import { fetchProcessInjections, renderProcess, ErrorView } from "./Process";
 import config from "../config";
 import render from "../render";
-import url from "url";
 import React from "react";
+import searchParams from "../util/searchParams";
 
 const NUMBER_RE = /^-?[0-9]{1-15}$/;
 
@@ -52,6 +52,17 @@ function prepareInput(query)
 }
 
 
+function uriPath(uri)
+{
+    const pos = uri.indexOf("?");
+    if (pos >= 0)
+    {
+        return uri.substring(0, pos);
+    }
+    return uri;
+}
+
+
 /**
  * High-level entry point to execute a process based on a local URI.
  *
@@ -60,8 +71,8 @@ function prepareInput(query)
  */
 export function runProcessURI(uri)
 {
-
-    const {pathname, query} = url.parse(uri, true);
+    const pathname = uriPath(uri);
+    const query = searchParams(uri);
 
     const {appName, contextPath} = config;
 
