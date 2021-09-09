@@ -176,12 +176,13 @@ const DEFAULT_OPTIONS = {
     /**
      * Default Popper modifiers config
      */
-    popperModifiers: {
-        preventOverflow: {
-            enabled: true,
+    popperModifiers: [{
+        name: "preventOverflow",
+        enabled: true,
+        options: {
             boundariesElement: "viewport"
         }
-    },
+    }],
     small: false
 };
 
