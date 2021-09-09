@@ -26,27 +26,6 @@ function defaultRenderUser()
         </>
     );
 }
-function defaultRenderUser()
-{
-    const { auth } = config;
-
-    const { login } = auth;
-
-    const devRoles = __DEV ? auth.roles.join(", ") + " ( id = '" + auth.id + "')" : null;
-
-    return (
-        <>
-            {"Logged in as\u00a0"}
-            <span className="text-primary">
-                <Icon className="fa-id-card-alt" title={ devRoles }/>
-                {" " + login}
-            </span>
-            {
-                ":"
-            }
-        </>
-    );
-}
 
 /**
  * A CSRF-protection-compliant Spring security log out-form
