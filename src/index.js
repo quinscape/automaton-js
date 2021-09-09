@@ -3,7 +3,7 @@ import { startup, reinitializeLocalScope, reinitializeSessionScope, shutdown, St
 import injection from "./injection";
 import i18n from "./i18n";
 import uri from "./uri";
-import config, { addConfig } from "./config";
+import config from "./config";
 import { Process, getCurrentProcess } from "./process/Process";
 import runProcess, { runProcessURI } from "./process/runProcess";
 
@@ -12,13 +12,12 @@ import Button from "./ui/Button"
 import Link from "./ui/Link"
 import CalendarField from "./ui/CalendarField"
 import ScrollTracker from "./ui/ScrollTracker"
-import graphql, { registerGraphQLPostProcessor, registerGenericGraphQLPostProcessor } from "./graphql"
-//import AutomatonDevTools from "./AutomatonDevTools"
+import graphql from "./graphql"
 import GraphQLQuery from "./GraphQLQuery"
 import { storeDomainObject, deleteDomainObject, storeDomainObjects, generateDomainObjectId, updateAssociations } from "./standard-queries"
 
 import { backToParent } from "./process/back-functions"
-import { registerGenericType, registerType, getGenericType, getWireFormat, registerAutomatonConverters } from "./domain"
+import { getGenericType, getWireFormat } from "./domain"
 import InteractiveQuery, { getFirstValue } from "./model/InteractiveQuery"
 import createDomainObject from "./createDomainObject"
 import LogoutForm from "./ui/LogoutForm"
@@ -40,14 +39,13 @@ import useDomainMonitor from "./message/monitor/useDomainMonitor";
 import useEntity from "./message/monitor/useEntity";
 import mapIterator from "./util/mapIterator";
 import DomainActivityIndicator from "./ui/DomainActivityIndicator";
-import equalsScalar, {registerScalarEquals} from "./util/equalsScalar";
-import renderEntity, {registerEntityRenderer} from "./util/renderEntity";
+import equalsScalar from "./util/equalsScalar";
+import renderEntity from "./util/renderEntity";
 import AttachmentField from "./ui/AttachmentField";
 import AttachmentLink from "./ui/AttachmentLink";
 import uploadAttachment from "./uploadAttachment";
 import deleteAttachment from "./deleteAttachment";
 import FieldMetaButton from "./ui/FieldMetaButton";
-import registerBigDecimalConverter from "./registerBigDecimalConverter";
 import DecimalField from "./ui/DecimalField";
 import URLField from "./ui/URLField";
 import filterTransformer, { FieldResolver } from "./util/filterTransformer";
@@ -57,7 +55,6 @@ import Section from "./ui/shortcut/Section";
 
 import  { createMockedQuery, createFilteredMockQuery} from "./util/createMockedQuery"
 import DropdownMenu from "./ui/DropdownMenu"
-const AutomatonDevTools = "span";
 
 import Attachments from "./Attachments"
 
@@ -95,7 +92,7 @@ export {
     ScrollTracker,
 
     GraphQLQuery,
-    AutomatonDevTools,
+
     reinitializeLocalScope,
     reinitializeSessionScope,
 
@@ -177,4 +174,3 @@ export {
     ViewState,
     DropdownMenu
 }
-
