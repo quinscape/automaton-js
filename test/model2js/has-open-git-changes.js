@@ -2,12 +2,12 @@ import assert from "power-assert"
 import tmp from "tmp";
 import path from "path";
 import fs from "fs";
-import shelljs from "shelljs";
 import SimpleGit from "simple-git";
 
 import React from "react"
 import hasOpenGitChanges from "../../src/model2js/hasOpenGitChanges";
 
+const shelljs = require("shelljs")
 
 function configureRepoUser(git, cb)
 {
@@ -111,7 +111,14 @@ describe("hasOpenChanges", function (done) {
     )
     
     after(() => {
-        tmpDir.removeCallback();
+
+
+        // XXX: gives us errors about the directory not being empty?
+        //      using shelljs instead
+        //tmpDir.removeCallback()
+
+        shelljs.rm("-rf", tmpDir.name)
+
     });
 
     it("determines open git changes within a sub directory", function (done) {
