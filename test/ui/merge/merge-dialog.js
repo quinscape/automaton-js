@@ -9,7 +9,7 @@ import manyToManyMergeData from "../../merge/many-to-many.json"
 import rawSchema from "../../merge/merge-schema.json"
 import config from "../../../src/config";
 import InteractiveQuery from "../../../src/model/InteractiveQuery";
-import { FormConfigProvider, InputSchema, WireFormat } from "domainql-form";
+import { FormConfigProvider, FormContext, InputSchema, WireFormat } from "domainql-form";
 import {
     __setWireFormatForTest,
     createGenericScalarFromWire,
@@ -33,7 +33,6 @@ describe("<ChangeConflictDialog/>", function () {
     let inputSchema, wireFormat;
 
     afterEach(() => {
-        render(<span/>);
         cleanup();
     } );
 
@@ -46,6 +45,8 @@ describe("<ChangeConflictDialog/>", function () {
         wireFormat = new WireFormat(inputSchema, {
             InteractiveQueryCorge: InteractiveQuery
         });
+
+        new FormContext(inputSchema).useAsDefault()
 
         wireFormat.registerConverter(
             "GenericScalar",
@@ -161,13 +162,14 @@ X        | [description] | <[Description #12]>  | Description #11 | [Ours] [Thei
         {
             const descriptionInput = getByLabelText(document.body, "[description]");
 
-            act(
-                () => {
+            // act(
+            //     () => {
 
                     descriptionInput.focus();
+                    descriptionInput.setSelectionRange(0, descriptionInput.value.length)
                     userEvent.type(descriptionInput, expected);
-                }
-            );
+            //     }
+            // );
 
         }
         else
@@ -182,7 +184,7 @@ X        | [description] | <[Description #12]>  | Description #11 | [Ours] [Thei
         }
 
 
-        return (status === FieldStatus.VALUE ? sleep( 10) : Promise.resolve())
+        return (status === FieldStatus.VALUE ? sleep( 20) : Promise.resolve())
             .then(
                 () => {
 

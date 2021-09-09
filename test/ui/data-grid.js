@@ -7,7 +7,7 @@ import React from "react"
 
 import config from "../../src/config"
 import InteractiveQuery from "../../src/model/InteractiveQuery"
-import { FormConfigProvider, InputSchema, Select, WireFormat } from "domainql-form"
+import { FormConfigProvider, FormContext, InputSchema, Select, WireFormat } from "domainql-form"
 
 import DataGrid from "../../src/ui/datagrid/DataGrid"
 import sleep from "./sleep";
@@ -37,6 +37,8 @@ describe("DataGrid", function () {
         inputSchema = new InputSchema(rawSchema);
 
         config.inputSchema = inputSchema;
+
+        new FormContext(inputSchema).useAsDefault();
 
         format = new WireFormat(inputSchema, {
             InteractiveQueryFoo : InteractiveQuery
@@ -388,15 +390,13 @@ describe("DataGrid", function () {
                 const filterRow = container.querySelector("tr.filter");
                 const filterInputs = filterRow.querySelectorAll("tr.filter input,select");
 
-                act(
-                    () => {
-                        userEvent.type(
-                            filterInputs[1],
-                            "xx"
-                        )
-                    }
-                );
-                return sleep(20);
+
+                filterInputs[1].setSelectionRange(0, filterInputs[1].value.length)
+                userEvent.type(
+                    filterInputs[1],
+                    "xx"
+                )
+                return sleep(20)
             })
             .then(() => {
 

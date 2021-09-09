@@ -6,7 +6,7 @@ import { ButtonToolbar, Container, Modal, ModalBody, ModalHeader } from "reactst
 import DataGrid from "./datagrid/DataGrid";
 import { Form, Field, Addon, Icon, FormLayout, usePrevious } from "domainql-form";
 import { isNonNull } from "domainql-form/lib/InputSchema";
-import { useLocalStore,observer as fnObserver } from "mobx-react-lite";
+import { useLocalObservable,observer as fnObserver } from "mobx-react-lite";
 import { action, comparer, observable, reaction, toJS } from "mobx";
 
 import { field, operation, value } from "../FilterDSL";
@@ -27,7 +27,7 @@ const FkSelectorModal = fnObserver(
 
         const { isOpen, iQuery, iQueryType, columns, columnTypes, title, fieldType, selectRow, toggle, fade, filter = null, modalFilter, searchFilter, searchTimeout } = props;
 
-        const formObject = useLocalStore(() => observable({filter}));
+        const formObject = useLocalObservable(() => observable({filter}));
 
         const iQueryRef = useRef(null);
         const searchFieldRef = useRef(null);

@@ -1,7 +1,13 @@
 import { createContext } from "react";
-import { action, observable/* , makeObservable */ } from "mobx";
+import { action, makeObservable, observable } from "mobx";
 
 export class ShortcutContextState {
+
+    constructor(props)
+    {
+        makeObservable(this)
+    }
+
 
     @observable
     shortcuts = new Map();

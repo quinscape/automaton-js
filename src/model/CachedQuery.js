@@ -1,4 +1,4 @@
-import { observable, toJS } from "mobx";
+import { makeObservable, observable, toJS } from "mobx";
 import InteractiveQuery, { NO_COMPONENT } from "./InteractiveQuery";
 import { getWireFormat } from "../domain";
 import { evaluateMemoryQuery } from "../util/evaluateMemoryQuery";
@@ -56,6 +56,8 @@ export default class CachedQuery
 
         // apply default config 
         this.update(this.queryConfig)
+
+        makeObservable(this)
 
         //console.log("Created CachedQuery", toJS(this), "source = ", source,  "queryConfig = ", queryConfig);
     }

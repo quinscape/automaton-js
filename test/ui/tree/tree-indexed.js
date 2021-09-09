@@ -1,18 +1,19 @@
 import assert from "power-assert"
 import sinon from "sinon"
-import { act, fireEvent, getAllByText, getByText, prettyDOM, render } from "@testing-library/react"
+import { act, cleanup, fireEvent, getAllByText, getByText, prettyDOM, render } from "@testing-library/react"
 
 import React from "react"
 
 import config from "../../../src/config"
 import InteractiveQuery from "../../../src/model/InteractiveQuery"
-import { FormConfigProvider, InputSchema, WireFormat } from "domainql-form"
+import { FormConfigProvider, FormContext, InputSchema, WireFormat } from "domainql-form"
 import Tree, { findParentLink } from "../../../src/ui/tree/Tree";
 import { createMockedQuery } from "../../../src/util/createMockedQuery";
 import matchCondition, { matchPlaceholder } from "../../matchCondition";
 import { and, component, field } from "../../../src/FilterDSL";
 import getTreeSummary from "./getTreeSummary";
 import sleep from "../sleep";
+import { __setWireFormatForTest } from "../../../src/domain";
 
 
 const rawSchema = require("./tree-test-schema.json");
@@ -32,7 +33,11 @@ describe("Tree.IndexedObjects", function () {
 
     let format, inputSchema;
 
-    before(() => {
+    afterEach(() => {
+        cleanup();
+    } );
+
+    beforeEach(() => {
         inputSchema = new InputSchema(rawSchema);
 
         config.inputSchema = inputSchema;
@@ -41,6 +46,10 @@ describe("Tree.IndexedObjects", function () {
             InteractiveQueryFoo: InteractiveQuery,
             InteractiveQueryNode: InteractiveQuery
         });
+
+        new FormContext(inputSchema).useAsDefault();
+        __setWireFormatForTest(format)
+
     });
     // beforeEach(() => {
     //

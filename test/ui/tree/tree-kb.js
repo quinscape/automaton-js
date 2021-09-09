@@ -1,18 +1,21 @@
 import assert from "power-assert"
 import sinon from "sinon"
-import { act, fireEvent, getAllByText, getByText, prettyDOM, render } from "@testing-library/react"
+import { act, cleanup, fireEvent, getAllByText, getByText, prettyDOM, render } from "@testing-library/react"
 
 import React from "react"
 
 import config from "../../../src/config"
 import InteractiveQuery from "../../../src/model/InteractiveQuery"
-import { FormConfigProvider, InputSchema, WireFormat } from "domainql-form"
+import { FormConfigProvider, FormContext, InputSchema, registerDomainObjectFactory, WireFormat } from "domainql-form"
 import Tree from "../../../src/ui/tree/Tree";
 import { createMockedQuery } from "../../../src/util/createMockedQuery";
 import matchCondition, { matchPlaceholder } from "../../matchCondition";
 import { and, component, field } from "../../../src/FilterDSL";
 import getTreeSummary from "./getTreeSummary";
 import { findContextMenuButton } from "./tree-objects";
+import { __setWireFormatForTest } from "../../../src/domain";
+import { isObservable, observable } from "mobx";
+import { automatonDomainObjectFactory } from "../../../src/startup";
 
 
 const rawSchema = require("./tree-test-schema.json");
@@ -32,19 +35,27 @@ describe("Tree", function () {
 
     let format, inputSchema;
 
-    before(() => {
+    afterEach(() => {
+        cleanup();
+    } );
+
+    beforeEach(() => {
         inputSchema = new InputSchema(rawSchema);
 
         config.inputSchema = inputSchema;
-
+        
         format = new WireFormat(inputSchema, {
             InteractiveQueryFoo: InteractiveQuery,
             InteractiveQueryNode: InteractiveQuery
         });
+
+        __setWireFormatForTest(format);
+
+        new FormContext(inputSchema).useAsDefault();
+
+        registerDomainObjectFactory(automatonDomainObjectFactory)
+
     });
-    // beforeEach(() => {
-    //
-    // });
 
     it("allows keyboard navigation", function () {
 
@@ -57,69 +68,45 @@ describe("Tree", function () {
             true
         );
 
-        let queryCount = 0;
-
-        iQuery._query = createMockedQuery(format, "InteractiveQueryNode", vars => {
-
-            queryCount++;
-
-            const {offset, condition} = vars.config;
-            const letter = matchCondition(
-                component(
-                    "tree",
-                    field("name").greaterThan(
-                        matchPlaceholder("letter", "String")
-                    )
-                ),
-                condition
-            ).letter.value;
-
-            //console.log("FILTER ", {letter, offset})
-
-            // XXX: our filter emulation here cannot deal with emojis correctly, so our test data does not
-            //      contain them. Emojis work fine in production where the Database does the sorting/filtering
-            const filtered = allNodes.rows.filter(row => row.name.toLocaleUpperCase() > letter);
-
-            const result = {
-                ...allNodes,
-                rows: filtered.slice(offset, offset + 6),
-                rowCount: filtered.length
-            };
-
-            //console.log(result)
-
-            return {result};
-
-        });
 
         const defaultActionSpy = sinon.spy();
         const extraActionSpy = sinon.spy();
 
-        const {container, debug} = render(
-            <FormConfigProvider schema={inputSchema}>
-                <Tree>
-                    <Tree.IndexedObjects
-                        values={iQuery}
-                        render={foo => foo.name}
-                        index={nodeIndex}
-                        renderIndex={c => c + ":"}
-                        actions={
-                            [
-                                {
-                                    label: "Open",
-                                    action: defaultActionSpy
-                                },
-                                {
-                                    label: "Extra",
-                                    action: extraActionSpy
-                                }
-                            ]
-                        }
+        let container, debug;
 
-                    />
-                </Tree>
-            </FormConfigProvider>
-        );
+            act(
+                () => {
+
+                    (
+                        {container, debug} = render(
+                            <FormConfigProvider schema={inputSchema}>
+                                <Tree>
+                                    <Tree.IndexedObjects
+                                        values={iQuery}
+                                        render={foo => foo.name}
+                                        index={nodeIndex}
+                                        renderIndex={c => c + ":"}
+                                        actions={
+                                            [
+                                                {
+                                                    label: "Open",
+                                                    action: defaultActionSpy
+                                                },
+                                                {
+                                                    label: "Extra",
+                                                    action: extraActionSpy
+                                                }
+                                            ]
+                                        }
+
+                                    />
+                                </Tree>
+                            </FormConfigProvider>
+                        )
+
+                    )
+                }
+        )
 
         const summary = getTreeSummary(container);
 
@@ -484,18 +471,32 @@ describe("Tree", function () {
                 assert(defaultActionSpy.called);
 
                 assert.deepEqual(defaultActionSpy.args[0], [
+
+                    config.skipIndexTreeCloning ?
+                        {
+                            "_type": "Node",
+                            "id": "e67fef00-5940-4449-9913-df9a00973c1b",
+                            "name": "aardvark",
+                            "parent": {
+                                "_type": "Node",
+                                "name": "Mammal"
+                            },
+                            "type": 2
+                        }
+                        :
                     {
                         "_type": "Node",
                         "id": "e67fef00-5940-4449-9913-df9a00973c1b",
                         "name": "aardvark",
                         "parent": {
                             "_type": "Node",
-                            "id": null,
+                            "id" : null,
                             "name": "Mammal"
                         },
                         "type": 2
                     }
                 ]);
+
 
                 act(() => {
                     fireEvent(
@@ -524,13 +525,26 @@ describe("Tree", function () {
                 assert(extraActionSpy.called);
 
                 assert.deepEqual(extraActionSpy.args[0], [
+                    config.skipIndexTreeCloning ?
+
                     {
                         "_type": "Node",
                         "id": "e67fef00-5940-4449-9913-df9a00973c1b",
                         "name": "aardvark",
                         "parent": {
                             "_type": "Node",
-                            "id": null,
+                            "name": "Mammal"
+                        },
+                        "type": 2
+                    } :
+
+                    {
+                        "_type": "Node",
+                        "id": "e67fef00-5940-4449-9913-df9a00973c1b",
+                        "name": "aardvark",
+                        "parent": {
+                            "_type": "Node",
+                            "id" : null,
                             "name": "Mammal"
                         },
                         "type": 2

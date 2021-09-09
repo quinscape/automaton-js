@@ -1,4 +1,4 @@
-import { action, observable } from "mobx";
+import { action, makeObservable, observable } from "mobx";
 import { isConditionObject } from "../FilterDSL";
 import updateComponentCondition from "../util/updateComponentCondition";
 
@@ -50,6 +50,11 @@ const updateFromResult = action("Update iQuery from Result", (iQuery, result) =>
  * @category iquery
  */
 export default class InteractiveQuery {
+
+    constructor()
+    {
+        makeObservable(this)
+    }
 
     /** Current result rows of the base type*/
     @observable rows;

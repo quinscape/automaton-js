@@ -1,5 +1,5 @@
 import React from "react";
-import { action, observable } from "mobx";
+import { action, makeObservable, observable } from "mobx";
 import { observer as fnObserver } from "mobx-react-lite";
 import { Modal, ModalBody, ModalHeader } from "reactstrap";
 
@@ -46,6 +46,8 @@ export class DialogAPI {
             id: dialogCount++
         }
 
+
+        makeObservable(this)
     }
 
     /**

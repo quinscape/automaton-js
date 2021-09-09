@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { observer as fnObserver, useLocalStore } from "mobx-react-lite";
+import { observer as fnObserver, useLocalObservable } from "mobx-react-lite";
 import { Field, Form } from "domainql-form";
 import { ButtonToolbar } from "reactstrap";
 import i18n from "../../i18n";
@@ -58,7 +58,7 @@ const stateMap = new Map();
 
 const InteractiveQueryEditor = fnObserver(({id, definition})=> {
 
-    const state = useLocalStore(() => new EditorState())
+    const state = useLocalObservable(() => new EditorState())
 
     // if (__DEV)
     // {

@@ -4,15 +4,14 @@ import { ButtonToolbar, Container, Modal, ModalBody, ModalHeader } from "reactst
 import { Addon, Field, Form, FormLayout, GlobalConfig, Icon } from "domainql-form"
 import i18n from "../i18n";
 import config from "../config";
-import { useLocalStore, useObserver } from "mobx-react-lite";
-import { action, computed, observable, toJS } from "mobx";
+import { useLocalObservable, Observer } from "mobx-react-lite";
+import { action, computed, makeObservable, observable, toJS } from "mobx";
 import equalsScalar from "../util/equalsScalar";
 import { findNamed, isListType, unwrapAll } from "../util/type-utils";
 import { OBJECT } from "domainql-form/lib/kind";
 import renderEntity from "../util/renderEntity";
 import CalendarField from "./CalendarField";
 import { MergeOperation } from "../merge/MergeOperation";
-
 
 export const RECURSE_EVERYTHING = { recurseEverything: true };
 
@@ -293,14 +292,19 @@ export class MergeDialogState {
                 return resolution;
             }
         );
-        
-        this.resolutions.replace(newResolutions)
+
+        this.resolutions = newResolutions;
+
+        makeObservable(this)
+
     }
 
 
     @computed
     get allResolved()
     {
+        //console.log("Run MergeDialogState.allResolved")
+
         const {resolutions} = this;
 
         for (let i = 0; i < resolutions.length; i++)
@@ -438,20 +442,16 @@ function postProcess(result)
  */
 const ChangeConflictDialog = ({dialog, conflicts, config, submitTimeOut = 300}) => {
 
-    const mergeDialogState = useLocalStore(
+    const mergeDialogState = useLocalObservable(
         () => new MergeDialogState(conflicts)
     );
 
-    const { resolutions, allResolved, containsInformational, showInfo } = mergeDialogState;
 
     const [ current, setCurrent ] = useState(0);
     const [ focused, setFocused ] = useState(-1);
 
     const toggleDialog = () => dialog.confirm(OPERATION_CANCEL);
 
-    const currentResolution = resolutions[current];
-
-    const { fields } = currentResolution;
 
     const formOptions = useMemo(
         () => ({
@@ -463,403 +463,422 @@ const ChangeConflictDialog = ({dialog, conflicts, config, submitTimeOut = 300}) 
         [ submitTimeOut ]
     )
 
-    return useObserver(() => (
-        <Modal
-            isOpen={ true }
-            toggle={ toggleDialog }
-            size={ dialog.opts.size }
-            fade={ dialog.opts.fade }
-        >
-            <ModalHeader
-                toggle={ toggleDialog }
-            >
-                <span className="badge badge-warning mr-1">
-                    <Icon className="fa-code-branch"/>
-                </span>
-                {
-                    i18n("Change Conflict -- {0} ({1} of {2})", currentResolution.type, current + 1, conflicts.length)
-                }
-            </ModalHeader>
-            <ModalBody>
-                <Container fluid={true}>
-                    <div className="row">
-                        <div className="col">
-                            <Form
-                                key={currentResolution.id.value}
-                                value={currentResolution}
-                                options={
-                                    formOptions
-                                }
-                                onSubmit={ formConfig => updateFieldStatus(formConfig.root, conflicts[current], focused) }
+    return (
+        <Observer>
+            {
+                () => {
+                    const { resolutions, allResolved, containsInformational, showInfo } = mergeDialogState;
+                    const currentResolution = resolutions[current];
+                    const { fields } = currentResolution;
+
+                    return (
+                        <Modal
+                            isOpen={true}
+                            toggle={toggleDialog}
+                            size={dialog.opts.size}
+                            fade={dialog.opts.fade}
+                        >
+                            <ModalHeader
+                                toggle={toggleDialog}
                             >
-                                <table className="merge-table table table-hover table-sm" onFocusCapture={ev => {
-                                    const idx = getRowIndex(ev.target);
-                                    if (idx !== -1 && idx !== focused)
-                                    {
-                                        setFocused(idx);
-                                    }
-                                }}>
-                                    <thead>
-                                    <tr>
-                                        <th>
-                                            {
-                                                i18n("Merge:Status")
-                                            }
-                                        </th>
-                                        <th>
-                                            {
-                                                i18n("Merge:Field")
-                                            }
-                                        </th>
-                                        <th>
-                                            {
-                                                i18n("Merge:Value")
-                                            }
-                                        </th>
-                                        <th>
-                                            {
-                                                i18n("Merge:Their Value")
-                                            }
-                                        </th>
-                                        <th>
-                                            {
-                                                i18n("Merge:Action")
-                                            }
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {
-                                        fields
-                                            .map((f, idx) => {
-
-                                            const { name, status, fieldType } = f;
-                                                                        
-                                            if (
-                                                fieldType === FieldType.IGNORE ||
-                                                fieldType === FieldType.FK_KEY ||
-                                                (!mergeDialogState.showInfo && f.informational)
-                                            )
-                                            {
-                                                return false;
-                                            }
-
-                                            const scalarType = f.value.type;
-
-                                            const useCalendar = scalarType === "Date" || scalarType === "Timestamp";
-
-                                            // we have to keep the `fields` and `conflicts` in sync, which is why we don't filter
-                                            const conflict = conflicts[current].fields[idx];
-
-                                            const fieldLabel = i18n(currentResolution.type + ":" + name);
-
-                                            return (
-                                                <tr key={idx}
-                                                    className={cx(status === FieldStatus.UNDECIDED && "border border-danger")}
-                                                    data-idx={String(idx)}
-                                                >
-                                                    <td>
-                                                        <p className="form-control-plaintext">
-                                                            {
-                                                                statusIcons[status]
-                                                            }
-                                                        </p>
-                                                    </td>
-                                                    <td>
-                                                        <p className="form-control-plaintext">
-                                                            {
-                                                                fieldLabel
-                                                            }
-                                                        </p>
-                                                    </td>
-                                                    <td>
-
-                                                        {
-                                                            fieldType === FieldType.FIELD && !useCalendar &&  (
-                                                                <Field
-                                                                    label={ fieldLabel }
-                                                                    labelClass="sr-only"
-                                                                    name={ "fields." + idx + ".value.value" }
-                                                                    type={ scalarType }
-                                                                >
-                                                                    <Addon
-                                                                        placement={ Addon.RIGHT }
-                                                                        text={ true }
-                                                                    >
-                                                                        {
-                                                                            status === FieldStatus.VALUE &&
-                                                                            <Icon className="fa-check text-success"/>
-                                                                        }
-
-                                                                    </Addon>
-                                                                </Field>
-                                                            )
-                                                        }
-                                                        {
-                                                            fieldType === FieldType.FIELD && useCalendar &&  (
-                                                                <CalendarField
-                                                                    label={ fieldLabel }
-                                                                    labelClass="sr-only"
-                                                                    name={ "fields." + idx + ".value.value" }
-                                                                    type={ scalarType }
-                                                                    addonClass={ cx( status === FieldStatus.VALUE && "btn-success" ) }
-                                                                >
-                                                                </CalendarField>
-                                                            )
-                                                        }
-
-                                                        {
-                                                            fieldType === FieldType.FK_OBJECT && (
-                                                                <p className="form-control-plaintext">
-                                                                    {
-                                                                        renderEntity(status !== FieldStatus.THEIRS ? conflict.ours.value : conflict.theirs.value, false)
-                                                                    }
-                                                                </p>
-                                                            )
-                                                        }
-                                                        {
-                                                            fieldType === FieldType.MANY_TO_MANY && (
-                                                                <ul className="list-unstyled">
-                                                                    {
-                                                                        (status !== FieldStatus.THEIRS ? conflict.ours : conflict.theirs).value.map( e => (
-                                                                            <li
-                                                                                key={ e.id }
-                                                                                className="form-control-plaintext"
-                                                                            >
-                                                                                {
-                                                                                    renderEntity(e, false)
-                                                                                }
-                                                                            </li>
-                                                                        ))
-
-                                                                    }
-                                                                </ul>
-                                                            )
-                                                        }
-
-                                                    </td>
-                                                    <td>
-                                                        {
-                                                            fieldType === FieldType.FIELD && (
-                                                                <p className="form-control-plaintext">
-                                                                    {
-                                                                        GlobalConfig.renderStatic(conflict.theirs.type, conflict.theirs.value)
-                                                                    }
-                                                                </p>
-                                                            )
-                                                        }
-                                                        {
-                                                            fieldType === FieldType.FK_OBJECT && (
-                                                                <p className="form-control-plaintext">
-                                                                    {
-                                                                        renderEntity(conflict.theirs.value, false)
-                                                                    }
-                                                                </p>
-
-                                                            )
-                                                        }
-                                                        {
-                                                            fieldType === FieldType.MANY_TO_MANY && (
-                                                                <ul className="list-unstyled">
-                                                                    {
-                                                                        conflict.theirs.value.map( e => (
-                                                                            <li
-                                                                                key={ e.id }
-                                                                                className="form-control-plaintext"
-                                                                            >
-                                                                                {
-                                                                                    renderEntity(e, false)
-                                                                                }
-                                                                            </li>
-                                                                        ))
-
-                                                                    }
-                                                                </ul>
-                                                            )
-                                                        }
-                                                    </td>
-                                                    <td>
-                                                        <button
-                                                            type="button"
-                                                            title={i18n("Merge:Take our value")}
-                                                            className={
-                                                                cx(
-                                                                    "btn mr-1",
-                                                                    status === FieldStatus.OURS ?
-                                                                        "btn-success" :
-                                                                        "btn-secondary",
-                                                                )
-                                                            }
-                                                            disabled={status === FieldStatus.OURS}
-                                                            onClick={() => changeFieldValue(currentResolution, idx, conflict.ours.value, FieldStatus.OURS)}
-                                                        >
-                                                            {
-                                                                status === FieldStatus.OURS &&
-                                                                <Icon className="fa-check"/>
-                                                            }
-                                                            {
-                                                                i18n("Merge:Ours")
-                                                            }
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            className={
-                                                                cx(
-                                                                    "btn mr-1",
-                                                                    status === FieldStatus.THEIRS ?
-                                                                        "btn-success" :
-                                                                        "btn-secondary",
-                                                                )
-                                                            }
-                                                            title={
-                                                                i18n("Merge:Take their value")
-                                                            }
-                                                            disabled={ status === FieldStatus.THEIRS }
-                                                            onClick={() => changeFieldValue(currentResolution, idx, conflict.theirs.value, FieldStatus.THEIRS)}
-                                                        >
-                                                            {
-                                                                status === FieldStatus.THEIRS &&
-                                                                <Icon className="fa-check"/>
-                                                            }
-                                                            {
-                                                                i18n("Merge:Theirs")
-                                                            }
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
-                                    }
-
-                                    </tbody>
-                                </table>
-                            </Form>
-                            <ButtonToolbar>
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary mr-1"
-                                    disabled={current === 0}
-                                    onClick={() => setCurrent(current - 1)}
-                                >
-                                    <Icon
-                                        className="fa-step-backward mr-1"
-                                    />
-                                    {
-                                        i18n("Merge:Previous")
-                                    }
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary mr-3"
-                                    disabled={current === resolutions.length - 1}
-                                    onClick={() => setCurrent(current + 1)}
-                                >
-                                    <Icon
-                                        className="fa-step-forward mr-1"
-                                    />
-                                    {
-                                        i18n("Merge:Next")
-                                    }
-                                </button>
+                    <span className="badge badge-warning mr-1">
+                        <Icon className="fa-code-branch"/>
+                    </span>
                                 {
-                                    containsInformational && (
-                                        <form className="form-inline">
-                                            <div className="form-check mb-2 mr-sm-2">
-                                                <input
-                                                    id="cb-show-info"
-                                                    type="checkbox"
-                                                    className="form-check-input"
-                                                    checked={ showInfo }
-                                                    onChange={ () => mergeDialogState.toggleInfo() }
-                                                />
-                                                <label className="form-check-label" htmlFor="cb-show-info">
-                                                    {
-                                                        i18n("Show Informational")
-                                                    }
-                                                </label>
-                                            </div>
-                                        </form>
-                                    )
+                                    i18n("Change Conflict -- {0} ({1} of {2})", currentResolution.type, current + 1, conflicts.length)
                                 }
-
-                            </ButtonToolbar>
-                            <hr/>
-                            <ButtonToolbar>
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary mr-1 float-right"
-                                    onClick={() => dialog.confirm(OPERATION_CANCEL) }
-                                >
-                                    <Icon
-                                        className="fa-times mr-1"
-                                    />
-                                    {
-                                        i18n("Cancel")
-                                    }
-                                </button>
-                                {
-                                    config.allowDiscard && (
-                                        <button
-                                            type="button"
-                                            className="btn btn-danger mr-1"
-                                            onClick={
-                                                () => {
-                                                    if (confirm(i18n("Discard Working Set?")))
-                                                    {
-                                                        dialog.confirm(OPERATION_DISCARD)
-                                                    }
+                            </ModalHeader>
+                            <ModalBody>
+                                <Container fluid={true}>
+                                    <div className="row">
+                                        <div className="col">
+                                            <Form
+                                                key={currentResolution.id.value}
+                                                value={currentResolution}
+                                                options={
+                                                    formOptions
                                                 }
-                                            }
-                                        >
-                                            <Icon
-                                                className="fa-trash-alt mr-1"
-                                            />
-                                            {
-                                                i18n("Merge:Discard")
-                                            }
-                                        </button>
-                                    )
-                                }
-                                {
-                                    config.allowApply && (
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary mr-1"
-                                            disabled={!allResolved}
-                                            onClick={() => dialog.confirm({
-                                                operation: MergeOperation.APPLY,
-                                                resolutions: postProcess(resolutions)
-                                            })}
-                                        >
-                                            {
-                                                i18n("Merge:Apply")
-                                            }
-                                        </button>
-                                    )
-                                }
-                                <button
-                                    type="button"
-                                    className="btn btn-primary mr-1"
-                                    disabled={!allResolved}
-                                    onClick={() => dialog.confirm({
-                                        operation: MergeOperation.STORE,
-                                        resolutions: postProcess(resolutions)
-                                    })}
-                                >
-                                    <Icon
-                                        className="fa-save mr-1"
-                                    />
-                                    {
-                                        i18n("Merge:Merge")
-                                    }
-                                </button>
-                            </ButtonToolbar>
-                        </div>
-                    </div>
-                </Container>
-            </ModalBody>
-        </Modal>
-    ));
+                                                onSubmit={formConfig => updateFieldStatus(formConfig.root, conflicts[current], focused)}
+                                            >
+                                                <table className="merge-table table table-hover table-sm"
+                                                       onFocusCapture={ev => {
+                                                           const idx = getRowIndex(ev.target);
+                                                           if (idx !== -1 && idx !== focused)
+                                                           {
+                                                               setFocused(idx);
+                                                           }
+                                                       }}>
+                                                    <thead>
+                                                    <tr>
+                                                        <th>
+                                                            {
+                                                                i18n("Merge:Status")
+                                                            }
+                                                        </th>
+                                                        <th>
+                                                            {
+                                                                i18n("Merge:Field")
+                                                            }
+                                                        </th>
+                                                        <th>
+                                                            {
+                                                                i18n("Merge:Value")
+                                                            }
+                                                        </th>
+                                                        <th>
+                                                            {
+                                                                i18n("Merge:Their Value")
+                                                            }
+                                                        </th>
+                                                        <th>
+                                                            {
+                                                                i18n("Merge:Action")
+                                                            }
+                                                        </th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {
+                                                        fields
+                                                            .map((f, idx) => {
+
+                                                                const {name, status, fieldType} = f;
+
+                                                                if (
+                                                                    fieldType === FieldType.IGNORE ||
+                                                                    fieldType === FieldType.FK_KEY ||
+                                                                    (!mergeDialogState.showInfo && f.informational)
+                                                                )
+                                                                {
+                                                                    return false;
+                                                                }
+
+                                                                const scalarType = f.value.type;
+
+                                                                const useCalendar = scalarType === "Date" || scalarType === "Timestamp";
+
+                                                                // we have to keep the `fields` and `conflicts` in sync, which is why we don't filter
+                                                                const conflict = conflicts[current].fields[idx];
+
+                                                                const fieldLabel = i18n(currentResolution.type + ":" + name);
+
+                                                                return (
+                                                                    <tr key={idx}
+                                                                        className={cx(status === FieldStatus.UNDECIDED && "border border-danger")}
+                                                                        data-idx={String(idx)}
+                                                                    >
+                                                                        <td>
+                                                                            <p className="form-control-plaintext">
+                                                                                {
+                                                                                    statusIcons[status]
+                                                                                }
+                                                                            </p>
+                                                                        </td>
+                                                                        <td>
+                                                                            <p className="form-control-plaintext">
+                                                                                {
+                                                                                    fieldLabel
+                                                                                }
+                                                                            </p>
+                                                                        </td>
+                                                                        <td>
+
+                                                                            {
+                                                                                fieldType === FieldType.FIELD && !useCalendar && (
+                                                                                    <Field
+                                                                                        label={fieldLabel}
+                                                                                        labelClass="sr-only"
+                                                                                        name={"fields." + idx + ".value.value"}
+                                                                                        type={scalarType}
+                                                                                    >
+                                                                                        <Addon
+                                                                                            placement={Addon.RIGHT}
+                                                                                            text={true}
+                                                                                        >
+                                                                                            {
+                                                                                                status === FieldStatus.VALUE &&
+                                                                                                <Icon
+                                                                                                    className="fa-check text-success"/>
+                                                                                            }
+
+                                                                                        </Addon>
+                                                                                    </Field>
+                                                                                )
+                                                                            }
+                                                                            {
+                                                                                fieldType === FieldType.FIELD && useCalendar && (
+                                                                                    <CalendarField
+                                                                                        label={fieldLabel}
+                                                                                        labelClass="sr-only"
+                                                                                        name={"fields." + idx + ".value.value"}
+                                                                                        type={scalarType}
+                                                                                        addonClass={cx(status === FieldStatus.VALUE && "btn-success")}
+                                                                                    >
+                                                                                    </CalendarField>
+                                                                                )
+                                                                            }
+
+                                                                            {
+                                                                                fieldType === FieldType.FK_OBJECT && (
+                                                                                    <p className="form-control-plaintext">
+                                                                                        {
+                                                                                            renderEntity(status !== FieldStatus.THEIRS ?
+                                                                                                conflict.ours.value :
+                                                                                                conflict.theirs.value, false)
+                                                                                        }
+                                                                                    </p>
+                                                                                )
+                                                                            }
+                                                                            {
+                                                                                fieldType === FieldType.MANY_TO_MANY && (
+                                                                                    <ul className="list-unstyled">
+                                                                                        {
+                                                                                            (status !== FieldStatus.THEIRS ?
+                                                                                                conflict.ours :
+                                                                                                conflict.theirs).value.map(e => (
+                                                                                                <li
+                                                                                                    key={e.id}
+                                                                                                    className="form-control-plaintext"
+                                                                                                >
+                                                                                                    {
+                                                                                                        renderEntity(e, false)
+                                                                                                    }
+                                                                                                </li>
+                                                                                            ))
+
+                                                                                        }
+                                                                                    </ul>
+                                                                                )
+                                                                            }
+
+                                                                        </td>
+                                                                        <td>
+                                                                            {
+                                                                                fieldType === FieldType.FIELD && (
+                                                                                    <p className="form-control-plaintext">
+                                                                                        {
+                                                                                            GlobalConfig.renderStatic(conflict.theirs.type, conflict.theirs.value)
+                                                                                        }
+                                                                                    </p>
+                                                                                )
+                                                                            }
+                                                                            {
+                                                                                fieldType === FieldType.FK_OBJECT && (
+                                                                                    <p className="form-control-plaintext">
+                                                                                        {
+                                                                                            renderEntity(conflict.theirs.value, false)
+                                                                                        }
+                                                                                    </p>
+
+                                                                                )
+                                                                            }
+                                                                            {
+                                                                                fieldType === FieldType.MANY_TO_MANY && (
+                                                                                    <ul className="list-unstyled">
+                                                                                        {
+                                                                                            conflict.theirs.value.map(e => (
+                                                                                                <li
+                                                                                                    key={e.id}
+                                                                                                    className="form-control-plaintext"
+                                                                                                >
+                                                                                                    {
+                                                                                                        renderEntity(e, false)
+                                                                                                    }
+                                                                                                </li>
+                                                                                            ))
+
+                                                                                        }
+                                                                                    </ul>
+                                                                                )
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            <button
+                                                                                type="button"
+                                                                                title={i18n("Merge:Take our value")}
+                                                                                className={
+                                                                                    cx(
+                                                                                        "btn mr-1",
+                                                                                        status === FieldStatus.OURS ?
+                                                                                            "btn-success" :
+                                                                                            "btn-secondary",
+                                                                                    )
+                                                                                }
+                                                                                disabled={status === FieldStatus.OURS}
+                                                                                onClick={() => changeFieldValue(currentResolution, idx, conflict.ours.value, FieldStatus.OURS)}
+                                                                            >
+                                                                                {
+                                                                                    status === FieldStatus.OURS &&
+                                                                                    <Icon className="fa-check"/>
+                                                                                }
+                                                                                {
+                                                                                    i18n("Merge:Ours")
+                                                                                }
+                                                                            </button>
+                                                                            <button
+                                                                                type="button"
+                                                                                className={
+                                                                                    cx(
+                                                                                        "btn mr-1",
+                                                                                        status === FieldStatus.THEIRS ?
+                                                                                            "btn-success" :
+                                                                                            "btn-secondary",
+                                                                                    )
+                                                                                }
+                                                                                title={
+                                                                                    i18n("Merge:Take their value")
+                                                                                }
+                                                                                disabled={status === FieldStatus.THEIRS}
+                                                                                onClick={() => changeFieldValue(currentResolution, idx, conflict.theirs.value, FieldStatus.THEIRS)}
+                                                                            >
+                                                                                {
+                                                                                    status === FieldStatus.THEIRS &&
+                                                                                    <Icon className="fa-check"/>
+                                                                                }
+                                                                                {
+                                                                                    i18n("Merge:Theirs")
+                                                                                }
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            })
+                                                    }
+
+                                                    </tbody>
+                                                </table>
+                                            </Form>
+                                            <ButtonToolbar>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-secondary mr-1"
+                                                    disabled={current === 0}
+                                                    onClick={() => setCurrent(current - 1)}
+                                                >
+                                                    <Icon
+                                                        className="fa-step-backward mr-1"
+                                                    />
+                                                    {
+                                                        i18n("Merge:Previous")
+                                                    }
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-secondary mr-3"
+                                                    disabled={current === resolutions.length - 1}
+                                                    onClick={() => setCurrent(current + 1)}
+                                                >
+                                                    <Icon
+                                                        className="fa-step-forward mr-1"
+                                                    />
+                                                    {
+                                                        i18n("Merge:Next")
+                                                    }
+                                                </button>
+                                                {
+                                                    containsInformational && (
+                                                        <form className="form-inline">
+                                                            <div className="form-check mb-2 mr-sm-2">
+                                                                <input
+                                                                    id="cb-show-info"
+                                                                    type="checkbox"
+                                                                    className="form-check-input"
+                                                                    checked={showInfo}
+                                                                    onChange={() => mergeDialogState.toggleInfo()}
+                                                                />
+                                                                <label className="form-check-label"
+                                                                       htmlFor="cb-show-info">
+                                                                    {
+                                                                        i18n("Show Informational")
+                                                                    }
+                                                                </label>
+                                                            </div>
+                                                        </form>
+                                                    )
+                                                }
+
+                                            </ButtonToolbar>
+                                            <hr/>
+                                            <ButtonToolbar>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-secondary mr-1 float-right"
+                                                    onClick={() => dialog.confirm(OPERATION_CANCEL)}
+                                                >
+                                                    <Icon
+                                                        className="fa-times mr-1"
+                                                    />
+                                                    {
+                                                        i18n("Cancel")
+                                                    }
+                                                </button>
+                                                {
+                                                    config.allowDiscard && (
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-danger mr-1"
+                                                            onClick={
+                                                                () => {
+                                                                    if (confirm(i18n("Discard Working Set?")))
+                                                                    {
+                                                                        dialog.confirm(OPERATION_DISCARD)
+                                                                    }
+                                                                }
+                                                            }
+                                                        >
+                                                            <Icon
+                                                                className="fa-trash-alt mr-1"
+                                                            />
+                                                            {
+                                                                i18n("Merge:Discard")
+                                                            }
+                                                        </button>
+                                                    )
+                                                }
+                                                {
+                                                    config.allowApply && (
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-secondary mr-1"
+                                                            disabled={!allResolved}
+                                                            onClick={() => dialog.confirm({
+                                                                operation: MergeOperation.APPLY,
+                                                                resolutions: postProcess(resolutions)
+                                                            })}
+                                                        >
+                                                            {
+                                                                i18n("Merge:Apply")
+                                                            }
+                                                        </button>
+                                                    )
+                                                }
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-primary mr-1"
+                                                    disabled={!allResolved}
+                                                    onClick={() => dialog.confirm({
+                                                        operation: MergeOperation.STORE,
+                                                        resolutions: postProcess(resolutions)
+                                                    })}
+                                                >
+                                                    <Icon
+                                                        className="fa-save mr-1"
+                                                    />
+                                                    {
+                                                        i18n("Merge:Merge")
+                                                    }
+                                                </button>
+                                            </ButtonToolbar>
+                                        </div>
+                                    </div>
+                                </Container>
+                            </ModalBody>
+                        </Modal>
+                    );
+                }
+            }
+        </Observer>
+    );
 };
 
 export default ChangeConflictDialog;

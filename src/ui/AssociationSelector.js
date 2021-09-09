@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import { ButtonToolbar, ListGroup, ListGroupItem } from "reactstrap"
 import { FieldMode, FormGroup, useFormConfig, Icon } from "domainql-form"
 import { action, observable } from "mobx";
-import { observer as fnObserver, useLocalStore } from "mobx-react-lite";
+import { observer as fnObserver, useLocalObservable } from "mobx-react-lite";
 import toPath from "lodash.topath"
 import get from "lodash.get"
 import set from "lodash.set"
@@ -260,7 +260,7 @@ const AssociationSelector = fnObserver(props => {
 
     const links = get(formConfig.root, name);
 
-    const selected = useLocalStore(() => new Set());
+    const selected = useLocalObservable(() => new Set());
 
     const openModal = () => {
         query.execute(

@@ -13,7 +13,7 @@ import {
     getByText,
     queryByLabelText,
     render,
-    waitForElement,
+    waitFor,
     waitForElementToBeRemoved
 } from "@testing-library/react"
 import { FormConfigProvider, FormContext, InputSchema, WireFormat, withForm } from "domainql-form"
@@ -52,7 +52,13 @@ function openFKSelectorModal(fkSelector)
         }
     );
 
-    return waitForElement(() => getModal());
+    return waitFor(() => getModal()).then(
+
+        () => {
+
+            return getModal();
+        }
+    );
 }
 
 
@@ -224,24 +230,13 @@ function searchFor(inputElem, searchTerm)
         .then(
             () => {
 
-                // XXX: actually returning a promise from act() here apparently wrecks jsdom or something and leads to mysterious failures in the Tree tests
-                //      capturing the promise in act() and then waiting for it after works fine it seems.
-                let promise;
-
-                act(
+                return act(
                     () => {
-                        // fireEvent.change(inputElem, {
-                        //     target: {
-                        //         value: "#5"
-                        //     }
-                        // });
-
-                        promise = userEvent.type(inputElem, searchTerm, {delay: searchTimeout / 2});
+                        inputElem.setSelectionRange(0, inputElem.value.length)
+                        return userEvent.type(inputElem, searchTerm, {delay: searchTimeout / 2});
 
                     }
-                );
-
-                return promise;
+                )
             }
         )
         .then(

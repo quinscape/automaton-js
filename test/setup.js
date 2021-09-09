@@ -1,12 +1,11 @@
 import "raf/polyfill"
+import { configure } from "mobx"
 /*
  * Some environment patching for "jsdom-global/register"
  */
 require("jsdom-global/register");
 
-const mobx = require("mobx");
-
-mobx.configure({
+configure({
     enforceActions: "observed"
 });
 

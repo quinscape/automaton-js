@@ -1,4 +1,4 @@
-import { computed, observable } from "mobx";
+import { computed, makeObservable, observable } from "mobx";
 
 import { parse } from "graphql/language/parser"
 import { Kind } from "graphql/language/kinds"
@@ -15,6 +15,8 @@ export default class InteractiveQueryDefinition {
     {
         this.query = query;
         this.queryConfig = queryConfig;
+
+        makeObservable(this)
     }
 
     @observable query;

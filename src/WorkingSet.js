@@ -1,4 +1,4 @@
-import { action, computed, observable, toJS } from "mobx"
+import { action, computed, makeObservable, observable, toJS } from "mobx"
 import { computedFn } from "mobx-utils"
 
 import config from "./config";
@@ -672,9 +672,7 @@ export default class WorkingSet {
     constructor(mergeConfig = null)
     {
         this[secret] = {
-            changes: observable(
-                new Map()
-            ),
+            changes: observable.map(),
             bases: new Map(),
             mergePlan: new MergePlan({
                 ...DEFAULT_MERGE_CONFIG,
@@ -685,6 +683,8 @@ export default class WorkingSet {
         // Store query and openDialog internally for easy hijacking in test
         this._mergeQuery = MergeWorkingSetQuery;
         this._openDialog = openDialog;
+
+        makeObservable(this)
 
         //console.log("MERGE-PLAN:", this[secret].mergePlan)
     }

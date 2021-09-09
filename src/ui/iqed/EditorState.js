@@ -1,4 +1,4 @@
-import { action, computed, observable, toJS } from "mobx";
+import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { parse } from "graphql/language/parser";
 import { getGraphQLMethodType } from "../../process/Process";
 import { findNamed, getIQueryPayloadType, lookupType, unwrapNonNull } from "../../util/type-utils";
@@ -178,6 +178,11 @@ function getParentField(field)
 
 
 export class EditorState {
+
+    constructor()
+    {
+        makeObservable(this)
+    }
 
     @observable root;
     @observable name;

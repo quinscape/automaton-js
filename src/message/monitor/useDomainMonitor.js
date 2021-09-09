@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react"
-import { action, observable, toJS } from "mobx";
+import { action, makeObservable, observable, toJS } from "mobx";
 import subscribeToTopic from "../subscribeToTopic";
 
 // keep in sync with src/main/java/de/quinscape/automaton/runtime/domain/DomainMonitorService.java in automaton
@@ -19,6 +19,11 @@ const CHANGED = "CHANGED";
 const DELETED = "DELETED";
 
 export class Monitor{
+
+    constructor()
+    {
+        makeObservable(this)
+    }
 
     @observable
     activities = new Map();
