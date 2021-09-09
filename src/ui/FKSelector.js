@@ -344,7 +344,7 @@ const FKSelector = fnObserver(props => {
                         },
                     );
 
-                    const [ debouncedInputValidation, cancelDebouncedInputValidation ] = useDebouncedCallback(
+                    const debouncedInputValidation = useDebouncedCallback(
                         val => {
 
                             if (val === "")

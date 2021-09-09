@@ -15,7 +15,7 @@ export default function useWindowScroll(timeout = 50) {
         scrollHeight: scrollEl?.scrollHeight
     });
     
-    const [ updateScrollState, cancelUpdateScrollState ] = useDebouncedCallback(() => {
+    const updateScrollState = useDebouncedCallback(() => {
         setScrollState({
             scrollX: window.scrollX,
             scrollY: window.scrollY,
