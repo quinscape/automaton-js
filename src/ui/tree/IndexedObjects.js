@@ -340,6 +340,11 @@ const IndexedObjects = fnObserver(({ render, renderIndex = renderIndexDefault, v
 
     const values = useMemo(
         () => {
+            if (config.skipIndexTreeCloning)
+            {
+                console.log("IndexedObjects: skip cloning")
+                return valuesFromProps;
+            }
             const clone = config.inputSchema.clone(valuesFromProps);
             clone._query = valuesFromProps._query;
             return clone;
