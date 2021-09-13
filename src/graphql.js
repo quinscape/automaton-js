@@ -103,6 +103,8 @@ export function registerGenericGraphQLPostProcessor(type, fn)
 
 function postProcess(result, processors, queryDecl, params)
 {
+    let promises = [];
+
     for (let i = 0; i < processors.length; i++)
     {
         const { methodName, array } = processors[i];
@@ -111,12 +113,22 @@ function postProcess(result, processors, queryDecl, params)
         for (let j = 0; j < array.length; j++)
         {
             const fn = array[j];
-            value = fn(value, queryDecl, params)
+
+            promises.push(
+                Promise.resolve(
+                    fn(value, queryDecl, params)
+                )
+                .then(value => {
+                    result[methodName] = value;
+                })
+            )
+
         }
-        result[methodName] = value;
     }
 
-    return result;
+    return Promise.all(promises).then(
+        () => result
+    );
 }
 
 
