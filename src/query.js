@@ -10,7 +10,7 @@ import GraphQLQuery from "./GraphQLQuery";
  * @category declarative
  *
  * @param {String} query            query String
- * @param {object} defaultVars      default variables
+ * @param {object} [defaultVars]    default variables
  *
  * @return {GraphQLQuery} a GraphQL query instance
  */
