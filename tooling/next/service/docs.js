@@ -461,7 +461,7 @@ export async function loadDocs(indexPath, groups)
     const namedExport = moduleAST.program.body.find(n => n.type === "ExportNamedDeclaration");
 
     const exported = namedExport.specifiers
-        .filter(specifier => specifier.exported.name !== "AutomatonDevTools" )//&& specifier.exported.name !== "FilterDSL")
+        //.filter(specifier => specifier.exported.name !== "AutomatonDevTools" )//&& specifier.exported.name !== "FilterDSL")
         .map(specifier => ({
             name: specifier.exported.name,
             local: specifier.local.name,
