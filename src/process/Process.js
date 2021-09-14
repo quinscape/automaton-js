@@ -627,7 +627,9 @@ export class Process {
                     return render(
                         renderCurrentView()
                     )
-                })
+                },
+                    err => console.error("ERROR IN TRANSITION '" + name + "'", err)
+                )
         );
     }
 
@@ -1061,7 +1063,7 @@ function executeTransition(name, actionFn, target, context, button)
                 )
             },
             err => {
-                console.error("ERROR IN TRANSITION", err);
+                return Promise.reject(err);
             }
         );
 }
