@@ -1,6 +1,6 @@
 import config from "./config";
 import { getWireFormat } from "./domain";
-import uuid from "uuid";
+import { v4 } from "uuid";
 import { observable } from "mobx";
 import { getFields, unwrapNonNull } from "./util/type-utils";
 import { LIST } from "domainql-form/lib/kind";
@@ -24,7 +24,7 @@ const DEFAULT_OPTIONS = {
  * @param {boolean} [opts.nullFields]   if true, null all existing scalar fields and set an empty array to for list fields (default is true)
  * @return {object}  domain object
  */
-export default function createDomainObject(type, id = uuid.v4(), opts )
+export default function createDomainObject(type, id = v4(), opts )
 {
 
     if (opts)
