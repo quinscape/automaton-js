@@ -13,7 +13,7 @@ import {
  *
  * Simply wrap Buttons or DropdownItems in this component.
  */
-const DropdownMenu = ({ text, children}) => {
+const DropdownMenu = ({ text, title, children}) => {
 
     const [dropdownOpen,setDropdownOpen] = useState(false)
     const toggle = () => setDropdownOpen(prevState => !prevState)
@@ -37,12 +37,23 @@ const DropdownMenu = ({ text, children}) => {
 
     return (
         <Dropdown isOpen={dropdownOpen} toggle={toggle} className="float-right" size="lg">
-            <DropdownToggle className="btn btn-primary mr-2">
-                {
-                    dropdownText
-                }
-            </DropdownToggle>
-
+            {
+                title ? (
+                    <label className="btn-tooltip" title={title} aria-label={title}>
+                        <DropdownToggle className="btn btn-primary mr-2">
+                            {
+                                dropdownText
+                            }
+                        </DropdownToggle>
+                    </label>
+                ) : (
+                    <DropdownToggle className="btn btn-primary mr-2">
+                        {
+                            dropdownText
+                        }
+                    </DropdownToggle>
+                )
+            }
             <ReactStrapDropdownMenu right >
                 {
                     children
@@ -61,7 +72,12 @@ DropdownMenu.propTypes = {
     text: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.func
-    ])
+    ]),
+
+    /**
+     * Optional title to change the tooltip of the dropdown button.
+     */
+    title: PropTypes.string
 }
 
 export default DropdownMenu
