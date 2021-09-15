@@ -68,6 +68,8 @@ import { MergeOperation } from "./merge/MergeOperation";
 import { openDialog } from "./util/openDialog";
 import ViewState from "./process/ViewState";
 
+import promiseUI, {configurePromiseUI} from "./util/promiseUI"
+
 // noinspection JSUnusedGlobalSymbols
 export {
     config,
@@ -172,5 +174,8 @@ export {
     evaluateMemoryQuery,
     StartupRegistry,
     ViewState,
-    DropdownMenu
+    DropdownMenu,
+
+    promiseUI,
+    configurePromiseUI
 }
