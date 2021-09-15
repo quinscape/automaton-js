@@ -169,9 +169,11 @@ const Pagination = fnObserver(props => {
                     changePageSize={ changePageSize }
                     pageSizes={ pageSizes }
                 />
-                {
-                    i18n("Row Count {0}", rowCount)
-                }
+                <span className="ml-4">
+                    {
+                        i18n("Row Count {0}", rowCount)
+                    }
+                </span>
             </div>
         );
     }
@@ -233,9 +235,11 @@ const Pagination = fnObserver(props => {
                         changePageSize={ changePageSize }
                         pageSizes={ pageSizes }
                     />
-                    {
-                        i18n("Row Count {0}", rowCount)
-                    }
+                    <span className="ml-4">
+                        {
+                            i18n("Row Count {0}", rowCount)
+                        }
+                    </span>
                 </li>
             </ul>
         </div>
