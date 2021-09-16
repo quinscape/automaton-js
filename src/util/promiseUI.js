@@ -4,26 +4,50 @@ import i18n from "../i18n";
 import { getGenericType } from "../index";
 
 
-let configuredConverter;
-let configuredResultType;
+let resultTypes = {};
+let configuredResultType = false;
 
-export function configurePromiseUI(genericType, converterFn)
+/**
+ * Registers a converter function that converts the generic result data based on types originating from a given generic java-type or GraphQL type.
+ *
+ * @param {String} type      Fully qualified generic type or GraphQL type to register the option converter for
+ * @param {Function} converterFn    options converter converting instance of the type to react-toastify options
+ */
+export function configurePromiseUI(type, converterFn)
 {
-    if (typeof genericType !== "string" || !genericType.length)
+    if (typeof type !== "string" || !type.length)
     {
-        throw new Error("Need genericType (full qualified java class name)");
+        throw new Error("Need type (full qualified java class name or valid GraphQL type)");
     }
     if (typeof converterFn !== "function")
     {
         throw new Error("Need converter function");
     }
-    configuredResultType = genericType;
-    configuredConverter = converterFn;
+
+    resultTypes[type] = converterFn;
+    configuredResultType = true;
 }
 
 
 /**
- * Extracts the generic result of the configured type contained in the potential multi-method result document
+ * Collects notifications by running the option converters registered for the matching generic types
+ * @param notifications
+ * @param value
+ */
+function runOptionConverters(notifications, value)
+{
+    const genericType = getGenericType(value._type)
+    const converterFn = resultTypes[genericType] || resultTypes[value._type];
+    if (converterFn)
+    {
+        notifications.push(converterFn(value))
+    }
+}
+
+
+/**
+ * Extracts the generic result of the configured type contained in the potential multi-method result document.
+ *
  * @param {object} result   GraphQL result
  * @return {array<object>} array of responses of the given generic type
  */
@@ -31,17 +55,24 @@ function findGenericResults(result)
 {
     const notifications = [];
 
-    if (configuredResultType)
+    if (result && configuredResultType)
     {
-        for (let graphQLMethod in result)
+        if (typeof result === "object" && result._type)
         {
-            if (result.hasOwnProperty(graphQLMethod))
+            runOptionConverters(notifications, result);
+        }
+        else
+        {
+            for (let graphQLMethod in result)
             {
-                const value = result[graphQLMethod];
-
-                if (value && typeof value === "object" && value._type && getGenericType(value._type) === configuredResultType)
+                if (result.hasOwnProperty(graphQLMethod))
                 {
-                    notifications.push(configuredConverter(value))
+                    const value = result[graphQLMethod];
+
+                    if (value && typeof value === "object" && value._type)
+                    {
+                        runOptionConverters(notifications, value);
+                    }
                 }
             }
         }
@@ -58,8 +89,40 @@ const resetLoadingParams = {
     draggable: null
 };
 
-export default function promiseUI(promise, loadingText = i18n("Loading..."))
+
+const DEFAULT_OPTIONS = {
+    loadingText: i18n("promiseUI:Loading..."),
+    defaultResolve: {
+        type: "success",
+        render: i18n("promiseUI:Ok")
+    },
+    defaultReject: {
+        autoClose: false,
+        type: "error",
+        render: i18n("promiseUI:Request failed")
+    }
+}
+
+/**
+ * Wrapper for GraphQL-data promises that renders UI messages/"toasts" for a given promise.
+ *
+ * Allows for control of messages by registering option converter functions for generic types.
+ *
+ * @param {Promise} promise                     promise, usually a graphql query
+ * @param {Object} [options]                    options
+ * @param {String} [options.loadingText]        Text to display while the promise is pending
+ * @param {String} [options.defaultResolve]     toast to use on resolve when none of the option converters apply
+ * @param {String} [options.defaultReject]      toast to use on reject when none of the option converters apply
+ *
+ * @return {Promise<*>} resolves/rejects to the same value as the initial promise
+ */
+export default function promiseUI(promise, options)
 {
+    const { loadingText, defaultResolve, defaultReject } = {
+        ... DEFAULT_OPTIONS,
+        ... options
+    }
+
     //console.log("promiseUI: start", loadingText);
 
     const toastId = toast.loading(loadingText);
@@ -76,8 +139,7 @@ export default function promiseUI(promise, loadingText = i18n("Loading..."))
                         toastId,
                         {
                             ... resetLoadingParams,
-                            type: "success",
-                            render: i18n("promiseUI:Ok")
+                            ... defaultResolve
                         }
                     )
                     resolve(result);
@@ -105,15 +167,6 @@ export default function promiseUI(promise, loadingText = i18n("Loading..."))
                                 toastId,
                                 options
                             )
-
-                            if (type === "error")
-                            {
-                                reject(result);
-                            }
-                            else
-                            {
-                                resolve(result);
-                            }
                         }
                         else {
                             toast(render, options)
@@ -127,6 +180,16 @@ export default function promiseUI(promise, loadingText = i18n("Loading..."))
                         }
                     }
                 }
+
+                if (type === "error")
+                {
+                    reject(result);
+                }
+                else
+                {
+                    resolve(result);
+                }
+
             })
         },
         err => {
@@ -134,9 +197,7 @@ export default function promiseUI(promise, loadingText = i18n("Loading..."))
                 toastId,
                 {
                     ... resetLoadingParams,
-                    autoClose: false,
-                    type: "error",
-                    render: i18n("promiseUI:Request failed")
+                    ... defaultReject
                 }
             )
             return Promise.reject(err);
