@@ -17,6 +17,13 @@ table.table th{
     }
 }
 
+.sidebar .toc-link {
+    padding: 0 .25rem 0;
+    font-size: .7875rem;
+    line-height: 1.2;
+    border-radius: .2rem;
+}
+
 .sidebar .toc-link.reading {
     color: black;
 }
