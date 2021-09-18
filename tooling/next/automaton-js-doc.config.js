@@ -28,6 +28,7 @@ module.exports = {
 
         { src: "explanation-injection.md" },
         { src: "explanation-filter-dsl.md" },
+        { src: "explanation-form-structure.md" },
         { src: "declarative-api.md" },
 
         { src: "howto-one.md" },
