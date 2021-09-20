@@ -16,40 +16,21 @@ import { DateTime } from "luxon";
 const CalendarModal = props =>  {
 
     const { ctx, formConfig, name, value : valueFromProps, isOpen, toggle, scalarType, minDate, maxDate } = props;
-    
-    const [ value, setValue ] = useState(valueFromProps);
 
     const isTimeStamp = scalarType === "Timestamp";
 
-    const choose = () => {
+    const chooseDate = (value) => {
+        const dt = DateTime.fromJSDate(value);
 
-        if (value !== null)
-        {
-            // // correct date to reflect local time
-            // const tzCorrected = new Date(value);
-            // tzCorrected.setUTCMinutes(tzCorrected.getUTCMinutes() - tzCorrected.getTimezoneOffset());
-            //
-            // // new date object with time-zone corrected date and new time part
-            // const composite = new Date();
-            // composite.setUTCFullYear(tzCorrected.getUTCFullYear(), tzCorrected.getUTCMonth(), tzCorrected.getUTCDate());
-            // composite.setUTCHours(tmp.getUTCHours(), tmp.getUTCMinutes(), tmp.getUTCSeconds(),tmp.getUTCMilliseconds());
-            //
-            // // correct back to UTC
-            // composite.setUTCMinutes(composite.getUTCMinutes() + composite.getTimezoneOffset())
-            //
-            // //console.log("DATE", tzCorrected, "TIME", time, "=>", composite);
+        formConfig.handleChange(ctx, dt.toFormat (isTimeStamp ? ctx.timestampFormat : ctx.dateFormat));
 
-            const dt = DateTime.fromJSDate(value);
-
-            //console.log("CalendarModal.choose", dt.toISO());
-
-            formConfig.handleChange(ctx, dt.toFormat (isTimeStamp ? ctx.timestampFormat : ctx.dateFormat));
-
-            autoSubmitHack(formConfig);
-        }
-
+        autoSubmitHack(formConfig);
         toggle();
-    };
+    }
+
+    const chooseToday = () => {
+        chooseDate(new Date());
+    }
 
     return (
         <Modal isOpen={ isOpen } toggle={ toggle }>
@@ -65,31 +46,30 @@ const CalendarModal = props =>  {
             <ModalBody>
                 <Container fluid={ true }>
                     <Calendar
-                        activeStartDate={ valueFromProps && valueFromProps.toJSDate() }
                         value={ valueFromProps && valueFromProps.toJSDate() }
                         minDate={ minDate && minDate.toJSDate() }
                         maxDate={ maxDate && maxDate.toJSDate() }
-                        onChange={ setValue }
+                        onChange={ chooseDate }
                     />
                     <ButtonToolbar>
                         <button
                             type="button"
-                            className="btn btn-secondary mr-1"
+                            className="btn btn-primary mr-1"
+                            onClick={ chooseToday }
+                        >
+                            <Icon className="fa-ok"/>
+                            {
+                                i18n("Today")
+                            }
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-secondary ml-auto"
                             onClick={ toggle }
                         >
                             <Icon className="fa-cancel"/>
                             {
                                 i18n("Cancel")
-                            }
-                        </button>
-                        <button
-                            type="button"
-                            className="btn btn-primary mr-1"
-                            onClick={ choose }
-                        >
-                            <Icon className="fa-ok"/>
-                            {
-                                i18n("Choose")
                             }
                         </button>
                     </ButtonToolbar>
