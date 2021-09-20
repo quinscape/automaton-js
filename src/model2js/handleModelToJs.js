@@ -578,12 +578,18 @@ export default class ${name} {
         });
 
         actions.map((action) => {
-            const params = action.params.length === 1 ? action.params : action.params.join(', ')
+            const {name, params, code, noAnnotation} = action
+            const param = params.length === 1 ? params : params.join(', ')
+
+            if (!noAnnotation) {
+                processScript += `
+        @action`
+            }
+
             processScript += `
-        @action
-        ${action.name}(${params})
+        ${name}(${param})
         {
-            ${action.code}
+            ${code}
         }
     `
         })
