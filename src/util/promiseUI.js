@@ -135,13 +135,19 @@ export default function promiseUI(promise, options)
 
                 if (!notifications.length)
                 {
-                    toast.update(
-                        toastId,
-                        {
-                            ... resetLoadingParams,
-                            ... defaultResolve
-                        }
-                    )
+                    if (defaultResolve)
+                    {
+                        toast.update(
+                            toastId,
+                            {
+                                ... resetLoadingParams,
+                                ... defaultResolve
+                            }
+                        )
+                    }
+                    else {
+                        toast.dismiss(toastId)
+                    }
                     resolve(result);
                     return;
                 }
