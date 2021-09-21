@@ -3,6 +3,7 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
 module.exports = (phase, { defaultConfig }) => {
     return {
         basePath: "/automaton-js",
+        assetPrefix: '/automaton-js/',
         trailingSlash: true,
 
         webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
