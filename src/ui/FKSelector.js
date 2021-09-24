@@ -702,7 +702,18 @@ FKSelector.propTypes = {
     /**
      * Page size to use when using an in-memory iQuery document as data source. (Default is 5)
      */
-    cachedPageSize: PropTypes.number
+    cachedPageSize: PropTypes.number,
+
+    /**
+     * Optional validation handler ( (ctx, value) => error(s) ).
+     */
+    validate: PropTypes.func,
+
+    /**
+     * Optional async validation handler ( (ctx, value) => Promise<error(s)> ).
+     */
+    validateAsync: PropTypes.func
+
 };
 
 FKSelector.defaultProps = {
