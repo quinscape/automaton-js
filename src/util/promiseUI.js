@@ -152,6 +152,8 @@ export default function promiseUI(promise, options)
                     return;
                 }
 
+                let hasFailed = false;
+
                 for (let i = 0; i < notifications.length; i++)
                 {
                     const notification = notifications[i];
@@ -177,6 +179,11 @@ export default function promiseUI(promise, options)
                         else {
                             toast(render, options)
                         }
+
+                        if (type === "error")
+                        {
+                            hasFailed = true;
+                        }
                     }
                     else
                     {
@@ -187,7 +194,7 @@ export default function promiseUI(promise, options)
                     }
                 }
 
-                if (type === "error")
+                if (hasFailed)
                 {
                     reject(result);
                 }
