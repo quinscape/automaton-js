@@ -2,6 +2,7 @@ import React from "react";
 import { toast } from "react-toastify";
 import i18n from "../i18n";
 import { getGenericType } from "../index";
+import { toJS } from "mobx";
 
 
 let resultTypes = {};
@@ -196,7 +197,7 @@ export default function promiseUI(promise, options)
 
                 if (hasFailed)
                 {
-                    reject(result);
+                    reject(toJS(result));
                 }
                 else
                 {
