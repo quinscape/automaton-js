@@ -24,7 +24,10 @@ export const modelSchemaValidation = (jsonData) => {
 }
 
 export const renderImportStatements = (importDeclarations) => {
-    let importStatements = "";
+    let importStatements = `/*
+ * Copyright 2021, QuinScape GmbH. All rights reserved.
+ */
+ `;
 
     importDeclarations.map((importDeclaration) => {
         const {specifiers, source} = importDeclaration
