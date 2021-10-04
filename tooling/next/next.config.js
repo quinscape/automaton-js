@@ -6,6 +6,9 @@ module.exports = (phase, { defaultConfig }) => {
         assetPrefix: '/automaton-js/',
         trailingSlash: true,
 
+        // XXX: hack to make this work for now
+        webpack5: false,
+
         webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
 
             //console.log("CONFIG", JSON.stringify(config));
