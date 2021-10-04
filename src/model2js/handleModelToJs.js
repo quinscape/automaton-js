@@ -144,33 +144,36 @@ export default query(
         \` ${queryElement}\``
 
     if (variables != null) {
-        const {config, domainType, field, condition} = variables
+        const {configs, domainType, field, condition} = variables
 
         queryScript += `,
             {`
 
-        if (config) {
-            const {pageSize, sortFields, condition} = config
+        if (configs) {
+            configs.map ((config) => {
+                const {name, pageSize, sortFields, condition } = config
 
-            queryScript += `
-            "config": {`
-
-            if (condition) {
-                commonCondition(condition)
-            }
-
-            if (pageSize) {
                 queryScript += `
+            "${name}": {`
+
+                if (condition) {
+                    commonCondition(condition)
+                }
+
+                if (pageSize) {
+                    queryScript += `
                     "pageSize": ${pageSize},`
-            }
+                }
 
-            if (sortFields) {
-                queryScript += `
+                if (sortFields) {
+                    queryScript += `
                     "sortFields": ["${sortFields}"],`
-            }
+                }
 
-            queryScript += `
+                queryScript += `
                 },`
+            })
+
         }
         if (domainType) {
             queryScript += `
