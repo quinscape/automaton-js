@@ -14,32 +14,46 @@ import ShortcutContext from "./ShortcutContext";
  */
  const ShortcutSidebar = fnObserver(({
     id,
-    className
+    className,
+    children
 }) => {
 
     const shortcutState = useContext(ShortcutContext);
 
-    return !!shortcutState.shortcuts.size && (
+    return (!!children || !!shortcutState.shortcuts.size) && (
         <StickyResizingSidebar
             id={id}
             role="navigation"
             className={ cx(className, "shortcut-sidebar") }
         >
-            <div className="wrapper">
-                {
-                    Array.from(shortcutState.shortcuts.values()).map(
-                        ({id, icon, heading}) => {
-                            return (
-                                <ShortcutItem
-                                    icon={ icon }
-                                    reference={ id }
-                                    heading={ heading }
-                                    key={ id }
-                                />
-                            )
-                        }
-                    )
-                }
+            {
+                !!children && (
+                    <>
+                        <div className="controls">
+                            {
+                                children
+                            }
+                        </div>
+                    </>
+                )
+            }
+            <div className="scroll-container">
+                <div className="wrapper">
+                    {
+                        Array.from(shortcutState.shortcuts.values()).map(
+                            ({id, icon, heading}) => {
+                                return (
+                                    <ShortcutItem
+                                        icon={ icon }
+                                        reference={ id }
+                                        heading={ heading }
+                                        key={ id }
+                                    />
+                                )
+                            }
+                        )
+                    }
+                </div>
             </div>
         </StickyResizingSidebar>
     )
