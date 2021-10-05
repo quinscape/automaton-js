@@ -23,11 +23,17 @@ export const modelSchemaValidation = (jsonData) => {
     return valid
 }
 
+export const renderCopyRights = (copyRights) => {
+    let copyRightsStatement = ``;
+    if (copyRights) {
+        copyRightsStatement += `${copyRights}
+`
+    }
+    return copyRightsStatement
+}
+
 export const renderImportStatements = (importDeclarations) => {
-    let importStatements = `/*
- * Copyright 2021, QuinScape GmbH. All rights reserved.
- */
- `;
+    let importStatements = "";
 
     importDeclarations.map((importDeclaration) => {
         const {specifiers, source} = importDeclaration

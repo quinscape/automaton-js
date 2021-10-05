@@ -12,7 +12,8 @@ import {
     renderProcessExportScript,
     renderStateScript,
     renderExtraConstantsScript,
-    modelSchemaValidation} from "./handleModelToJs";
+    modelSchemaValidation,
+    renderCopyRights} from "./handleModelToJs";
 
 const MODEL_PATH = "./src/main/webapp/WEB-INF/automaton/apps";
 const APPS_INFIX = "/apps/";
@@ -97,9 +98,12 @@ recursiveReadDir(MODEL_PATH, ["!*.json","**/lisa-web/meta"], function (err, file
         if(!isSchemaValid){
             continue
         }
+        //render the copy rights statment
+        content = convertCopyRights(jsonData,content)
 
         //render the import statment for all files
         content = convertImportStatment(jsonData,content)
+
         //render the rest content for all files
         let fileConfig = null;
 
@@ -151,6 +155,15 @@ function createProjectFolders(processName) {
             fs.mkdirSync(`${shortPath}/processes/${processName}/queries`)
         }
     }
+}
+
+function convertCopyRights ({copyRights}, content) {
+    try {
+        content += renderCopyRights(copyRights)
+    } catch (err) {
+        console.error("\x1b[41m", `Error: something wrong`,err, "\x1b[0m")
+    }
+    return content
 }
 
 function convertImportStatment({importDeclarations},content){
