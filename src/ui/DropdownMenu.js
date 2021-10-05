@@ -13,7 +13,7 @@ import {
  *
  * Simply wrap Buttons or DropdownItems in this component.
  */
-const DropdownMenu = ({ text, title, children}) => {
+const DropdownMenu = ({ text, title, inline, children}) => {
 
     const [dropdownOpen,setDropdownOpen] = useState(false)
     const toggle = () => setDropdownOpen(prevState => !prevState)
@@ -36,7 +36,7 @@ const DropdownMenu = ({ text, title, children}) => {
     }
 
     return (
-        <Dropdown isOpen={dropdownOpen} toggle={toggle} className="float-right" size="lg">
+        <Dropdown isOpen={dropdownOpen} toggle={toggle} className={ !inline ? "float-right" : "inline" } size="lg">
             {
                 title ? (
                     <label className="btn-tooltip" title={title} aria-label={title}>
@@ -77,7 +77,12 @@ DropdownMenu.propTypes = {
     /**
      * Optional title to change the tooltip of the dropdown button.
      */
-    title: PropTypes.string
+    title: PropTypes.string,
+
+    /**
+     * Optional inline mode switch for the dropdown button to not be floated to the right.
+     */
+    inline: PropTypes.bool
 }
 
 export default DropdownMenu
