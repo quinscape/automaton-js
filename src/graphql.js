@@ -220,9 +220,10 @@ export default function graphql(params) {
                         const alias = aliases && aliases[methodName];
 
                         //console.log("AUTO-CONVERT", methodName, "type = ", typeRef);
-                        data[methodName] = getWireFormat().convert(
+                        const effectiveName = alias ? alias : methodName;
+                        data[effectiveName] = getWireFormat().convert(
                             typeRef,
-                            data[alias ? alias : methodName],
+                            data[effectiveName],
                             true,
                             aliases,
                             methodName
@@ -232,7 +233,7 @@ export default function graphql(params) {
                         if (array)
                         {
                             processors.push({
-                                methodName,
+                                methodName: effectiveName,
                                 array
                             });
                         }
