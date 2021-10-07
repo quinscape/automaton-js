@@ -7,21 +7,21 @@ import {html as htmlBeautify} from  "js-beautify"
 
 const ajvInstance = new Ajv({allErrors: true, jsonPointers: true});
 
-export const modelSchemaValidation = (jsonData) => {
-    const valid = ajvInstance.validate(modelToJsSchema, jsonData);
-    if (!valid) {
-        const sourceMap = jsonMap.stringify(jsonData, null, 2);
-        const jsonLines = sourceMap.json.split('\n');
-        ajvInstance.errors.forEach(error => {
-            let errorMessage = '';
-            errorMessage += ajvInstance.errorsText([error]);
-            let errorPointer = sourceMap.pointers[error.dataPath];
-            errorMessage = `\n> Line ${errorPointer.value.line + 1} ` + errorMessage;
-            console.log("\x1b[41m", errorMessage, "\x1b[0m");
-        });
-    }
-    return valid
-}
+// export const modelSchemaValidation = (jsonData) => {
+//     const valid = ajvInstance.validate(modelToJsSchema, jsonData);
+//     if (!valid) {
+//         const sourceMap = jsonMap.stringify(jsonData, null, 2);
+//         const jsonLines = sourceMap.json.split('\n');
+//         ajvInstance.errors.forEach(error => {
+//             let errorMessage = '';
+//             errorMessage += ajvInstance.errorsText([error]);
+//             let errorPointer = sourceMap.pointers[error.dataPath];
+//             errorMessage = `\n> Line ${errorPointer.value.line + 1} ` + errorMessage;
+//             console.log("\x1b[41m", errorMessage, "\x1b[0m");
+//         });
+//     }
+//     return valid
+// }
 
 export const renderCopyRights = (copyRights) => {
     let copyRightsStatement = ``;

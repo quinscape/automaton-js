@@ -94,10 +94,11 @@ recursiveReadDir(MODEL_PATH, ["!*.json","**/lisa-web/meta"], function (err, file
         let content ="";
 
         //start schema validation
-        const isSchemaValid = modelSchemaValidation(jsonData)
-        if(!isSchemaValid){
-            continue
-        }
+        // const isSchemaValid = modelSchemaValidation(jsonData)
+        // if(!isSchemaValid){
+        //     continue
+        // }
+        
         //render the copy rights statment
         content = convertCopyRights(jsonData,content)
 
