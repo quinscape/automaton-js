@@ -14,6 +14,15 @@ export const Type = {
     COMPONENT : "Component"
 };
 
+const validTypeValues = Object.values(Type);
+
+export function isCondition(value)
+{
+    if (!isConditionObject(value))
+        return false;
+
+    return validTypeValues.indexOf(value.type) >= 0;
+}
 
 /**
  * Condition name
