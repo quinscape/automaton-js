@@ -210,20 +210,20 @@ export default function graphql(params) {
 
                 if (autoConvert)
                 {
-                    const { methods, aliases } = queryDecl.getQueryDefinition();
-
-
-                    for (let i = 0; i < methods.length; i++)
+                    const { methodCalls, aliases } = queryDecl.getQueryDefinition();
+                    console.log("methodCalls", methodCalls, "aliases", aliases)
+                    for (let i = 0; i < methodCalls.length; i++)
                     {
-                        const methodName = methods[i];
+                        const name = methodCalls[i];
+
+                        const methodName = aliases ? aliases[name] || name : name;
+
                         const typeRef = getGraphQLMethodType(methodName);
-                        const alias = aliases && aliases[methodName];
 
                         //console.log("AUTO-CONVERT", methodName, "type = ", typeRef);
-                        const effectiveName = alias ? alias : methodName;
-                        data[effectiveName] = getWireFormat().convert(
+                        data[name] = getWireFormat().convert(
                             typeRef,
-                            data[effectiveName],
+                            data[name],
                             true,
                             aliases,
                             methodName
@@ -233,7 +233,7 @@ export default function graphql(params) {
                         if (array)
                         {
                             processors.push({
-                                methodName: effectiveName,
+                                methodName: name,
                                 array
                             });
                         }

@@ -115,9 +115,9 @@ describe("parseQuery", function () {
         );
 
         assert.deepEqual(aliases, {
-            "wireTestMutation.id": "f1",
-            "wireTestMutation.created": "f2",
-            "wireTestMutation.check": "f3"
+            "f1": "wireTestMutation.id",
+            "f2" : "wireTestMutation.created",
+            "f3" : "wireTestMutation.check"
         });
 
         assert.deepEqual(
@@ -144,7 +144,7 @@ describe("parseQuery", function () {
         const inputSchema = new InputSchema(RAW_SCHEMA);
 
         // language=GraphQL
-        const {methods, vars, aliases} = parseQuery(inputSchema, `
+        const {methodCalls, vars, aliases} = parseQuery(inputSchema, `
                     query getUsers
                     {
                         xxx: getUsers( limit: 1000)
@@ -160,18 +160,18 @@ describe("parseQuery", function () {
         );
 
         assert.deepEqual(
-            methods,
+            methodCalls,
             [
-                "getUsers"
+                "xxx"
             ]
         );
 
         assert.deepEqual(
             aliases,
             {
-                "getUsers" : "xxx",
-                "getUsers.rows.login": "name",
-                "getUsers.rows.created": "value"
+                "xxx" : "getUsers",
+                "name" : "getUsers.rows.login",
+                "value" : "getUsers.rows.created"
             }
         );
 

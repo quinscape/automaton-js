@@ -113,7 +113,10 @@ export default class CachedQuery
 
             //console.log("CachedQuery execute", vars);
 
-            const gqlMethodName = query.getQueryDefinition().methods[0];
+            const queryDef = query.getQueryDefinition();
+            const aliases = queryDef.aliases;
+            const name = queryDef.methodCalls[0];
+            const gqlMethodName = aliases ? aliases[name] || name : name;
 
             const result = evaluateMemoryQuery(
                 getWireFormat(),

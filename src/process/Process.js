@@ -870,7 +870,7 @@ function inject(scope, injections)
         const graphQlQuery = get(scope, name);
         if (graphQlQuery instanceof GraphQLQuery)
         {
-            const { methods, aliases } = graphQlQuery.getQueryDefinition();
+            const { methodCalls, aliases } = graphQlQuery.getQueryDefinition();
 
             const result = injections[graphQlQuery.query];
             if (result === undefined)
@@ -878,17 +878,18 @@ function inject(scope, injections)
                 throw new Error("Could not find query for prop '" + name + "'");
             }
 
-            if (methods.length !== 1)
+            if (methodCalls.length !== 1)
             {
-                throw new Error("Injection result must have exactly one key: has " + methods.join(", "))
+                throw new Error("Injection result must have exactly one key: has " + methodCalls.join(", "))
             }
 
-            const [ methodName ] = methods;
+            const [ name ] = methodCalls;
+
+            const methodName = aliases ? aliases[name] || name : name;
 
             const type = getGraphQLMethodType(methodName);
 
-            const alias = aliases && aliases[methodName];
-            const injectionValue = result[alias ? alias : methodName];
+            const injectionValue = result[name];
 
             //console.log("inject", name, "with", methodName, injectionValue, "type = ", JSON.stringify(type));
 

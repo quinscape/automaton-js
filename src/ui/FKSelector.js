@@ -321,7 +321,11 @@ const FKSelector = fnObserver(props => {
 
                     const [isAmbiguousMatch, setIsAmbiguousMatch] = useState(false);
 
-                    const gqlMethodName = query.getQueryDefinition().methods[0];
+
+                    const queryDef = query.getQueryDefinition();
+                    const aliases = queryDef.aliases;
+                    const name = queryDef.methodCalls[0];
+                    const gqlMethodName = aliases ? aliases[name] || name : name;
 
                     const iQueryType = useMemo(
                         () => getGraphQLMethodType(gqlMethodName).name,

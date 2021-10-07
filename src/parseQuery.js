@@ -88,7 +88,7 @@ function collectAliases(aliases, selectionSet, path)
                 const pathForField = join(path , field.name.value);
                 if (field.alias)
                 {
-                    aliases[join(path , field.name.value)] = field.alias.value;
+                    aliases[field.alias.value] = join(path , field.name.value);
                     haveAliases = true;
                 }
 
@@ -104,9 +104,9 @@ function collectAliases(aliases, selectionSet, path)
 }
 
 
-function getMethods(selectionSet)
+function getMethodCalls(selectionSet)
 {
-    const methods = [];
+    const methodCalls = [];
     if (selectionSet)
     {
         const { selections } = selectionSet;
@@ -116,12 +116,12 @@ function getMethods(selectionSet)
             const field = selections[i];
             if (field.kind === "Field")
             {
-                methods.push(field.name.value);
+                methodCalls.push(field.alias ? field.alias.value : field.name.value);
             }
         }
     }
 
-    return methods;
+    return methodCalls;
 
 }
 
@@ -131,7 +131,7 @@ function getMethods(selectionSet)
  *
  * @typedef QueryDefinition
  * @type {object}
- * @property {Array<String>} methods      method names used in the query
+ * @property {Array<String>} methodCalls      method names used in the query
  * @property {Object} vars                Map mapping variable names to a type reference
  * @property {Object} aliases             Map mapping fully qualified field names to the alias name of that field
  */
@@ -177,7 +177,7 @@ export default function parseQuery(inputSchema, query)
     }
 
     return {
-        methods: getMethods(definition.selectionSet),
+        methodCalls: getMethodCalls(definition.selectionSet),
         vars,
         aliases: collectAliases({}, definition.selectionSet, "")
     };
