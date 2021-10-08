@@ -211,7 +211,7 @@ export default function graphql(params) {
                 if (autoConvert)
                 {
                     const { methodCalls, aliases } = queryDecl.getQueryDefinition();
-                    console.log("methodCalls", methodCalls, "aliases", aliases)
+                    //console.log("methodCalls", methodCalls, "aliases", aliases)
                     for (let i = 0; i < methodCalls.length; i++)
                     {
                         const name = methodCalls[i];
