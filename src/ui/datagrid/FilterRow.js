@@ -116,6 +116,7 @@ const FilterRow = fnObserver(props => {
 
     return (
         <tr className="filter">
+            <th></th>
             {
                 filterColumnElements
             }

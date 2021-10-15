@@ -1,11 +1,14 @@
 import React, { useMemo } from "react"
 import PropTypes from "prop-types"
+import { DndProvider } from "react-dnd"
+import { HTML5Backend } from "react-dnd-html5-backend"
 import cx from "classnames"
 import { observer as fnObserver } from "mobx-react-lite"
 import i18n from "../../i18n";
 import GridStateForm from "./GridStateForm";
 import Pagination from "../Pagination";
 import FilterRow from "./FilterRow";
+import DataRow from "./DataRow";
 import { lookupType, lookupTypeContext, unwrapAll } from "../../util/type-utils";
 import SortLink from "./SortLink";
 import useObservableInput from "../../util/useObservableInput";
@@ -156,170 +159,162 @@ const DataGrid = fnObserver(props => {
         []
     );
 
+    const [sourceRow, setSourceRow] = React.useState();
+    const [targetRow, setTargetRow] = React.useState();
+
+    const moveRow = (dragIndex, hoverIndex) => {
+        console.log(dragIndex, hoverIndex);
+        setSourceRow(dragIndex);
+        setTargetRow(hoverIndex);
+    };
+
     return (
-        <GridStateForm
-            iQuery={ value }
-            columns={ columns }
-            componentId={ id }
-            filterTimeout={ filterTimeout }
-        >
-            <div
-                className={
-                    cx(
-                        "data-grid-container mt-3 mb-2",
-                        isCompact && "data-grid-compact"
-                    )
-                }
+        <DndProvider backend={HTML5Backend}>
+            <GridStateForm
+                iQuery={ value }
+                columns={ columns }
+                componentId={ id }
+                filterTimeout={ filterTimeout }
             >
-                <div className="data-grid-scrollcontainer">
-                    <table
-                        className={
-                            cx(
-                                // reduced bottom margin to visually connect pagination
-                                "data-grid table",
-                                tableClassName
-                            )
-                        }
-                    >
-                        <thead>
-                        <tr className="headers">
-                            {
-                                columns.map(
-                                    (col, idx) => col.enabled && (
-                                        <th
-                                            key={ idx }
-                                            style={
-                                                {
-                                                    width: col.width,
-                                                    minWidth: col.minWidth,
-                                                    maxWidth: col.maxWidth
-                                                }
-                                            }
-                                        >
-                                            <SortLink
-                                                iQuery={ value }
-                                                column={ col }
-                                            />
-                                        </th>
-                                    )
+                <div
+                    className={
+                        cx(
+                            "data-grid-container mt-3 mb-2",
+                            isCompact && "data-grid-compact"
+                        )
+                    }
+                >
+                    <div className="data-grid-scrollcontainer">
+                        <table
+                            className={
+                                cx(
+                                    // reduced bottom margin to visually connect pagination
+                                    "data-grid table",
+                                    tableClassName
                                 )
                             }
-                        </tr>
-
-                        <FilterRow
-                            columns={ columns }
-                        />
-                        </thead>
-                        <tbody>
-                        {
-                            workingSet && queryConfig.offset === 0 && (function () {
-
-                                const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
-
-                                const newObjects = workingSet.newObjects(type);
-                                const filtered = newObjects.filter( obj => {
-                                    fieldResolver.current = obj;
-                                    return filterFn();
-                                });
-
-                                //console.log(id, "newObjects, filtered",newObjects, filtered);
-
-                                return (
-                                    filtered
-                                        .map(
-                                            (context, idx) => (
-                                                <tr
-                                                    key={"ws" + idx}
-                                                    className={
-                                                        cx("data", rowClasses ? rowClasses(context) : null, "new-object")
-                                                    }
-                                                >
+                        >
+                            <thead>
+                            <tr className="headers">
+                                <th></th>
+                                {
+                                    columns.map(
+                                        (col, idx) => col.enabled && (
+                                            <th
+                                                key={ idx }
+                                                style={
                                                     {
-                                                        columns.map(
-                                                            (column, columnIdx) => column.enabled && (
-                                                                React.cloneElement(
-                                                                    column.columnElem,
-                                                                    {
-                                                                        key: columnIdx,
-                                                                        context
-                                                                    }
-                                                                )
-                                                            )
-                                                        )
+                                                        width: col.width,
+                                                        minWidth: col.minWidth,
+                                                        maxWidth: col.maxWidth
                                                     }
-                                                </tr>
-                                            )
+                                                }
+                                            >
+                                                <SortLink
+                                                    iQuery={ value }
+                                                    column={ col }
+                                                />
+                                            </th>
                                         )
-                                )
-                            })()
-                        }
-                        {
-                            rows.map(
-                                (context, idx) => {
+                                    )
+                                }
+                            </tr>
 
-                                    let workingSetClass = null;
-                                    if (workingSet)
-                                    {
-                                        const entry = workingSet.lookup(context._type, context.id);
-                                        if (entry)
-                                        {
-                                            if (entry.status === WorkingSetStatus.DELETED)
-                                            {
-                                                workingSetClass = "deleted-object";
-                                            }
-                                            else if (workingSet.isModified(context))
-                                            {
-                                                workingSetClass = "changed-object";
-                                                context = entry.domainObject;
-                                            }
-                                        }
-                                    }
+                            <FilterRow
+                                columns={ columns }
+                            />
+                            </thead>
+                            <tbody>
+                            {
+                                workingSet && queryConfig.offset === 0 && (function () {
+
+                                    const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
+
+                                    const newObjects = workingSet.newObjects(type);
+                                    const filtered = newObjects.filter( obj => {
+                                        fieldResolver.current = obj;
+                                        return filterFn();
+                                    });
+
+                                    //console.log(id, "newObjects, filtered",newObjects, filtered);
 
                                     return (
-                                        <tr
-                                            key={idx}
-                                            className={
-                                                cx("data", rowClasses ? rowClasses(context) : null, workingSetClass)
-                                            }
-                                        >
-                                            {
-                                                columns.map(
-                                                    (column, columnIdx) => column.enabled && (
-                                                        React.cloneElement(
-                                                            column.columnElem,
-                                                            {
-                                                                key: columnIdx,
-                                                                context
-                                                            }
-                                                        )
-                                                    )
+                                        filtered
+                                            .map(
+                                                (context, idx) => (
+                                                    <DataRow
+                                                        key={ "ws" + idx }
+                                                        idx={ "ws" + idx }
+                                                        context={ context }
+                                                        columns={ columns }
+                                                        moveRow={ moveRow }
+                                                        className={
+                                                            cx("data", rowClasses ? rowClasses(context) : null, "new-object", targetRow == idx && "target-row", sourceRow == idx && "source-row")
+                                                        }
+                                                    />
                                                 )
-                                            }
-                                        </tr>
-                                    );
-                                }
-                            )
-                        }
-                        {
-                            rows.length === 0 && (
-                                <tr>
-                                    <td colSpan={ columns[0].enabledCount }>
+                                            )
+                                    )
+                                })()
+                            }
+                            {
+                                rows.map(
+                                    (context, idx) => {
+
+                                        let workingSetClass = null;
+                                        if (workingSet)
                                         {
-                                            i18n("DataGrid:No Rows")
+                                            const entry = workingSet.lookup(context._type, context.id);
+                                            if (entry)
+                                            {
+                                                if (entry.status === WorkingSetStatus.DELETED)
+                                                {
+                                                    workingSetClass = "deleted-object";
+                                                }
+                                                else if (workingSet.isModified(context))
+                                                {
+                                                    workingSetClass = "changed-object";
+                                                    context = entry.domainObject;
+                                                }
+                                            }
                                         }
-                                    </td>
-                                </tr>
-                            )
-                        }
-                        </tbody>
-                    </table>
+
+                                        return (
+                                            <DataRow
+                                                key={ idx }
+                                                idx={ idx }
+                                                context={ context }
+                                                columns={ columns }
+                                                moveRow={ moveRow }
+                                                className={
+                                                    cx("data", rowClasses ? rowClasses(context) : null, workingSetClass, targetRow == idx && "target-row", sourceRow == idx && "source-row")
+                                                }
+                                            />
+                                        );
+                                    }
+                                )
+                            }
+                            {
+                                rows.length === 0 && (
+                                    <tr>
+                                        <td colSpan={ columns[0].enabledCount }>
+                                            {
+                                                i18n("DataGrid:No Rows")
+                                            }
+                                        </td>
+                                    </tr>
+                                )
+                            }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            <Pagination
-                iQuery={ value }
-                description={ i18n("Result Navigation") }
-            />
-        </GridStateForm>
+                <Pagination
+                    iQuery={ value }
+                    description={ i18n("Result Navigation") }
+                />
+            </GridStateForm>
+        </DndProvider>
     );
 });
 
