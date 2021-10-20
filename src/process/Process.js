@@ -883,13 +883,13 @@ function inject(scope, injections)
                 throw new Error("Injection result must have exactly one key: has " + methodCalls.join(", "))
             }
 
-            const [ name ] = methodCalls;
+            const [ callName ] = methodCalls;
 
-            const methodName = aliases ? aliases[name] || name : name;
+            const methodName = aliases ? aliases[callName] || callName : callName;
 
             const type = getGraphQLMethodType(methodName);
 
-            const injectionValue = result[name];
+            const injectionValue = result[callName];
 
             //console.log("inject", name, "with", methodName, injectionValue, "type = ", JSON.stringify(type));
 
