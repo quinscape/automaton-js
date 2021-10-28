@@ -4,7 +4,7 @@ export const modelToJsSchema = {
             "type": "string"
         },
         "importDeclarations":{
-            "type":["array","null"],
+            "type": "array",
             "items":{
                 "type": ["object","null"],
                 "properties":{
@@ -15,10 +15,10 @@ export const modelToJsSchema = {
                         "type" : "string"
                     },
                     "specifiers":{
-                        "type": ["array","null"],
+                        "type": "array",
                         "minItems": 1,
                         "items":{
-                            "type": ["object","null"],
+                            "type": "object",
                             "properties":{
                                 "type": {
                                     "type": "string"
@@ -29,8 +29,7 @@ export const modelToJsSchema = {
                                 "aliasOf":{
                                     "type":"string"
                                 }
-                            },
-                            "required": ["name"]
+                            }
                         }
                     }
                 }
