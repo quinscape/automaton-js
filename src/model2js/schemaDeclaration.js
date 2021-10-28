@@ -1,5 +1,8 @@
 export const modelToJsSchema = {
     "properties":{
+        "copyRights": {
+            "type": "string"
+        },
         "importDeclarations":{
             "type":["array","null"],
             "items":{
@@ -99,151 +102,6 @@ export const modelToJsSchema = {
                 }
             }
         },
-        "composite":{
-            "type":["object","null"],
-            "properties":{
-                "type":{
-                    "type":["string","null"]
-                },
-                "constants":{
-                    "type":["array","null"],
-                    "items":{
-                        "type": ["object","null"],
-                        "properties":{
-                            "type": {
-                                "type": "string"
-                            },
-                            "kind": {
-                                "type": "string"
-                            },
-                            "declarations":{
-                                "type": ["array","null"],
-                                "items":{
-                                    "type": ["object","null"],
-                                    "properties":{
-                                        "type":{
-                                            "type":["string","null"]
-                                        },
-                                        "id": {
-                                            "type":["object","null"],
-                                            "properties":{
-                                                "type": {
-                                                    "type": "string"
-                                                },
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "properties": {
-                                                    "type": ["array","null"],
-                                                    "items":{
-                                                        "type":["object","null"],
-                                                        "properties":{
-                                                            "type":{
-                                                                "type":"string"
-                                                            },
-                                                            "key":{
-                                                                "type":"string"
-                                                            },
-                                                            "value":{
-                                                                "type":["object","null"],
-                                                                "properties":{
-                                                                    "type": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "name": {
-                                                                        "type": "string"
-                                                                    }
-                                                                }
-                                                            },
-                                                        }
-                                                    }
-                                                },
-                                            }
-                                        },
-                                        "init":{
-                                            "type":"string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "root":{
-                    "type":["object","null"],
-                    "properties":{
-                        "type": {
-                            "type": "string"
-                        },
-                        "name":{
-                            "type":"string"
-                        },
-                        "attrs":{
-                            "type":["array","null"]
-                        },
-                        "kids":{
-                            "type":["array","null"],
-                            "items":{
-                                "type":["object","null"],
-                                "properties":{
-                                    "name":{
-                                        "type":"string"
-                                    },
-                                    "attrs":{
-                                        "type":["array","null"],
-                                        "items":{
-                                            "type":["object","null"],
-                                            "properties":{
-                                                "type":{
-                                                    "type":"string"
-                                                },
-                                                "name":{
-                                                    "type":"string"
-                                                },
-                                                "value":{
-                                                    "type":["object","null"],
-                                                    "properties":{
-                                                        "type":{
-                                                            "type":["string","null"]
-                                                        },
-                                                        "code":{
-                                                            "type":["string","null"]
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "value":{
-                                        "type":["string","null"]
-                                    },
-                                    "code":{
-                                        "type":["string","null"]
-                                    },
-                                    "type":{
-                                        "type":["string","null"]
-                                    },
-                                    "params":{
-                                        "type":["array","null"],
-                                        "items":{
-                                            "type":["object","null"],
-                                            "properties":{
-                                                "type":{
-                                                    "type":"string"
-                                                },
-                                                "name":{
-                                                    "type":"string"
-                                                },
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "export":{
             "type":["string","null"]
         },
@@ -336,6 +194,164 @@ export const modelToJsSchema = {
                     }
                 }
             }
-        }
+        },
+        "states":{
+            "type":["object","null"],
+            "properties":{
+                "type":{"type": "string" },
+                "name":{"type": "string"},
+                "transitionMap":{
+                    "type":["object","null"],
+                    "items":{
+                        "type": ["object","null"]
+                    }
+                },
+                "composite":{
+                    "type":["object","null"],
+                    "properties":{
+                        "type":{
+                            "type":"string"
+                        },
+                        "constants":{
+                            "type":["array","null"],
+                            "items":{
+                                "type": ["object","null"],
+                                "properties":{
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "kind": {
+                                        "type": "string"
+                                    },
+                                    "declarations":{
+                                        "type": ["array","null"],
+                                        "items":{
+                                            "type": ["object","null"],
+                                            "properties":{
+                                                "type":{
+                                                    "type":["string","null"]
+                                                },
+                                                "id": {
+                                                    "type":["object","null"],
+                                                    "properties":{
+                                                        "type": {
+                                                            "type": "string"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "properties": {
+                                                            "type": ["array","null"],
+                                                            "items":{
+                                                                "type":["object","null"],
+                                                                "properties":{
+                                                                    "type":{
+                                                                        "type":"string"
+                                                                    },
+                                                                    "key":{
+                                                                        "type":"string"
+                                                                    },
+                                                                    "value":{
+                                                                        "type":["object","null"],
+                                                                        "properties":{
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                }
+                                                            }
+                                                        },
+                                                    }
+                                                },
+                                                "init":{
+                                                    "type":"string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "root":{
+                            "type":["object","null"],
+                            "properties":{
+                                "type": {
+                                    "type": "string"
+                                },
+                                "name":{
+                                    "type":"string"
+                                },
+                                "attrs":{
+                                    "type":["array","null"]
+                                },
+                                "kids":{
+                                    "type":["array","null"],
+                                    "items":{
+                                        "type":["object","null"],
+                                        "properties":{
+                                            "name":{
+                                                "type":"string"
+                                            },
+                                            "attrs":{
+                                                "type":["array","null"],
+                                                "items":{
+                                                    "type":["object","null"],
+                                                    "properties":{
+                                                        "type":{
+                                                            "type":"string"
+                                                        },
+                                                        "name":{
+                                                            "type":"string"
+                                                        },
+                                                        "value":{
+                                                            "type":["object","null"],
+                                                            "properties":{
+                                                                "type":{
+                                                                    "type":["string","null"]
+                                                                },
+                                                                "code":{
+                                                                    "type":["string","null"]
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "value":{
+                                                "type":["string","null"]
+                                            },
+                                            "code":{
+                                                "type":["string","null"]
+                                            },
+                                            "type":{
+                                                "type":["string","null"]
+                                            },
+                                            "params":{
+                                                "type":["array","null"],
+                                                "items":{
+                                                    "type":["object","null"],
+                                                    "properties":{
+                                                        "type":{
+                                                            "type":"string"
+                                                        },
+                                                        "name":{
+                                                            "type":"string"
+                                                        },
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
     }
 };
