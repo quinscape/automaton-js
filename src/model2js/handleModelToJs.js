@@ -434,7 +434,7 @@ export const renderStateScript = (state) => {
                 }
             }
 
-            kids.map(({name, attrs, value, code, root, params, kids, html}) => {
+            kids.map(({name, attrs, value, code, root, params, kids, html, condition}) => {
 
                 if (root) {
 
@@ -462,6 +462,10 @@ export const renderStateScript = (state) => {
                     kids && kids.length >= 1 ? compositeScript += `
                 ` : compositeScript += `
                     `
+                    if (condition) {
+                        compositeScript += `{${condition} && `
+                    }
+
                     if (attrs && attrs.length >= 1) {
                         renderedIf(attrs)
                         compositeScript += `<${name}`
@@ -470,6 +474,9 @@ export const renderStateScript = (state) => {
                     } else {
                         compositeScript += `<${name}`
                         kids && kids.length >= 1 ? compositeScript += `>` : compositeScript += `/>`
+                    }
+                    if(condition){
+                        compositeScript +=  ` }`
                     }
                 }
 
