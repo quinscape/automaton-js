@@ -281,9 +281,12 @@ AttachmentField.propTypes = {
      */
     mode: PropTypes.oneOf(FieldMode.values()),
     /**
-     * Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
+     * Additional help text for this field. Is rendered for non-erroneous fields in place of the error. If a function
+     * is given, it should be a stable reference ( e.g. with useCallback()) to prevent creating the field context over
+     * and over. The same considerations apply to using elements. ( The expression <Bla/> recreates that element on every
+     * invocation, use static element references)
      */
-    helpText: PropTypes.string,
+    helpText: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.element]),
     /**
      * Tooltip / title attribute for the input element
      */
@@ -307,7 +310,12 @@ AttachmentField.propTypes = {
      * Array of addons as props instead of as children. Only useful if you're writing a component wrapping Field and want
      * to render your addons as field addons while using the render function form.
      */
-    addons: PropTypes.array
+    addons: PropTypes.array,
+
+    /**
+     * Optional local on-change handler ( ({oldValue, fieldContext}, value) => ... )
+     */
+    onChange: PropTypes.func
 
 }
 

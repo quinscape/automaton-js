@@ -166,9 +166,13 @@ CalendarField.propTypes = {
     mode: PropTypes.oneOf(FieldMode.values()),
 
     /**
-     * Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
+     * Additional help text for this field. Is rendered for non-erroneous fields in place of the error. If a function
+     * is given, it should be a stable reference ( e.g. with useCallback()) to prevent creating the field context over
+     * and over. The same considerations apply to using elements. ( The expression <Bla/> recreates that element on every
+     * invocation, use static element references)
      */
-    helpText: PropTypes.string,
+    helpText: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.element]),
+
     /**
      * Tooltip / title attribute for the input element
      */
@@ -216,7 +220,13 @@ CalendarField.propTypes = {
     /**
      * Date format string to use for "Timestamp" typed fields.
      */
-    timestampFormat: PropTypes.string
+    timestampFormat: PropTypes.string,
+
+    /**
+     * Optional local on-change handler ( ({oldValue, fieldContext}, value) => ... )
+     */
+    onChange: PropTypes.func
+
 };
 
 export default CalendarField;
