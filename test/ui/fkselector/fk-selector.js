@@ -338,6 +338,8 @@ describe("FKSelector", function () {
     it("selects foreign key targets", function () {
 
         let container, debug;
+        let changeSpy = sinon.spy();
+
 
         const Q_QuxA = CachedQuery.loadMemoryQuery("InteractiveQueryQuxA", require("./iquery-qux-a.json"), require("./Q_QuxA").default, {pageSize: 5});
         const Q_QuxB = CachedQuery.loadMemoryQuery("InteractiveQueryQuxB", require("./iquery-qux-b.json"), require("./Q_QuxB").default, {pageSize: 5});
@@ -355,6 +357,7 @@ describe("FKSelector", function () {
                                 required={ true }
                                 query={Q_QuxA}
                                 fade={ false }
+                                onChange={ changeSpy }
                             />
 
                             <FKSelector
@@ -381,7 +384,30 @@ describe("FKSelector", function () {
             .then(() => {
                 assert(fkSelectorA.value === "Qux A #3");
                 assert(formObj.quxA.name === "Qux A #3")
+
+                const [ ctx, value ] = changeSpy.lastCall.args;
+
+                assert(value === "17861d28-a11d-4dd5-b66c-b4351ca1a980")
+
+
+                assert(ctx.fieldContext.isFieldContext)
+                assert(ctx.fieldContext.qualifiedName === "quxAId")
+                assert(ctx.oldValue === "cd816e04-a7cf-4df8-aad9-f021907cd81c")
+                assert.deepEqual(ctx.oldRow, {
+                    "_type": "QuxA",
+                    "name": "Qux A #1",
+                    "value": 1
+                })
+                assert.deepEqual(ctx.row, {
+                    "_type": "QuxA",
+                    "name": "Qux A #3",
+                    "description": "Desc Qux A #3",
+                    "id": "17861d28-a11d-4dd5-b66c-b4351ca1a980",
+                    "value": 3
+                })
+
             })
+
     });
 
     it("handles multiple keys to the same target", function () {
@@ -443,6 +469,7 @@ describe("FKSelector", function () {
             const Q_QuxD = CachedQuery.loadMemoryQuery("InteractiveQueryQuxD", require("./iquery-qux-d.json"), require("./Q_QuxC").default, {pageSize: 5});
             let container, debug;
 
+            let changeSpy = sinon.spy()
 
             act(
                 () => {
@@ -458,6 +485,7 @@ describe("FKSelector", function () {
                                     query={ Q_QuxD }
                                     fade={ false }
                                     searchTimeout={ searchTimeout }
+                                    onChange={ changeSpy }
                                 />
 
                             </TestForm>
@@ -484,6 +512,24 @@ describe("FKSelector", function () {
                 .then(() => {
                     assert(formObj.quxDId === "3d1974f0-5ce0-4c9d-9cd9-b1d4cbd44cc7")
                     assert(formObj.quxD.name === "Qux D #5")
+
+                    const [ ctx, value ] = changeSpy.lastCall.args;
+
+                    assert(value === "3d1974f0-5ce0-4c9d-9cd9-b1d4cbd44cc7")
+
+
+                    assert(ctx.fieldContext.isFieldContext)
+                    assert(ctx.fieldContext.qualifiedName === "quxDId")
+                    assert(ctx.oldValue === "")
+                    assert(ctx.oldRow === null )
+                    assert.deepEqual(ctx.row, {
+                        "_type": "QuxD",
+                        "description": "Desc Qux D #5",
+                        "id": "3d1974f0-5ce0-4c9d-9cd9-b1d4cbd44cc7",
+                        "name": "Qux D #5",
+                        "value": 5
+                    })
+
                 })
         })
 

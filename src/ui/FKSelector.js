@@ -109,7 +109,11 @@ function toggleOpen(modalState)
 const updateRelatedObject = action(
     "FkSelector.updateRelatedObject",
     (root, field, row) => {
+
+        const oldRow = root[field];
         root[field] = row;
+
+        return oldRow;
     }
 )
 
@@ -203,7 +207,7 @@ const FKSelector = fnObserver(props => {
 
     const [ isLoading, setIsLoading ] = useState(false);
 
-    const { display, query : queryFromProps, searchFilter, modalTitle, fade, searchTimeout, modalFilter, cachedPageSize, children, ... fieldProps } = props;
+    const { display, query : queryFromProps, searchFilter, modalTitle, fade, searchTimeout, modalFilter, cachedPageSize, children, onChange, ... fieldProps } = props;
 
     const haveUserInput = !!searchFilter;
 
@@ -228,7 +232,7 @@ const FKSelector = fnObserver(props => {
 
     return (
         <Field
-            {... fieldProps}
+            {... fieldProps }
             addons={ Addon.filterAddons(children) }
         >
             {
@@ -426,17 +430,27 @@ const FKSelector = fnObserver(props => {
                     const selectRow = row => {
 
                         const { qualifiedName } = ctx;
+
+                        let oldValue = null;
+                        let value = null;
                         if (qualifiedName)
                         {
-                            formConfig.handleChange(ctx, row ? row[relation.targetFields[0]] : "");
+                            oldValue = Field.getValue(formConfig, ctx, errorMessages);
+                            value = row ? row[relation.targetFields[0]] : "";
+                            formConfig.handleChange(ctx, value);
                             setIsAmbiguousMatch(false);
                         }
 
-                        updateRelatedObject(
+                        const oldRow = updateRelatedObject(
                             formConfig.root,
                             relation.leftSideObjectName,
                             row
                         )
+
+                        if (onChange)
+                        {
+                            onChange({ oldValue, oldRow, row, fieldContext: ctx}, value)
+                        }
 
                         setInputValue(getFieldValue());
 
@@ -642,9 +656,12 @@ FKSelector.propTypes = {
     ]),
 
     /**
-     * Additional help text for this field. Is rendered for non-erroneous fields in place of the error.
+     * Additional help text for this field. Is rendered for non-erroneous fields in place of the error. If a function
+     * is given, it should be a stable reference ( e.g. with useCallback()) to prevent creating the field context over
+     * and over. The same considerations apply to using elements. ( The expression <Bla/> recreates that element on every
+     * invocation, use static element references)
      */
-    helpText: PropTypes.string,
+    helpText: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.element]),
     /**
      * Tooltip / title attribute for the input element
      */
@@ -716,8 +733,12 @@ FKSelector.propTypes = {
     /**
      * Optional async validation handler ( (ctx, value) => Promise<error(s)> ).
      */
-    validateAsync: PropTypes.func
+    validateAsync: PropTypes.func,
 
+    /**
+     * Optional extended local on-change handler ({oldValue, oldRow, row, fieldContext)}, value => ...)
+     */
+    onChange: PropTypes.func
 };
 
 FKSelector.defaultProps = {
