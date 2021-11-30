@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import PropTypes from "prop-types"
+import cx from "classnames";
 import { Icon } from "domainql-form";
 
 import {
@@ -13,7 +14,7 @@ import {
  *
  * Simply wrap Buttons or DropdownItems in this component.
  */
-const DropdownMenu = ({ text, title, inline, children}) => {
+const DropdownMenu = ({ text, title, inline, buttonClassName, children}) => {
 
     const [dropdownOpen,setDropdownOpen] = useState(false)
     const toggle = () => setDropdownOpen(prevState => !prevState)
@@ -40,21 +41,23 @@ const DropdownMenu = ({ text, title, inline, children}) => {
             {
                 title ? (
                     <label className="btn-tooltip" title={title} aria-label={title}>
-                        <DropdownToggle className="btn btn-primary mr-2">
+                        <DropdownToggle className={ cx("btn mr-2", buttonClassName)}>
                             {
+                                // default className defined in DropdownToggle is btn-secondary
                                 dropdownText
                             }
                         </DropdownToggle>
                     </label>
                 ) : (
-                    <DropdownToggle className="btn btn-primary mr-2">
+                    <DropdownToggle className={ cx("btn mr-2", buttonClassName)}>
                         {
+                            // default className defined in DropdownToggle is btn-secondary
                             dropdownText
                         }
                     </DropdownToggle>
                 )
             }
-            <ReactStrapDropdownMenu right >
+            <ReactStrapDropdownMenu right>
                 {
                     children
                 }
