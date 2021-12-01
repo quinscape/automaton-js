@@ -27,7 +27,14 @@ import autoSubmitHack from "../util/autoSubmitHack";
 import FkSelectorModal from "./FkSelectorModal";
 import { useDebouncedCallback } from "use-debounce"
 import get from "lodash.get"
-import { getIQueryPayloadType, getOutputTypeName, lookupType, unwrapAll, unwrapNonNull } from "../util/type-utils"
+import {
+    getIQueryPayloadType,
+    getOutputTypeName,
+    getParentObjectType,
+    lookupType,
+    unwrapAll,
+    unwrapNonNull
+} from "../util/type-utils"
 
 import { field, Type, value, condition, component } from "../FilterDSL"
 import { getGraphQLMethodType } from "../process/Process";
@@ -108,7 +115,12 @@ function toggleOpen(modalState)
 
 const updateRelatedObject = action(
     "FkSelector.updateRelatedObject",
-    (root, field, row) => {
+    (root, path, field, row) => {
+
+        if (path.length > 1)
+        {
+            root = get(root, path.slice(0,-1))
+        }
 
         const oldRow = root[field];
         root[field] = row;
@@ -262,7 +274,7 @@ const FKSelector = fnObserver(props => {
                             else
                             {
                                 // path is more than 1 element long, we need to figure out the correct object type and field
-                                objectType = inputSchema.resolveType(rootType, path.slice(0, -1));
+                                objectType = getParentObjectType(rootType, path);
                                 fieldName = path[path.length - 1];
                             }
 
@@ -429,7 +441,7 @@ const FKSelector = fnObserver(props => {
 
                     const selectRow = row => {
 
-                        const { qualifiedName } = ctx;
+                        const { qualifiedName, path } = ctx;
 
                         let oldValue = null;
                         let value = null;
@@ -443,6 +455,7 @@ const FKSelector = fnObserver(props => {
 
                         const oldRow = updateRelatedObject(
                             formConfig.root,
+                            path,
                             relation.leftSideObjectName,
                             row
                         )

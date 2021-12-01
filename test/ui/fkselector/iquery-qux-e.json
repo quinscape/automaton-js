@@ -1,0 +1,78 @@
+{
+    "type": "QuxE",
+    "columnStates": [
+        {
+            "name": "id",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "name",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "value",
+            "enabled": true,
+            "sortable": true
+        }, {
+            "name": "description",
+            "enabled": true,
+            "sortable": true
+        }
+    ],
+    "queryConfig": {
+        "id": null,
+        "condition": null,
+        "offset": 0,
+        "pageSize": 0,
+        "sortFields": ["name"]
+    },
+    "rows": [
+        {
+            "id": "54a3d4dc-3cea-45d8-afec-3eff56cce851",
+            "name": "Qux E #1",
+            "value": 1001,
+            "description": "Qux E #1 Desc"
+        }, {
+            "id": "0430c315-67b7-44b7-9555-a39b8a2b4e46",
+            "name": "Qux E #2",
+            "value": 1002,
+            "description": "Qux E #2 Desc"
+        }, {
+            "id": "f78b0785-477e-4111-9319-a5501c21ddef",
+            "name": "Qux E #3",
+            "value": 1003,
+            "description": "Qux E #3 Desc"
+        }, {
+            "id": "40bd520c-86fc-49dd-8b81-aba4cc362aa0",
+            "name": "Qux E #4",
+            "value": 1004,
+            "description": "Qux E #4 Desc"
+        }, {
+            "id": "eb4c6ce7-f64b-4153-8255-7ef190b452e7",
+            "name": "Qux E #5",
+            "value": 1005,
+            "description": "Qux E #5 Desc"
+        }, {
+            "id": "4639f46f-e16a-4ed3-b0ef-9c328588c47e",
+            "name": "Qux E #6",
+            "value": 1006,
+            "description": "Qux E #6 Desc"
+        }, {
+            "id": "df761a46-b8ce-445d-a06b-ba449d46d6aa",
+            "name": "Qux E #7",
+            "value": 1007,
+            "description": "Qux E #7 Desc"
+        }, {
+            "id": "a5a09938-873c-4b2c-9ce4-6cd0ee943a7b",
+            "name": "Qux E #8",
+            "value": 1008,
+            "description": "Qux E #8 Desc"
+        }, {
+            "id": "1ce1ce45-504b-4e9a-b135-04f4a20380f5",
+            "name": "Qux E #9",
+            "value": 1009,
+            "description": "Qux E #9 Desc"
+        }
+    ],
+    "rowCount": 9
+}

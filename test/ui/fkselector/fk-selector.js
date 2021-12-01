@@ -14,7 +14,8 @@ import {
     queryByLabelText,
     render,
     waitFor,
-    waitForElementToBeRemoved
+    waitForElementToBeRemoved,
+    prettyDOM
 } from "@testing-library/react"
 import { FormConfigProvider, FormContext, InputSchema, WireFormat, withForm } from "domainql-form"
 
@@ -27,7 +28,7 @@ import CachedQuery from "../../../src/model/CachedQuery";
 import { field, value, or } from "../../../src/FilterDSL";
 
 import sleep from "../sleep";
-import { runInAction } from "mobx";
+import { runInAction, toJS } from "mobx";
 
 
 const rawSchema = require("./fk-selector-schema.json");
@@ -196,32 +197,36 @@ function selectFromModal(fkSelector, text)
 }
 
 
-const TestForm = withForm(
-    fnObserver(
-        props => {
+function createTestForm(type = "QuxMain")
+{
+    return withForm(
+        fnObserver(
+            props => {
 
-            const {formConfig, children, renderSpy} = props;
+                const {formConfig, children, renderSpy} = props;
 
-            const {root} = formConfig;
+                const {root} = formConfig;
 
-            if (typeof renderSpy === "function")
-            {
-                renderSpy(formConfig);
+                if (typeof renderSpy === "function")
+                {
+                    renderSpy(formConfig);
+                }
+
+                return (
+                    <React.Fragment>
+                        {children}
+                        <button type="submit">Submit</button>
+
+                    </React.Fragment>
+                )
             }
-
-            return (
-                <React.Fragment>
-                    {children}
-                    <button type="submit">Submit</button>
-
-                </React.Fragment>
-            )
+        ),
+        {
+            type
         }
-    ),
-    {
-        type: "QuxMain"
-    }
-);
+    )
+
+}
 
 
 function searchFor(inputElem, searchTerm)
@@ -274,7 +279,8 @@ describe("FKSelector", function () {
             InteractiveQueryQuxA: InteractiveQuery,
             InteractiveQueryQuxB: InteractiveQuery,
             InteractiveQueryQuxC: InteractiveQuery,
-            InteractiveQueryQuxD: InteractiveQuery
+            InteractiveQueryQuxD: InteractiveQuery,
+            InteractiveQueryQuxE: InteractiveQuery
         }, {
             wrapAsObservable: true
         });
@@ -343,6 +349,8 @@ describe("FKSelector", function () {
 
         const Q_QuxA = CachedQuery.loadMemoryQuery("InteractiveQueryQuxA", require("./iquery-qux-a.json"), require("./Q_QuxA").default, {pageSize: 5});
         const Q_QuxB = CachedQuery.loadMemoryQuery("InteractiveQueryQuxB", require("./iquery-qux-b.json"), require("./Q_QuxB").default, {pageSize: 5});
+
+        const TestForm = createTestForm();
 
         act(
             () => {
@@ -415,6 +423,8 @@ describe("FKSelector", function () {
         const Q_QuxC = CachedQuery.loadMemoryQuery("InteractiveQueryQuxC", require("./iquery-qux-c.json"), require("./Q_QuxC").default, {pageSize: 5});
         let container, debug;
 
+        const TestForm = createTestForm();
+
         act(
             () => {
                 ({container, debug} = render(
@@ -470,6 +480,8 @@ describe("FKSelector", function () {
             let container, debug;
 
             let changeSpy = sinon.spy()
+
+            const TestForm = createTestForm();
 
             act(
                 () => {
@@ -541,6 +553,7 @@ describe("FKSelector", function () {
             const Q_QuxD = CachedQuery.loadMemoryQuery("InteractiveQueryQuxD", require("./iquery-qux-d.json"), require("./Q_QuxC").default, {pageSize: 5});
             let container, debug;
 
+            const TestForm = createTestForm();
 
             act(
                 () => {
@@ -668,6 +681,8 @@ describe("FKSelector", function () {
             const Q_QuxD = CachedQuery.loadMemoryQuery("InteractiveQueryQuxD", require("./iquery-qux-d.json"), require("./Q_QuxC").default, {pageSize: 5});
             let container, debug;
 
+            const TestForm = createTestForm();
+
             act(
                 () => {
                     ({container, debug} = render(
@@ -788,6 +803,7 @@ describe("FKSelector", function () {
         let container, debug;
 
         const renderSpy = sinon.spy();
+        const TestForm = createTestForm();
 
         act(
             () => {
@@ -907,6 +923,8 @@ describe("FKSelector", function () {
 
         const renderSpy = sinon.spy();
 
+        const TestForm = createTestForm();
+
         act(
             () => {
                 ({container, debug} = render(
@@ -970,4 +988,71 @@ describe("FKSelector", function () {
             })
     })
 
+    it("works on intermediary objects", function () {
+
+        let container, debug;
+
+        const localFormObj = format.convert(
+            {
+                kind: "OBJECT",
+                name: "QuxTop"
+            },
+            {
+                "id": "22168310-5e9f-491a-b079-aedef1c199e4",
+                "name": "Qux Top #5",
+                "quxMid": {
+                    "id": "85015f1d-1cca-4354-a580-9d9b76069188",
+                    "name": "Qux Mid #5",
+                    "quxEId": "1ce1ce45-504b-4e9a-b135-04f4a20380f5",
+                    "quxE": {
+                        "id": "1ce1ce45-504b-4e9a-b135-04f4a20380f5",
+                        "name": "Qux E #9",
+                        "value": 1009,
+                        "description": "Qux E #9 Desc"
+                    }
+                }
+            },
+            true
+        )
+
+        const Q_QuxE = CachedQuery.loadMemoryQuery("InteractiveQueryQuxE", require("./iquery-qux-e.json"), require("./Q_QuxE").default, {pageSize: 5});
+
+        const TestForm = createTestForm("QuxTop");
+
+        act(
+            () => {
+                ({container, debug} = render(
+                    <FormConfigProvider schema={inputSchema}>
+                        <TestForm
+                            value={ localFormObj }
+                        >
+                            <FKSelector
+                                name="quxMid.quxEId"
+                                display="quxMid.quxE.name"
+                                query={ Q_QuxE }
+                                fade={ false }
+                            />
+
+                        </TestForm>
+                    </FormConfigProvider>
+                ))
+            }
+        );
+
+        //console.log(prettyDOM(container))
+
+        const fkSelectorE = getByLabelText(container, "quxEId");
+        assert(fkSelectorE.value === "Qux E #9");
+
+        return selectFromModal(fkSelectorE, "Qux E #1")
+            .then(() => {
+                assert(localFormObj.quxMid.quxE.name === "Qux E #1")
+                assert(localFormObj.quxMid.quxEId === "54a3d4dc-3cea-45d8-afec-3eff56cce851")
+                assert(fkSelectorE.value === "Qux E #1");
+
+                // double-check that we have not set the right fields in the wrong object
+                assert(!localFormObj.quxEId)
+                assert(!localFormObj.quxE)
+            })
+    })
 });
