@@ -141,6 +141,7 @@ export default function pickSchemaTypes(inputSchema, typeNames)
         types: newTypes,
         relations: metaInput.relations.filter( r => knownTypes.has(r.sourceType) && knownTypes.has(r.targetType)),
         genericTypes: metaInput.genericTypes.filter( gt => knownTypes.has(gt.type)),
+        _from: typeNames
     }
 
     const schema = {
