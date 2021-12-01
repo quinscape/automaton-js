@@ -5,8 +5,9 @@ import { registerCustomConverter, GlobalConfig, resolveStaticRenderer } from "do
 import i18n from "./i18n";
 import config from "./config";
 import { getWireFormat } from "./domain";
-import { getOutputTypeName } from "./util/type-utils";
+import { getOutputTypeName, getParentObjectType, unwrapNonNull } from "./util/type-utils";
 import { NO_DEFAULT } from "./registerDateTimeConverters";
+import { INPUT_OBJECT, OBJECT } from "domainql-form/lib/kind";
 
 
 const DEFAULT_OPTIONS = {
@@ -93,7 +94,7 @@ function getPrecision(ctx, opts)
         }
         else
         {
-            type = getOutputTypeName(inputSchema.resolveType(rootType, path.slice(0, -1)))
+            type = getOutputTypeName(getParentObjectType(rootType, path))
         }
 
         const metaPrecision = inputSchema.getFieldMeta(type, path[pathLength - 1], "decimalPrecision")

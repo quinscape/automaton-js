@@ -1,6 +1,7 @@
 import config from "../config";
-import { LIST, SCALAR, INPUT_OBJECT, NON_NULL } from "domainql-form/lib/kind";
+import { LIST, SCALAR, INPUT_OBJECT, NON_NULL, OBJECT } from "domainql-form/lib/kind";
 import { INTERACTIVE_QUERY } from "../domain";
+import toPath from "lodash.topath";
 
 export function findNamed(array, name)
 {
@@ -199,4 +200,38 @@ export function getIQueryPayloadType(iQueryType)
     }
 
     return null;
+}
+
+
+/**
+ * Returns the name of the OBJECT or INPUT_OBJECT type that is the parent of the given path starting at the given root
+ * Type. Throws an exception if the expression cannot be resolved or if it points to another type (e.g. "LIST").
+ *
+ * @param {String} rootType     root Type
+ * @param {String|Array} path   lodash-y path
+ *
+ * @return {String} parent object type name
+ */
+export function getParentObjectType(rootType, path)
+{
+    if (!Array.isArray(path))
+    {
+        path = toPath(path)
+    }
+
+    const field = path.slice(0, -1);
+    let typeDef = config.inputSchema.resolveType(rootType, field);
+    if (!typeDef)
+    {
+        throw new Error("Could not resolve field reference '" + rootType + "." + field + "'");
+    }
+    typeDef = unwrapNonNull(typeDef)
+
+    if (typeDef.kind !== INPUT_OBJECT && typeDef.kind !== OBJECT)
+    {
+        throw new Error("Field reference '" + rootType + "." + field + "' resolved to invalid type " + JSON.stringify(typeDef) + ", should be INPUT or INPUT_OBJECT" )
+    }
+
+    return typeDef.name
+
 }

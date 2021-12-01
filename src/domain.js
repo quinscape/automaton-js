@@ -3,7 +3,7 @@ import config from "./config"
 import matchPath from "./matchPath";
 import { INPUT_OBJECT, OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";
 import registerDateTimeConverters from "./registerDateTimeConverters";
-import { getOutputTypeName } from "./util/type-utils";
+import { getOutputTypeName, getParentObjectType, unwrapAll, unwrapNonNull } from "./util/type-utils";
 
 
 let domainClasses = {};
@@ -216,7 +216,7 @@ function getMaxLength(ctx)
         }
         else
         {
-            type = getOutputTypeName(inputSchema.resolveType(rootType, path.slice(0, -1)))
+            type = getOutputTypeName(getParentObjectType(rootType, path))
         }
 
 
