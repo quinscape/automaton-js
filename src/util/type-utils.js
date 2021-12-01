@@ -135,7 +135,8 @@ export function getInputTypeName(type)
 
 function endsWithInput(s)
 {
-    return s.lastIndexOf(INPUT) === s.length - INPUT.length;
+    const pos = s.lastIndexOf(INPUT);
+    return pos > 0 && pos === s.length - INPUT.length;
 }
 
 export function unwrapAll(type) {
