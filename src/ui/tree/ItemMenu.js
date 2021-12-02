@@ -94,7 +94,7 @@ const ItemMenu = React.forwardRef(({style,placement,actions,scheduleUpdate,row, 
             role="menu"
         >
             {
-                actions.map(({label, action},idx) => (
+                actions.map(({label, action, disabled},idx) => (
                     <button
                         key={ idx }
                         type="button"
@@ -105,6 +105,7 @@ const ItemMenu = React.forwardRef(({style,placement,actions,scheduleUpdate,row, 
                         onClick={
                             () => { close(); action(row) }
                         }
+                        disabled={ typeof disabled === "function" && disabled(row) }
                     >
                         {
                             typeof label === "function" ? label() : idx === 0 ? <b>{ label }</b> : label
