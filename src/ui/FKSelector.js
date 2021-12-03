@@ -592,6 +592,7 @@ const FKSelector = fnObserver(props => {
                                         disabled={ mode === FieldMode.DISABLED }
                                         readOnly={ !haveUserInput || mode === FieldMode.READ_ONLY }
                                         value={ inputValue }
+                                        onKeyPress={ ctx.handleKeyPress }
                                         onChange={
                                             ev => {
                                                 const value = ev.target.value;

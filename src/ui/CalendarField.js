@@ -93,6 +93,7 @@ const CalendarField = props => {
                                 title={tooltip}
                                 readOnly={mode === FieldMode.READ_ONLY}
                                 value={fieldValue}
+                                onKeyPress={ ctx.handleKeyPress }
                                 onChange={ctx.handleChange}
                                 onBlur={ctx.handleBlur}
                                 autoFocus={autoFocus ? true : null}
