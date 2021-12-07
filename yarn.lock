@@ -1827,6 +1827,18 @@ csstype@^3.0.2, csstype@^3.0.9:
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.10.tgz#2ad3a7bed70f35b965707c092e5f30b327c290e5"
   integrity sha512-2u44ZG2OcNUO9HDp/Jl8C07x6pU/eTR3ncV91SiK3dhG9TWvRVsCoJw14Ckx5DgWkzGA3waZWO3d7pgqpUI/XA==
 
+d3-flextree@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/d3-flextree/-/d3-flextree-2.1.2.tgz#1f0419f4e6c972e096dd884627a87b6b38e7ba73"
+  integrity sha512-gJiHrx5uTTHq44bjyIb3xpbmmdZcWLYPKeO9EPVOq8EylMFOiH2+9sWqKAiQ4DcFuOZTAxPOQyv0Rnmji/g15A==
+  dependencies:
+    d3-hierarchy "^1.1.5"
+
+d3-hierarchy@^1.1.5:
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/d3-hierarchy/-/d3-hierarchy-1.1.9.tgz#2f6bee24caaea43f8dc37545fa01628559647a83"
+  integrity sha512-j8tPxlqh1srJHAtxfvOUwKNYJkQuBFdM1+JAUfq6xqH5eAqf93L7oG1NVqDa4CpFZNvnNKtCYEUC8KY9yEn9lQ==
+
 data-urls@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/data-urls/-/data-urls-3.0.1.tgz#597fc2ae30f8bc4dbcf731fcd1b1954353afc6f8"
@@ -1968,10 +1980,10 @@ dom-helpers@^5.0.1:
     "@babel/runtime" "^7.8.7"
     csstype "^3.0.2"
 
-domainql-form@^3.7.5:
-  version "3.7.5"
-  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-3.7.5.tgz#fcd98f7f0e5d02a5ea7f34f63a317d5be9480eb1"
-  integrity sha512-DtGafhlS4192SKvh6NFIAyqrjIvI62JMLfK3yizT5rwUYgio/s2hw6mjxN8n6fz2wEu7fzbNOUbQy+wQEkE08g==
+domainql-form@^3.7.7:
+  version "3.7.7"
+  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-3.7.7.tgz#9993d0fd081f13dfac5dd8febac6e03d26d79c08"
+  integrity sha512-hqRPO/4DW8K6YSlg/dxbDZbyGrg1WRZmD0lglRvmJOemnME/gCCFCpePxJ7WCgHrzYG78tHNA8h1Dl+0C2nVXw==
   dependencies:
     classnames "^2.3.1"
     lodash.debounce "^4.0.8"
