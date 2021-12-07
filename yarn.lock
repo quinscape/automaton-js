@@ -1980,10 +1980,10 @@ dom-helpers@^5.0.1:
     "@babel/runtime" "^7.8.7"
     csstype "^3.0.2"
 
-domainql-form@^3.7.7:
-  version "3.7.7"
-  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-3.7.7.tgz#9993d0fd081f13dfac5dd8febac6e03d26d79c08"
-  integrity sha512-hqRPO/4DW8K6YSlg/dxbDZbyGrg1WRZmD0lglRvmJOemnME/gCCFCpePxJ7WCgHrzYG78tHNA8h1Dl+0C2nVXw==
+domainql-form@^3.7.8:
+  version "3.7.8"
+  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-3.7.8.tgz#b6bcf5c1617808deddfe4da25db35a259ad77fb3"
+  integrity sha512-1MOLK1zcLrLhR54jijJMAul+97lRLW3ugw0NljGiiEYhYVJJYJs8shwRsEzfrPHNW2Dx49RG6iEnImlF4pqfCw==
   dependencies:
     classnames "^2.3.1"
     lodash.debounce "^4.0.8"
