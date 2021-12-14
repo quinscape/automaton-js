@@ -97,12 +97,16 @@ const PageSizeSelect = props =>
 {
     const { pageSize, changePageSize, pageSizes} = props;
 
-    return <div className="form-group">
-        <label>
-            {
-                i18n("Available Page Sizes")
-            }
-            <select className="ml-1 form-control" value={pageSize} onChange={changePageSize}>
+    return (
+        <label className="form-group input-group">
+            <div className="input-group-prepend">
+                <span className="input-group-text">
+                    {
+                        i18n("Available Page Sizes")
+                    }
+                </span>
+            </div>
+            <select className="form-control page-size-select" value={pageSize} onChange={changePageSize}>
                 {
                     pageSizes.map((value, idx) => {
 
@@ -122,7 +126,32 @@ const PageSizeSelect = props =>
                 }
             </select>
         </label>
-    </div>;
+    );
+};
+
+
+const RowCountDisplay = props =>
+{
+    const { rowCount } = props;
+
+    return (
+        <div className="ml-2 form-group input-group">
+            <div className="input-group-prepend">
+                <span className="input-group-text">
+                    {
+                        i18n("Row Count")
+                    }
+                </span>
+            </div>
+            <div className="input-group-append">
+                <span className="input-group-text">
+                    {
+                        rowCount
+                    }
+                </span>
+            </div>
+        </div>
+    );
 };
 
 /**
@@ -163,17 +192,21 @@ const Pagination = fnObserver(props => {
     if (numPages <= 1)
     {
         return (
-            <div className="form-inline">
-                <PageSizeSelect
-                    pageSize={ pageSize }
-                    changePageSize={ changePageSize }
-                    pageSizes={ pageSizes }
-                />
-                <span className="ml-4">
-                    {
-                        i18n("Row Count {0}", rowCount)
-                    }
-                </span>
+            <div
+                className="table-page-control"
+            >
+                <div
+                    className="form-inline page-sizes"
+                >
+                    <PageSizeSelect
+                        pageSize={ pageSize }
+                        changePageSize={ changePageSize }
+                        pageSizes={ pageSizes }
+                    />
+                    <RowCountDisplay
+                        rowCount={rowCount}
+                    />
+                </div>
             </div>
         );
     }
@@ -181,8 +214,9 @@ const Pagination = fnObserver(props => {
     return (
         <div
             aria-label={description}
+            className="table-page-control"
         >
-            <ul className="pagination">
+            <ul className="mr-2 pagination form-group input-group">
                 {
                     buttonConfig.map((btn, idx) => {
 
@@ -229,19 +263,17 @@ const Pagination = fnObserver(props => {
                         );
                     })
                 }
-                <li className="form-inline ml-4">
-                    <PageSizeSelect
-                        pageSize={ pageSize }
-                        changePageSize={ changePageSize }
-                        pageSizes={ pageSizes }
-                    />
-                    <span className="ml-4">
-                        {
-                            i18n("Row Count {0}", rowCount)
-                        }
-                    </span>
-                </li>
             </ul>
+            <div className="form-inline page-sizes">
+                <PageSizeSelect
+                    pageSize={ pageSize }
+                    changePageSize={ changePageSize }
+                    pageSizes={ pageSizes }
+                />
+                <RowCountDisplay
+                    rowCount={rowCount}
+                />
+            </div>
         </div>
     )
 });
