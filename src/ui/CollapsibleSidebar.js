@@ -39,7 +39,7 @@ const CollapsibleSidebar = ({
                     onClick={() => {
                         setExpanded(!expanded);
                     }}
-                    aria-label={ expanded ? "Sidebar einklappen" : "Sidebar ausklappen" }
+                    aria-expanded={expanded}
                 >
                     <Icon className="fa-chevron-down" />
                 </button>
