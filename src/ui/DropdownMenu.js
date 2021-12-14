@@ -57,7 +57,7 @@ const DropdownMenu = ({ text, title, inline, buttonClassName, children}) => {
                     </DropdownToggle>
                 )
             }
-            <ReactStrapDropdownMenu right>
+            <ReactStrapDropdownMenu end>
                 {
                     children
                 }
