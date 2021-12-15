@@ -30,7 +30,7 @@ const Folder = ({render, query, variables, onLoad, children}) => {
     const toggle = ev => {
         if (!objects)
         {
-            let promise;
+            let promise, running = true;
             if (typeof onLoad === "function")
             {
                 promise = Promise.resolve(
@@ -45,19 +45,23 @@ const Folder = ({render, query, variables, onLoad, children}) => {
 
             promise.then(
                 result => {
-                        setObjects(
-                            result
-                        );
-                        setOpen(!open);
+                    if(!running) return;
+                    setObjects(
+                        result
+                    );
+                    setOpen(!open);
 
-                        if (ev === undefined && !ctx.selected)
-                        {
-                            ctx.selectFirst();
-                        }
-                    },
+                    if (ev === undefined && !ctx.selected)
+                    {
+                        ctx.selectFirst();
+                    }
+                },
                 err => console.error("Error fetching data for <Tree.Folder/>", err)
             );
             setObjects(LOADING);
+            return () => {
+                running = false;
+            }
         }
         else
         {
@@ -79,7 +83,7 @@ const Folder = ({render, query, variables, onLoad, children}) => {
         // render invisible folder
         useEffect(
             () => {
-                toggle();
+                return toggle();
             },
             [query]
         );
