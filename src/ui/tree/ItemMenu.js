@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react"
 import cx from "classnames"
 import { MOVEMENT_KEYS, TreeContext } from "./Tree";
+import ItemMenuButton from "./ItemMenuButton";
 
 
 /**
@@ -95,22 +96,15 @@ const ItemMenu = React.forwardRef(({style,placement,actions,scheduleUpdate,row, 
         >
             {
                 actions.map(({label, action, disabled},idx) => (
-                    <button
-                        key={ idx }
-                        type="button"
-                        tabIndex="0"
-                        role="menuitem"
-                        className="dropdown-item button-sm"
-                        data-idx={ idx }
+                    <ItemMenuButton
+                        idx={ idx }
+                        label={ label }
+                        row={ row }
+                        disabled={ disabled }
                         onClick={
                             () => { close(); action(row) }
                         }
-                        disabled={ typeof disabled === "function" && disabled(row) }
-                    >
-                        {
-                            typeof label === "function" ? label() : idx === 0 ? <b>{ label }</b> : label
-                        }
-                    </button>
+                    />
                 ))
             }
         </div>
