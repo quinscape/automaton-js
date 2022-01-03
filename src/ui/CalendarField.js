@@ -74,6 +74,13 @@ const CalendarField = props => {
                     }
                     else
                     {
+                        let placeholderAttribute;
+                        if (!(mode === FieldMode.READ_ONLY || mode === FieldMode.DISABLED)) {
+                            placeholderAttribute = placeholder || scalarType === "Date" ?
+                                i18n("Date Format {0}", dateFormat) :
+                                i18n("Timestamp Format {0}", timestampFormat);
+                        }
+
                         fieldElement = Addon.renderWithAddons(
                             <input
                                 id={fieldId}
@@ -86,9 +93,7 @@ const CalendarField = props => {
                                     )
                                 }
                                 type="text"
-                                placeholder={placeholder || scalarType === "Date" ?
-                                    i18n("Date Format {0}", dateFormat) :
-                                    i18n("Timestamp Format {0}", timestampFormat)}
+                                placeholder={placeholderAttribute}
                                 disabled={mode === FieldMode.DISABLED}
                                 title={tooltip}
                                 readOnly={mode === FieldMode.READ_ONLY}
