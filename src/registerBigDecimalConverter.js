@@ -17,6 +17,9 @@ const DEFAULT_OPTIONS = {
 
 };
 
+const DECIMAL_TRIM_REGEX = /(?:,[0 ]*|(,[0-9 ]*?[1-9 ])[0 ]*)$/gm;
+const DECIMAL_TRIM_REPLACER = "$1";
+
 function defaultParser(value, opts)
 {
     const { prefix, groupSeparator, decimalSeparator, fractionGroupSeparator, suffix } = BigNumber.config().FORMAT;
@@ -176,9 +179,12 @@ export default function registerBigDecimalConverter(opts) {
             {
                 return "";
             }
+            if (!(scalar instanceof BigNumber)) {
+                return scalar;
+            }
 
             const p = getPrecision(ctx, opts);
-            return scalar.toFormat(p.scale);
+            return scalar.toFormat(p.scale).replace(DECIMAL_TRIM_REGEX, DECIMAL_TRIM_REPLACER);
         },
         value => {
 
@@ -200,7 +206,9 @@ export default function registerBigDecimalConverter(opts) {
             bd => (
                 <span className="bd-wrapper">
                     <span className="bd-inner">{
-                        bd.toFormat(getPrecision(null, opts).scale)
+                        bd instanceof BigNumber ?
+                            bd.toFormat(getPrecision(null, opts).scale).replace(DECIMAL_TRIM_REGEX, DECIMAL_TRIM_REPLACER) :
+                            bd
                     }</span>
                 </span>
             )

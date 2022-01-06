@@ -5,22 +5,6 @@ import { Field, GlobalConfig, FieldMode, Addon } from "domainql-form";
 import BigNumber from "bignumber.js";
 
 
-function getDigitIndex(selectionInDigits, value)
-{
-    let index;
-    for (index = 0; selectionInDigits > 0 && index < value.length; index++)
-    {
-        const c = value[index];
-        const isNumber = c >= "0" && c <= "9";
-        if (isNumber)
-        {
-            selectionInDigits--;
-        }
-    }
-    return index;
-}
-
-
 function getSelectionInDigits(selectionStart, value)
 {
     const length = selectionStart;
@@ -51,25 +35,6 @@ const DecimalField = ({precision, scale, children, ...restProps}) => {
 
         //console.log("handleDecimalSeparator", ev.key);
 
-        if (ev.key === "Delete"){
-
-            const { selectionStart, value } = ref.current;
-            if (
-                selectionStart < value.length - 1 && (value[selectionStart] === groupSeparator || value[selectionStart] === decimalSeparator)
-            )
-            {
-                ref.current.setSelectionRange(selectionStart + 1, selectionStart + 1);
-                ev.preventDefault();
-            }
-            if (
-                selectionStart === 0 && value.indexOf("0" + decimalSeparator) === 0
-            )
-            {
-                ref.current.setSelectionRange(selectionStart + 2, selectionStart + 2);
-                ev.preventDefault();
-            }
-        }
-
         if (ev.key === decimalSeparator){
 
             const {selectionStart, value } = ref.current;
@@ -90,6 +55,7 @@ const DecimalField = ({precision, scale, children, ...restProps}) => {
 
     const addons = Addon.filterAddons( children );
 
+    const [isEditMode, setEditMode] = useState(false);
 
     return (
         <span
@@ -120,25 +86,18 @@ const DecimalField = ({precision, scale, children, ...restProps}) => {
             }}
             {...restProps}
             addons={ addons }
+            onBlur={(formConfig, fieldContext, value) => {
+                // console.log("DECIMAL FIELD BLUR");
+                setEditMode(false);
+            }}
+            onFocus={(formConfig, fieldContext) => {
+                // console.log("DECIMAL FIELD FOCUS");
+                setEditMode(true);
+            }}
+            isEditMode={ isEditMode }
         >
             {
                 (formConfig, fieldContext) => {
-
-                    useEffect(() => {
-
-                        if (sel >= 0)
-                        {
-                            const errors = formConfig.getErrors(fieldContext.qualifiedName);
-                            if (!errors.length)
-                            {
-                                const value = Field.getValue(formConfig, fieldContext, errors);
-
-                                const index = getDigitIndex(sel, value);
-                                ref.current.setSelectionRange(index, index);
-                            }
-                        }
-                    })
-
                     const renderFn = GlobalConfig.getRenderFn(formConfig, fieldContext);
                     return renderFn(formConfig, fieldContext);
                 }
