@@ -50,7 +50,7 @@ const ShortcutItem = fnObserver(({
 
     return (
         <a
-            className={ cx("shortcut-link btn", errorCount ? "btn-danger" : "btn-secondary") }
+            className={ cx("shortcut-link btn", errorCount ? "btn-danger" : "btn-outline-primary") }
             href={ `#${reference}` }
             title={ title }
             aria-label={ title }

@@ -35,7 +35,7 @@ const CollapsibleSidebar = ({
             <div className="button-wrapper text-muted small">
                 <button
                     type="button"
-                    className={ cx("btn", "btn-secondary", "collapse-button") }
+                    className={ cx("btn", "btn-outline-primary", "collapse-button") }
                     onClick={() => {
                         setExpanded(!expanded);
                     }}
