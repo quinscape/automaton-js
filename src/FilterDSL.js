@@ -308,6 +308,9 @@ function Value(type, value, name = null)
     this.name = name;
 }
 
+buildProto(Value.prototype, FIELD_CONDITIONS, buildFn);
+buildProto(Value.prototype, FIELD_OPERATIONS, buildOpFn);
+
 function Values(type, values)
 {
     this.type = Type.VALUES;
@@ -474,6 +477,82 @@ export function findComponentNode(conditionNode, id)
 
 
 /**
+ * Converts the given condition graph into simple js objects.
+ *
+ * The Filter DSL produces Filter nodes that are in fact instances of the Filter DSL types used to implement to
+ * conditions/operations. This works fine in many case, but sometimes it doesn't.
+ *
+ * One example is that mobx will ignore the instances and not create observables for them. Making the FilterDSL in general
+ * observable would be possible, but would mean a huge overhead for a very exotic use-case.
+ *
+ * @param {Object} condition    Input condition, potentially consisting of DSL instances
+ * @return {Object} condition as graph of objects / arrays
+ */
+export function toJSON(condition)
+{
+    if (!condition)
+    {
+        return null;
+    }
+
+    const { type } = condition;
+
+    if (type === Type.CONDITION || type === Type.OPERATION)
+    {
+        const { name, operands } = condition;
+
+        return {
+            type,
+            name,
+            operands: operands.map( o => toJSON(o))
+        }
+    }
+    else if (type === Type.COMPONENT)
+    {
+        const { id, condition } = condition;
+
+        return {
+            type,
+            id,
+            condition: toJSON(condition)
+        }
+    }
+    else if (type === Type.FIELD)
+    {
+        const { name } = condition;
+
+        return {
+            type,
+            name
+        }
+    }
+    else if (type === Type.VALUE)
+    {
+        const { scalarType, value } = condition;
+
+        return {
+            type,
+            scalarType,
+            value
+        }
+    }
+    else if (type === Type.VALUES)
+    {
+        const { scalarType, values } = condition;
+
+        return {
+            type,
+            scalarType,
+            values
+        }
+    }
+    else
+    {
+        throw new Error("Invalid condition node: " + condition);
+    }
+}
+
+/**
  * The automaton filter DSL creates object graphs representations of filter expressions that can be evaluated as SQL, on
  * Java objects and on JavaScript objects.
  *
@@ -585,7 +664,10 @@ const FilterDSL = {
      *
      * @type {{OPERATION: string, FIELD: string, CONDITION: string, COMPONENT: string, VALUE: string, VALUES: string}}
      */
-    Type
+    Type,
+
+    toJSON
 }
 
 export default FilterDSL;
+

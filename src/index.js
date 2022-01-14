@@ -62,7 +62,6 @@ import Attachments from "./Attachments"
 import FilterDSL from "./FilterDSL"
 
 import printSchema from "./util/printSchema"
-import InteractiveQueryEditor from "./ui/iqed/InteractiveQueryEditor";
 import InteractiveQueryDefinition from "./model/InteractiveQueryDefinition"
 import { evaluateMemoryQuery } from "./util/evaluateMemoryQuery";
 import { MergeOperation } from "./merge/MergeOperation";
@@ -70,6 +69,8 @@ import { openDialog } from "./util/openDialog";
 import ViewState from "./process/ViewState";
 
 import promiseUI, {configurePromiseUI} from "./util/promiseUI"
+
+import ConditionEditor from "./ui/condition/ConditionEditor"
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -165,7 +166,6 @@ export {
 
     printSchema,
 
-    InteractiveQueryEditor,
     InteractiveQueryDefinition,
 
     filterTransformer,
@@ -179,5 +179,7 @@ export {
     DropdownMenu,
 
     promiseUI,
-    configurePromiseUI
+    configurePromiseUI,
+
+    ConditionEditor
 }

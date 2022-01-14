@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { observer as fnObserver } from "mobx-react-lite";
 import i18n from "../../i18n";
 import config from "../../config";
@@ -65,7 +65,7 @@ function validate(editorState, node, path = "")
         let fieldType;
         try
         {
-            fieldType = lookupType(editorState.root, name);
+            fieldType = lookupType(editorState.rootType, name);
         }
         catch(e)
         {
@@ -97,12 +97,12 @@ function validate(editorState, node, path = "")
 }
 
 
-const ConditionJSONDialog = fnObserver(({editorState}) => {
+const ImportExportDialog = fnObserver(function ImportExportDialog({editorState}){
 
-    const toggle = editorState.toggleJSONDialog;
+    const toggle = editorState.toggleImportExportOpen;
 
     return (
-        <Modal isOpen={ editorState.json.isOpen } toggle={ toggle } size="lg" fade={ config.processDialog.props.fade }>
+        <Modal isOpen={ editorState.importExportOpen } toggle={ toggle } size="lg" fade={ config.processDialog.props.fade }>
             <ModalHeader
                 toggle={ toggle }
             >
@@ -114,9 +114,13 @@ const ConditionJSONDialog = fnObserver(({editorState}) => {
                 <div className="container-fluid">
                     <div className="row">
                         <div className="col">
-                            <Form value={editorState}>
+                            <Form
+                                value={ editorState }
+                                formContext={ editorState.formContext }
+                                spellCheck="false"
+                            >
                                 <TextArea
-                                    name="json.json"
+                                    name="json"
                                     inputClass="text-monospace"
                                     type="String"
                                     cols={ 80}
@@ -128,25 +132,45 @@ const ConditionJSONDialog = fnObserver(({editorState}) => {
                                         {
                                             return i18n("Invalid JSON");
                                         }
-                                        const err = validate(editorState, data);
-
-                                        if (!err)
-                                        {
-                                            editorState.setNodeValue("", data);
-                                        }
-
-                                        return err;
+                                        return validate(editorState, data);
                                     })}
                                 />
                             </Form>
                             <ButtonToolbar>
+                                <div className="d-inline-block">
+
+                                <input
+                                    id="json-upload"
+                                    className="form-control-file"
+                                    type="file"
+                                    onChange={
+                                        ev => {
+
+                                            let files = ev.target.files;
+                                            if (files.length) {
+                                                const file = files[0];
+                                                const reader = new FileReader();
+                                                reader.onload = ev => {
+                                                    editorState.updateJSON(ev.target.result);
+                                                };
+                                                reader.readAsText(file);
+                                            }
+                                        }
+                                    }
+                                />
+                                </div>
                                 <button
                                     type="button"
                                     className="btn btn-secondary mr-1"
-                                    onClick={ toggle }
+                                    onClick={ ev => {
+                                        const helper = document.createElement("a")
+                                        helper.href = "data:text/json;charset=utf-8," + encodeURIComponent( editorState.json )
+                                        helper.download= "condition-" + new Date().toISOString() + ".json"
+                                        helper.click();
+                                    } }
                                 >
                                     {
-                                        i18n("Close")
+                                        i18n("Download JSON file")
                                     }
                                 </button>
                             </ButtonToolbar>
@@ -158,4 +182,4 @@ const ConditionJSONDialog = fnObserver(({editorState}) => {
     );
 });
 
-export default ConditionJSONDialog;
+export default ImportExportDialog;
