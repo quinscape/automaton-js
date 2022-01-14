@@ -503,15 +503,20 @@ const FKSelector = fnObserver(props => {
 
                                     try
                                     {
+                                        const { inputSchema } = config;
+
                                         const columns = iQuery.columnStates
                                             .filter(
                                                 cs => cs.enabled && cs.name !== "id"
                                             )
                                             .map(
-                                                cs => cs.name
+                                                cs => {
+                                                    const heading = inputSchema.getFieldMeta(iQuery.type, cs.name, "heading");
+                                                    return { name: cs.name, heading }
+                                                }
                                             );
 
-                                        const columnTypes = columns.map(name => unwrapAll(lookupType(iQuery.type, name)).name)
+                                        const columnTypes = columns.map(({name}) => unwrapAll(lookupType(iQuery.type, name)).name)
 
                                         //console.log(JSON.stringify(query.defaultVars, null, 4));
 

@@ -183,10 +183,11 @@ const FkSelectorModal = fnObserver(
                                     </DataGrid.Column>
                                     {
                                         columns.map(
-                                            (name, idx) => (
+                                            ({name, heading}, idx) => (
                                                 <DataGrid.Column
                                                     key={ name }
                                                     name={ name }
+                                                    heading={ heading }
                                                     filter={
                                                         showColumnFilter ? (
                                                             columnTypes[idx] === "String" ?
