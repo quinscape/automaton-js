@@ -19,6 +19,7 @@ const {
     isLogicalCondition,
     isComposedComponentExpression,
     findComponentNode,
+    toJSON,
 
     FIELD_CONDITIONS,
     CONDITION_METHODS,
@@ -46,6 +47,7 @@ exports.getConditionArgCount = getConditionArgCount;
 exports.isLogicalCondition = isLogicalCondition;
 exports.isComposedComponentExpression = isComposedComponentExpression;
 exports.findComponentNode = findComponentNode;
+exports.toJSON = toJSON;
 
 // reflection basically
 exports.FIELD_CONDITIONS = FIELD_CONDITIONS;
