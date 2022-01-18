@@ -97,12 +97,16 @@ const ItemMenu = React.forwardRef(({style,placement,actions,scheduleUpdate,row, 
             {
                 actions.map(({label, action, disabled},idx) => (
                     <ItemMenuButton
+                        key={ idx }
                         idx={ idx }
                         label={ label }
                         row={ row }
                         disabled={ disabled }
                         onClick={
-                            () => { close(); action(row) }
+                            () => {
+                                close();
+                                action(row);
+                            }
                         }
                     />
                 ))

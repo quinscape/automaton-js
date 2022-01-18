@@ -4,18 +4,21 @@ import PropTypes from "prop-types"
 import { getFirstValue } from "../../model/InteractiveQuery";
 import i18n from "../../i18n";
 
-import { nextSelectionId, TreeContext } from "./Tree";
+import { findParentLink, nextSelectionId, TreeContext } from "./Tree";
 import GraphQLQuery from "../../GraphQLQuery";
 import TreeItem from "./TreeItem";
+import { Popper } from "react-popper";
+import ItemMenu from "./ItemMenu";
 import MetaItem from "./MetaItem";
 import CaretButton from "./CaretButton";
+import { Icon } from "domainql-form";
 
 
 const LOADING = "LOADING";
 /**
  * Renders an initially closed folder that quries additional children on demand.
  */
-const Folder = ({render, query, variables, onLoad, children}) => {
+const Folder = ({row, render, query, variables, onLoad, actions, children}) => {
 
     const ref = useRef(null);
 
@@ -110,6 +113,8 @@ const Folder = ({render, query, variables, onLoad, children}) => {
         )
     }
 
+    const isSelected = selectionId === ctx.selected;
+    const isMenuOpen = ctx.menu === selectionId;
     return (
         <TreeItem
             ref={ ref }
@@ -127,12 +132,60 @@ const Folder = ({render, query, variables, onLoad, children}) => {
                         className={ cx("btn btn-link default", ctx.options.small && "btn-sm" ) }
                         tabIndex={-1}
                         onClick={toggle}
+                        onContextMenu={
+                            ev => {
+                                ctx.updateMenu(selectionId);
+                                ev.preventDefault();
+                            }
+                        }
                     >
                         {
                             renderResult
                         }
                     </button>
                 </div>
+                {
+                    actions && actions.length > 1 && (
+                        <React.Fragment>
+                            <button
+                                type="button"
+                                className={ cx("btn btn-secondary item-menu ml-1 sr-only sr-only-focusable", ctx.options.small && "btn-sm") }
+                                tabIndex={isSelected ? 0 : -1}
+                                aria-haspopup={ true }
+                                aria-expanded={ isMenuOpen }
+                                onClick={() => ctx.updateMenu(selectionId)}
+                            >
+                                <Icon className="fa-angle-right p-1"/>
+                            </button>
+                            {
+                                isMenuOpen && (
+                                    <Popper
+                                        placement="right-start"
+                                        referenceElement={ ctx.menuElem }
+                                        modifiers={ ctx.options.popperModifiers }
+                                    >
+                                        {({ref, style, placement, scheduleUpdate}) => (
+                                            <ItemMenu
+                                                ref={ ref }
+                                                style={ style }
+                                                data-placement={ placement }
+                                                scheduleUpdate={ scheduleUpdate }
+                                                close={ () => {
+                                                    ctx.updateMenu(null);
+                                                    const link = findParentLink(ctx.menuElem);
+                                                    link && link.focus();
+                                                } }
+
+                                                row={ row }
+                                                actions={ actions }
+                                            />
+                                        )}
+                                    </Popper>
+                                )
+                            }
+                        </React.Fragment>
+                    )
+                }
                 {
                     <ul role="group">
                         {

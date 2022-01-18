@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 
 const ItemMenuButton = ({idx, row, label, disabled, onClick}) => {
-    const [isDisabled, setDisabled] = useState(true);
+    const [isDisabled, setDisabled] = useState(false);
     useEffect(() => {
         let isRunning = true;
 
@@ -24,7 +24,6 @@ const ItemMenuButton = ({idx, row, label, disabled, onClick}) => {
     }, []);
     return (
         <button
-            key={ idx }
             type="button"
             tabIndex="0"
             role="menuitem"

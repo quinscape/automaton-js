@@ -70,7 +70,12 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
                                 }
                             }
                         }
-                        onContextMenu={() => ctx.updateMenu(selectionId)}
+                        onContextMenu={
+                            ev => {
+                                ctx.updateMenu(selectionId);
+                                ev.preventDefault();
+                            }
+                        }
                     >
                         {
                             render(row, isSelected)
@@ -78,7 +83,7 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
                     </button>
                 </div>
                 {
-                    actions.length > 1 && (
+                    actions && actions.length > 1 && (
                         <React.Fragment>
                             <button
                                 type="button"
