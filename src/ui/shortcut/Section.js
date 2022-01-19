@@ -7,6 +7,7 @@ import PropTypes from "prop-types";
 import useAutomatonEnv from "../../useAutomatonEnv";
 import config from "../../config";
 import ShortcutContext from "./ShortcutContext";
+import CollapsiblePanel from "../CollapsiblePanel";
 
 /**
  * Create a form section
@@ -20,6 +21,8 @@ const Section = ({
     heading,
     headingRenderer,
     hideHeader,
+    collapsible,
+    initiallyCollapsed,
     children
 }) => {
 
@@ -44,20 +47,32 @@ const Section = ({
     return (
         <div style={ {position: "relative"} }>
             <div id={ id } style={ {position: "absolute", pointerEvents: "none", top: -scrollPaddingTop} } />
-            <Card body>
-                {
-                    headerContent ? (
-                        <CardHeader className={ cx(hideHeader && "sr-only") }>
+            {
+                collapsible ? (
+                    <CollapsiblePanel header={headerContent} collapsed={initiallyCollapsed}>
                         {
-                            headerContent
+                            children
                         }
-                        </CardHeader>
-                    ) : ""
-                }
-                <CardBody>
-                    { children }
-                </CardBody>
-            </Card>
+                    </CollapsiblePanel>
+                ) : (
+                    <Card body>
+                        {
+                            headerContent ? (
+                                <CardHeader className={ cx(hideHeader && "sr-only") }>
+                                    {
+                                        headerContent
+                                    }
+                                </CardHeader>
+                            ) : ""
+                        }
+                        <CardBody>
+                            {
+                                children
+                            }
+                        </CardBody>
+                    </Card>
+                )
+            }
         </div>
     );
 };
@@ -95,8 +110,16 @@ Section.propTypes = {
      * the used FormContext
      * defaults to the default FormContext
      */
-    formContext: PropTypes.instanceOf(FormContext)
-
+    formContext: PropTypes.instanceOf(FormContext),
+    /**
+     * defines if this section is collapsible or not
+     */
+    collapsible: PropTypes.bool,
+    /**
+     * if the section is collapsible, defines if it is initially collapsed or not
+     * has no effect if the section is not collapsible
+     */
+    initiallyCollapsed: PropTypes.bool
 }
 
 export default Section
