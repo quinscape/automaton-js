@@ -251,7 +251,7 @@ function versionCurrent(name)
 /**
  *
  * @param {Process} process                 process
- * @param {String} view                     view or "" for process effect
+ * @param {ViewState} view                  view state or null for process effect
  * @param {Object} effect                   effect object
  * @param {function} effect.register        effect register function
  * @param {function} effect.unregister      effect unregister function
@@ -259,10 +259,7 @@ function versionCurrent(name)
  */
 function addEffect(process, view, effect)
 {
-
     const { effects } = process[secret];
-
-
     let array = effects.get(view);
     if (!array)
     {
@@ -322,7 +319,7 @@ function updateEffects(process, prevState, nextState)
 
     if (prevState === nextState)
     {
-        const effects = process[secret].effects.get(prevState.name);
+        const effects = process[secret].effects.get(prevState);
         if (effects)
         {
             for (let i = 0; i < effects.length; i++)
@@ -352,7 +349,7 @@ function updateEffects(process, prevState, nextState)
     {
         if (prevState)
         {
-            const effects = process[secret].effects.get(prevState.name);
+            const effects = process[secret].effects.get(prevState);
             if (effects)
             {
                 for (let i = 0; i < effects.length; i++)
@@ -364,7 +361,7 @@ function updateEffects(process, prevState, nextState)
 
         if (nextState)
         {
-            const effects = process[secret].effects.get(nextState.name);
+            const effects = process[secret].effects.get(nextState);
             if (effects)
             {
                 for (let i = 0; i < effects.length; i++)
@@ -656,7 +653,7 @@ export class Process {
 
     addProcessEffect(fn)
     {
-        addEffect(this, "",{
+        addEffect(this, null,{
             register: fn,
             unregister: null
         });
@@ -672,6 +669,11 @@ export class Process {
      */
     addEffect(view, fn, inputFn)
     {
+        if (!view)
+        {
+            throw new Error("Need view. To register an effect without a view, use addProcessEffect")
+        }
+
         addEffect(this, view, {
             register: fn,
             inputFn,
@@ -1221,7 +1223,7 @@ const renderRestoredView = action(
 
             currentProcess = nextProcess;
             process = nextProcess[secret].parent;
-            while (process)
+            while (process && process !== processBase)
             {
                 registerProcessEffects(process);
                 updateEffects(currentProcess, null, process[secret].currentState);
@@ -1230,7 +1232,7 @@ const renderRestoredView = action(
             }
 
             currentProcess[secret].history.navigateTo(historyPos);
-
+            registerProcessEffects(currentProcess);
             updateEffects(currentProcess, null, nextState);
         }
         else
@@ -1424,7 +1426,7 @@ function registerProcessEffects(process)
 {
     const { effects } = process[secret];
 
-    const processEffects = effects.get("");
+    const processEffects = effects.get(null);
 
     if (processEffects)
     {
@@ -1442,7 +1444,7 @@ function unregisterProcessEffects(process)
 
     const { effects } = process[secret];
 
-    const processEffects = effects.get("");
+    const processEffects = effects.get(null);
 
     if (processEffects)
     {
