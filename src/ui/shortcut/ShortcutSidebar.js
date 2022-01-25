@@ -3,7 +3,7 @@ import { observer as fnObserver } from "mobx-react-lite"
 import cx from "classnames";
 import PropTypes from "prop-types";
 
-import StickyResizingSidebar from "../StickyResizingSidebar";
+import StickyResizingSidebar from "../sticky/StickyResizingSidebar";
 import ShortcutItem from "./ShortcutItem";
 import ShortcutContext from "./ShortcutContext";
 

@@ -3,11 +3,13 @@ import cx from "classnames";
 import { FormContext } from "domainql-form";
 import {Card, CardBody, CardHeader} from "reactstrap";
 import PropTypes from "prop-types";
+import { observer as fnObserver } from "mobx-react-lite"
 
 import useAutomatonEnv from "../../useAutomatonEnv";
 import config from "../../config";
 import ShortcutContext from "./ShortcutContext";
 import CollapsiblePanel from "../CollapsiblePanel";
+import StickySizesContext from "../sticky/StickySizesContext";
 
 /**
  * Create a form section
@@ -15,7 +17,7 @@ import CollapsiblePanel from "../CollapsiblePanel";
  * This component registers the section to the shortcut context
  * 
  */
-const Section = ({
+const Section = fnObserver(({
     id,
     icon,
     heading,
@@ -26,7 +28,7 @@ const Section = ({
     children
 }) => {
 
-    const scrollPaddingTop = config.ui.stickyTopPadding;
+    const stickySizes = useContext(StickySizesContext);
 
     const env = useAutomatonEnv();
     const shortcutState = useContext(ShortcutContext);
@@ -46,7 +48,7 @@ const Section = ({
     
     return (
         <div style={ {position: "relative"} }>
-            <div id={ id } style={ {position: "absolute", pointerEvents: "none", top: -scrollPaddingTop} } />
+            <div id={ id } style={ {position: "absolute", pointerEvents: "none", top: -stickySizes.headerHeight} } />
             {
                 collapsible ? (
                     <CollapsiblePanel header={headerContent} collapsed={initiallyCollapsed}>
@@ -75,7 +77,7 @@ const Section = ({
             }
         </div>
     );
-};
+});
 
 Section.propTypes = {
     /**

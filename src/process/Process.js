@@ -15,6 +15,7 @@ import { renderImperativeDialogs } from "../ui/Dialog"
 import { backToHistoryId } from "./back-functions";
 
 import ShortcutContext, { ShortcutContextState } from "../ui/shortcut/ShortcutContext";
+import StickySizesContext from "../ui/sticky/StickySizesContext";
 
 
 let processImporter;
@@ -125,14 +126,16 @@ function renderCurrentView()
                 <AutomatonEnv.Provider
                     value={ subProcessEnv }
                 >
-                    <ShortcutContext.Provider
-                        value={ process.shortcutContext }
-                    >
-                        <SubProcessViewComponent env={ subProcessEnv }/>
-                        {
-                            dialogStack
-                        }
-                    </ShortcutContext.Provider>
+                    <StickySizesContext.Provider>
+                        <ShortcutContext.Provider
+                            value={ process.shortcutContext }
+                        >
+                            <SubProcessViewComponent env={ subProcessEnv }/>
+                            {
+                                dialogStack
+                            }
+                        </ShortcutContext.Provider>
+                    </StickySizesContext.Provider>
                 </AutomatonEnv.Provider>
             </ProcessDialog>
         );

@@ -49,6 +49,7 @@ import FieldMetaButton from "./ui/FieldMetaButton";
 import DecimalField from "./ui/DecimalField";
 import URLField from "./ui/URLField";
 import filterTransformer, { FieldResolver } from "./util/filterTransformer";
+import StickyNav from "./ui/sticky/StickyNav";
 import CollapsibleSidebar from "./ui/CollapsibleSidebar";
 import ShortcutSidebar from "./ui/shortcut/ShortcutSidebar";
 import Section from "./ui/shortcut/Section";
@@ -157,6 +158,7 @@ export {
 
     URLField,
 
+    StickyNav,
     CollapsibleSidebar,
     ShortcutSidebar,
     Section,

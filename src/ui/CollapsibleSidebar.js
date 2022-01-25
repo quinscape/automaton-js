@@ -6,7 +6,7 @@ import {
 import cx from "classnames";
 import PropTypes from "prop-types";
 
-import StickyResizingSidebar from "./StickyResizingSidebar";
+import StickyResizingSidebar from "./sticky/StickyResizingSidebar";
 import useWindowSize from "../util/useWindowSize";
 
 /**

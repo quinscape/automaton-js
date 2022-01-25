@@ -85,7 +85,7 @@ export const DEFAULT_OPTS = {
 
     ui: {
         stickyTopPadding: 15,
-        stickyBottomPadding: 15
+        stickyBottomPadding: 22
     },
 
     // XXX: experimental dev setting. Should be decided one way or the other in the end
