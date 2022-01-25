@@ -91,7 +91,7 @@ const DataGrid = fnObserver(props => {
                         sortable = columnState.sortable;
                         const typeContext = lookupTypeContext(type, name);
 
-                        if (typeof filter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
+                        if (filter && typeof filter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
                         {
                             throw new Error(
                                 "Computed column '" + typeContext.field.name + "' cannot be filtered with a simple filter.\n" +
