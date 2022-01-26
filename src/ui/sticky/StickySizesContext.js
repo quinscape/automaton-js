@@ -23,7 +23,7 @@ export class StickySizesContextState {
     }
 
     @computed
-    get headerHeight(value)
+    get headerHeight()
     {
 
         const stickyTopPadding = config.ui.stickyTopPadding;
@@ -37,7 +37,7 @@ export class StickySizesContextState {
     }
 
     @computed
-    get headerHeight(value)
+    get footerHeight()
     {
 
         const stickyBottomPadding = config.ui.stickyBottomPadding;
