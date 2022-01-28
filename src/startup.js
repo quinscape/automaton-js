@@ -1,6 +1,6 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import { registerProcessImporter, onHistoryAction, renderProcess } from "./process/Process"
+import { registerProcessImporter, onHistoryAction, renderProcess, getCurrentProcess } from "./process/Process"
 import config, { addConfig, DEFAULT_OPTS } from "./config"
 import Authentication from "./auth"
 import { FormContext, InputSchema, registerDomainObjectFactory } from "domainql-form"
@@ -27,6 +27,7 @@ import InteractiveQueryDefinition from "./model/InteractiveQueryDefinition";
 import { registerScalarEquals } from "./util/equalsScalar";
 import { registerEntityRenderer } from "./util/renderEntity";
 import registerBigDecimalConverter from "./registerBigDecimalConverter";
+import WorkingSet from "./WorkingSet";
 
 
 const SCOPES_MODULE_NAME = "./scopes.js";
@@ -350,6 +351,22 @@ export function automatonDomainObjectFactory(type, id) {
     return createDomainObject(type, id, DO_NOT_NULL_FIELDS)
 }
 
+
+function isDirty(process)
+{
+    const { scope } = process;
+
+    if (scope.workingSet instanceof WorkingSet)
+    {
+        return scope.workingSet.hasChanges
+    }
+    else if (typeof scope.isDirty === "function")
+    {
+        return scope.isDirty()
+    }
+}
+
+
 /**
  * Entry point to the automaton client-side process engine
  *
@@ -411,6 +428,19 @@ export function startup(ctx, processImporter, initial, initFn)
                     console.groupEnd();
 
                 }
+
+                window.addEventListener("beforeunload", function (e) {
+
+                    const process = getCurrentProcess();
+
+                    if (isDirty(process))
+                    {
+                        // Cancel the event
+                        e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+                        // Chrome requires returnValue to be set
+                        e.returnValue = '';
+                    }
+                });
 
                 return renderProcess(
                     config.rootProcess,
