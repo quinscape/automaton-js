@@ -44,7 +44,7 @@ const WorkingSetStatus = fnObserver((props) => {
 
     const entry = workingSet.lookup( entityType, entityId);
 
-    //console.log("WorkingSetStatus", toJS(entry));
+    console.log("WorkingSetStatus", toJS(entry));
 
     if (entry)
     {

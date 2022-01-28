@@ -392,14 +392,13 @@ function resetHistoryTo(historyIndex)
  *
  */
 export class Process {
-    constructor(id, name, scope, input, parent, dialogOpts)
+    constructor(id, name, input, parent, dialogOpts)
     {
         this[secret] = {
             id,
             name,
             input,
             parent,
-            scope,
 
             currentState: null,
 
@@ -1481,17 +1480,6 @@ function renderProcessInternal(processName, input, injections, asSubProcess, pro
 
                 const { initProcess, default: ScopeClass } = module;
 
-                let scope;
-                if (ScopeClass)
-                {
-                    scope = new ScopeClass();
-                    inject(scope, injections);
-                }
-                else
-                {
-                    scope = null;
-                }
-
                 const prevProcess = currentProcess;
                 const noPriorProcess = !prevProcess;
                 if (noPriorProcess)
@@ -1506,14 +1494,28 @@ function renderProcessInternal(processName, input, injections, asSubProcess, pro
                 process = new Process(
                     processIdCounter++,
                     processName,
-                    scope,
                     input,
                     asSubProcess ? currentProcess : null,
                     processOpts
                 );
                 processes.push(process);
 
+                currentProcess = process;
+
+                let scope;
+                if (ScopeClass)
+                {
+                    scope = new ScopeClass();
+                    inject(scope, injections);
+                }
+                else
+                {
+                    scope = null;
+                }
+
+
                 const storage = process[secret];
+                storage.scope = scope
 
                 return Promise.resolve(
                         initProcess(process, scope)
@@ -1527,7 +1529,6 @@ function renderProcessInternal(processName, input, injections, asSubProcess, pro
                             }
 
                             finishInitialization(process);
-                            currentProcess = process;
 
                             const startTransitionName = process.name + ".start";
                             return executeTransition(startTransitionName, null, startState, null, null);
