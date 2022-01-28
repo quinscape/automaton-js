@@ -22,7 +22,7 @@ const TEST_CASE_ID = "20bbb666-79d1-4a50-8b23-4442be8b615e";
  * These tests test the interaction of the working set and merge dialog outcomes. It mocks the GraphQL execution and
  * the merge dialog and draws data from the prepared JSON scenarios
  */
-describe("WorkingSet Merge", function () {
+describe.skip("WorkingSet Merge", function () {
 
     let inputSchema, format;
     before(() => {

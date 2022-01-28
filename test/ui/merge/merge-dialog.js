@@ -28,7 +28,7 @@ import { openDialog } from "../../../src";
 
 const TEST_CASE_ID = "20bbb666-79d1-4a50-8b23-4442be8b615e";
 
-describe("<ChangeConflictDialog/>", function () {
+describe.skip("<ChangeConflictDialog/>", function () {
 
     let inputSchema, wireFormat;
 

@@ -14,7 +14,7 @@ import { INPUT_OBJECT, LIST } from "domainql-form/lib/kind";
 /**
  * These tests test the generation of entity changes from observed changes with observable graphs
  */
-describe("WorkingSet", function () {
+describe.skip("WorkingSet", function () {
 
     let inputSchema, format;
     before(() => {
