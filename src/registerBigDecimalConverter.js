@@ -106,7 +106,7 @@ function getPrecision(ctx, opts)
             p = metaPrecision
         }
 
-        if (p === null)
+        if (p == null) /* check for null AND undefined */
         {
             throw new Error(
                 "Could not find precision/scale for " + type + "." + path + ", " +
