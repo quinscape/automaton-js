@@ -1,9 +1,9 @@
-import { action, computed, makeObservable, observable, toJS } from "mobx"
+import { action, autorun, computed, makeObservable, observable, reaction, toJS } from "mobx"
 import { computedFn } from "mobx-utils"
 
 import config from "./config";
 import GraphQLQuery from "./GraphQLQuery";
-import { getInputTypeName } from "./util/type-utils";
+import { getFields, getInputTypeName, unwrapNonNull } from "./util/type-utils";
 import extractTypeData from "./extractTypeData";
 import equalsScalar from "./util/equalsScalar";
 import MergePlan from "./merge/MergePlan";
@@ -19,7 +19,8 @@ import { getWireFormat } from "./domain";
 import { SCALAR } from "domainql-form/lib/kind";
 import { MergeOperation } from "./merge/MergeOperation";
 import { openDialog } from "./util/openDialog";
-
+import { getCurrentProcess } from "./process/Process";
+import toJSEveryThing from "./util/toJSEveryThing";
 
 const LIST_OF_DOMAIN_OBJECTS_TYPE = "[DomainObject]";
 
@@ -38,6 +39,11 @@ const GENERIC_SCALAR_REF = {
     name: "GenericScalar"
 };
 
+
+function mapEntryToDomainObject(entry)
+{
+    return entry.domainObject
+}
 
 export function convertConflicts(inputConflicts, fromWire)
 {
@@ -110,10 +116,32 @@ function changeKey(type, id)
 }
 
 
+/**
+ * Enum for the status of an entity registration
+ * 
+ * @readonly
+ * @enum {string}
+ */
 export const WorkingSetStatus = {
+    /**
+     * Object is registered as a new object
+     * @member {string}
+     */
     NEW: "NEW",
+    /**
+     * Object is pre-existing and modified.
+     * @member {string}
+     */
     MODIFIED: "MODIFIED",
+    /**
+     * Object is marked as deleted.
+     * @member {string}
+     */
     DELETED: "DELETED",
+    /**
+     * Base version for the object is registered, but no changes.
+     * @member {string}
+     */
     REGISTERED: "REGISTERED"
 };
 
@@ -123,6 +151,13 @@ const secret = Symbol("WorkingSetSecret");
 
 
 /**
+ * @typedef GenericScalar
+ * @type {object}
+ * @property {String} type      scalar type
+ * @property {*} value          value
+ */
+
+/**
  * Entry for a deleted domain object
  *
  * @typedef WorkingSetDeletion
@@ -130,7 +165,13 @@ const secret = Symbol("WorkingSetSecret");
  * @property {String} type                      type name
  * @property {{type: String, value: *}} id      id value as generic scalar
  */
-function mapEntryToDomainObject(entry)
+
+/**
+ * 
+ * @param {EntityRegistration} entry
+ * @return {object}
+ */
+function mapEntityRegistrationToDomainObject(entry)
 {
     return entry.domainObject;
 }
@@ -157,20 +198,21 @@ function extractTypeDataFromObjects(changes)
 /**
  * Returns the current new objects, optionally filtered by type
  *
- * @param {Map} changes
+ * @param {Map} registrations
  * @param {String} [type]   optional type
  */
-const getNewObjects = computedFn((changes, type) => {
-    return [...changes.values()]
+const getNewObjects = computedFn((registrations, type) => {
+    return [...registrations.values()]
         .filter(entry => entry.status === WorkingSetStatus.NEW && (!type || entry.domainObject._type === type))
-        .map(mapEntryToDomainObject);
+        .map(mapEntityRegistrationToDomainObject);
 });
 
 const DEFAULT_MERGE_CONFIG = {
     typeConfigs: [],
     allowDiscard: true,
     allowApply: true,
-    logMergeScenarios: __DEV
+    logMergeScenarios: __DEV,
+    reactionTimeout: 250
 };
 
 
@@ -188,43 +230,25 @@ function findChange(changes, typeName, id)
 }
 
 
-function getFieldChangesForObject(status, domainObject, bases, mergePlan)
+function getChangesForNewObject(domainObject, mergePlan)
 {
-    //console.log({ status, domainObject: toJS(domainObject) });
-    const changes = [];
+    const { _type: typeName } = domainObject;
 
+    const fieldChanges = [];
 
-    if (status === WorkingSetStatus.DELETED || status === WorkingSetStatus.REGISTERED)
-    {
-        // no changes
-        return changes;
-    }
+    const { scalarFields, groupFields } = mergePlan.getInfo(typeName);
 
-    const isNew = status === WorkingSetStatus.NEW;
-
-    const {_type: typeName, id, version = null} = domainObject;
-
-    const key = changeKey(typeName, id);
-    const base = bases.get(key);
-
-    const changesForEntity = [];
-
-    const {scalarFields, groupFields} = mergePlan.getInfo(typeName);
-
-    let addGroup = false;
     for (let i = 0; i < groupFields.length; i++)
     {
         const fieldsOfGroup = groupFields[i];
 
-        const changesForGroup = [];
         for (let j = 0; j < fieldsOfGroup.length; j++)
         {
             const {name, type} = fieldsOfGroup[j];
 
-            const baseValue = base && base[name];
             const currValue = domainObject[name];
 
-            changesForGroup.push({
+            fieldChanges.push({
                 field: name,
                 value: {
                     type,
@@ -232,15 +256,6 @@ function getFieldChangesForObject(status, domainObject, bases, mergePlan)
                 }
             });
 
-            if (isNew || !equalsScalar(type, baseValue, currValue))
-            {
-                addGroup = true;
-            }
-        }
-
-        if (addGroup)
-        {
-            changesForEntity.push(...changesForGroup);
         }
     }
 
@@ -254,302 +269,177 @@ function getFieldChangesForObject(status, domainObject, bases, mergePlan)
         //      Use null in that case
         if (currValue !== undefined)
         {
-            if (isNew)
-            {
-                changesForEntity.push({
-                    field: name,
-                    value: {
-                        type,
-                        value: currValue
-                    }
-                });
-            }
-            else
-            {
-                const baseValue = base[name];
-                if (!equalsScalar(type, baseValue, currValue))
-                {
-                    changesForEntity.push({
-                        field: name,
-                        value: {
-                            type,
-                            value: currValue
-                        }
-                    });
+            fieldChanges.push({
+                field: name,
+                value: {
+                    type,
+                    value: currValue
                 }
-            }
+            });
         }
     }
-
-    const {idType} = mergePlan.getInfo(typeName);
-
-    /**
-     * We record a change for the entity only if we have field changes
-     */
-    if (changesForEntity.length)
-    {
-        changes.push({
-            id: {
-                type: idType,
-                value: id
-            },
-            version,
-            type: typeName,
-            changes: changesForEntity,
-            new: isNew
-        })
-    }
-
-    return changes;
+    
+    return fieldChanges;
 }
 
-function hasFieldChanges(status, domainObject, bases, mergePlan)
-{
-
-    if (status === WorkingSetStatus.DELETED || status === WorkingSetStatus.REGISTERED)
-    {
-        // no changes
-        return false;
-    }
-
-    const isNew = status === WorkingSetStatus.NEW;
-
-    const {_type: typeName, id } = domainObject;
-
-    const key = changeKey(typeName, id);
-    const base = bases.get(key);
-
-    const {scalarFields, groupFields} = mergePlan.getInfo(typeName);
-
-    for (let i = 0; i < groupFields.length; i++)
-    {
-        const fieldsOfGroup = groupFields[i];
-
-        for (let j = 0; j < fieldsOfGroup.length; j++)
-        {
-            const {name, type} = fieldsOfGroup[j];
-
-            const baseValue = base && base[name];
-            const currValue = domainObject[name];
-
-            if (isNew || !equalsScalar(type, baseValue, currValue))
-            {
-                return true;
-            }
-        }
-    }
-
-    for (let i = 0; i < scalarFields.length; i++)
-    {
-        const {name, type} = scalarFields[i];
-
-        const currValue = domainObject[name];
-
-        if (currValue !== undefined)
-        {
-            if (isNew)
-            {
-                return true;
-            }
-            else
-            {
-                const baseValue = base[name];
-                if (!equalsScalar(type, baseValue, currValue))
-                {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
 
 /**
  * Gets the changes to scalar
  *
- * @param {Map} changesMap          map of current objects keyed by change key ("<type>:<id>")
- * @param {Map} bases               map with registered base objects by change key
+ * @param {Map} registrations       map of registrations keyed by change key ("<type>:<id>")
  * @param {MergePlan} mergePlan     merge plan instance
  *
  * @returns {Array<Object>} Array of changes ( typed "EntityChange" in GraphQL)
  */
-function getFieldChanges(changesMap, bases, mergePlan)
+function getFieldChanges(registrations, mergePlan)
 {
-    let changes = [];
+    let out = [];
 
-    for (let entry of changesMap.values())
+    for (let entry of registrations.values())
     {
-        const { domainObject, status } = entry;
+        const { changes, domainObject, typeName } = entry;
 
-        changes = changes.concat(getFieldChangesForObject(status, domainObject, bases, mergePlan));
+        const isNew = changes.status === WorkingSetStatus.NEW;
+        let fieldChanges
+        if (isNew)
+        {
+            fieldChanges = getChangesForNewObject(entry.domainObject, mergePlan)
+        }
+        else if (changes.size)
+        {
+            fieldChanges = []
+            for (let [field, value] of changes)
+            {
+                fieldChanges.push({
+                    field,
+                    value
+                });
+            }
+        }
+
+        if (fieldChanges)
+        {
+            const { idType } = mergePlan.getInfo(typeName);
+
+            out.push({
+                changes: fieldChanges,
+                id: {
+                    type: idType,
+                    value: domainObject.id
+                },
+                version: domainObject.version,
+                type: typeName,
+                new: isNew
+            })
+        }
     }
 
-    return changes;
+    return out;
 }
 
 
 /**
- * Adds changes for many-to-many fields to the given list of changes.
+ * Returns the changes for many-to-many fields resulting from the changes contained in the given registrations map.
  *
- * @param {Array<Object>} changesAndDeletions   list of existing changes
- * @param {Map} changesMap                      map of current objects keyed by change key ("<type>:<id>")
+ * @param {Map} registrations                      map of current objects keyed by change key ("<type>:<id>")
  * @param {MergePlan} mergePlan                 merge plan instance
  */
-function getManyToManyChanges(changesAndDeletions, changesMap, mergePlan)
+function getManyToManyChanges(registrations, mergePlan)
 {
-    const manyToManyLookup = new Map();
-    const manyToManyChanges = [];
-
-    for (let i = 0; i < changesAndDeletions.length; i++)
+    let manyToManyChanges = []
+    let manyToManyDeletions = []
+    for (let registration of registrations.values())
     {
-        const change = changesAndDeletions[i];
+        const { base, domainObject, typeName } = registration;
+        const { embedded } = mergePlan.getInfo(typeName);
+        const { idType } = mergePlan.getInfo(typeName);
 
-        const linkTypes = mergePlan.linkTypes.get(change.type);
-        // is the change or deletion for a link type representing a many-to-many relation?
-        if (linkTypes)
+        for (let i = 0; i < embedded.length; i++)
         {
-            // get the full object for the change
-            const { domainObject: linkInstance } = changesMap.get(changeKey(change.type, change.id.value))
-
-            for (let j = 0; j < linkTypes.length; j++)
+            const entry = embedded[i]
+            if (entry.isManyToMany)
             {
-                const { targetType, relation } = linkTypes[j];
+                const {
+                    name: linkFieldName,
+                    leftSideRelation,
+                    rightSideRelation
+                } = entry;
 
-                const prefix = targetType + ":";
+                const otherRelation = leftSideRelation.targetType !== typeName ? leftSideRelation : rightSideRelation
 
-                for (let [key, { domainObject, status }] of changesMap.entries())
+                //console.log("otherRelation", otherRelation)
+
+                const linkedA = base[linkFieldName];
+                const linkedB = domainObject[linkFieldName];
+                const idField = otherRelation.sourceFields[0];
+
+                // delete all A not found in B
+                for (let j = 0; j < linkedA.length; j++)
                 {
-                    let associatedObjects;
-                    const manyToManyField = relation.rightSideObjectName;
-                    if (
-                        // if the object is of the target type
-                        key.indexOf(prefix) === 0 &&
-                        // and has an actual change
-                        status !== WorkingSetStatus.REGISTERED &&
-                        // the many-to-many field was selected
-                        (associatedObjects = domainObject[manyToManyField]) &&
-                        // and the id matches our linked id
-                        domainObject.id === linkInstance[relation.sourceFields[0]]
-                    )
+                    const linkA = linkedA[j];
+
+                    let found = false;
+                    for (let k = 0; k < linkedB.length; k++)
                     {
-                        let set = manyToManyLookup.get(key);
-                        if (!set)
+                        const linkB = linkedB[k];
+
+                        if (linkA[idField] === linkB[idField])
                         {
-                            set = new Set();
-                            manyToManyLookup.set(key, set);
-                        }
-
-                        set.add(manyToManyField);
-                    }
-                }
-            }
-        }
-    }
-
-    for (let [key, fields] of manyToManyLookup)
-    {
-        // get the full object for the change
-        const { domainObject } = changesMap.get(key)
-
-        for (let manyToManyField of fields)
-        {
-            const targetTypeName = domainObject._type;
-            const linkField = findManyToManyObjectName(mergePlan, targetTypeName, manyToManyField);
-            if (linkField)
-            {
-
-                // generate an additional change for the manyToManyField.
-                const fieldChange = {
-                    field: manyToManyField,
-                    value: {
-                        type: LIST_OF_DOMAIN_OBJECTS_TYPE,
-                        // We represent the value of a many to many fields as a simplified list of associated values
-                        // from the other side of the many to many relation.
-                        value: domainObject[manyToManyField].map(o => o[linkField])
-                    }
-                };
-
-                const existing = findChange(changesAndDeletions, targetTypeName, domainObject.id);
-                if (existing)
-                {
-                    existing.changes.push(fieldChange);
-                }
-                else
-                {
-                    const { idType } = mergePlan.getInfo(targetTypeName);
-
-                    manyToManyChanges.push({
-                        id: {
-                            type: idType,
-                            value: domainObject.id
-                        },
-                        version: domainObject.version,
-                        type: targetTypeName,
-                        changes: [fieldChange],
-                        new: false
-                    })
-                }
-            }
-
-        }
-    }
-
-    return manyToManyChanges;
-}
-
-
-/**
- * Checks for virtual many-to-many changes relating to a single entity
- *
- * @param {String} entityType       Domain type
- * @param {*} entityId              entity id
- * @param {Map} changesMap          map of current objects keyed by change key ("<type>:<id>")
- * @param {MergePlan} mergePlan     merge plan instance
- */
-function hasManyToManyChanges(entityType, entityId, changesMap, mergePlan)
-{
-    for (let entry of changesMap.values())
-    {
-        const { status, domainObject: linkInstance } = entry;
-
-        // the only changes that lead to virtual many-to-many changes on the connected entity are NEW and DELETE operations
-        // on the link type, just changing potential fields within the link changes nothing for the connected entity.
-        if (status === WorkingSetStatus.NEW || status === WorkingSetStatus.DELETED)
-        {
-            const linkTypes = mergePlan.linkTypes.get(linkInstance._type);
-            if (linkTypes)
-            {
-                for (let j = 0; j < linkTypes.length; j++)
-                {
-                    const { targetType, relation } = linkTypes[j];
-
-                    const prefix = targetType + ":";
-
-                    for (let [key, { domainObject, status }] of changesMap.entries())
-                    {
-                        let associatedObjects;
-                        const manyToManyField = relation.rightSideObjectName;
-                        if (
-                            // if the object is of the target type
-                            key.indexOf(prefix) === 0 &&
-                            // and has an actual change
-                            status !== WorkingSetStatus.REGISTERED &&
-                            // the many-to-many field was selected
-                            (associatedObjects = domainObject[manyToManyField]) &&
-                            // and the type matches our type
-                            entityType === relation.targetType &&
-                            // and the id matches our id
-                            domainObject.id === linkInstance[relation.sourceFields[0]]
-                        )
-                        {
-                            return true;
+                            found = true
+                            break
                         }
                     }
+                    if (!found)
+                    {
+
+                        const {_type: type, version, id} = linkA
+
+                        manyToManyDeletions.push({
+                            type,
+                            version,
+                            id: {
+                                type: idType,
+                                value: id
+                            }
+                        })
+                    }
+                }
+
+                // create all B that were not present in A
+                for (let j = 0; j < linkedB.length; j++)
+                {
+                    const linkB = linkedB[j];
+
+                    let found = false;
+                    for (let k = 0; k < linkedA.length; k++)
+                    {
+                        const linkA = linkedA[k];
+
+                        if (linkB[idField] === linkA[idField])
+                        {
+                            found = true
+                            break
+                        }
+                    }
+                    if (!found)
+                    {
+
+                        manyToManyChanges.push({
+                            changes: getChangesForNewObject(linkB, mergePlan),
+                            id: {
+                                type: idType,
+                                value: domainObject.id
+                            },
+                            version: null,
+                            type: otherRelation.sourceType,
+                            new: true
+                        })
+                    }
                 }
             }
         }
     }
-    return false;
+    return { manyToManyChanges, manyToManyDeletions }
 }
 
 function findManyToManyObjectName(mergePlan, type, name)
@@ -579,16 +469,16 @@ function findManyToManyObjectName(mergePlan, type, name)
  *
  * @param mergePlan
  * @param result
- * @param changesMap
+ * @param registrations
  */
-function prepareMergeConflicts(mergePlan, result, changesMap)
+function prepareMergeConflicts(mergePlan, result, registrations)
 {
     result.conflicts.forEach(c => {
 
         const { type, id, fields } = c;
 
         const key = changeKey(type, id.value);
-        const { domainObject, status } = changesMap.get(key)
+        const { domainObject, status } = registrations.get(key)
 
         if (status === WorkingSetStatus.NEW || status === WorkingSetStatus.MODIFIED)
         {
@@ -660,6 +550,428 @@ const CHANGE_TO_JS_OPTS = {
 };
 
 
+function linkedObjectEquality(valueA, valueB)
+{
+    if (valueA === null)
+    {
+        return valueB === null
+    }
+    if (valueB === null)
+    {
+        // we just checked that valueA is not null
+        return false
+    }
+    if (valueA.length !== valueB.length)
+    {
+        return false
+    }
+
+    for (let i = 0; i < valueA.length; i++)
+    {
+        if (valueA[i].id !== valueB[i].id)
+        {
+            return false
+        }
+    }
+    return true;
+}
+
+
+function checkUpdateEquality(registration, a,b)
+{
+    if (a.length !== b.length)
+    {
+        return false;
+    }
+
+    for (let i = 0; i < a.length; i += 3)
+    {
+        const scalarType = a[i + 1]
+
+        const nameA = a[i];
+        const nameB = b[i];
+        const valueA = a[i + 2];
+        const valueB = b[i + 2];
+
+        if (nameA !== nameB)
+        {
+            return false
+        }
+        // we have to special case the artificial changes we produce for many-to-many changes
+        else if (scalarType === LIST_OF_DOMAIN_OBJECTS_TYPE)
+        {
+            return linkedObjectEquality(valueA, valueB)
+        }
+        else if (!equalsScalar(scalarType, valueA, valueB))
+        {
+            return false
+        }
+    }
+    return true
+}
+
+
+function compareLinkObjects(a, b)
+{
+    if (a.length !== b.length)
+    {
+        return false;
+    }
+
+    for (let i = 0; i < a.length; i++)
+    {
+        const id = a[i].id;
+        let found = false
+        for (let j = 0; j < b.length; j++)
+        {
+            if (id === b[j].id)
+            {
+                found = true
+                break;
+            }
+        }
+        if (!found)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+/**
+ * A registration for single entity instance identified by a type/id tuple. Encapsulates the status, the observable
+ * object for the entity and the JS base version of that entity.
+ */
+class EntityRegistration
+{
+    /**
+     * Observable object for this entity registration. Type and id must match that of the registration.
+     *
+     * @type {object}
+     */
+    _domainObject = null
+
+    /**
+     * Status of this entry
+     * @type {WorkingSetStatus}
+     */
+    status = WorkingSetStatus.REGISTERED
+
+    /**
+     * Base version for this entity registration. (non-observable js-object)
+     *
+     * @type {object}
+     */
+    base = null
+
+    dispose = null;
+
+    /**
+     *
+     * @type {WorkingSet}
+     */
+    workingSet = null;
+
+    /**
+     * Incrementally updated map of changes collected via a reaction
+     * @type {Map<String,GenericScalar>}
+     */
+    changes = observable.map()
+
+    key
+    typeName
+    id
+
+    constructor(workingSet, domainObject, base, status = WorkingSetStatus.REGISTERED)
+    {
+        this.typeName = base ? base._type : domainObject._type
+        this.id = base ? base.id : domainObject.id
+
+        const typeDef = config.inputSchema.getType(this.typeName);
+        if (!typeDef)
+        {
+            throw new Error("Could not find type '" + this.typeName + "'")
+        }
+
+        this.key = changeKey(this.typeName, this.id)
+
+        //console.log("Create EntityRegistration", this.key , {workingSet, domainObject, base, status})
+
+        this.workingSet = workingSet
+        this.domainObject = domainObject
+        this.base = base
+        this.status = status
+    }
+
+    get domainObject()
+    {
+        return this._domainObject
+    }
+
+    set domainObject(domainObject)
+    {
+        this._domainObject = domainObject
+
+        // if we have registered a reaction, we need to redo that with the new object
+        if (this.registered)
+        {
+            this.unregisterReaction()
+            this.registerReaction()
+        }
+
+    }
+
+    _updateChanges = action("_updateChanges", updates => {
+
+        //console.log("UPDATES", updates)
+
+        for (let i = 0; i < updates.length; i += 3)
+        {
+            const name = updates[i];
+            const type = updates[i + 1];
+            const value = updates[i + 2];
+
+            if (value === null)
+            {
+                //console.log("Delete change for", name)
+
+                this.changes.delete(name)
+            }
+            else
+            {
+                const entry = this.changes.get(name)
+                if (entry)
+                {
+                    //console.log("Update change for ", name, " to ", value)
+
+                    entry.type = type
+                    entry.value = value
+                }
+                else
+                {
+                    //console.log("Create change for ", name, ": ", value)
+
+                    this.changes.set(name, { type, value })
+                }
+            }
+        }
+    })
+
+    get registered()
+    {
+        return !!this.dispose
+    }
+
+    registerReaction()
+    {
+        //console.log("registerReaction", this.key, "domainObject #",FormContext.getUniqueId(this.domainObject))
+
+        if (this.dispose)
+        {
+            throw new Error("Reaction already registered")
+        }
+        const { workingSet } = this
+
+        this.dispose = reaction(
+            () => this.recalculateChanges(),
+            changes => this._updateChanges(changes),
+            {
+                name: "WS" + workingSet.id + ":" + this.key,
+                equals: (a,b) => checkUpdateEquality(this,a,b),
+                delay: workingSet.mergeConfig.reactionTimeout
+            }
+        )
+
+    }
+    unregisterReaction()
+    {
+        if (!this.dispose)
+        {
+            throw new Error("Reaction already unregistered")
+        }
+
+        const { dispose } = this
+
+        if (typeof dispose === "function")
+        {
+            dispose();
+        }
+        this.dispose = null
+    }
+
+
+    /**
+     * Reaction method that gets executed whenever the domain object registered with the association changes
+     */
+    recalculateChanges()
+    {
+        const { domainObject } = this;
+        //console.log("_updateFieldChanges", this.key, toJS(domainObject))
+
+        if (status === WorkingSetStatus.DELETED || status === WorkingSetStatus.REGISTERED || !domainObject)
+        {
+            // no changes
+            return [];
+        }
+        const updates = []
+        this.collectFieldUpdates(updates);
+        this.collectManyToManyUpdates(updates);
+
+        return updates
+
+    }
+
+
+    collectFieldUpdates(updates)
+    {
+        const { changes, domainObject, base, workingSet, typeName } = this;
+        const { mergePlan } = workingSet[secret];
+
+        const isNew = status === WorkingSetStatus.NEW;
+
+        const {scalarFields, groupFields} = mergePlan.getInfo(typeName);
+        let addGroup = false;
+        for (let i = 0; i < groupFields.length; i++)
+        {
+            const fieldsOfGroup = groupFields[i];
+
+            const changesForGroup = [];
+            for (let j = 0; j < fieldsOfGroup.length; j++)
+            {
+                const {name, type} = fieldsOfGroup[j];
+
+                const baseValue = base && base[name];
+                const currValue = domainObject[name];
+
+                changesForGroup.push(
+                    name,
+                    type,
+                    currValue
+                );
+
+                if (isNew || !equalsScalar(type, baseValue, currValue))
+                {
+                    addGroup = true;
+                }
+            }
+
+            if (addGroup)
+            {
+                updates.push(...changesForGroup)
+            }
+            else
+            {
+                for (let j = 0; j < changesForGroup.length; j += 3)
+                {
+                    const name = changesForGroup[j];
+                    if (changes.has(name))
+                    {
+                        updates.push(
+                            name,
+                            null,
+                            null
+                        )
+                    }
+                }
+            }
+        }
+
+        for (let i = 0; i < scalarFields.length; i++)
+        {
+            const {name, type} = scalarFields[i];
+
+            const currValue = domainObject[name];
+
+            // XXX: We ignore all undefined values so clearing a former existing value with undefined won't work.
+            //      Use null in that case
+
+            if (currValue !== undefined)
+            {
+                if (isNew)
+                {
+                    updates.push(
+                        name,
+                        type,
+                        currValue
+                    )
+                }
+                else
+                {
+                    const baseValue = base[name];
+                    if (equalsScalar(type, baseValue, currValue))
+                    {
+                        if (changes.has(name))
+                        {
+                            updates.push(
+                                name,
+                                null,
+                                null
+                            )
+                        }
+                    }
+                    else
+                    {
+                        updates.push(
+                            name,
+                            type,
+                            currValue
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+
+    collectManyToManyUpdates(updates)
+    {
+        const { domainObject, base, workingSet, typeName } = this;
+        const { mergePlan } = workingSet[secret];
+
+        const { embedded } = mergePlan.getInfo(typeName);
+
+        for (let i = 0; i < embedded.length; i++)
+        {
+            const entry = embedded[i];
+            if (entry.isManyToMany)
+            {
+                const {
+                    name: linkFieldName,
+                    leftSideRelation,
+                    rightSideRelation
+                } = entry;
+
+                const otherRelation = leftSideRelation.targetType !== typeName ? leftSideRelation : rightSideRelation
+
+                //console.log("otherRelation", otherRelation)
+
+                const linkArrayBase = base[linkFieldName];
+                const linkArray = domainObject[linkFieldName];
+
+                const idField = otherRelation.sourceFields[0];
+                if (!compareLinkObjects(linkArrayBase, linkArray, idField))
+                {
+                    updates.push(
+                        linkFieldName,
+                        LIST_OF_DOMAIN_OBJECTS_TYPE,
+                        linkArray.map(link => link[otherRelation.leftSideObjectName]),
+                    )
+                }
+                else
+                {
+                    updates.push(
+                        linkFieldName,
+                        LIST_OF_DOMAIN_OBJECTS_TYPE,
+                        null
+                    )
+                }
+            }
+        }
+    }
+}
+
+let counter = 0
 
 /**
  * Encapsulates a current set of changes to domain objects not yet persisted to the server-side.
@@ -668,15 +980,24 @@ export default class WorkingSet {
     _mergeQuery;
     _openDialog;
 
+    /**
+     * Counter id for this WorkingSet
+     * @type {number}
+     */
+    id;
 
     constructor(mergeConfig = null)
     {
+        //console.log("New WorkingSet", mergeConfig)
+
         this[secret] = {
-            changes: observable.map(),
-            bases: new Map(),
+            /**
+             * @type {Map<string,EntityRegistration>}
+             */
+            registrations: observable.map(),
             mergePlan: new MergePlan({
-                ...DEFAULT_MERGE_CONFIG,
-                ...mergeConfig
+                ... DEFAULT_MERGE_CONFIG,
+                ... mergeConfig
             })
         }
 
@@ -686,55 +1007,71 @@ export default class WorkingSet {
 
         makeObservable(this)
 
+        const currentProcess = getCurrentProcess();
+
+        const workingSetName = "WorkingSet #" + (counter++) + " (" + currentProcess.name + ")";
+
+        currentProcess.addProcessEffect(() => {
+
+            //console.log("Registering", workingSetName)
+
+            const { registrations } = this[secret]
+
+            for (let entry of registrations.values())
+            {
+                //console.log("ENTRY", entry)
+
+                if (!entry.registered)
+                {
+                    entry.registerReaction()
+                }
+            }
+            return () => {
+
+                //console.log("Unregistering", workingSetName)
+
+                const { registrations } = this[secret]
+
+                for (let entry of registrations.values())
+                {
+                    if (entry.registered)
+                    {
+                        entry.unregisterReaction()
+                    }
+                }
+            }
+
+        }, null)
+
+
         //console.log("MERGE-PLAN:", this[secret].mergePlan)
     }
 
+    get registrations()
+    {
+        return [ ... this[secret].registrations.values() ]
+    }
 
     static fromJS(data)
     {
-        const { bases, changes, mergeConfig } = data;
+        const { registrations, mergeConfig } = data;
 
         const wireFormat = getWireFormat();
 
         const ws = new WorkingSet(mergeConfig);
         const internal = ws[secret];
-
-        for (let key in bases)
+        
+        for (let key in registrations)
         {
-            if (bases.hasOwnProperty(key))
+            if (registrations.hasOwnProperty(key))
             {
-                const base = bases[key];
-                const { _type: typeName } = base;
-                const typeDef = config.inputSchema.getType(typeName);
-
-                if (!typeDef)
-                {
-                    throw new Error("Could not find type '" + typeName + "'")
-                }
-
-                const converted = wireFormat.convert(
-                    typeDef,
-                    base,
-                    BASE_FROM_JS_OPTS
-                );
-
-                internal.bases.set(key, converted);
-            }
-        }
-
-        for (let key in changes)
-        {
-            if (changes.hasOwnProperty(key))
-            {
-                const { status, domainObject: raw } = changes[key];
+                const { status, domainObject: raw, base, typeName } = registrations[key];
 
                 let domainObject = null;
+                let convertedBase = null;
                 if (raw)
                 {
-                    const { _type: typeName } = raw;
-
                     const typeDef = config.inputSchema.getType(typeName);
-
                     if (!typeDef)
                     {
                         throw new Error("Could not find type '" + typeName + "'")
@@ -745,14 +1082,21 @@ export default class WorkingSet {
                         raw,
                         true
                     );
+
+                    if (base)
+                    {
+                        convertedBase = wireFormat.convert(
+                            typeDef,
+                            base,
+                            BASE_FROM_JS_OPTS
+                        );
+                    }
                 }
 
-                internal.changes.set(
+
+                internal.registrations.set(
                     key,
-                    {
-                        status,
-                        domainObject
-                    }
+                    new EntityRegistration(ws, domainObject, convertedBase, status)
                 );
             }
         }
@@ -763,19 +1107,18 @@ export default class WorkingSet {
 
     toJS()
     {
-        const { changes, bases, mergePlan } = this[secret];
+        const { registrations, mergePlan } = this[secret];
         const wireFormat = getWireFormat();
 
-        const convertedChanges = {};
+        const convertedRegistrations = {};
 
-        for (let [key, entry] of changes)
+        for (let [key, entry] of registrations)
         {
-            const { status, domainObject } = entry;
+            const { status, domainObject, base, typeName } = entry;
 
             let converted = null;
             if (domainObject)
             {
-                const { _type: typeName } = domainObject;
                 const typeDef = config.inputSchema.getType(typeName);
 
                 converted = wireFormat.convert(
@@ -785,35 +1128,28 @@ export default class WorkingSet {
                 );
 
             }
-            convertedChanges[key] = {
+
+            let convertedBase = null
+            if (base)
+            {
+                const typeDef = config.inputSchema.getType(typeName);
+
+                convertedBase = wireFormat.convert(
+                    typeDef,
+                    base,
+                    BASE_TO_JS_OPTS
+                )
+            }
+
+            convertedRegistrations[key] = {
                 status,
                 domainObject: converted
             }
 
         }
 
-        const convertedBases = {};
-
-        for (let [key, base] of bases)
-        {
-            const { _type: typeName } = base;
-            const typeDef = config.inputSchema.getType(typeName);
-
-            if (!typeDef)
-            {
-                throw new Error("Could not find type '" + typeName + "': " + JSON.stringify(base));
-            }
-
-            convertedBases[key] = wireFormat.convert(
-                typeDef,
-                base,
-                BASE_TO_JS_OPTS
-            )
-        }
-
         return {
-            changes: convertedChanges,
-            bases: convertedBases,
+            registrations: convertedRegistrations,
             mergeConfig: {
                 ... mergePlan.mergeConfig,
                 // we don't want to print logs for already recorded scenarios in the tests
@@ -833,6 +1169,7 @@ export default class WorkingSet {
      * @param {boolean} [trackChanges]          if true (default), not only register the base version of the object, but also track the same
      *                                          object for changes
      */
+    @action
     registerBaseVersion(domainObject, followRelations = true, trackChanges = true)
     {
         const { _type, id } = domainObject;
@@ -844,31 +1181,30 @@ export default class WorkingSet {
 
         //console.log("REGISTER BASE", _type, id);
 
-        const { changes, bases } = this[secret];
+        const { registrations } = this[secret];
 
         const key = changeKey(_type, id);
 
-        const existing = changes.get(key);
+        const existing = registrations.get(key);
         if (!existing)
         {
 
-            changes.set(
+            const entityRegistration = new EntityRegistration(this, null, toJS(domainObject), WorkingSetStatus.REGISTERED);
+            registrations.set(
                 key,
-                {
-                    domainObject: null,
-                    status: WorkingSetStatus.REGISTERED
-                }
+                entityRegistration
             );
 
-            bases.set(
-                key,
-                toJS(domainObject)
-            );
+            entityRegistration.registerReaction()
 
-            if (followRelations)
-            {
-                this.registerRelations(domainObject);
-            }
+            // if (followRelations)
+            // {
+            //     this.registerRelations(domainObject);
+            // }
+        }
+        else
+        {
+            existing.base = toJS(domainObject)
         }
 
         if (trackChanges)
@@ -878,72 +1214,74 @@ export default class WorkingSet {
     }
 
 
-    registerRelations(domainObject)
-    {
-        const { mergePlan } = this[secret];
-        const { inputSchema } = config;
-
-        const { _type } = domainObject;
-
-        if ( !_type )
-        {
-            throw new Error("Not _type field: " + JSON.stringify(domainObject))
-        }
-
-        const { embedded } = mergePlan.getInfo(_type);
-
-        for (let i = 0; i < embedded.length; i++)
-        {
-            const { name, isManyToMany, linkTypeName } = embedded[i];
-
-            if (isManyToMany)
-            {
-
-                const elements = domainObject[name];
-
-                if (elements)
-                {
-                    for (let j = 0; j < elements.length; j++)
-                    {
-                        this.registerBaseVersion(
-                            elements[j],
-                            // we special case many-to-many handling here, so we don't want to follow relations for this object
-                            false,
-                            false
-                        );
-                    }
-
-                    // find relations originating from element type of the embedded list that do not point the type we're coming from
-                    const relations = inputSchema.getRelations().filter(r => r.sourceType === linkTypeName && r.targetType !== _type);
-
-                    for (let j = 0; j < relations.length; j++)
-                    {
-                        const { leftSideObjectName } = relations[j];
-                        if (leftSideObjectName)
-                        {
-                            for (let k = 0; k < elements.length; k++)
-                            {
-                                const element = elements[k];
-                                const leftSideObject = element[leftSideObjectName];
-                                if (leftSideObject && leftSideObject.id)
-                                {
-                                    this.registerBaseVersion(leftSideObject, true, false);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                const targetObj = domainObject[name];
-                if (targetObj && targetObj.id)
-                {
-                    this.registerBaseVersion(targetObj, true, false)
-                }
-            }
-        }
-    }
+    // XXX: something similar to this needs to be done if we want to selective follow marked relations according to some
+    //      domain meta config.
+    // registerRelations(domainObject)
+    // {
+    //     const { mergePlan } = this[secret];
+    //     const { inputSchema } = config;
+    //
+    //     const { _type } = domainObject;
+    //
+    //     if ( !_type )
+    //     {
+    //         throw new Error("Not _type field: " + JSON.stringify(domainObject))
+    //     }
+    //
+    //     const { embedded } = mergePlan.getInfo(_type);
+    //
+    //     for (let i = 0; i < embedded.length; i++)
+    //     {
+    //         const { name, isManyToMany, linkTypeName } = embedded[i];
+    //
+    //         if (isManyToMany)
+    //         {
+    //
+    //             const elements = domainObject[name];
+    //
+    //             if (elements)
+    //             {
+    //                 for (let j = 0; j < elements.length; j++)
+    //                 {
+    //                     this.registerBaseVersion(
+    //                         elements[j],
+    //                         // we special case many-to-many handling here, so we don't want to follow relations for this object
+    //                         false,
+    //                         false
+    //                     );
+    //                 }
+    //
+    //                 // find relations originating from element type of the embedded list that do not point the type we're coming from
+    //                 const relations = inputSchema.getRelations().filter(r => r.sourceType === linkTypeName && r.targetType !== _type);
+    //
+    //                 for (let j = 0; j < relations.length; j++)
+    //                 {
+    //                     const { leftSideObjectName } = relations[j];
+    //                     if (leftSideObjectName)
+    //                     {
+    //                         for (let k = 0; k < elements.length; k++)
+    //                         {
+    //                             const element = elements[k];
+    //                             const leftSideObject = element[leftSideObjectName];
+    //                             if (leftSideObject && leftSideObject.id)
+    //                             {
+    //                                 this.registerBaseVersion(leftSideObject, true, false);
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         else
+    //         {
+    //             const targetObj = domainObject[name];
+    //             if (targetObj && targetObj.id)
+    //             {
+    //                 this.registerBaseVersion(targetObj, true, false)
+    //             }
+    //         }
+    //     }
+    // }
 
 
     /**
@@ -955,11 +1293,11 @@ export default class WorkingSet {
     addNew(domainObject)
     {
         const { _type, id } = domainObject;
-        const { changes, bases } = this[secret];
+        const { registrations } = this[secret];
 
         const key = changeKey(_type, id);
 
-        const existing = changes.get(key);
+        const existing = registrations.get(key);
         if (existing)
         {
             throw new Error(
@@ -967,20 +1305,12 @@ export default class WorkingSet {
             )
         }
 
-        changes.set(
+        registrations.set(
             key,
-            {
-                domainObject: domainObject,
-                status: WorkingSetStatus.NEW
-            }
+            new EntityRegistration(this, domainObject, null, WorkingSetStatus.NEW)
         );
 
-        bases.set(
-            key,
-            null
-        );
-
-        this.addRelationChanges(domainObject);
+        //this.addRelationChanges(domainObject);
     }
 
 
@@ -996,11 +1326,14 @@ export default class WorkingSet {
     addChanges(domainObject, followRelations = true, allowUnregistered = false)
     {
         const { _type, id } = domainObject;
-        const { changes, bases } = this[secret];
+
+        //console.log("addChanges", _type, id, "domainObject #",FormContext.getUniqueId(domainObject))
+
+        const { registrations } = this[secret];
 
         const key = changeKey(_type, id);
 
-        const existing = changes.get(key);
+        const existing = registrations.get(key);
 
         if (!existing)
         {
@@ -1008,7 +1341,7 @@ export default class WorkingSet {
             {
                 if (!domainObject._type)
                 {
-                    throw new Error("Implicit new object lacks _type property. You set allowUnregistered to the missing type.")
+                    throw new Error("Implicit new object lacks _type property.")
                 }
 
                 this.addNew(domainObject);
@@ -1025,8 +1358,8 @@ export default class WorkingSet {
 
         if (existing.status === WorkingSetStatus.NEW)
         {
-            bases.set(key, toJS(domainObject));
             existing.domainObject = domainObject;
+            existing.base = toJS(domainObject);
         }
         else
         {
@@ -1035,114 +1368,114 @@ export default class WorkingSet {
             existing.domainObject = domainObject;
         }
 
-        if (followRelations)
-        {
-            this.addRelationChanges(domainObject);
-        }
+        // if (followRelations)
+        // {
+        //     this.addRelationChanges(domainObject);
+        // }
     }
 
 
-    addRelationChanges(domainObject)
-    {
-        const { mergePlan } = this[secret];
-        const { inputSchema } = config;
-
-        const { _type, id } = domainObject;
-
-        const key = changeKey(_type, id);
-        const base = this[secret].bases.get(key);
-
-        const { embedded } = mergePlan.getInfo(_type);
-
-        for (let i = 0; i < embedded.length; i++)
-        {
-            const { name, isManyToMany, linkTypeName } = embedded[i];
-
-            // our assumptions for many-to-many and *-to-one relations are exactly the opposite
-            // We never update the link objects for a many-to-many relation. Either the link exists and
-            // we delete it or it doesn't and we create it.
-
-            if (isManyToMany)
-            {
-                // So if we encounter unknown objects when following a many-to-many relation it means
-                // that that object is new
-
-                const elements = domainObject[name];
-
-                const baseElements = base && base[name];
-                if (baseElements)
-                {
-                    for (let j = 0; j < baseElements.length; j++)
-                    {
-                        const baseElement = baseElements[j];
-
-                        if (!elements || !elements.find(e => e.id === baseElement.id))
-                        {
-                            this.markDeleted(baseElement);
-                        }
-                    }
-                }
-
-                if (elements)
-                {
-                    for (let j = 0; j < elements.length; j++)
-                    {
-                        this.addChanges(
-                            elements[j],
-                            // we special case many-to-many handling here, so we don't want to follow relations for this object
-                            false,
-                            true
-                        );
-                    }
-
-                    // find relations originating from element type of the embedded list that do not point the type we're coming from
-                    const relations = inputSchema.getRelations().filter(r => r.sourceType === linkTypeName && r.targetType !== _type);
-
-                    for (let j = 0; j < relations.length; j++)
-                    {
-                        const { leftSideObjectName, targetType } = relations[j];
-                        if (leftSideObjectName)
-                        {
-                            for (let k = 0; k < elements.length; k++)
-                            {
-                                const element = elements[k];
-                                const leftSideObject = element[leftSideObjectName];
-                                if (leftSideObject && leftSideObject.id)
-                                {
-                                    this.addChanges(leftSideObject, true, true);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // if we find a new object following a *-to-one relation we assume that the object is newly assigned
-                // and we register it as base version.
-                //
-                // Make sure to mark new objects connected by a *-to-one relation as new.
-
-                const targetObj = domainObject[name];
-                if (targetObj && targetObj.id)
-                {
-                    const { _type, id } = targetObj;
-                    const { changes } = this[secret];
-
-                    const key = changeKey(_type, id);
-                    const existing = changes.get(key);
-                    if (!existing)
-                    {
-                        this.registerBaseVersion(targetObj, true, false);
-                    }
-                    else if (existing.status !== WorkingSetStatus.REGISTERED)
-                    {
-                        this.addChanges(targetObj, true, true)
-                    }
-                }
-            }
-        }
-    }
+    // addRelationChanges(domainObject)
+    // {
+    //     const { mergePlan } = this[secret];
+    //     const { inputSchema } = config;
+    //
+    //     const { _type, id } = domainObject;
+    //
+    //     const key = changeKey(_type, id);
+    //     const { base } = this[secret].registrations.get(key);
+    //
+    //     const { embedded } = mergePlan.getInfo(_type);
+    //
+    //     for (let i = 0; i < embedded.length; i++)
+    //     {
+    //         const { name, isManyToMany, linkTypeName } = embedded[i];
+    //
+    //         // our assumptions for many-to-many and *-to-one relations are exactly the opposite
+    //         // We never update the link objects for a many-to-many relation. Either the link exists and
+    //         // we delete it or it doesn't and we create it.
+    //
+    //         if (isManyToMany)
+    //         {
+    //             // So if we encounter unknown objects when following a many-to-many relation it means
+    //             // that that object is new
+    //
+    //             const elements = domainObject[name];
+    //
+    //             const baseElements = base && base[name];
+    //             if (baseElements)
+    //             {
+    //                 for (let j = 0; j < baseElements.length; j++)
+    //                 {
+    //                     const baseElement = baseElements[j];
+    //
+    //                     if (!elements || !elements.find(e => e.id === baseElement.id))
+    //                     {
+    //                         this.markDeleted(baseElement);
+    //                     }
+    //                 }
+    //             }
+    //
+    //             if (elements)
+    //             {
+    //                 for (let j = 0; j < elements.length; j++)
+    //                 {
+    //                     this.addChanges(
+    //                         elements[j],
+    //                         // we special case many-to-many handling here, so we don't want to follow relations for this object
+    //                         false,
+    //                         true
+    //                     );
+    //                 }
+    //
+    //                 // find relations originating from element type of the embedded list that do not point the type we're coming from
+    //                 const relations = inputSchema.getRelations().filter(r => r.sourceType === linkTypeName && r.targetType !== _type);
+    //
+    //                 for (let j = 0; j < relations.length; j++)
+    //                 {
+    //                     const { leftSideObjectName, targetType } = relations[j];
+    //                     if (leftSideObjectName)
+    //                     {
+    //                         for (let k = 0; k < elements.length; k++)
+    //                         {
+    //                             const element = elements[k];
+    //                             const leftSideObject = element[leftSideObjectName];
+    //                             if (leftSideObject && leftSideObject.id)
+    //                             {
+    //                                 this.addChanges(leftSideObject, true, true);
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         else
+    //         {
+    //             // if we find a new object following a *-to-one relation we assume that the object is newly assigned
+    //             // and we register it as base version.
+    //             //
+    //             // Make sure to mark new objects connected by a *-to-one relation as new.
+    //
+    //             const targetObj = domainObject[name];
+    //             if (targetObj && targetObj.id)
+    //             {
+    //                 const { _type, id } = targetObj;
+    //                 const { registrations } = this[secret];
+    //
+    //                 const key = changeKey(_type, id);
+    //                 const existing = registrations.get(key);
+    //                 if (!existing)
+    //                 {
+    //                     this.registerBaseVersion(targetObj, true, false);
+    //                 }
+    //                 else if (existing.status !== WorkingSetStatus.REGISTERED)
+    //                 {
+    //                     this.addChanges(targetObj, true, true)
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
 
     /**
@@ -1155,11 +1488,11 @@ export default class WorkingSet {
     markDeleted(domainObject)
     {
         const { _type, id, version } = domainObject;
-        const { changes } = this[secret];
+        const { registrations } = this[secret];
 
         const key = changeKey(_type, id);
 
-        const existing = changes.get(key);
+        const existing = registrations.get(key);
 
         if (existing && existing.status === WorkingSetStatus.NEW)
         {
@@ -1169,18 +1502,13 @@ export default class WorkingSet {
         else
         {
             // otherwise we mark it as deleted
-            changes.set(
+            registrations.set(
                 key,
-                {
-                    domainObject,
-                    status: WorkingSetStatus.DELETED
-                }
+                new EntityRegistration(this, domainObject, null, WorkingSetStatus.DELETED)
             );
 
-            // bases.set(
-            //     key,
-            //     toJS(domainObject)
-            // );
+            //XXX: not needed?
+            
             // this.registerRelations(domainObject);
         }
     }
@@ -1196,7 +1524,7 @@ export default class WorkingSet {
     {
         const { _type, id } = domainObject;
 
-        this[secret].changes.delete(
+        this[secret].registrations.delete(
             changeKey(_type, id)
         );
     }
@@ -1208,7 +1536,7 @@ export default class WorkingSet {
     @action
     clear()
     {
-        this[secret].changes.clear();
+        this[secret].registrations.clear();
     }
 
 
@@ -1221,15 +1549,12 @@ export default class WorkingSet {
         const { mergePlan } = this[secret];
         const defaultDiscard = () => {
 
-            const { changes, bases } = this[secret];
+            const { registrations } = this[secret];
 
-            for (let [key, entry] of changes)
+            for (let entry of registrations.values())
             {
-                const base = bases.get(key);
-
+                const { status, domainObject, base } = entry;
                 const { _type: domainType } = base;
-
-                const { status, domainObject } = entry;
 
                 if (status === WorkingSetStatus.REGISTERED)
                 {
@@ -1281,18 +1606,18 @@ export default class WorkingSet {
         const { mergePlan } = this[secret];
         const defaultApply = () => {
 
-            const { changes, bases } = this[secret];
+            const { registrations } = this[secret];
 
             for (let i = 0; i < resolutions.length; i++)
             {
                 const { type, id, fields, deleted, version } = resolutions[i];
                 const { fields: conflictFields } = conflicts[i];
 
-                const { domainObject } = changes.get(changeKey(type, id.value));
+                const registration = registrations.get(changeKey(type, id.value));
+                const { domainObject, base } = registration;
 
                 const { versionField } = config.mergeOptions;
 
-                const base = bases.get(changeKey(type, id.value));
 
                 domainObject[versionField] = version;
 
@@ -1327,7 +1652,7 @@ export default class WorkingSet {
                                     [versionField]: conflictFields[j].references[k].version,
                                     [leftSideRelation.sourceFields[0]]: id.value,
                                     [rightSideRelation.sourceFields[0]]: association.id,
-                                    [rightSideRelation.leftSideObjectName]: association
+                                    [rightSideRelation.leftSideObjectName]: toJS(association)
                                 }
                                 newLinks.push(newLink)
                             }
@@ -1364,14 +1689,13 @@ export default class WorkingSet {
                             [rightSideRelation.leftSideObjectName]: association
                         }))
 
-                        for (let [key, entry] of changes)
-                        {
-                            if (entry.status === WorkingSetStatus.DELETED && entry.domainObject[leftSideRelation.sourceFields[0]] === id.value)
-                            {
-                                base.delete(key);
-                            }
-                        }
-
+                        // for (let entry of registrations.values())
+                        // {
+                        //     if (entry.status === WorkingSetStatus.DELETED && entry.domainObject[leftSideRelation.sourceFields[0]] === id.value)
+                        //     {
+                        //         entry.base = null
+                        //     }
+                        // }
                     }
                     else
                     {
@@ -1379,17 +1703,17 @@ export default class WorkingSet {
                     }
                 }
 
-                if (changeInBaseEmbbed)
-                {
-                    this.registerRelations(base);
-                }
+                // if (changeInBaseEmbbed)
+                // {
+                //     this.registerRelations(base);
+                // }
+                //
+                // if (changeInEmbbed)
+                // {
+                //     this.addRelationChanges(domainObject);
+                // }
 
-                if (changeInEmbbed)
-                {
-                    this.addRelationChanges(domainObject);
-                }
-
-                //console.log("AFTER APPLY", toJS( { bases, changes }, RECURSE_EVERYTHING))
+                //console.log("AFTER APPLY", toJS( { bases, registrations }, RECURSE_EVERYTHING))
             }
         };
 
@@ -1406,16 +1730,17 @@ export default class WorkingSet {
 
 
     /**
-     * Looks up the currently stored observable for a given entity
+     * Looks up the registration for a given entity
      *
      * @param type      entity type name
      * @param id        entity id
      *
-     * @returns {{domainObject: object, status: String}} entry containing the registered observable and the current WorkingSetStatus
+     * @returns {EntityRegistration} entity registration for that entity
      */
     lookup(type, id)
     {
-        return this[secret].changes.get(changeKey(type, id));
+        const registrations = this[secret].registrations;
+        return registrations.get(changeKey(type, id));
     }
 
 
@@ -1431,35 +1756,31 @@ export default class WorkingSet {
     isModified(entity, id)
     {
         let type, entityId;
-
-        if (id !== undefined)
-        {
-            type = entity;
-            entityId = id;
-        }
-        else
+        if (entity && typeof entity === "object")
         {
             type = entity._type;
             entityId = entity.id;
         }
+        else
+        {
+            if (!id)
+            {
+                throw new Error("Need id. 'isModified' either takes an object as argument or a type/id tuple.")
+            }
+            type = entity;
+            entityId = id;
+        }
 
         const key = changeKey(type, entityId);
 
-        const { status, domainObject } = this[secret].changes.get(key)
+        const { status, changes } = this[secret].registrations.get(key)
 
         if (status === WorkingSetStatus.NEW)
         {
             return true;
         }
 
-        if (status !== WorkingSetStatus.MODIFIED)
-        {
-            return false;
-        }
-
-        const {changes: changesMap, bases, mergePlan} = this[secret];
-
-        return hasFieldChanges(status, domainObject, bases, mergePlan) || hasManyToManyChanges(type, entityId, changesMap, mergePlan);
+        return changes.size > 0
     }
 
     /**
@@ -1473,7 +1794,8 @@ export default class WorkingSet {
     lookupBase(type, id)
     {
 
-        return this[secret].bases.get(changeKey(type, id));
+        const entry = this[secret].registrations.get(changeKey(type, id));
+        return entry ? entry.base : null;
     }
 
 
@@ -1485,12 +1807,10 @@ export default class WorkingSet {
     @computed
     get changes()
     {
-        return [...this[secret].changes.values()]
+        return [...this[secret].registrations.values()]
             .filter(entry => entry.status !== WorkingSetStatus.DELETED)
-            .map(mapEntryToDomainObject);
+            .map(mapEntityRegistrationToDomainObject);
     }
-
-
     /**
      * Returns an array of new objects of the given type. if no type is given, all new objects are returned.
      *
@@ -1500,9 +1820,8 @@ export default class WorkingSet {
      */
     newObjects(type)
     {
-        return getNewObjects(this[secret].changes, type);
+        return getNewObjects(this[secret].registrations, type);
     }
-
 
     /**
      * Returns the registered deletions in this working set.
@@ -1512,15 +1831,23 @@ export default class WorkingSet {
     @computed
     get deletions()
     {
-        return [...this[secret].changes.values()]
+        return [...this[secret].registrations.values()]
             .filter(entry => entry.status === WorkingSetStatus.DELETED)
             .map(mapEntryToDomainObject);
     }
 
-
+    @computed
     get hasChanges()
     {
-        return this[secret].changes.size > 0;
+        const { registrations } = this[secret];
+        for (let registration of registrations.values())
+        {
+            if (registration.status === WorkingSetStatus.NEW || registration.changes.size > 0)
+            {
+                return true
+            }
+        }
+        return false;
     }
 
 
@@ -1532,9 +1859,9 @@ export default class WorkingSet {
     @action
     merge(attempt = 1)
     {
-        const {changes: changesMap, bases, mergePlan} = this[secret];
+        const { registrations, mergePlan } = this[secret];
 
-        this._updateRelationChanges();
+        //console.log("registrations", registrations)
 
         if (typeof mergePlan.mergeConfig.beforeMerge === "function")
         {
@@ -1544,7 +1871,8 @@ export default class WorkingSet {
             }
         }
 
-        let changes = getFieldChanges(changesMap, bases, mergePlan);
+        const changes = getFieldChanges(registrations, mergePlan)
+            .concat()
 
         const deletions = this.deletions.map(
             ({_type: type, version, id}) => ({
@@ -1557,21 +1885,15 @@ export default class WorkingSet {
             })
         );
 
-        const changesAndDeletions = [
-            ...changes,
-            ...deletions
-        ];
-
-        // second pass to add changes for many-to-many relations
-        changes = changes.concat(getManyToManyChanges(changesAndDeletions, changesMap, mergePlan));
+        const { manyToManyChanges, manyToManyDeletions } = getManyToManyChanges(registrations, mergePlan)
 
         const vars = {
             mergeConfig: mergePlan.mergeConfig,
-            changes: changes.filter(c => c.changes.length > 0),
-            deletions
+            changes: changes.concat(manyToManyChanges),
+            deletions: deletions.concat(manyToManyDeletions)
         };
 
-        //console.log("MERGE", { vars: toJS(vars, RECURSE_EVERYTHING), bases, associations } );
+        //console.log("MERGE", { vars: toJS(vars), associations } );
 
         return this._mergeQuery.execute(vars)
             .then(({ mergeWorkingSet: result }) => {
@@ -1585,15 +1907,15 @@ export default class WorkingSet {
                 }
                 else
                 {
-                    prepareMergeConflicts(mergePlan, result, changesMap);
+                    prepareMergeConflicts(mergePlan, result, registrations);
 
                     if (mergePlan.mergeConfig.logMergeScenarios)
                     {
-                        console.log("STARTING MERGE: scenario = ", toJS(
+                        console.info("STARTING MERGE: scenario = ", toJSEveryThing(
                             {
                                 conflicts: convertConflicts(result.conflicts, false),
                                 workingSet: this.toJS()
-                            }, RECURSE_EVERYTHING
+                            }
                         ));
                     }
 
@@ -1632,7 +1954,7 @@ export default class WorkingSet {
                             else if (operation === MergeOperation.STORE)
                             {
                                 this.apply(resolutions, result.conflicts)
-                                return this.merge(attempt + 1);
+                                return this.merge(attempt + 1)
                             }
                             else
                             {
@@ -1647,25 +1969,5 @@ export default class WorkingSet {
     {
         return this[secret].mergePlan.mergeConfig;
     }
-
-
-    _updateRelationChanges()
-    {
-        const {changes: changesMap} = this[secret];
-
-        for (let entry of changesMap.values())
-        {
-            const {domainObject, status} = entry;
-
-            if (status === WorkingSetStatus.DELETED || status === WorkingSetStatus.REGISTERED)
-            {
-                continue;
-            }
-
-            this.addRelationChanges(domainObject);
-        }
-
-    }
-
 }
 
