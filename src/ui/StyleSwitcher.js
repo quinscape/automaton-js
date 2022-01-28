@@ -14,7 +14,7 @@ const PREFERRED_STYLE = "_AUTO_PREFERRED_STYLE";
 
 function rememberStyle(style)
 {
-    Cookies.set(PREFERRED_STYLE, style, { expires: 365 });
+    Cookies.set(PREFERRED_STYLE, style, { expires: 365, sameSite: 'strict' });
 }
 
 
