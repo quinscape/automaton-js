@@ -43,7 +43,10 @@ CollapsiblePanel.propTypes = {
     /**
      * the header of the section and also the tooltip of the shortcut link
      */
-    header: PropTypes.string,
+    header: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.element
+    ]),
     /**
      * defines if the panel is initially collapsed or expanded
      */
