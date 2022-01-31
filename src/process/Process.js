@@ -126,16 +126,14 @@ function renderCurrentView()
                 <AutomatonEnv.Provider
                     value={ subProcessEnv }
                 >
-                    <StickySizesContext.Provider>
-                        <ShortcutContext.Provider
-                            value={ process.shortcutContext }
-                        >
-                            <SubProcessViewComponent env={ subProcessEnv }/>
-                            {
-                                dialogStack
-                            }
-                        </ShortcutContext.Provider>
-                    </StickySizesContext.Provider>
+                    <ShortcutContext.Provider
+                        value={ process.shortcutContext }
+                    >
+                        <SubProcessViewComponent env={ subProcessEnv }/>
+                        {
+                            dialogStack
+                        }
+                    </ShortcutContext.Provider>
                 </AutomatonEnv.Provider>
             </ProcessDialog>
         );
