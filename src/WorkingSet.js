@@ -1814,15 +1814,16 @@ export default class WorkingSet {
 
 
     /**
-     *  Returns the array of changed domain objects except for the deletions
+     *  Returns the array of changed domain objects except for the deletions. These are the objects with actual changes.
+     *  A changed object that has its changed changed back to the intial value is no longer changed.
      *
-     * @returns {Array<Object>} array with new or modified objects
+     * @returns {Array<Object>} array with changed objects
      */
     @computed
     get changes()
     {
         return [...this[secret].registrations.values()]
-            .filter(entry => entry.status !== WorkingSetStatus.DELETED)
+            .filter(entry => entry.status !== WorkingSetStatus.DELETED && entry.changes.size > 0)
             .map(mapEntityRegistrationToDomainObject);
     }
     /**
