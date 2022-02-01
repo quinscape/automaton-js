@@ -300,7 +300,9 @@ function getFieldChanges(registrations, mergePlan)
         // do final update to catch changes made in the current un-commited mobx transaction
         entry._updateChanges(entry.recalculateChanges())
 
-        const isNew = changes.status === WorkingSetStatus.NEW;
+        const { changes, domainObject, typeName, status } = entry;
+
+        const isNew = status === WorkingSetStatus.NEW;
         let fieldChanges
         if (isNew)
         {
@@ -370,8 +372,7 @@ function getManyToManyChanges(registrations, mergePlan)
 
                 //console.log("otherRelation", otherRelation)
 
-                const linkedA = base[linkFieldName];
-
+                const linkedA = base != null ? base[linkFieldName] : [];
                 if (linkedA === undefined)
                 {
                     // if we have a undefined base array, we just keep ignoring that property
@@ -814,14 +815,15 @@ class EntityRegistration
      */
     recalculateChanges()
     {
-        const { domainObject } = this;
+        const { domainObject, status } = this;
         //console.log("_updateFieldChanges", this.key, toJS(domainObject))
 
-        if (status === WorkingSetStatus.DELETED || status === WorkingSetStatus.REGISTERED || !domainObject)
+        if (status !== WorkingSetStatus.MODIFIED || !domainObject)
         {
             // no changes
             return [];
         }
+
         const updates = []
         this.collectFieldUpdates(updates);
         this.collectManyToManyUpdates(updates);
@@ -1824,7 +1826,7 @@ export default class WorkingSet {
     get changes()
     {
         return [...this[secret].registrations.values()]
-            .filter(entry => entry.status !== WorkingSetStatus.DELETED && entry.changes.size > 0)
+            .filter(entry => (entry.status === WorkingSetStatus.MODIFIED && entry.changes.size > 0) || entry.status === WorkingSetStatus.NEW)
             .map(mapEntityRegistrationToDomainObject);
     }
     /**
