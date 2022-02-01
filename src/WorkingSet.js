@@ -947,6 +947,13 @@ class EntityRegistration
                 //console.log("otherRelation", otherRelation)
 
                 const linkArrayBase = base[linkFieldName];
+
+                if (linkArrayBase === undefined)
+                {
+                    // if we have a undefined base array, we just keep ignoring that property
+                    continue
+                }
+
                 const linkArray = domainObject[linkFieldName];
 
                 const idField = otherRelation.sourceFields[0];
