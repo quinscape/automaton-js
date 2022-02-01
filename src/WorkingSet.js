@@ -370,6 +370,13 @@ function getManyToManyChanges(registrations, mergePlan)
                 //console.log("otherRelation", otherRelation)
 
                 const linkedA = base[linkFieldName];
+
+                if (linkedA === undefined)
+                {
+                    // if we have a undefined base array, we just keep ignoring that property
+                    continue
+                }
+
                 const linkedB = domainObject[linkFieldName];
                 const idField = otherRelation.sourceFields[0];
 
