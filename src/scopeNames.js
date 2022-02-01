@@ -10,3 +10,6 @@ export const SESSION_SCOPE = "sessionScope";
 /** config option for LocalScope **/
 export const LOCAL_SCOPE = "localScope";
 
+/** config option for CommonScope **/
+export const COMMON_SCOPE = "commonScope";
+

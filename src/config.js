@@ -4,8 +4,9 @@ import {
     APP_SCOPE,
     LOCAL_SCOPE,
     SESSION_SCOPE,
-    USER_SCOPE
-} from "./scopeNames";
+    USER_SCOPE,
+    COMMON_SCOPE
+} from "./scopeNames"
 import i18n from "./i18n";
 
 export const DEFAULT_OPTS = {
@@ -77,6 +78,7 @@ export const DEFAULT_OPTS = {
     [USER_SCOPE]: null,
     [SESSION_SCOPE]: null,
     [LOCAL_SCOPE]: null,
+    [COMMON_SCOPE]: null,
 
     userInfo: null,
 

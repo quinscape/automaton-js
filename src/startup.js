@@ -125,7 +125,7 @@ function defaultInit(ctx, initial)
     {
         const scopesModule = ctx(SCOPES_MODULE_NAME);
 
-        const {AppScope, UserScope, SessionScope, LocalScope} = scopesModule;
+        const { AppScope, UserScope, SessionScope, LocalScope, CommonScope } = scopesModule;
 
         //console.log("SCOPES", {AppScope, UserScope, SessionScope, LocalScope});
 
@@ -166,6 +166,18 @@ function defaultInit(ctx, initial)
                     reinitializeLocalScope()
                 )
             }
+        }
+
+        if (CommonScope)
+        {
+            const commonScope = new CommonScope()
+            if (typeof commonScope.init === "function")
+            {
+                promises.push(
+                    commonScope.init()
+                )
+            }
+            config.commonScope = commonScope
         }
     }
 
