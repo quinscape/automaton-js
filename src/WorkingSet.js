@@ -297,7 +297,8 @@ function getFieldChanges(registrations, mergePlan)
 
     for (let entry of registrations.values())
     {
-        const { changes, domainObject, typeName } = entry;
+        // do final update to catch changes made in the current un-commited mobx transaction
+        entry._updateChanges(entry.recalculateChanges())
 
         const isNew = changes.status === WorkingSetStatus.NEW;
         let fieldChanges
