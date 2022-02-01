@@ -352,21 +352,6 @@ export function automatonDomainObjectFactory(type, id) {
 }
 
 
-function isDirty(process)
-{
-    const { scope } = process;
-
-    if (scope.workingSet instanceof WorkingSet)
-    {
-        return scope.workingSet.hasChanges
-    }
-    else if (typeof scope.isDirty === "function")
-    {
-        return scope.isDirty()
-    }
-}
-
-
 /**
  * Entry point to the automaton client-side process engine
  *
@@ -433,7 +418,7 @@ export function startup(ctx, processImporter, initial, initFn)
 
                     const process = getCurrentProcess();
 
-                    if (isDirty(process))
+                    if (process.isDirty)
                     {
                         // Cancel the event
                         e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown

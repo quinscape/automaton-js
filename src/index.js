@@ -4,7 +4,7 @@ import injection from "./injection";
 import i18n from "./i18n";
 import uri from "./uri";
 import config from "./config";
-import { Process, getCurrentProcess } from "./process/Process";
+import { Process, getCurrentProcess, confirmDestructiveTransition } from "./process/Process"
 import runProcess, { runProcessURI } from "./process/runProcess";
 
 import DataGrid from "./ui/datagrid/DataGrid"
@@ -181,5 +181,8 @@ export {
     promiseUI,
     configurePromiseUI,
 
-    ConditionEditor
+    ConditionEditor,
+    confirmDestructiveTransition
+    
 }
+

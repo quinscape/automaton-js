@@ -16,6 +16,7 @@ import { backToHistoryId } from "./back-functions";
 
 import ShortcutContext, { ShortcutContextState } from "../ui/shortcut/ShortcutContext";
 import StickySizesContext from "../ui/sticky/StickySizesContext";
+import WorkingSet from "../WorkingSet"
 
 
 let processImporter;
@@ -533,6 +534,39 @@ export class Process {
     get shortcutContext()
     {
         return this[secret].shortcutContext;
+    }
+
+    /**
+     * Returns true if this process or any of its parent processes are flagged dirty.
+     *
+     * @return {boolean}    true if dirty
+     */
+    get isDirty()
+    {
+        let { scope } = this
+        let process = this
+        do
+        {
+            if (scope.workingSet instanceof WorkingSet)
+            {
+                if (scope.workingSet.hasChanges)
+                {
+                    return true
+                }
+            }
+            else if (typeof scope.isDirty === "function")
+            {
+                if (scope.isDirty())
+                {
+                    return true
+                }
+            }
+
+            process = process[secret].parent
+
+        } while (process)
+
+        return false
     }
 
     /**
@@ -1690,4 +1724,14 @@ export function findBackStateIndex(n)
     }
 
     return historyIndex;
+}
+
+
+export function confirmDestructiveTransition()
+{
+    if (currentProcess.isDirty)
+    {
+        return confirm(i18n("Delete Dirty Changes?"))
+    }
+    return true
 }

@@ -1,8 +1,9 @@
-import { fetchProcessInjections, renderProcess, ErrorView } from "./Process";
+import { fetchProcessInjections, renderProcess, ErrorView, confirmDestructiveTransition } from "./Process"
 import config from "../config";
 import render from "../render";
 import React from "react";
 import searchParams from "../util/searchParams";
+import i18n from "../i18n"
 
 const NUMBER_RE = /^-?[0-9]{1-15}$/;
 
@@ -118,7 +119,16 @@ export function runProcessURI(uri)
  */
 export default function runProcess(processName, input) {
 
-        return fetchProcessInjections(config.appName, processName, input)
+    if (!confirmDestructiveTransition())
+    {
+        return Promise.reject(
+            new Error(
+                i18n("User canceled")
+            )
+        )
+    }
+
+    return fetchProcessInjections(config.appName, processName, input)
         .then(
             ({input, injections}) =>
                 renderProcess(
