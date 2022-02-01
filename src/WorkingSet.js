@@ -278,7 +278,7 @@ function getChangesForNewObject(domainObject, mergePlan)
             });
         }
     }
-    
+
     return fieldChanges;
 }
 
@@ -620,7 +620,7 @@ function checkUpdateEquality(registration, a,b)
 }
 
 
-function compareLinkObjects(a, b)
+function compareLinkObjects(a, b, idField)
 {
     if (a.length !== b.length)
     {
@@ -629,11 +629,11 @@ function compareLinkObjects(a, b)
 
     for (let i = 0; i < a.length; i++)
     {
-        const id = a[i].id;
+        const id = a[i][idField];
         let found = false
         for (let j = 0; j < b.length; j++)
         {
-            if (id === b[j].id)
+            if (id === b[j][idField])
             {
                 found = true
                 break;
@@ -645,6 +645,7 @@ function compareLinkObjects(a, b)
         }
     }
     return true;
+
 }
 
 
@@ -1890,7 +1891,6 @@ export default class WorkingSet {
         }
 
         const changes = getFieldChanges(registrations, mergePlan)
-            .concat()
 
         const deletions = this.deletions.map(
             ({_type: type, version, id}) => ({
