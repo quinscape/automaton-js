@@ -7,6 +7,11 @@ const DEFAULT_TYPE_CONFIG = {
     ignored: []
 };
 
+/**
+ * Many to many relation tag used by automaton
+ * @type {string}
+ */
+const MANY_TO_MANY = "ManyToMany"
 
 export default class MergePlan {
 
@@ -123,41 +128,58 @@ export default class MergePlan {
                 {
                     const linkTypeName = unwrapAll(type).name;
 
-                    const leftSideRelation = config.inputSchema.getRelations().find(r => r.sourceType === linkTypeName && r.targetType === typeName );
-                    const rightSideRelation = config.inputSchema.getRelations().find(r => r.sourceType === linkTypeName && r.targetType !== typeName && r.leftSideObjectName );
-                    embedded.push({
-                        name,
-                        isManyToMany: true,
-                        linkTypeName,
-                        leftSideRelation,
+                    const leftSideRelation = config.inputSchema.getRelations().find(
+                        r => r.sourceType === linkTypeName &&
+                             r.targetType === typeName &&
+                             r.metaTags.indexOf(MANY_TO_MANY) >= 0
+                    );
+                    const rightSideRelation = config.inputSchema.getRelations().find(
+                        r => r.sourceType === linkTypeName &&
+                             r.targetType !== typeName &&
+                             r.leftSideObjectName &&
+                             r.metaTags.indexOf(MANY_TO_MANY) >= 0
+                    );
+
+                    if (
+                        leftSideRelation &&
                         rightSideRelation
-                    });
-
-                    if (leftSideRelation.rightSideObjectName)
+                    )
                     {
-                        const linkType = {
-                            fieldName: name,
-                            targetType: typeName,
-                            relation: leftSideRelation,
-                        };
 
-                        const array = this.linkTypes.get(linkTypeName);
-                        if (!array)
+                        embedded.push({
+                            name,
+                            isManyToMany: true,
+                            linkTypeName,
+                            leftSideRelation,
+                            rightSideRelation
+                        });
+
+                        if (leftSideRelation.rightSideObjectName)
                         {
-                            this.linkTypes.set(linkTypeName, [ linkType ])
-                        }
-                        else
-                        {
-                            array.push(linkType);
+                            const linkType = {
+                                fieldName: name,
+                                targetType: typeName,
+                                relation: leftSideRelation,
+                            };
+
+                            const array = this.linkTypes.get(linkTypeName);
+                            if (!array)
+                            {
+                                this.linkTypes.set(linkTypeName, [linkType])
+                            }
+                            else
+                            {
+                                array.push(linkType);
+                            }
                         }
                     }
-                }
-                else
-                {
-                    embedded.push({
-                        name,
-                        isManyToMany: false
-                    });
+                    else
+                    {
+                        embedded.push({
+                            name,
+                            isManyToMany: false
+                        });
+                    }
                 }
             }
         }
