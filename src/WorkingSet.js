@@ -1,26 +1,23 @@
-import { action, autorun, computed, makeObservable, observable, reaction, toJS } from "mobx"
+import { action, computed, makeObservable, observable, reaction, toJS } from "mobx"
 import { computedFn } from "mobx-utils"
 
-import config from "./config";
-import GraphQLQuery from "./GraphQLQuery";
-import { getFields, getInputTypeName, unwrapNonNull } from "./util/type-utils";
-import extractTypeData from "./extractTypeData";
-import equalsScalar from "./util/equalsScalar";
-import MergePlan from "./merge/MergePlan";
-import React from "react";
+import config from "./config"
+import GraphQLQuery from "./GraphQLQuery"
+import { field, value } from "./FilterDSL"
+import { getInputTypeName, getIQueryPayloadType } from "./util/type-utils"
+import extractTypeData from "./extractTypeData"
+import equalsScalar from "./util/equalsScalar"
+import MergePlan from "./merge/MergePlan"
+import React from "react"
 
-import ChangeConflictDialog, {
-    FieldStatus,
-    FieldType,
-    OPERATION_CANCEL,
-    RECURSE_EVERYTHING
-} from "./ui/ChangeConflictDialog";
-import { getWireFormat } from "./domain";
-import { SCALAR } from "domainql-form/lib/kind";
-import { MergeOperation } from "./merge/MergeOperation";
-import { openDialog } from "./util/openDialog";
-import { getCurrentProcess } from "./process/Process";
-import toJSEveryThing from "./util/toJSEveryThing";
+import ChangeConflictDialog, { FieldStatus, FieldType, OPERATION_CANCEL } from "./ui/ChangeConflictDialog"
+import { getWireFormat } from "./domain"
+import { SCALAR } from "domainql-form/lib/kind"
+import { MergeOperation } from "./merge/MergeOperation"
+import { openDialog } from "./util/openDialog"
+import { getCurrentProcess, getGraphQLMethodType } from "./process/Process"
+import toJSEveryThing from "./util/toJSEveryThing"
+
 
 const LIST_OF_DOMAIN_OBJECTS_TYPE = "[DomainObject]";
 
@@ -990,6 +987,42 @@ class EntityRegistration
 }
 
 let counter = 0
+
+
+/**
+ * Validates that the given GraphQLQuery has the given type as payload type and returns the name of the GraphQL query
+ * used in the query.
+ *
+ * The query is expected to contain only one GraphQL method call.
+ *
+ * @param {String} type             domain type
+ * @param {GraphQLQuery} query      GraphQLQuery instance
+ *
+ * @return {String} GraphQL query name
+ */
+function validateQuery(type, query)
+{
+    const { methodCalls, aliases } = query.getQueryDefinition();
+
+    if (methodCalls.length !== 1)
+    {
+        throw new Error("WorkingSet.load: GrapQLQuery must have exactly one method call. is = " + query);
+    }
+
+    const name = methodCalls[0];
+    const gqlMethodName = aliases ? aliases[name] || name : name;
+
+    const methodName = getGraphQLMethodType(gqlMethodName).name
+    const iQueryType = getIQueryPayloadType(methodName)
+
+    if (iQueryType !== type)
+    {
+        throw new Error("Expected query to have the payload type " + type + ", but " + methodName + " has the payload type " + iQueryType )
+    }
+
+    return gqlMethodName
+}
+
 
 /**
  * Encapsulates a current set of changes to domain objects not yet persisted to the server-side.
@@ -1986,6 +2019,89 @@ export default class WorkingSet {
     get mergeConfig()
     {
         return this[secret].mergePlan.mergeConfig;
+    }
+
+
+    /**
+     * Convenience method that loads the entity with the given name and type. If the entity is registered with the
+     * working set, that instance is returned. Otherwise the entity is loaded from the given source and registered.
+     *
+     * @param {String} type                     Domain type name
+     * @param {String} id                       Entity id
+     * @param {GraphQLQuery|function} source    GraphQL query to load the entity from or a function that returns a promise
+     *                                          that resolves to the entity data ( (type,id) => Promise<Observable> )
+     *                                          
+     * @return {Promise<object>} Promise resolving to the referenced entity
+     */
+    load(type, id, source)
+    {
+        if (!type)
+        {
+            throw new Error("Need type")
+        }
+        if (!id)
+        {
+            throw new Error("Need id")
+        }
+
+        const registration = this.lookup(type,id )
+        if (registration && registration.domainObject)
+        {
+            return Promise.resolve(registration.domainObject)
+        }
+        else
+        {
+            let promise;
+            if (typeof source === "function")
+            {
+                promise = Promise.resolve(
+                        source(type,id)
+                    )
+                    .then(result => {
+
+                        if (!result)
+                        {
+                            return Promise.reject(
+                                new Error("Entity source failed: function returned falsy value")
+                            )
+                        }
+                        return result
+                    })
+            }
+            else if (source instanceof GraphQLQuery)
+            {
+                const methodName = validateQuery(type, source)
+                promise = source.execute({
+                    config: {
+                        condition:
+                            field("id")
+                                .eq(
+                                    value(
+                                        id
+                                    )
+                                )
+                    }
+                })
+                    .then(result => {
+
+                        if (!result[methodName].rows.length)
+                        {
+                            return Promise.reject(
+                                new Error("Entity source failed: iQuery document contains no rows")
+                            )
+                        }
+                        return result[methodName].rows[0]
+                    })
+            }
+            return promise
+                .then(
+                    source => {
+                        // we assume ownership over the value received from our source and do not clone the object
+                        this.registerBaseVersion(source)
+                        return source
+                    }
+                )
+        }
     }
 }
 
