@@ -235,3 +235,45 @@ export function getParentObjectType(rootType, path)
     return typeDef.name
 
 }
+
+export function getGraphQLMethodType(gqlMethod, queriesOnly = false)
+{
+    if (!gqlMethod)
+    {
+        throw new Error("Need gqlMethod");
+    }
+
+    const queryType = config.inputSchema.getType("QueryType");
+
+    const queryFieldType = getFieldTypeByName(queryType.fields, gqlMethod);
+    if (queryFieldType)
+    {
+        return queryFieldType;
+    }
+
+    if (!queriesOnly)
+    {
+        const mutationType = config.inputSchema.getType("MutationType");
+
+        const mutationFieldType = getFieldTypeByName(mutationType.fields, gqlMethod);
+        if (mutationFieldType)
+        {
+            return mutationFieldType;
+        }
+    }
+
+    throw new Error("Could not find type of GraphQL method '" + gqlMethod + "'");
+}
+
+function getFieldTypeByName(fields, gqlMethod)
+{
+    for (let i = 0; i < fields.length; i++)
+    {
+        const field = fields[i];
+        if (field.name === gqlMethod)
+        {
+            return field.type;
+        }
+    }
+    return null;
+}

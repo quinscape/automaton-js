@@ -17,6 +17,7 @@ import { backToHistoryId } from "./back-functions";
 import ShortcutContext, { ShortcutContextState } from "../ui/shortcut/ShortcutContext";
 import StickySizesContext from "../ui/sticky/StickySizesContext";
 import WorkingSet from "../WorkingSet"
+import { getGraphQLMethodType } from "../util/type-utils"
 
 
 let processImporter;
@@ -846,50 +847,6 @@ export class Process {
 
         fns.reject(err);
     }
-}
-
-
-function getFieldTypeByName(fields, gqlMethod)
-{
-    for (let i = 0; i < fields.length; i++)
-    {
-        const field = fields[i];
-        if (field.name === gqlMethod)
-        {
-            return field.type;
-        }
-    }
-    return null;
-}
-
-
-export function getGraphQLMethodType(gqlMethod, queriesOnly = false)
-{
-    if (!gqlMethod)
-    {
-        throw new Error("Need gqlMethod");
-    }
-
-    const queryType = config.inputSchema.getType("QueryType");
-
-    const queryFieldType = getFieldTypeByName(queryType.fields, gqlMethod);
-    if (queryFieldType)
-    {
-        return queryFieldType;
-    }
-
-    if (!queriesOnly)
-    {
-        const mutationType = config.inputSchema.getType("MutationType");
-
-        const mutationFieldType = getFieldTypeByName(mutationType.fields, gqlMethod);
-        if (mutationFieldType)
-        {
-            return mutationFieldType;
-        }
-    }
-
-    throw new Error("Could not find type of GraphQL method '" + gqlMethod + "'");
 }
 
 

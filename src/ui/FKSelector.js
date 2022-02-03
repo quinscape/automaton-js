@@ -28,6 +28,7 @@ import FkSelectorModal from "./FkSelectorModal";
 import { useDebouncedCallback } from "use-debounce"
 import get from "lodash.get"
 import {
+    getGraphQLMethodType,
     getIQueryPayloadType,
     getOutputTypeName,
     getParentObjectType,
@@ -37,7 +38,6 @@ import {
 } from "../util/type-utils"
 
 import { field, Type, value, condition, component } from "../FilterDSL"
-import { getGraphQLMethodType } from "../process/Process";
 import { isNonNull } from "domainql-form/lib/InputSchema";
 import { SCALAR } from "domainql-form/lib/kind";
 import CachedQuery from "../model/CachedQuery";

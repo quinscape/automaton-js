@@ -2,7 +2,7 @@ import config from "./config"
 import { observable } from "mobx";
 import { getWireFormat } from "./domain";
 import GraphQLQuery from "./GraphQLQuery";
-import { getGraphQLMethodType } from "./process/Process";
+import { getGraphQLMethodType } from "./util/type-utils"
 
 
 /**
