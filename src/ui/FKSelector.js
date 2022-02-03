@@ -373,7 +373,7 @@ const FKSelector = fnObserver(props => {
                                 {
                                     const { root, formContext } = formConfig;
 
-                                    formContext.updateErrors(root, ctx.qualifiedName, [ val, formConfig.getRequiredErrorMessage(ctx) ]);
+                                    formContext.updateErrors(root, ctx.qualifiedName, [ val, formConfig.formContext.getRequiredErrorMessage(ctx) ]);
                                     return;
                                 }
 
