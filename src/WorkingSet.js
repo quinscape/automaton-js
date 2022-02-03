@@ -2026,11 +2026,13 @@ export default class WorkingSet {
      * Convenience method that loads the entity with the given name and type. If the entity is registered with the
      * working set, that instance is returned. Otherwise the entity is loaded from the given source and registered.
      *
+     * The source function has to make sure it is safe to edit the domain object directly and should clone the object
+     * if there is any doubt. load() does *not* clone.
+     *
      * @param {String} type                     Domain type name
      * @param {String} id                       Entity id
      * @param {GraphQLQuery|function} source    GraphQL query to load the entity from or a function that returns a promise
      *                                          that resolves to the entity data ( (type,id) => Promise<Observable> )
-     *                                          
      * @return {Promise<object>} Promise resolving to the referenced entity
      */
     load(type, id, source)
