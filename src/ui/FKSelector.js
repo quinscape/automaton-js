@@ -16,7 +16,7 @@ import {
     unwrapType,
 } from "domainql-form"
 import i18n from "../i18n";
-import { action } from "mobx";
+import { action, toJS } from "mobx"
 import { observer as fnObserver } from "mobx-react-lite";
 import GraphQLQuery from "../GraphQLQuery";
 import InteractiveQuery, { getFirstValue } from "../model/InteractiveQuery";
@@ -41,6 +41,7 @@ import { getGraphQLMethodType } from "../process/Process";
 import { isNonNull } from "domainql-form/lib/InputSchema";
 import { SCALAR } from "domainql-form/lib/kind";
 import CachedQuery from "../model/CachedQuery";
+import { updateComponentCondition } from "../index"
 
 
 export const NO_SEARCH_FILTER = "NO_SEARCH_FILTER";
@@ -208,12 +209,16 @@ if (__DEV)
     };
 }
 
+let fkSelectorCounter = 0
+
 
 /**
  * Renders the current value of foreign key references and allows changing of references via text-input and selection from
  * modal grid.
  */
 const FKSelector = fnObserver(props => {
+
+    const [fkSelectorId] = useState("fkSelector-"+ fkSelectorCounter++)
 
     const [modalState, setModalState] = useState(MODAL_STATE_CLOSED);
 
@@ -391,12 +396,18 @@ const FKSelector = fnObserver(props => {
                             //console.log("FK-CONTEXT", ctx);
                             //console.log("QUERY", query);
 
-                            const condition = createSearchFilter(iQueryType, searchFilter, val, isAmbiguousMatch && modalFilter === NO_SEARCH_FILTER ? "fk-selector-grid" : null);
+                            const condition = createSearchFilter(iQueryType, searchFilter, val);
                             setIsLoading(true);
+
+                            const composite = updateComponentCondition(
+                                query.defaultVars && query.defaultVars.config && query.defaultVars.config.condition || component(fkSelectorId, null),
+                                condition,
+                                fkSelectorId
+                            )
 
                             query.execute({
                                     config: {
-                                        condition,
+                                        condition : composite,
                                         offset: 0,
                                         pageSize: 0
                                     }
@@ -406,10 +417,14 @@ const FKSelector = fnObserver(props => {
 
                                     //console.log("Received search result: ", toJS(iQuery));
 
+                                    //console.log("inputValidation: UPDATE CONFIG", query.defaultVars.config)
+                                    query.defaultVars.config = { ... toJS(iQuery.queryConfig), offset: 0, pageSize: query.defaultVars.config.pageSize  }
+
                                     const { length } = iQuery.rows;
 
                                     if (length === 1)
                                     {
+                                        console.log("SELECT unambiguous row", toJS(iQuery.rows[0]))
                                         selectRow(iQuery.rows[0]);
                                         setIsAmbiguousMatch(false);
                                     }
@@ -480,16 +495,18 @@ const FKSelector = fnObserver(props => {
                         // if we have an ambiguous match but are configured to show no search filter, we can still preselect the column filter if we have a simple search filter
                         const shouldPreselectFilter = modalFilter !== NO_SEARCH_FILTER || typeof searchFilter === "string";
                         let cond = isAmbiguousMatch && shouldPreselectFilter ? createSearchFilter(iQueryType, searchFilter, inputValue) : null
-                        if (isAmbiguousMatch && modalFilter === NO_SEARCH_FILTER && shouldPreselectFilter)
-                        {
-                            cond = component("fk-selector-grid", condition("and", [ cond ]));
-                        }
+
+                        const composite = updateComponentCondition(
+                            query.defaultVars && query.defaultVars.config && query.defaultVars.config.condition || component(fkSelectorId, null),
+                            cond,
+                            isAmbiguousMatch && modalFilter === NO_SEARCH_FILTER && shouldPreselectFilter ? "fk-selector-grid" : fkSelectorId
+                        )
 
                         query.execute(
                                     {
                                         config: {
                                             ... iQueryDoc ? iQueryDoc.queryConfig : query.defaultVars.config,
-                                            condition: cond
+                                            condition: composite
                                         }
                                     }
                                 )
@@ -500,6 +517,9 @@ const FKSelector = fnObserver(props => {
                                     {
                                         throw new Error("Result is no interactive query object");
                                     }
+
+                                    //console.log("selectFromModal: UPDATE CONFIG", query.defaultVars.config)
+                                    query.defaultVars.config = { ... toJS(iQuery.queryConfig), offset: 0 }
 
                                     try
                                     {
@@ -622,6 +642,7 @@ const FKSelector = fnObserver(props => {
                                 modalFilter={ modalFilter }
                                 searchFilter={ searchFilter }
                                 searchTimeout={ searchTimeout }
+                                fkSelectorId={ fkSelectorId }
                             />
                         </FormGroup>
                     );
@@ -641,7 +662,7 @@ FKSelector.propTypes = {
         PropTypes.func
     ]),
     /**
-     * iQuery GraphQL query to fetch the current list of target objects
+     * iQuery GraphQL query to fetch the current list of target objects or iQuery document containing all values
      */
     query: PropTypes.oneOfType([
         PropTypes.instanceOf(GraphQLQuery),
@@ -730,7 +751,7 @@ FKSelector.propTypes = {
     ]),
 
     /**
-     * Timeout in ms after which the input will do the validation query ( default: 250).
+     * Timeout in ms after which the input will do the validation query ( default: 350).
      */
     searchTimeout: PropTypes.number,
 

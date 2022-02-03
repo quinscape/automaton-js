@@ -9,8 +9,9 @@ import { isNonNull } from "domainql-form/lib/InputSchema";
 import { useLocalObservable,observer as fnObserver } from "mobx-react-lite";
 import { action, comparer, observable, reaction, toJS } from "mobx";
 
-import { field, operation, value } from "../FilterDSL";
+import { component, field, operation, value } from "../FilterDSL"
 import { NO_FILTER, NO_SEARCH_FILTER, COLUMN_FILTER, createSearchFilter } from "./FKSelector";
+import { updateComponentCondition } from "../index"
 
 const setFilter = action(
     "FkSelectorModal.setFilter",
@@ -25,7 +26,7 @@ const setFilter = action(
 const FkSelectorModal = fnObserver(
     props => {
 
-        const { isOpen, iQuery, iQueryType, columns, columnTypes, title, fieldType, selectRow, toggle, fade, filter = null, modalFilter, searchFilter, searchTimeout } = props;
+        const { isOpen, iQuery, iQueryType, columns, columnTypes, title, fieldType, selectRow, toggle, fade, filter = null, modalFilter, searchFilter, searchTimeout, fkSelectorId } = props;
 
         const formObject = useLocalObservable(() => observable({filter}));
 
@@ -75,10 +76,16 @@ const FkSelectorModal = fnObserver(
                     // and the effect triggers the debounced condition update
                     newCondition => {
 
+                        const composite = updateComponentCondition(
+                            iQueryRef.current._query.defaultVars.config.condition,
+                            newCondition,
+                            fkSelectorId
+                        )
+
                         // We can't use `iQuery` directly because this closure traps the very first iQuery prop value
                         // which is always null. So we trap the iQueryRef ref instead and change its current prop
                         iQueryRef.current.updateCondition(
-                            newCondition
+                            composite
                         );
                     },
                     {
