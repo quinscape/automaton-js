@@ -425,7 +425,6 @@ const FKSelector = fnObserver(props => {
 
                                     if (length === 1)
                                     {
-                                        console.log("SELECT unambiguous row", toJS(iQuery.rows[0]))
                                         selectRow(iQuery.rows[0]);
                                         setIsAmbiguousMatch(false);
                                     }
