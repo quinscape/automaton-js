@@ -1727,11 +1727,11 @@ export function findBackStateIndex(n)
 }
 
 
-export function confirmDestructiveTransition()
+export function confirmDestructiveTransition(msg = i18n("Delete Dirty Changes?"))
 {
     if (currentProcess.isDirty)
     {
-        return confirm(i18n("Delete Dirty Changes?"))
+        return confirm(msg)
     }
     return true
 }
