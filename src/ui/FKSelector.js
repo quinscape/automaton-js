@@ -409,7 +409,8 @@ const FKSelector = fnObserver(props => {
                                     config: {
                                         condition : composite,
                                         offset: 0,
-                                        pageSize: 0
+                                        // we only want to know if there's more than one match. We don't care how many
+                                        pageSize: 2
                                     }
                                 })
                                 .then(result => {
