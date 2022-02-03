@@ -3,10 +3,13 @@ import assert from "power-assert"
 import filterTransformer, { FieldResolver } from "../../src/util/filterTransformer";
 
 import { field, value, values, and, or, not, condition, operation } from "../../src/FilterDSL";
+import { now, today } from "../../filter"
+import { DateTime } from "luxon"
+import sleep from "../ui/sleep"
 
 describe("filterTransformer", function () {
 
-    function exec(cond, obj)
+    function transform(cond, obj)
     {
         obj = obj || {
             name: "Test Foo #9473",
@@ -17,7 +20,12 @@ describe("filterTransformer", function () {
 
         const resolver = name => () => obj[name];
 
-        return filterTransformer(cond,resolver)();
+        return filterTransformer(cond,resolver);
+    }
+
+    function exec(cond, obj)
+    {
+        return transform(cond,obj)();
     }
 
 
@@ -258,6 +266,20 @@ describe("filterTransformer", function () {
 
         assert( exec(operation("concat", [value("aaa"), value(234)])) === "aaa234");
         assert( exec(operation("concat", [value(null, "String"), value("bbb")])) === "bbb");
+
+        const nowFn = transform(now())
+        const todayFn = transform(today())
+
+        const nw = DateTime.now()
+        return sleep(100)
+            .then(
+                () => {
+                    const delta = nowFn().toMillis() - nw.toMillis()
+                    assert(delta >= 100 && delta < 120);
+                    assert( +todayFn() === +DateTime.now().startOf("day") );
+                }
+            )
+
 
     });
 

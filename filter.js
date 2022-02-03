@@ -4,6 +4,7 @@ const {
     and,
     or,
     not,
+
     condition,
     operation,
     field,
@@ -23,13 +24,18 @@ const {
 
     FIELD_CONDITIONS,
     CONDITION_METHODS,
-    FIELD_OPERATIONS
+    FIELD_OPERATIONS,
+
+    now,
+    today
+    
 } = FilterDSL;
 
 // base DSL methods
 exports.and = and;
 exports.or = or;
 exports.not = not;
+
 exports.condition = condition;
 exports.operation = operation;
 exports.field = field;
@@ -53,3 +59,7 @@ exports.toJSON = toJSON;
 exports.FIELD_CONDITIONS = FIELD_CONDITIONS;
 exports.CONDITION_METHODS = CONDITION_METHODS;
 exports.FIELD_OPERATIONS = FIELD_OPERATIONS;
+
+// Filter Functions
+exports.now = now;
+exports.today = today;

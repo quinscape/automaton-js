@@ -2,6 +2,7 @@ import { CONDITION_METHODS, FIELD_CONDITIONS, FIELD_OPERATIONS, Type } from "../
 import { InputSchema } from "domainql-form";
 import get from "lodash.get"
 import toPath from "lodash.topath"
+import { DateTime } from "luxon"
 
 const conditionImpl = {
     true: () => true,
@@ -252,8 +253,14 @@ const operationImpl = {
     }
 };
 
+const filterFunctions = {
+    "now" : (name, args) => DateTime.now(),
+    "today" : (name, args) => DateTime.now().startOf("day"),
+}
+
 const IGNORE_CASE_SUFFIX = "IgnoreCase";
 
+const FILTER_FUNCTION_TYPE = "FilterFunction"
 
 /**
  * Internal method to recursively transform JSON conditions into values/functions.
@@ -275,7 +282,15 @@ function transform(condition, resolverFactory)
             return resolverFactory(name);
 
         case Type.VALUE:
-            return InputSchema.valueToScalar(condition.scalarType, condition.value);
+            const { scalarType, value } = condition
+
+            if (scalarType === FILTER_FUNCTION_TYPE)
+            {
+                const { name, args } = value;
+                return () => filterFunctions[name](name, args)
+            }
+
+            return InputSchema.valueToScalar(scalarType, value);
 
         case Type.VALUES:
         {

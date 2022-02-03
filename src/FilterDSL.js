@@ -552,6 +552,29 @@ export function toJSON(condition)
     }
 }
 
+
+function filterFunction(name, args = [])
+{
+    return value(
+        {
+            name,
+            args
+        },
+        "FilterFunction"
+    )
+}
+
+
+export function now()
+{
+    return filterFunction("now")
+}
+
+export function today()
+{
+    return filterFunction("today")
+}
+
 /**
  * The automaton filter DSL creates object graphs representations of filter expressions that can be evaluated as SQL, on
  * Java objects and on JavaScript objects.
