@@ -1,6 +1,7 @@
-import parseQuery from "./parseQuery";
-import config from "./config";
-import graphql from "./graphql";
+import parseQuery from "./parseQuery"
+import config from "./config"
+import graphql from "./graphql"
+import clone from "./util/clone"
 
 
 /**
@@ -21,9 +22,9 @@ export default class GraphQLQuery {
      */
     constructor(query, vars)
     {
-        this.query = query;
-        this.queryDef = null;
-        this.defaultVars = vars;
+        this.query = query
+        this.queryDef = null
+        this.defaultVars = vars
     }
 
 
@@ -36,10 +37,11 @@ export default class GraphQLQuery {
     {
         if (!this.queryDef)
         {
-            this.queryDef = parseQuery(config.inputSchema, this.query);
+            this.queryDef = parseQuery(config.inputSchema, this.query)
         }
-        return this.queryDef;
+        return this.queryDef
     }
+
 
     /**
      * Executes this GraphQL query/mutation with the given variables
@@ -57,7 +59,7 @@ export default class GraphQLQuery {
                 query: this,
                 variables
             }
-        );
+        )
     }
 
 
@@ -68,8 +70,8 @@ export default class GraphQLQuery {
      */
     clone()
     {
-        const c = new GraphQLQuery(this.query, this.defaultVars);
-        c.queryDef = this.queryDef;
-        return c;
+        const c = new GraphQLQuery(this.query, clone(this.defaultVars))
+        c.queryDef = this.queryDef
+        return c
     }
 }
