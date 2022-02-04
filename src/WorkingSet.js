@@ -16,6 +16,7 @@ import { SCALAR } from "domainql-form/lib/kind"
 import { MergeOperation } from "./merge/MergeOperation"
 import { openDialog } from "./util/openDialog"
 import toJSEveryThing from "./util/toJSEveryThing"
+import { getCurrentProcess } from "./process/Process"
 
 
 const LIST_OF_DOMAIN_OBJECTS_TYPE = "[DomainObject]";
