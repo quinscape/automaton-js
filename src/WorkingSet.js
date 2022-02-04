@@ -2105,5 +2105,27 @@ export default class WorkingSet {
                 )
         }
     }
+
+
+    /**
+     * Changes all registered domain objects back to their original values. In contrast to clear() it keeps
+     * the registrations alive, so the objects will be immediately be open to accept other changes.
+     */
+    @action
+    undo()
+    {
+        const { registrations } = this
+
+        for (let i = 0; i < registrations.length; i++)
+        {
+            const registration = registrations[i]
+
+            // copy over all properties from base
+            Object.assign(registration.domainObject, registration.base)
+
+            // recalculate changes immediately to be safe for nested actions
+            registration._updateChanges(registration.recalculateChanges())
+        }
+    }
 }
 
