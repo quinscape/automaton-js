@@ -51,8 +51,8 @@ const CollapsibleSidebar = ({
                         width: width,
                         height: "100%"
                     }}
-                    minWidth={minWidth}
-                    maxWidth={maxWidth}
+                    minWidth={windowWidth >= 768 && minWidth}
+                    maxWidth={windowWidth >= 768 && maxWidth}
                     enable={{
                         top: false,
                         right: windowWidth >= 768,

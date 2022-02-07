@@ -86,8 +86,8 @@ export const DEFAULT_OPTS = {
     dateFormat: "d.M.yyyy",
 
     ui: {
-        stickyTopPadding: 15,
-        stickyBottomPadding: 22
+        stickyTopPadding: 21,
+        stickyBottomPadding: 21
     },
 
     // XXX: experimental dev setting. Should be decided one way or the other in the end

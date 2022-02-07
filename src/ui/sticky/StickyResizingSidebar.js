@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useRef, useContext } from "react";
 import cx from "classnames";
 import { observer as fnObserver } from "mobx-react-lite"
 import StickySizesContext from "./StickySizesContext";
+import useWindowSize from "../../util/useWindowSize";
 
 /**
  * Create a Column, that is sticky and resizes inside its parameters.
@@ -16,27 +17,15 @@ const StickyResizingSidebar = fnObserver(({
 }) => {
 
     const stickySizes = useContext(StickySizesContext);
-    const sidebarRef = useRef();
-
-    useLayoutEffect(() => {
-        const sidebarEl = sidebarRef.current;
-        if (sidebarEl != null) {
-            if (window.innerWidth >= 768) {
-                const cntH = window.innerHeight - (stickySizes.footerHeight + stickySizes.headerHeight);
-                sidebarEl.style.height = `${cntH}px`;
-            } else {
-                sidebarEl.style.top = "";
-            }
-        }
-    }, [sidebarRef.current, stickySizes.headerHeight]);
+    const {height: windowHeight} = useWindowSize();
 
     return (
         <div
-            ref={sidebarRef}
             style={{
                 ...style,
                 top: `${stickySizes.headerHeight}px`,
-                bottom: `${stickySizes.footerHeight}px`
+                bottom: `${stickySizes.footerHeight}px`,
+                height: `${windowHeight - (stickySizes.footerHeight + stickySizes.headerHeight)}px`
             }}
             id={id}
             className={ cx(className, "col", "sticky-resizing-sidebar") }

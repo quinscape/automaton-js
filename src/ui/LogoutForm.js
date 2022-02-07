@@ -41,7 +41,7 @@ function LogoutForm({renderUser = defaultRenderUser })
     {
         return (
 
-            <form method="POST" action={contextPath + "/logout"} className="form-inline fa-pull-right">
+            <form method="POST" action={contextPath + "/logout"} className="form-inline fa-pull-right logout-form">
                 {
                     renderUser()
                 }
