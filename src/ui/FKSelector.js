@@ -419,7 +419,7 @@ const FKSelector = fnObserver(props => {
                                     //console.log("Received search result: ", toJS(iQuery));
 
                                     //console.log("inputValidation: UPDATE CONFIG", query.defaultVars.config)
-                                    query.defaultVars.config = { ... toJS(iQuery.queryConfig), offset: 0, pageSize: query.defaultVars.config.pageSize  }
+                                    query.defaultVars.config = { ... toJS(iQuery.queryConfig), offset: 0, pageSize: query.defaultVars.config ? query.defaultVars.config.pageSize : 10 }
 
                                     const { length } = iQuery.rows;
 
