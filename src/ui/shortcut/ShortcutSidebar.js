@@ -14,6 +14,7 @@ import ShortcutContext from "./ShortcutContext";
  */
  const ShortcutSidebar = fnObserver(({
     id,
+    workingSet,
     className,
     children
 }) => {
@@ -47,6 +48,7 @@ import ShortcutContext from "./ShortcutContext";
                                         icon={ icon }
                                         reference={ id }
                                         heading={ heading }
+                                        workingSet={ workingSet }
                                         key={ id }
                                     />
                                 )

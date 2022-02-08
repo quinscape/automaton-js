@@ -12,12 +12,14 @@ import i18n from "../../i18n";
 const ShortcutItem = fnObserver(({
     icon = "",
     reference = "",
-    heading = ""
+    heading = "",
+    workingSet
 }) => {
 
     const formConfig = useFormConfig();
     const formContext = formConfig.formContext;
     const [errorCount, setErrorCount] = React.useState(0);
+    const [changesCount, setChangesCount] = React.useState(0);
 
     const errors = formContext.getErrors();
     const depError = errors.map(e => `${e.rootId}:${e.path}`).join(",");
@@ -46,11 +48,36 @@ const ShortcutItem = fnObserver(({
         setErrorCount(count);
     }, [depError]);
 
+    useEffect(() => {
+        if (workingSet != null) {
+            const fieldContexts = formContext.fieldContexts;
+            let count = 0;
+            for (let i = 0; i < fieldContexts.length; i++) {
+                const ctx = fieldContexts[i];
+                const fieldEl = document.getElementById(ctx.fieldId);
+                if (!ctx.section) {
+                    const sectionEl = document.getElementById(reference).parentElement;
+                    const isContained = sectionEl.contains(fieldEl);
+                    if (isContained) {
+                        ctx.section = reference;
+                    }
+                }
+                if (ctx.section === reference) {
+                    const registration = workingSet.lookup(ctx.rootType, ctx.root.id);
+                    if (registration?.changes.has(ctx.path[0])) {
+                        count++;
+                    }
+                }
+            }
+            setChangesCount(count);
+        }
+    }, [workingSet?.changes]);
+
     const title = errorCount === 0 ? i18n("Section:{0}, no errors", heading) : i18n("Section:{0}, error(s) {1}", heading, errorCount);
 
     return (
         <a
-            className={ cx("shortcut-link btn", errorCount ? "btn-danger" : "btn-outline-primary") }
+            className={ cx("shortcut-link btn", errorCount ? "btn-danger" : "btn-outline-primary", !!changesCount && "has-changes") }
             href={ `#${reference}` }
             title={ title }
             aria-label={ title }
