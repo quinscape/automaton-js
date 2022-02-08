@@ -2120,17 +2120,31 @@ export default class WorkingSet {
     @action
     undo()
     {
-        const { registrations } = this
+        const { registrations : registrationsArray } = this
+        const { registrations  } = this[secret]
 
-        for (let i = 0; i < registrations.length; i++)
+        for (let i = 0; i < registrationsArray.length; i++)
         {
-            const registration = registrations[i]
+            const registration = registrationsArray[i]
 
-            // copy over all properties from base
-            Object.assign(registration.domainObject, registration.base)
+            const { status } = registration
+            
+            if (status === WorkingSetStatus.MODIFIED)
+            {
+                // copy over all properties from base
+                Object.assign(registration.domainObject, registration.base)
+                // recalculate changes immediately to be safe for nested actions
+                registration._updateChanges(registration.recalculateChanges())
+            }
+            else if (status === WorkingSetStatus.DELETED || status === WorkingSetStatus.NEW)
+            {
+                registrations.delete(registration.key)
 
-            // recalculate changes immediately to be safe for nested actions
-            registration._updateChanges(registration.recalculateChanges())
+                if (registration.dispose)
+                {
+                    registration.unregisterReaction()
+                }
+            }
         }
     }
 }
