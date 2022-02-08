@@ -36,6 +36,10 @@ const GENERIC_SCALAR_REF = {
     name: "GenericScalar"
 };
 
+/**
+ * special internal value used to flag changed to be deleted
+ */
+const DELETE_CHANGE = { _delete: true}
 
 function mapEntryToDomainObject(entry)
 {
@@ -739,7 +743,7 @@ class EntityRegistration
             const type = updates[i + 1];
             const value = updates[i + 2];
 
-            if (value === null)
+            if (value === DELETE_CHANGE)
             {
                 //console.log("Delete change for", name)
 
@@ -826,6 +830,8 @@ class EntityRegistration
         this.collectFieldUpdates(updates);
         this.collectManyToManyUpdates(updates);
 
+        //console.log("recalculateChanges", updates)
+
         return updates
 
     }
@@ -878,7 +884,7 @@ class EntityRegistration
                         updates.push(
                             name,
                             null,
-                            null
+                            DELETE_CHANGE
                         )
                     }
                 }
@@ -914,7 +920,7 @@ class EntityRegistration
                             updates.push(
                                 name,
                                 null,
-                                null
+                                DELETE_CHANGE
                             )
                         }
                     }
@@ -978,7 +984,7 @@ class EntityRegistration
                     updates.push(
                         linkFieldName,
                         LIST_OF_DOMAIN_OBJECTS_TYPE,
-                        null
+                        DELETE_CHANGE
                     )
                 }
             }
