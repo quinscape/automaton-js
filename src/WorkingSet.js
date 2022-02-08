@@ -1900,7 +1900,7 @@ export default class WorkingSet {
         const { registrations } = this[secret];
         for (let registration of registrations.values())
         {
-            if (registration.status === WorkingSetStatus.NEW || registration.changes.size > 0)
+            if (registration.status === WorkingSetStatus.NEW || registration.status === WorkingSetStatus.DELETED || registration.changes.size > 0)
             {
                 return true
             }
