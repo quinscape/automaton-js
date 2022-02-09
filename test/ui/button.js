@@ -13,8 +13,10 @@ import { AutomatonEnv } from "../../src/process/Process";
 import BigNumber from "bignumber.js";
 
 import Button from "../../src/ui/Button";
-import userEvent from "@testing-library/user-event";
-import { DecimalField, StartupRegistry, ViewState } from "../../src";
+import userEvent from "@testing-library/user-event"
+import DecimalField from "../../src/ui/DecimalField"
+import { StartupRegistry } from "../../src/startup"
+import ViewState from "../../src/process/ViewState";
 class MockProcess
 {
     constructor()

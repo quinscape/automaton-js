@@ -23,7 +23,7 @@ import { getTableSummary } from "./table-summary";
 import userEvent from "@testing-library/user-event";
 import sleep from "../sleep";
 import { MergeOperation } from "../../../src/merge/MergeOperation";
-import { openDialog } from "../../../src";
+import { openDialog } from "../../../src/util/openDialog"
 
 
 const TEST_CASE_ID = "20bbb666-79d1-4a50-8b23-4442be8b615e";

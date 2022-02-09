@@ -9,7 +9,7 @@ import InteractiveQuery from "../../src/model/InteractiveQuery"
 import { createFilteredMockQuery } from "../../src/util/createMockedQuery";
 import { __setWireFormatForTest } from "../../src/domain";
 import { observable } from "mobx";
-import { AssociationSelector } from "../../src";
+import AssociationSelector from "../../src/ui/AssociationSelector";
 import sleep from "./sleep";
 
 

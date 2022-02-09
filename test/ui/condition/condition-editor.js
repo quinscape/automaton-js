@@ -8,7 +8,7 @@ import React from "react"
 
 import config from "../../../src/config"
 import { FormConfigProvider, FormContext, InputSchema, WireFormat } from "domainql-form"
-import { ConditionEditor } from "../../../src";
+import ConditionEditor from "../../../src/ui/condition/ConditionEditor"
 import { __setWireFormatForTest } from "../../../src/domain";
 import { field, value, toJSON, and } from "../../../src/FilterDSL";
 import clearAndType from "../../util/clearAndType";

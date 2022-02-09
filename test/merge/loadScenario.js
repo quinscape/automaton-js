@@ -1,12 +1,9 @@
 import WorkingSet, { convertConflicts } from "../../src/WorkingSet";
-import { getWireFormat, MergeOperation } from "../../src";
 import { FieldStatus } from "../../src/ui/ChangeConflictDialog";
 
 import config from "../../src/config"
 import { SCALAR } from "domainql-form/lib/kind";
-
-
-
+import MergeOperation from "../../src/merge/MergeOperation"
 
 /**
  * Rehydrates the given merge scenario from raw data.

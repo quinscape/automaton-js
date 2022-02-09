@@ -11,7 +11,7 @@ import { action, comparer, observable, reaction, toJS } from "mobx";
 
 import { component, field, operation, value } from "../FilterDSL"
 import { NO_FILTER, NO_SEARCH_FILTER, COLUMN_FILTER, createSearchFilter } from "./FKSelector";
-import { updateComponentCondition } from "../index"
+import updateComponentCondition from "../util/updateComponentCondition"
 
 const setFilter = action(
     "FkSelectorModal.setFilter",
