@@ -1,5 +1,16 @@
 import { useState, useEffect } from 'react';
 
+/**
+ * JSDom doesn't know ResizeObservers
+ */
+if (!("ResizeObserver" in globalThis)) {
+    class ResizeObserver {
+        observe() {}
+        unobserve() {}
+    }
+    globalThis.ResizeObserver = ResizeObserver;
+}
+
 const REGISTRY = new WeakMap();
 const OBSERVER = new ResizeObserver((entries) => {
     for (const entry of entries) {
