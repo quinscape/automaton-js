@@ -41,7 +41,7 @@ import { field, Type, value, condition, component } from "../FilterDSL"
 import { isNonNull } from "domainql-form/lib/InputSchema";
 import { SCALAR } from "domainql-form/lib/kind";
 import CachedQuery from "../model/CachedQuery";
-import { updateComponentCondition } from "../index"
+import updateComponentCondition from "../util/updateComponentCondition"
 
 
 export const NO_SEARCH_FILTER = "NO_SEARCH_FILTER";

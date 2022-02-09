@@ -1,7 +1,7 @@
 import { action, toJS } from "mobx";
 import config from "../config";
 import { FieldResolver } from "./filterTransformer";
-import { filterTransformer } from "../index";
+import filterTransformer from "../util/filterTransformer";
 import { field, Type } from "../FilterDSL";
 import InteractiveQuery from "../model/InteractiveQuery";
 

@@ -1,9 +1,6 @@
 // creates a GraphQLQuery instance with mocked .execute method that returns a fixed result.
 import GraphQLQuery from "../GraphQLQuery";
-import { FieldResolver, filterTransformer } from "../index";
-import { field, Type } from "../FilterDSL";
 import { evaluateMemoryQuery } from "./evaluateMemoryQuery";
-
 
 /**
  * Creates a mocked query that returns a single constant result.

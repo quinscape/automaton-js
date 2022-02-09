@@ -13,8 +13,7 @@ import Column from "./Column";
 import RowSelector from "./RowSelector";
 import WorkingSet, { WorkingSetStatus } from "../../WorkingSet";
 import WorkingSetStatusComponent from "./WorkingSetStatus";
-import { FieldResolver } from "../..";
-import filterTransformer from "../../util/filterTransformer";
+import filterTransformer, { FieldResolver } from "../../util/filterTransformer";
 import config from "../../config"
 import { toJS } from "mobx";
 
