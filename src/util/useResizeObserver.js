@@ -34,8 +34,8 @@ function handleResize(refEl) {
  */
 export default function useResizeObserver(ref) {
     const [elementSize, setElementSize] = useState({
-        width: undefined,
-        height: undefined,
+        width: 0,
+        height: 0,
     });
 
     useEffect(() => {
