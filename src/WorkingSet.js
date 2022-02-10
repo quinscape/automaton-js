@@ -790,7 +790,8 @@ class EntityRegistration
             {
                 name: "WS" + workingSet.id + ":" + this.key,
                 equals: (a,b) => checkUpdateEquality(this,a,b),
-                delay: workingSet.mergeConfig.reactionTimeout
+                delay: workingSet.mergeConfig.reactionTimeout,
+                fireImmediately: true
             }
         )
 
