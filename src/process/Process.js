@@ -1622,6 +1622,16 @@ export function getCurrentProcess()
 
 
 /**
+ * Internal test function to set a mocked process object as current process.
+ *
+ * @param process   mocked process
+ */
+export function setMockProcess(process)
+{
+    currentProcess = process
+}
+
+/**
  * Find the history index for the given back function / number of back steps.
  *
  * @param {Number|Function} n   back function or number of steps to go back.
