@@ -18,7 +18,7 @@ import set from "lodash.set"
 import toPath from "lodash.topath"
 import { action } from "mobx";
 import Attachments from "../Attachments";
-import uuid from "uuid";
+import { v4 } from "uuid";
 import i18n from "../i18n";
 import AttachmentLink from "./AttachmentLink";
 
@@ -121,7 +121,7 @@ const AttachmentField = React.forwardRef(
 
                                 const file = files[0];
                                 const newAttachment = {
-                                    id: uuid.v4(),
+                                    id: v4(),
                                     type: file.type,
                                     description: file.name,
                                     url: null
