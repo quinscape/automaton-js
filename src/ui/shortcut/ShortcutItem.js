@@ -73,7 +73,9 @@ const ShortcutItem = fnObserver(({
         }
     }, [workingSet?.changes]);
 
-    const title = errorCount === 0 ? i18n("Section:{0}, no errors", heading) : i18n("Section:{0}, error(s) {1}", heading, errorCount);
+    const title = errorCount === 0 ?
+        i18n(`Section:{0}, no errors${changesCount ? ", has changes" : ""}`, heading) :
+        i18n(`Section:{0}, error(s) {1}${changesCount ? ", has changes" : ""}`, heading, errorCount);
 
     return (
         <a
