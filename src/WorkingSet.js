@@ -733,7 +733,7 @@ class EntityRegistration
 
     }
 
-    _updateChanges = action("_updateChanges", updates => {
+    _updateChanges = action("_updateChanges", (workingSet, updates) => {
 
         //console.log("UPDATES", updates)
 
@@ -767,6 +767,12 @@ class EntityRegistration
                 }
             }
         }
+
+        const { onNextChangeCallbacks } = workingSet[secret];
+
+        workingSet[secret].onNextChangeCallbacks = []
+        
+        onNextChangeCallbacks.forEach( fn => fn())
     })
 
     get registered()
@@ -786,7 +792,7 @@ class EntityRegistration
 
         this.dispose = reaction(
             () => this.recalculateChanges(),
-            changes => this._updateChanges(changes),
+            changes => this._updateChanges(workingSet, changes),
             {
                 name: "WS" + workingSet.id + ":" + this.key,
                 equals: (a,b) => checkUpdateEquality(this,a,b),
@@ -1043,6 +1049,7 @@ export default class WorkingSet {
      */
     id;
 
+
     constructor(mergeConfig = null)
     {
         //console.log("New WorkingSet", mergeConfig)
@@ -1055,7 +1062,12 @@ export default class WorkingSet {
             mergePlan: new MergePlan({
                 ... DEFAULT_MERGE_CONFIG,
                 ... mergeConfig
-            })
+            }),
+            /**
+             * Callback queue to be flushed on next update
+             * @type Array<Function>
+             */
+            onNextChangeCallbacks: []
         }
 
         // Store query and openDialog internally for easy hijacking in test
@@ -1159,6 +1171,20 @@ export default class WorkingSet {
         }
 
         return ws;
+    }
+
+
+    /**
+     * Executes the given callback after the next update has been processed. This callback is only executed *once*.
+     * @param {Function} cb
+     */
+    onNextChange(cb)
+    {
+        if (typeof cb !== "function")
+        {
+            throw new Error("Callback must be a function");
+        }
+        this[secret].onNextChangeCallbacks.push(cb);
     }
 
 
@@ -2121,7 +2147,7 @@ export default class WorkingSet {
     undo()
     {
         const { registrations : registrationsArray } = this
-        const { registrations  } = this[secret]
+        const { registrations } = this[secret]
 
         for (let i = 0; i < registrationsArray.length; i++)
         {
@@ -2134,7 +2160,7 @@ export default class WorkingSet {
                 // copy over all properties from base
                 Object.assign(registration.domainObject, registration.base)
                 // recalculate changes immediately to be safe for nested actions
-                registration._updateChanges(registration.recalculateChanges())
+                registration._updateChanges(this, registration.recalculateChanges())
             }
             else if (status === WorkingSetStatus.DELETED || status === WorkingSetStatus.NEW)
             {
