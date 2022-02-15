@@ -73,14 +73,16 @@ const ShortcutItem = fnObserver(({
         }
     }, [workingSet?.changes]);
 
+    const hasChanges = changesCount ? ", has changes" : "";
     const title = errorCount === 0 ?
-        i18n(`Section:{0}, no errors${changesCount ? ", has changes" : ""}`, heading) :
-        i18n(`Section:{0}, error(s) {1}${changesCount ? ", has changes" : ""}`, heading, errorCount);
+        i18n("Section:{0}, no errors" + hasChanges, heading) :
+        i18n("Section:{0}, error(s) {1}" + hasChanges, heading, errorCount);
+    const href = `#${reference}`;
 
     return (
         <a
             className={ cx("shortcut-link btn", errorCount ? "btn-danger" : "btn-outline-primary", !!changesCount && "has-changes") }
-            href={ `#${reference}` }
+            href={ href }
             title={ title }
             aria-label={ title }
             aria-invalid={ !!errorCount || null }
