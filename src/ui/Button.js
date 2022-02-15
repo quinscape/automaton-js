@@ -40,60 +40,65 @@ const Button = props => {
     };
 
     const onClick = ev => {
+        const entry = transition && env.process.getTransition(transition);
+        return ( !entry || !entry.discard ? formConfig.formContext.waitForAsyncValidation() : Promise.resolve()).then(
+            () => {
+                const { action } = props;
+                //console.log("BUTTON-CLICK", { action, transition, context, env })
 
-
-        const { action } = props;
-        //console.log("BUTTON-CLICK", { action, transition, context, env })
-
-        if (typeof action === "function")
-        {
-            // double check for safety
-            if (isDisabled(formConfig))
-            {
-                return;
-            }
-
-            action(getContext())
-        }
-        else
-        {
-            const entry = env.process.getTransition(transition);
-            if (!entry)
-            {
-                throw new Error("No transition '" + transition + "' in " + env.process.name + " / " + env.process.currentState.name)
-            }
-
-            if (!entry.discard)
-            {
-                if (formConfig.ctx)
+                if (typeof action !== "function")
                 {
-                    formConfig.ctx.submit();
-                }
-                else
-                {
-                    formConfig.formContext.revalidate();
+                    if (!entry)
+                    {
+                        throw new Error("No transition '" + transition + "' in " + env.process.name + " / " + env.process.currentState.name)
+                    }
+
+                    if (!entry.discard)
+                    {
+                        if (formConfig.ctx)
+                        {
+                            formConfig.ctx.submit();
+                            return formConfig.formContext.waitForAsyncValidation()
+                        }
+                        else
+                        {
+                            return formConfig.formContext.revalidate();
+                        }
+                    }
                 }
 
-                // triggering validation might produce errors that were not visible before
-                if (isDisabled(formConfig))
-                {
-                    return;
+            })
+            .then(
+                () => {
+
+                    if (!isDisabled(formConfig))
+                    {
+                        const { action } = props;
+                        //console.log("BUTTON-CLICK", { action, transition, context, env })
+
+                        if (typeof action === "function")
+                        {
+                            action(getContext())
+                        }
+                        else
+                        {
+                            try
+                            {
+                                const { process } = env;
+
+                                //console.log("TRANSITION", transition, process);
+                                // it's important to take context *after* we submit or reset it above
+                                process.transition(transition, getContext(), name)
+                            }
+                            catch(e)
+                            {
+                                console.error(e);
+                            }
+                        }
+                    }
                 }
-            }
+            )
 
-            try
-            {
-                const { process } = env;
-
-                //console.log("TRANSITION", transition, process);
-                // it's important to take context *after* we submit or reset it above
-                process.transition(transition, getContext(), name)
-            }
-            catch (e)
-            {
-                console.error(e);
-            }
-        }
     };
 
     const isDisabled = () =>
