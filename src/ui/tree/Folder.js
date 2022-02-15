@@ -4,14 +4,12 @@ import PropTypes from "prop-types"
 import { getFirstValue } from "../../model/InteractiveQuery";
 import i18n from "../../i18n";
 
-import { findParentLink, nextSelectionId, TreeContext } from "./Tree";
+import { nextSelectionId, TreeContext } from "./Tree";
 import GraphQLQuery from "../../GraphQLQuery";
 import TreeItem from "./TreeItem";
-import { Popper } from "react-popper";
-import ItemMenu from "./ItemMenu";
 import MetaItem from "./MetaItem";
 import CaretButton from "./CaretButton";
-import { Icon } from "domainql-form";
+import ItemMenuWrapper from "./ItemMenuWrapper";
 
 
 const LOADING = "LOADING";
@@ -113,8 +111,6 @@ const Folder = ({row, render, query, variables, onLoad, actions, children}) => {
         )
     }
 
-    const isSelected = selectionId === ctx.selected;
-    const isMenuOpen = ctx.menu === selectionId;
     return (
         <TreeItem
             ref={ ref }
@@ -146,44 +142,12 @@ const Folder = ({row, render, query, variables, onLoad, actions, children}) => {
                 </div>
                 {
                     actions && actions.length > 1 && (
-                        <React.Fragment>
-                            <button
-                                type="button"
-                                className={ cx("btn btn-secondary item-menu ml-1 sr-only sr-only-focusable", ctx.options.small && "btn-sm") }
-                                tabIndex={isSelected ? 0 : -1}
-                                aria-haspopup={ true }
-                                aria-expanded={ isMenuOpen }
-                                onClick={() => ctx.updateMenu(selectionId)}
-                            >
-                                <Icon className="fa-angle-right p-1"/>
-                            </button>
-                            {
-                                isMenuOpen && (
-                                    <Popper
-                                        placement="right-start"
-                                        referenceElement={ ctx.menuElem }
-                                        modifiers={ ctx.options.popperModifiers }
-                                    >
-                                        {({ref, style, placement, scheduleUpdate}) => (
-                                            <ItemMenu
-                                                ref={ ref }
-                                                style={ style }
-                                                data-placement={ placement }
-                                                scheduleUpdate={ scheduleUpdate }
-                                                close={ () => {
-                                                    ctx.updateMenu(null);
-                                                    const link = findParentLink(ctx.menuElem);
-                                                    link && link.focus();
-                                                } }
-
-                                                row={ row }
-                                                actions={ actions }
-                                            />
-                                        )}
-                                    </Popper>
-                                )
-                            }
-                        </React.Fragment>
+                        <ItemMenuWrapper
+                            ctx={ctx}
+                            selectionId={selectionId}
+                            row={row}
+                            actions={actions}
+                        />
                     )
                 }
                 {

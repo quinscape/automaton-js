@@ -1,13 +1,12 @@
 import React, { useContext, useMemo, useRef, useState } from "react"
 import { observer as fnObserver } from "mobx-react-lite"
-import { Icon } from "domainql-form";
 
-import { findParentLink, nextSelectionId, TreeContext } from "./Tree";
+import { nextSelectionId, TreeContext } from "./Tree";
 import TreeItem from "./TreeItem";
 import cx from "classnames";
-import { Popper } from "react-popper";
-import ItemMenu from "./ItemMenu";
 import CaretButton from "./CaretButton";
+import ItemMenuWrapper from "./ItemMenuWrapper";
+
 
 /**
  * Renders a tree item based on a data row object.
@@ -84,44 +83,12 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
                 </div>
                 {
                     actions && actions.length > 1 && (
-                        <React.Fragment>
-                            <button
-                                type="button"
-                                className={ cx("btn btn-secondary item-menu ml-1 sr-only sr-only-focusable", ctx.options.small && "btn-sm") }
-                                tabIndex={isSelected ? 0 : -1}
-                                aria-haspopup={ true }
-                                aria-expanded={ isMenuOpen }
-                                onClick={() => ctx.updateMenu(selectionId)}
-                            >
-                                <Icon className="fa-angle-right p-1"/>
-                            </button>
-                            {
-                                isMenuOpen && (
-                                    <Popper
-                                        placement="right-start"
-                                        referenceElement={ ctx.menuElem }
-                                        modifiers={ ctx.options.popperModifiers }
-                                    >
-                                        {({ref, style, placement, scheduleUpdate}) => (
-                                            <ItemMenu
-                                                ref={ ref }
-                                                style={ style }
-                                                data-placement={ placement }
-                                                scheduleUpdate={ scheduleUpdate }
-                                                close={ () => {
-                                                    ctx.updateMenu(null);
-                                                    const link = findParentLink(ctx.menuElem);
-                                                    link && link.focus();
-                                                } }
-
-                                                row={ row }
-                                                actions={ actions }
-                                            />
-                                        )}
-                                    </Popper>
-                                )
-                            }
-                        </React.Fragment>
+                        <ItemMenuWrapper
+                            ctx={ctx}
+                            selectionId={selectionId}
+                            row={row}
+                            actions={actions}
+                        />
                     )
                 }
                 {
