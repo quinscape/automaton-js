@@ -4,6 +4,14 @@ import { observer as fnObserver } from "mobx-react-lite"
 import cx from "classnames";
 import i18n from "../../i18n";
 
+function applyMissingSection(ctx, fieldEl, reference) {
+    const sectionEl = document.getElementById(reference)?.parentElement;
+    const isContained = sectionEl?.contains(fieldEl);
+    if (isContained) {
+        ctx.section = reference;
+    }
+}
+
 /**
  * Renders a form shortcut
  * 
@@ -31,11 +39,7 @@ const ShortcutItem = fnObserver(({
             const ctx = fieldContexts[i];
             const fieldEl = document.getElementById(ctx.fieldId);
             if (!ctx.section) {
-                const sectionEl = document.getElementById(reference).parentElement;
-                const isContained = sectionEl.contains(fieldEl);
-                if (isContained) {
-                    ctx.section = reference;
-                }
+                applyMissingSection(ctx, fieldEl, reference);
             }
             if (ctx.section === reference) {
                 const fieldName = fieldEl.name;
@@ -56,11 +60,7 @@ const ShortcutItem = fnObserver(({
                 const ctx = fieldContexts[i];
                 const fieldEl = document.getElementById(ctx.fieldId);
                 if (!ctx.section) {
-                    const sectionEl = document.getElementById(reference).parentElement;
-                    const isContained = sectionEl.contains(fieldEl);
-                    if (isContained) {
-                        ctx.section = reference;
-                    }
+                    applyMissingSection(ctx, fieldEl, reference);
                 }
                 if (ctx.section === reference) {
                     const registration = workingSet.lookup(ctx.rootType, ctx.root.id);
