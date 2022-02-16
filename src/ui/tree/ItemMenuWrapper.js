@@ -28,7 +28,7 @@ const ItemMenuWrapper = ({
         {
             isMenuOpen && (
                 <Popper
-                    placement="right-start"
+                    placement="bottom-start"
                     referenceElement={ ctx.menuElem }
                     modifiers={ ctx.options.popperModifiers }
                 >
