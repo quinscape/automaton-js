@@ -149,7 +149,9 @@ const FkSelectorModal = fnObserver(
                                                     >
 
                                                         <Icon className="fa-eraser mr-1"/>
-                                                        Clear
+                                                        {
+                                                            i18n("Clear")
+                                                        }
                                                     </button>
                                                 </Addon>
                                             </Field>
