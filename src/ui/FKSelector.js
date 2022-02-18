@@ -362,7 +362,7 @@ const FKSelector = fnObserver(props => {
                                 if (fieldValue !== inputValue)
                                 {
                                     //console.log("CHANGE TO ", fieldValue);
-                                    formConfig.handleChange(ctx, fieldValue);
+                                    // formConfig.handleChange(ctx, fieldValue);
                                     setInputValue(fieldValue);
                                 }
                             }
