@@ -155,11 +155,6 @@ function createInitialState(index, values, nameField)
             state[index[idx - 1]].loadState = LoadState.DONE;
         }
 
-        if (!state[letter].open)
-        {
-            state[letter].open = true;
-        }
-
         if (state[letter].loadState === LoadState.INITIAL)
         {
             state[letter].loadState = LoadState.FETCHED;
@@ -408,7 +403,7 @@ const IndexedObjects = fnObserver(({
                 //console.log("open", letter);
                 newState[letter] = {
                     ... newState[letter],
-                    open : true
+                    open : i === 0
                 };
 
                 if (newState[letter].loadState === LoadState.INITIAL)
