@@ -71,6 +71,7 @@ import ViewState from "./process/ViewState";
 import promiseUI, {configurePromiseUI} from "./util/promiseUI"
 
 import ConditionEditor from "./ui/condition/ConditionEditor"
+import {unwrapNonNull} from "./util/type-utils";
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -182,7 +183,7 @@ export {
     configurePromiseUI,
 
     ConditionEditor,
-    confirmDestructiveTransition
-    
-}
+    confirmDestructiveTransition,
+    unwrapNonNull
 
+}
