@@ -275,7 +275,7 @@ describe("filterTransformer", function () {
             .then(
                 () => {
                     const delta = nowFn().toMillis() - nw.toMillis()
-                    assert(delta >= 100 && delta < 120);
+                    assert(delta >= 100 && delta < 150);
                     assert( +todayFn() === +DateTime.now().startOf("day") );
                 }
             )
