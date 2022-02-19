@@ -17,6 +17,7 @@ import userEvent from "@testing-library/user-event"
 import DecimalField from "../../src/ui/DecimalField"
 import { StartupRegistry } from "../../src/startup"
 import ViewState from "../../src/process/ViewState";
+import sleep from "./sleep"
 class MockProcess
 {
     constructor()
@@ -181,123 +182,139 @@ describe("Button", function () {
             opt: null
         })
 
-        let container;
-
         const renderSpy = sinon.spy();
 
-        act(
-            () => {
-                const result = render(
-                    <AutomatonEnv.Provider value={mockEnv}>
-                        <FormConfigProvider schema={inputSchema}>
-                            <TestForm
-                                value={ formObj}
-                                renderSpy={ renderSpy }
+        const result = render(
+            <AutomatonEnv.Provider value={mockEnv}>
+                <FormConfigProvider schema={inputSchema}>
+                    <TestForm
+                        value={formObj}
+                        renderSpy={renderSpy}
 
-                            />
-                        </FormConfigProvider>
-                    </AutomatonEnv.Provider>
-                )
-               container = result.container;
-            }
+                    />
+                </FormConfigProvider>
+            </AutomatonEnv.Provider>
         )
-
-
+        const container = result.container;
 
         // non-discard button inside form
         {
             act(
                 () => {
-                    const button = getByText(container,"Do");
+                    const button = getByText(container, "Do");
                     assert(!button.disabled);
                     button.click()
                 }
             )
-
-            const transitionSpy = mockProcess.getTransition("nonDiscard").action;
-            assert(transitionSpy.called)
-            assert(transitionSpy.lastCall.args[0] === formObj)
-            assert(transitionSpy.lastCall.args[1] === "do-button")
         }
 
-        // non-discard button inside form with explicit context
-        {
-
-            act(
+        return FormContext.getDefault().waitForAsyncValidation()
+            .then(() => sleep(5))
+            .then(
                 () => {
-                    const button = getByText(container,"Do2");
-                    assert(!button.disabled);
-                    button.click()
-                }
-            )
 
-            const transitionSpy = mockProcess.getTransition("nd2").action;
-            assert(transitionSpy.called)
-            assert(transitionSpy.lastCall.args[0] === 387)
-            assert(transitionSpy.lastCall.args[1] === "do-button-2")
-        }
+                    const transitionSpy = mockProcess.getTransition("nonDiscard").action;
+                    assert(transitionSpy.called)
+                    assert(transitionSpy.lastCall.args[0] === formObj)
+                    assert(transitionSpy.lastCall.args[1] === "do-button")
 
-        // button outside form (only works as discard)
-        {
-            act(
-                () => {
-                    const button = getByText(container,"Do3");
-                    assert(!button.disabled);
-                    button.click()
-                }
-            )
+                    // non-discard button inside form with explicit context
+                    {
 
-            const transitionSpy = mockProcess.getTransition("nonform").action;
-            assert(transitionSpy.called)
-            assert(transitionSpy.lastCall.args[0] === null)
-            assert(transitionSpy.lastCall.args[1] === "non-form")
-        }
-
-        // button outside form with explicit context
-        {
-            act(
-                () => {
-                    const button = getByText(container,"Do4");
-                    assert(!button.disabled);
-                    button.click()
-                }
-            )
-
-            const transitionSpy = mockProcess.getTransition("nonform2").action;
-            assert(transitionSpy.called)
-            assert(transitionSpy.lastCall.args[0] === "aaa")
-            assert(transitionSpy.lastCall.args[1] === "non-form2")
-        }
-
-
-        // check behavior on error
-        act(
-            () => {
-                const input = getByLabelText(container, "name");
-                fireEvent.change(input, {
-                    target: {
-                        value: ""
+                        act(
+                            () => {
+                                const button = getByText(container, "Do2");
+                                assert(!button.disabled);
+                                button.click()
+                            }
+                        )
                     }
-                });
-            }
-        )
 
-        assert(renderSpy.called);
-        const formConfig = renderSpy.lastCall.args[0];
-        assert.deepEqual(formConfig.getErrors("name"), ["","Garply.name:Field Required"]);
+                    return FormContext.getDefault().waitForAsyncValidation()
+                })
+            .then(() => sleep(5))
+            .then(
+                () => {
 
+                    const transitionSpy = mockProcess.getTransition("nd2").action;
+                    assert(transitionSpy.called)
+                    assert(transitionSpy.lastCall.args[0] === 387)
+                    assert(transitionSpy.lastCall.args[1] === "do-button-2")
 
-        const nonDiscardButton = getByText(container,"Do");
-        const nonDiscardButton2 = getByText(container,"Do2");
-        const discardButton = getByText(container,"Dont");
-        const actionButton = getByText(container,"Action");
-        const actionWithDisabledIfErrors = getByText(container,"ActionDiscard");
+                    // button outside form (only works as discard)
+                    {
+                        act(
+                            () => {
+                                const button = getByText(container, "Do3");
+                                assert(!button.disabled);
+                                button.click()
+                            }
+                        )
+                    }
 
-        assert(nonDiscardButton.disabled);
-        assert(nonDiscardButton2.disabled);
-        assert(!discardButton.disabled);
-        assert(!actionButton.disabled);
-        assert(actionWithDisabledIfErrors.disabled);
+                    return FormContext.getDefault().waitForAsyncValidation()
+                }
+            )
+            .then(
+                () => {
+
+                    const transitionSpy = mockProcess.getTransition("nonform").action;
+                    assert(transitionSpy.called)
+                    assert(transitionSpy.lastCall.args[0] === null)
+                    assert(transitionSpy.lastCall.args[1] === "non-form")
+
+                    // button outside form with explicit context
+                    {
+                        act(
+                            () => {
+                                const button = getByText(container, "Do4");
+                                assert(!button.disabled);
+                                button.click()
+                            }
+                        )
+                    }
+                    return FormContext.getDefault().waitForAsyncValidation()
+                }
+            )
+            .then(() => sleep(5))
+            .then(
+                () => {
+
+                    const transitionSpy = mockProcess.getTransition("nonform2").action;
+                    assert(transitionSpy.called)
+                    assert(transitionSpy.lastCall.args[0] === "aaa")
+                    assert(transitionSpy.lastCall.args[1] === "non-form2")
+
+                    // check behavior on error
+                    act(
+                        () => {
+                            const input = getByLabelText(container, "name");
+                            fireEvent.change(input, {
+                                target: {
+                                    value: ""
+                                }
+                            });
+                        }
+                    )
+
+                    assert(renderSpy.called);
+                    const formConfig = renderSpy.lastCall.args[0];
+                    assert.deepEqual(formConfig.getErrors("name"), ["", "Garply.name:Field Required"]);
+
+                    const nonDiscardButton = getByText(container, "Do");
+                    const nonDiscardButton2 = getByText(container, "Do2");
+                    const discardButton = getByText(container, "Dont");
+                    const actionButton = getByText(container, "Action");
+                    const actionWithDisabledIfErrors = getByText(container, "ActionDiscard");
+
+                    assert(nonDiscardButton.disabled);
+                    assert(nonDiscardButton2.disabled);
+                    assert(!discardButton.disabled);
+                    assert(!actionButton.disabled);
+                    assert(actionWithDisabledIfErrors.disabled);
+
+                }
+            )
     });
 
 
