@@ -387,6 +387,27 @@ function resetHistoryTo(historyIndex)
     config.history.go(delta);
 }
 
+export function findProcessScopeWithWorkingSet(process)
+{
+    let { scope } = process
+    let current = process
+    do
+    {
+        if (scope.workingSet instanceof WorkingSet)
+        {
+            return scope
+        }
+        else if (typeof scope.isDirty === "function")
+        {
+            return scope
+        }
+        current = current[secret].parent
+
+    } while (current)
+
+    return null
+}
+
 
 /**
  * Process facade exposing a limited set of getters and methods as process API
@@ -544,29 +565,24 @@ export class Process {
      */
     get isDirty()
     {
-        let { scope } = this
-        let process = this
-        do
+        const scope = findProcessScopeWithWorkingSet(this)
+        if (scope)
         {
-            if (scope.workingSet instanceof WorkingSet)
+            if (scope.workingSet)
             {
-                if (scope.workingSet.hasChanges)
-                {
+                if(scope.workingSet.hasChanges) {
                     return true
                 }
             }
             else if (typeof scope.isDirty === "function")
             {
-                if (scope.isDirty())
-                {
-                    return true
-                }
+                return scope.isDirty()
             }
-
-            process = process[secret].parent
-
-        } while (process)
-
+            else
+            {
+                throw new Error("Returned scope has neither workingSet nor isDirty function")
+            }
+        }
         return false
     }
 

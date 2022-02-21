@@ -1,9 +1,16 @@
-import { fetchProcessInjections, renderProcess, ErrorView, confirmDestructiveTransition } from "./Process"
+import {
+    fetchProcessInjections,
+    renderProcess,
+    ErrorView,
+    confirmDestructiveTransition,
+    findProcessScopeWithWorkingSet, getCurrentProcess
+} from "./Process"
 import config from "../config";
 import render from "../render";
 import React from "react";
 import searchParams from "../util/searchParams";
 import i18n from "../i18n"
+import {FormContext} from "domainql-form";
 
 const NUMBER_RE = /^-?[0-9]{1-15}$/;
 
@@ -127,6 +134,20 @@ export default function runProcess(processName, input) {
             )
         )
     }
+
+
+    // XXX: We need to clear our errors as a makeshift solution for the problem that we might start a new process while
+    //      there is an error. The process is technically not dead because the user can navigate via browser history
+    //      To leave everything in the best possible state, we undo working set changes after the user has agreed to the
+    //      data loss and remove all form errors. The user changes are in fact lost now and errors that may still exist
+    //      independent of the working set will be rediscovered on revalidate() *if* the user should ever return
+
+    const scope = findProcessScopeWithWorkingSet(getCurrentProcess())
+    if (scope && scope.workingSet)
+    {
+        scope.workingSet.undo()
+    }
+    FormContext.getDefault().removeAllErrors()
 
     return fetchProcessInjections(config.appName, processName, input)
         .then(
