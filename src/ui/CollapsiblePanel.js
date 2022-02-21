@@ -8,6 +8,7 @@ import { Card, CardBody, CardHeader } from "reactstrap";
 const CollapsiblePanel = ({
     className,
     header,
+    hideHeader,
     collapsed,
     children
 }) => {
@@ -26,9 +27,11 @@ const CollapsiblePanel = ({
                 >
                     <Icon className={expanded ? "fa-chevron-up" : "fa-chevron-down"} />
                 </button>
-                {
-                    header
-                }
+                <span className={cx(hideHeader && "sr-only")}>
+                    {
+                        header
+                    }
+                </span>
             </CardHeader>
             <CardBody>
                 {

@@ -51,7 +51,7 @@ const Section = fnObserver(({
             <div id={ id } style={ {position: "absolute", pointerEvents: "none", top: -stickySizes.headerHeight} } />
             {
                 collapsible ? (
-                    <CollapsiblePanel header={headerContent} collapsed={initiallyCollapsed}>
+                    <CollapsiblePanel header={headerContent} hideHeader={hideHeader} collapsed={initiallyCollapsed}>
                         {
                             children
                         }
