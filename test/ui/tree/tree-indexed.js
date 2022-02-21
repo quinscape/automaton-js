@@ -130,6 +130,13 @@ describe("Tree.IndexedObjects", function () {
             </FormConfigProvider>
         );
 
+        act(() => {
+            const folderA = getByText(container, "A:");
+            folderA.click();
+            const folderB = getByText(container, "B:");
+            folderB.click();
+        });
+
         const summary = getTreeSummary(container);
 
         //console.log(JSON.stringify(summary, null, 4));
@@ -429,6 +436,55 @@ describe("Tree.IndexedObjects", function () {
                 });
 
                 return sleep(5);
+            })
+
+            .then(() => {
+                const summary = getTreeSummary(container);
+
+                //console.log(JSON.stringify(summary, null, 4));
+
+                assert.deepEqual(
+                    summary,
+                    // group "B:" opened again
+                    [
+                        " vA:",
+                        "    aardvark",
+                        "    antelope",
+                        " vB:",
+                        "    bass",
+                        "    bear",
+                        "    boar",
+                        "    buffalo",
+                        " vC:",
+                        "    calf",
+                        "    carp",
+                        "    catfish",
+                        "    cavy",
+                        "    cheetah",
+                        "    chicken",
+                        "    chub",
+                        "    clam",
+                        "    crab",
+                        "    crayfish",
+                        "    crow",
+                        " >D:",
+                        " vE:",
+                        "    elephant",
+                        "    Escherichia Coli",
+                        " vF:",
+                        "*   flamingo",
+                        "    flea",
+                        "    frog",
+                        "    fruitbat"
+                    ]
+                );
+            })
+
+            .then(() => {
+                act(() => {
+                    const dItems = getByText(container, "D:");
+                    dItems.click();
+                });
             })
 
             .then(() => {

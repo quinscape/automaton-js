@@ -108,6 +108,13 @@ describe("Tree", function () {
                 }
         )
 
+        act(() => {
+            const aItems = getByText(container, "A:");
+            aItems.click();
+            const bItems = getByText(container, "B:");
+            bItems.click();
+        });
+
         const summary = getTreeSummary(container);
 
         //console.log(JSON.stringify(summary, null, 4));

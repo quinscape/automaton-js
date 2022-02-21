@@ -320,6 +320,43 @@ describe("Tree.Folder", function () {
                     // Invisible Folder queries contents immediately (and ensures there's a selection in case the folder
                     // was the only tree item before)
                     [
+                        "*>A",
+                        " >B",
+                        " >C",
+                        " >D",
+                        " >E",
+                        " >F"
+                    ]
+                );
+            }
+        ).then(
+            () => {
+                act(() => {
+                    const folderA = getByText(container, "A");
+                    folderA.click();
+                    const folderB = getByText(container, "B");
+                    folderB.click();
+                    const folderC = getByText(container, "C");
+                    folderC.click();
+                    const folderD = getByText(container, "D");
+                    folderD.click();
+                    const folderE = getByText(container, "E");
+                    folderE.click();
+                    const folderF = getByText(container, "F");
+                    folderF.click();
+                });
+            }
+        ).then(
+            () => {
+                const summary = getTreeSummary(container);
+
+                //console.log(JSON.stringify(summary, null, 4));
+
+                assert.deepEqual(
+                    summary,
+                    // Invisible Folder queries contents immediately (and ensures there's a selection in case the folder
+                    // was the only tree item before)
+                    [
                         "*vA",
                         "    aardvark",
                         "    antelope",
@@ -357,6 +394,7 @@ describe("Tree.Folder", function () {
                         "    [More]"
                     ]
                 );
-            })
+            }
+        )
     });
 });
