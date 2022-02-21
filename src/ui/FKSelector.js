@@ -224,7 +224,21 @@ const FKSelector = fnObserver(props => {
 
     const [ isLoading, setIsLoading ] = useState(false);
 
-    const { display, query : queryFromProps, searchFilter, modalTitle, fade, searchTimeout, modalFilter, cachedPageSize, children, onChange, ... fieldProps } = props;
+    const {
+        display,
+        query :
+        queryFromProps,
+        searchFilter,
+        modalTitle,
+        fade,
+        searchTimeout,
+        modalFilter,
+        cachedPageSize,
+        children,
+        onChange,
+        selectButtonContentRenderer,
+        ... fieldProps
+    } = props;
 
     const haveUserInput = !!searchFilter;
 
@@ -643,6 +657,7 @@ const FKSelector = fnObserver(props => {
                                 searchFilter={ searchFilter }
                                 searchTimeout={ searchTimeout }
                                 fkSelectorId={ fkSelectorId }
+                                selectButtonContentRenderer={ selectButtonContentRenderer }
                             />
                         </FormGroup>
                     );

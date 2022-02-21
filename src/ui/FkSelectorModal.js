@@ -26,7 +26,24 @@ const setFilter = action(
 const FkSelectorModal = fnObserver(
     props => {
 
-        const { isOpen, iQuery, iQueryType, columns, columnTypes, title, fieldType, selectRow, toggle, fade, filter = null, modalFilter, searchFilter, searchTimeout, fkSelectorId } = props;
+        const {
+            isOpen,
+            iQuery,
+            iQueryType,
+            columns,
+            columnTypes,
+            title,
+            fieldType,
+            selectRow,
+            toggle,
+            fade,
+            filter = null,
+            modalFilter,
+            searchFilter,
+            searchTimeout,
+            fkSelectorId,
+            selectButtonContentRenderer
+        } = props;
 
         const formObject = useLocalObservable(() => observable({filter}));
 
@@ -98,6 +115,15 @@ const FkSelectorModal = fnObserver(
         );
 
         //console.log("FkSelectorModal", toJS(iQuery))
+
+        const selectButtonContent =
+            typeof selectButtonContentRenderer === "function" ?
+                selectButtonContentRenderer() :
+                i18n("Select");
+        const selectButtonTitle  =
+            typeof selectButtonContentRenderer === "function" ?
+                i18n("Select") : 
+                "";
 
         return(
             <Modal isOpen={ isOpen } toggle={ toggle } size="lg" fade={ fade }>
@@ -178,11 +204,12 @@ const FkSelectorModal = fnObserver(
                                             row => (
                                                 <button
                                                     type="button"
-                                                    className="btn btn-secondary"
+                                                    className="btn btn-outline-primary"
                                                     onClick={ ev => selectRow(row) }
+                                                    title={ selectButtonTitle }
                                                 >
                                                     {
-                                                        i18n("Select")
+                                                        selectButtonContent
                                                     }
                                                 </button>
                                             )
@@ -219,7 +246,7 @@ const FkSelectorModal = fnObserver(
                                 !isNonNull(fieldType) && (
                                     <button
                                         type="button"
-                                        className="btn btn-secondary"
+                                        className="btn btn-outline-primary"
                                         onClick={ ev => selectRow(null) }
                                     >
                                         {
