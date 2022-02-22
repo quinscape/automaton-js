@@ -1,4 +1,4 @@
-import { action, computed, makeObservable, observable, reaction, toJS } from "mobx"
+import { action, computed, makeObservable, observable, reaction, toJS, comparer } from "mobx"
 import { computedFn } from "mobx-utils"
 
 import config from "./config"
@@ -2173,5 +2173,59 @@ export default class WorkingSet {
             }
         }
     }
+
+
+    /**
+     * A reactive reducer helper function. The given reducer function ( (domainObject,<T>) => <T> ) is applied to the
+     * combined set of domain objects from the given iQuery document and the working set.
+     *
+     * @param {InteractiveQuery} iQuery     iQuery document
+     * @param {function} fn                 reducer function
+     * @param {*} initial                   initial reducer value
+     *
+     * @return {*} reducer result
+     */
+    reducer = computedFn((iQuery, fn, initial) => {
+
+        const { registrations } = this[secret]
+        const { rows } = iQuery
+
+        let curr = initial;
+        for (let registration of registrations)
+        {
+            const { status, domainObject } = registration
+            if (status === WorkingSetStatus.NEW)
+            {
+                curr = fn(domainObject, curr)
+            }
+        }
+        for (let i = 0; i < rows.length; i++)
+        {
+            const row = rows[i]
+            const key = changeKey(row._type, row.id)
+            const registration = registrations.get(key)
+            if (registration)
+            {
+                const { status, domainObject } = registration
+                if (status === WorkingSetStatus.MODIFIED)
+                {
+                    curr = fn(domainObject, curr)
+                }
+                else if (status === WorkingSetStatus.DELETED)
+                {
+                    curr = fn(row, curr)
+                }
+            }
+            else
+            {
+                curr = fn(row, curr)
+            }
+        }
+        return curr;
+
+    }, {
+        name: "WorkingSet.reducer"
+    })
+
 }
 
