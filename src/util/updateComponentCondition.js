@@ -1,5 +1,7 @@
 import { component, and, condition, isLogicalCondition, Type, isComposedComponentExpression } from "../FilterDSL";
 import compareConditions from "./compareConditions";
+import toJSEveryThing from "./toJSEveryThing"
+import decompileFilter from "./decompileFilter"
 
 
 /**
@@ -87,6 +89,10 @@ export default function updateComponentCondition(
     compareUpdate = true
 )
 {
+    console.log("updateComponentCondition: compositeCondition = ", decompileFilter(compositeCondition), { compositeCondition: toJSEveryThing(compositeCondition)  })
+    console.log("compositeCondition = ", decompileFilter(componentCondition), { componentCondition: toJSEveryThing(componentCondition) })
+    console.log("componentId = ", componentId, "compareUpdate", compareUpdate)
+
     const newComponentNode = component(componentId);
     newComponentNode.condition = componentCondition;
 
@@ -117,7 +123,6 @@ export default function updateComponentCondition(
                 // id did not match, we join both conditions to a new composite condition
                 newCondition = condition("and");
                 newCondition.operands = [ compositeCondition, newComponentNode ];
-
                 return newCondition;
             }
 
@@ -134,14 +139,13 @@ export default function updateComponentCondition(
                 }
                 else
                 {
-                    return and(
+                    const result = and(
                         component(null, compositeCondition),
                         newComponentNode
-                    );
+                    )
+                    return result;
                 }
-
             }
-
         }
         const componentConditions = [];
 

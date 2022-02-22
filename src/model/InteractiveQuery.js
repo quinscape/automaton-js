@@ -1,8 +1,9 @@
 import { action, makeObservable, observable, toJS } from "mobx"
-import { isConditionObject } from "../FilterDSL";
-import updateComponentCondition from "../util/updateComponentCondition";
-import { getGraphQLMethodType } from "../util/type-utils"
+import { isConditionObject } from "../FilterDSL"
+import updateComponentCondition from "../util/updateComponentCondition"
 import GraphQLQuery from "../GraphQLQuery"
+import decompileFilter from "../util/decompileFilter"
+import toJSEveryThing from "../util/toJSEveryThing"
 
 
 export const NO_COMPONENT = null;
@@ -200,6 +201,8 @@ export default class InteractiveQuery {
             return Promise.resolve(true);
         }
 
+        console.log("Re-query with updated condition", decompileFilter(newCondition), {newCondition: toJSEveryThing(newCondition)})
+
         return this.update({
             condition: newCondition,
             offset: 0
@@ -233,8 +236,7 @@ export default class InteractiveQuery {
             }
         }
 
-        const buf = [];
-        const sel = renderSelections(buf, selections[varName], 6).join("");
+        const sel = renderSelections([], selections[varName], 6).join("");
 
         if (!gqlMethodName)
         {
@@ -261,7 +263,7 @@ export default class InteractiveQuery {
                         sortFields
                     }
                     rows{
-${ buf.join("")}
+${ [].join("")}
                     }
                     rowCount
                 }
