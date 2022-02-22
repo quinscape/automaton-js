@@ -1,6 +1,8 @@
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, toJS } from "mobx"
 import { isConditionObject } from "../FilterDSL";
 import updateComponentCondition from "../util/updateComponentCondition";
+import { getGraphQLMethodType } from "../util/type-utils"
+import GraphQLQuery from "../GraphQLQuery"
 
 
 export const NO_COMPONENT = null;
@@ -40,7 +42,42 @@ const updateFromResult = action("Update iQuery from Result", (iQuery, result) =>
     return true;
 });
 
+function indent(buf, level)
+{
+    for (let i = 0; i < level; i++)
+    {
+        buf.push("    ")
+    }
+}
 
+function renderSelections(buf, sel, level)
+{
+    for (let name in sel)
+    {
+        if (sel.hasOwnProperty(name))
+        {
+            const v = sel[name]
+            if (v === true)
+            {
+                indent(buf, level)
+                buf.push(name, "\n")
+            }
+            else
+            {
+                indent(buf, level)
+                buf.push(name, "{\n")
+                renderSelections(buf, v, level + 1)
+                indent(buf, level)
+                buf.push("}\n")
+            }
+        }
+    }
+
+    return buf
+}
+
+
+let partialCount = 0;
 
 
 /**
@@ -167,5 +204,74 @@ export default class InteractiveQuery {
             condition: newCondition,
             offset: 0
         })
+    }
+
+
+    /**
+     * Extracts a new independent iQuery object with a new Query containing only the selections for that iQuery.
+     *
+     * @param {Object} result   multi iQuery result object
+     * @param {String} varName  variable name of this query in the original query
+     */
+    static separate(result, varName)
+    {
+        const iQuery = result[varName];
+        const query = result[varName]._query;
+        const queryDef = query.getQueryDefinition()
+
+        const { methodCalls, aliases, selections } = queryDef
+        //console.log({ methodCalls, aliases, selections })
+
+        let gqlMethodName = null;
+        for (let i = 0; i < methodCalls.length; i++)
+        {
+            const name = methodCalls[i];
+            if (name === varName)
+            {
+                gqlMethodName = aliases ? aliases[name] || name : name;
+                break;
+            }
+        }
+
+        const buf = [];
+        const sel = renderSelections(buf, selections[varName], 6).join("");
+
+        if (!gqlMethodName)
+        {
+            throw new Error("Could not find method name for " + varName)
+        }
+
+        iQuery._query = new GraphQLQuery(
+            // language=GraphQL
+            `query ${gqlMethodName + "_p" + (++partialCount)}($config: QueryConfigInput!)
+            {
+                ${gqlMethodName}(config: $config)
+                {
+                    type
+                    columnStates{
+                        name
+                        enabled
+                        sortable
+                    }
+                    queryConfig{
+                        id
+                        condition
+                        offset
+                        pageSize
+                        sortFields
+                    }
+                    rows{
+${ buf.join("")}
+                    }
+                    rowCount
+                }
+            }`,
+            {
+            config: toJS(iQuery.queryConfig)
+        })
+
+        //console.log("QUERY", iQuery._query)
+
+        return iQuery
     }
 }

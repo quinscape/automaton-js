@@ -126,6 +126,58 @@ function getMethodCalls(selectionSet)
 }
 
 
+function collectFields(obj, selectionSet)
+{
+    if (selectionSet && selectionSet.selections.length)
+    {
+        const { selections } = selectionSet;
+        for (let i = 0; i < selections.length; i++)
+        {
+            const selection = selections[i]
+            const name = selection.alias ? selection.alias.value : selection.name.value
+
+            const { selectionSet : subSelection } = selection;
+            if (subSelection)
+            {
+                const sub = {}
+                obj[name] = sub
+                collectFields(sub, subSelection)
+            }
+            else
+            {
+                obj[name] = true
+            }
+        }
+    }
+}
+
+
+function getSelections(selectionSet)
+{
+    const selectionsMap = {};
+    if (selectionSet)
+    {
+        const { selections } = selectionSet;
+
+        for (let i = 0; i < selections.length; i++)
+        {
+            const field = selections[i];
+            if (field.kind === "Field")
+            {
+                const name = field.alias ? field.alias.value : field.name.value
+
+                const obj = {}
+                collectFields(obj, field.selectionSet)
+
+                selectionsMap[name] = obj.rows;
+                //console.log("SUB", name, field)
+            }
+        }
+    }
+    return selectionsMap;
+}
+
+
 /**
  * Result type of parseQuery. A simplified transformation of the GraphQL language parser document structure.
  *
@@ -155,7 +207,7 @@ export default function parseQuery(inputSchema, query)
         throw new Error("Could not parse query: " + query + " => " + JSON.stringify(document))
     }
 
-    //console.log("DOCUMENT", JSON.stringify(document, null, 4))
+    //console.log("DOCUMENT", document)
 
     const definitions = document.definitions.filter(def => def.kind === Kind.OPERATION_DEFINITION);
 
@@ -178,6 +230,7 @@ export default function parseQuery(inputSchema, query)
 
     return {
         methodCalls: getMethodCalls(definition.selectionSet),
+        selections: getSelections(definition.selectionSet),
         vars,
         aliases: collectAliases({}, definition.selectionSet, "")
     };
