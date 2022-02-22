@@ -72,6 +72,7 @@ import promiseUI, {configurePromiseUI} from "./util/promiseUI"
 
 import ConditionEditor from "./ui/condition/ConditionEditor"
 import {unwrapNonNull} from "./util/type-utils";
+import decompileFilter from "./util/decompileFilter"
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -184,6 +185,7 @@ export {
 
     ConditionEditor,
     confirmDestructiveTransition,
-    unwrapNonNull
-
+    unwrapNonNull,
+    decompileFilter
 }
+
