@@ -42,16 +42,16 @@ export default function decompileFilter(condition, level = 0, invert = true)
 
     if (type === Type.FIELD)
     {
-        return indent(level) + "field( " + JSON.stringify(name) + ")";
+        return indent(level) + "field(" + JSON.stringify(name) + ")";
     }
     else if (type === Type.CONDITION || type === Type.OPERATION)
     {
         const { name, operands } = condition;
-        if (invert && !topLevelConditions[name])
+        if (invert && !topLevelConditions.hasOwnProperty(name))
         {
-            return decompileFilter( operands[0], level, true) + "." + name + (level >= 0 ? "(\n" : "(") + operands.slice(1).map(o => decompileFilter(o, nextLevel, invert)).join((level >= 0 ? ",\n" : ",")) + (level >= 0 ? "\n" : "") + indent(level) + ")";
+            return decompileFilter( operands[0], level, true) + "." + name + (level >= 0 && operands.length > 1 ? "(\n" : "(") + operands.slice(1).map(o => decompileFilter(o, nextLevel, invert)).join((level >= 0 && operands.length > 1? ",\n" : ",")) + (level >= 0 && operands.length > 1 ? "\n" : "") + indent(level) + ")";
         }
-        return indent(level) + name + (level >= 0 ? "(\n" : "(") + operands.map( o => decompileFilter(o, nextLevel, invert)).join((level >= 0 ? ",\n" : ",")) + (level >= 0 ? "\n" : "") + indent(level) + ")";
+        return indent(level) + name + (level >= 0 && operands.length > 0 ? "(\n" : "(") + operands.map( o => decompileFilter(o, nextLevel, invert)).join((level >= 0 && operands.length > 1 ? ",\n" : ",")) + (level >= 0 && operands.length > 0? "\n" : "") + indent(level) + ")";
     }
     else if (type === Type.VALUE)
     {
