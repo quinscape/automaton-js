@@ -92,7 +92,7 @@ export default function registerDateTimeConverters()
                 return null;
             }
 
-            const dateFormat = (ctx && ctx.dateFormat) || DEFAULT_DATE_FORMAT;
+            const dateFormat = (ctx && ctx.dateFormat) || config.dateFormat;
             const dt = DateTime.fromFormat(value, dateFormat);
 
             return dt.isValid ? null : i18n("Invalid Date: Does not match {0}, {1}", dateFormat, dt.invalidReason);
