@@ -7,6 +7,7 @@ import get from "lodash.get";
 import IndexedObjects from "./IndexedObjects";
 import Folder from "./Folder";
 import MetaItem from "./MetaItem";
+import ObjectItem from "./ObjectItem";
 
 
 export const TreeContext = React.createContext({
@@ -461,5 +462,6 @@ Tree.Objects = Objects;
 Tree.Folder = Folder;
 Tree.IndexedObjects = IndexedObjects;
 Tree.MetaItem = MetaItem;
+Tree.ObjectItem = ObjectItem;
 
 export default Tree;
