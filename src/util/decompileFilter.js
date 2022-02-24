@@ -3,12 +3,11 @@ import { Type } from "../FilterDSL";
 
 function indent(level)
 {
-    if (level < 0)
-    {
-        return ""
-    }
-
     let s = ""
+    if (level <= 0)
+    {
+        return s
+    }
     for (let i = 0; i < level; i++)
     {
         s += "    "

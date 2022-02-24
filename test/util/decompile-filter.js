@@ -10,7 +10,7 @@ import decompileFilter from "../../src/util/decompileFilter"
 
 
 /**
- * Expects a string starting with a return and a number of spaces. Removes the intial return and that many spaces
+ * Expects a string starting with a return and a number of spaces. Removes the initial return and that many spaces
  * from each line start.
  * @param s
  * @return {string|*}   String unindented so that the second row starts at column 1
@@ -71,6 +71,94 @@ describe("decompileFilter", function () {
                     value("xxx")
                 )`
           )
+        )
+
+        assert(
+            decompileFilter(
+                or(
+
+                    and(
+                        or(
+                            field("num")
+                                .eq(
+                                    value(
+                                        100
+                                    )
+                                ),
+                            field("num")
+                                .eq(
+                                    value(
+                                        110
+                                    )
+                                )
+                        ),
+                        or(
+                            field("num")
+                                .eq(
+                                    value(
+                                        200
+                                    )
+                                ),
+                            field("num")
+                                .eq(
+                                    value(
+                                        210
+                                    )
+                                )
+
+                        ),
+                        field("num")
+                            .eq(
+                                value(
+                                    300
+                                )
+                            ),
+                        field("num")
+                            .eq(
+                                value(
+                                    310
+                                )
+                            )
+
+                    ),
+                    field("description")
+                        .containsIgnoreCase(
+                            value(
+                                ""
+                            )
+                        )
+                )
+            ) === trimIndent(`
+                or(
+                    and(
+                        or(
+                            field("num").eq(
+                                value(100)
+                            ),
+                            field("num").eq(
+                                value(110)
+                            )
+                        ),
+                        or(
+                            field("num").eq(
+                                value(200)
+                            ),
+                            field("num").eq(
+                                value(210)
+                            )
+                        ),
+                        field("num").eq(
+                            value(300)
+                        ),
+                        field("num").eq(
+                            value(310)
+                        )
+                    ),
+                    field("description").containsIgnoreCase(
+                        value("")
+                    )
+                )`
+            )
         )
 
     })
