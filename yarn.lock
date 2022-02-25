@@ -2261,10 +2261,10 @@ dom-helpers@^5.0.1:
     "@babel/runtime" "^7.8.7"
     csstype "^3.0.2"
 
-domainql-form@^3.7.11:
-  version "3.7.11"
-  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-3.7.11.tgz#dfe68e2db9be83133ef699e6746fd010038167c6"
-  integrity sha512-FSVXUiULjKn+AEX/xp0i92gVkqx+Wp23NkNGKJNV5ZCSLimcxcjokAalNRGCU/cGEPyfHZoF0lKa03dhVU3w9g==
+domainql-form@^3.7.12:
+  version "3.7.12"
+  resolved "https://registry.yarnpkg.com/domainql-form/-/domainql-form-3.7.12.tgz#f53b0b96f0c408e5e9ab6f6e49d34100e2c63883"
+  integrity sha512-9bjpn0kOV1Ct2cap3Hgbiri71GSkOGfobohjwWWiuuldbanJDPipp5XfcsnQ6AThFT/5hms+ylolsiRkuM105A==
   dependencies:
     classnames "^2.3.1"
     lodash.debounce "^4.0.8"
