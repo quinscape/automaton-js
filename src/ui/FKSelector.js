@@ -134,6 +134,7 @@ const MODAL_STATE_CLOSED = {
     iQuery: null,
     columns: null,
     columnTypes: null,
+    visibleColumns: null,
     isOpen: false
 };
 
@@ -237,6 +238,7 @@ const FKSelector = fnObserver(props => {
         children,
         onChange,
         selectButtonContentRenderer,
+        visibleColumns,
         ... fieldProps
     } = props;
 
@@ -539,9 +541,14 @@ const FKSelector = fnObserver(props => {
                                     {
                                         const { inputSchema } = config;
 
+                                        const rawVisibleColumns = visibleColumns ?? inputSchema.getTypeMeta(iQuery.type, "fkSelektorVisibleColumns");
+                                        const convertedVisibleColumns = typeof rawVisibleColumns === "string" ?
+                                                                            rawVisibleColumns.split(",") :
+                                                                            rawVisibleColumns;
+
                                         const columns = iQuery.columnStates
                                             .filter(
-                                                cs => cs.enabled && cs.name !== "id"
+                                                cs => cs.enabled && cs.name !== "id" && (convertedVisibleColumns?.includes(cs.name) ?? true)
                                             )
                                             .map(
                                                 cs => {
@@ -793,7 +800,20 @@ FKSelector.propTypes = {
     /**
      * Optional extended local on-change handler ({oldValue, oldRow, row, fieldContext)}, value => ...)
      */
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+
+    /**
+     * Optional override for visible columns definition.
+     * 
+     * By default every column returned by the query is visible.
+     * The FKSelector then checks for a "fkSelektorVisibleColumns" definition in the type metadata to filter out unneeded columns.
+     * 
+     * This property overrides the type metadata value for a single FKSelector field.
+     */
+    visibleColumns: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.arrayOf(PropTypes.string)
+    ]),
 };
 
 FKSelector.defaultProps = {
