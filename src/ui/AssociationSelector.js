@@ -343,6 +343,7 @@ const AssociationSelector = fnObserver(props => {
     }
 
     const effectiveMode = modeFromProps || formConfig.options.mode;
+    const isDisabled = typeof disabled === "function" ? disabled() : disabled;
 
     return (
         <React.Fragment>
@@ -383,7 +384,7 @@ const AssociationSelector = fnObserver(props => {
                                         onClick={
                                             () => removeLink(formConfig.root, selected, link, name, value)
                                         }
-                                        disabled={disabled}
+                                        disabled={isDisabled}
                                     >
                                         <Icon className="fa-times"/>
                                     </button>
@@ -397,7 +398,7 @@ const AssociationSelector = fnObserver(props => {
                         type="Button"
                         className="btn btn-light"
                         onClick={ openModal }
-                        disabled={disabled}
+                        disabled={isDisabled}
                     >
                         <Icon className="fa-clipboard-check mr-1"/>
                         Select
@@ -490,7 +491,17 @@ AssociationSelector.propTypes = {
      * properties on that new link. ( link => ... )
      *
      */
-    onNew: PropTypes.func
+    onNew: PropTypes.func,
+
+    
+    /**
+     * Disables the AssociationSelector.
+     * Can be defined as callback function.
+     */
+     disabled: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.func
+    ])
 
 };
 
