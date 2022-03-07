@@ -64,7 +64,7 @@ const CalendarModal = props =>  {
                         </button>
                         <button
                             type="button"
-                            className="btn btn-secondary ml-auto"
+                            className="btn btn-outline-primary ml-auto"
                             onClick={ toggle }
                         >
                             <Icon className="fa-cancel"/>

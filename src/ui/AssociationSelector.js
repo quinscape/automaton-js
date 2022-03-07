@@ -250,7 +250,22 @@ const updateSelected = action("AssociationSelector.updateSelected", (selected, l
  */
 const AssociationSelector = fnObserver(props => {
 
-    const { name, value, display, mode: modeFromProps, label, query, modalTitle, fade, helpText, labelClass, formGroupClass, generateId, onNew } = props;
+    const {
+        name,
+        value,
+        display,
+        mode: modeFromProps,
+        label,
+        query,
+        modalTitle,
+        fade,
+        helpText,
+        labelClass,
+        formGroupClass,
+        generateId,
+        onNew,
+        disabled
+    } = props;
 
     const [elementId] = useState("assoc-selector-" + (++associationSelectorCount));
 
@@ -328,6 +343,7 @@ const AssociationSelector = fnObserver(props => {
     }
 
     const effectiveMode = modeFromProps || formConfig.options.mode;
+    const isDisabled = typeof disabled === "function" ? disabled() : disabled;
 
     return (
         <React.Fragment>
@@ -368,6 +384,7 @@ const AssociationSelector = fnObserver(props => {
                                         onClick={
                                             () => removeLink(formConfig.root, selected, link, name, value)
                                         }
+                                        disabled={isDisabled}
                                     >
                                         <Icon className="fa-times"/>
                                     </button>
@@ -381,6 +398,7 @@ const AssociationSelector = fnObserver(props => {
                         type="Button"
                         className="btn btn-light"
                         onClick={ openModal }
+                        disabled={isDisabled}
                     >
                         <Icon className="fa-clipboard-check mr-1"/>
                         Select
@@ -473,7 +491,17 @@ AssociationSelector.propTypes = {
      * properties on that new link. ( link => ... )
      *
      */
-    onNew: PropTypes.func
+    onNew: PropTypes.func,
+
+    
+    /**
+     * Disables the AssociationSelector.
+     * Can be defined as callback function.
+     */
+     disabled: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.func
+    ])
 
 };
 
