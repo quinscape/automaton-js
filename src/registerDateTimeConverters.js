@@ -19,7 +19,6 @@ export default function registerDateTimeConverters()
                 return null;
             }
             const dt = DateTime.fromISO(value);
-            console.log("wireFormat.Date", dt.toISO())
             return dt;
         },
             value => {
