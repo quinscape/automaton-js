@@ -103,7 +103,7 @@ export default function registerDateTimeConverters()
                 return "";
             }
 
-            const dateFormat = (ctx && ctx.dateFormat) || config.timestampFormat;
+            const dateFormat = (ctx && ctx.dateFormat) || config.dateFormat;
             return scalar.toFormat(dateFormat);
         },
         (value, ctx) => {
