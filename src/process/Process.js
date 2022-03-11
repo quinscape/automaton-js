@@ -159,6 +159,7 @@ function renderCurrentView()
                             {
                                 ViewComponent && (
                                     <ViewComponent
+                                        key={ `processId-${process.id}` }
                                         env={ env }
                                     />
                                 )
