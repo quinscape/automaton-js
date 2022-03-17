@@ -38,7 +38,7 @@
         "react-toastify": "^8.1.0",
         "reactstrap": "^9.0.1",
         "recursive-readdir": "^2.2.2",
-        "simple-git": "^2.47.1",
+        "simple-git": "^3.3.0",
         "unicode-substring": "^1.0.0",
         "uuid": "^8.3.2"
     },
