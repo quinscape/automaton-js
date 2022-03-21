@@ -264,6 +264,7 @@ const AssociationSelector = fnObserver(props => {
         formGroupClass,
         generateId,
         onNew,
+        visibleColumns,
         disabled
     } = props;
 
@@ -290,12 +291,23 @@ const AssociationSelector = fnObserver(props => {
                         throw new Error("Result is no interactive query object");
                     }
 
+                    const { inputSchema } = config;
+                
+                    const rawVisibleColumns = visibleColumns ?? inputSchema.getTypeMeta(iQuery.type, "associationSelectorVisibleColumns");
+                    const convertedVisibleColumns = typeof rawVisibleColumns === "string" ?
+                                                        rawVisibleColumns.split(",") :
+                                                        rawVisibleColumns;
+
                     const columns = iQuery.columnStates
                         .filter(
                             cs => cs.enabled && cs.name !== "id" && cs.name !== config.mergeOptions.versionField
+                                    && (convertedVisibleColumns?.includes(cs.name) ?? true)
                         )
                         .map(
-                            cs => cs.name
+                            cs => {
+                                const heading = inputSchema.getFieldMeta(iQuery.type, cs.name, "heading");
+                                return { name: cs.name, heading }
+                            }
                         );
 
 
