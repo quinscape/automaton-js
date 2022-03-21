@@ -62,7 +62,7 @@ const ShortcutItem = fnObserver(({
                 if (!ctx.section) {
                     applyMissingSection(ctx, fieldEl, reference);
                 }
-                if (ctx.section === reference) {
+                if (ctx.section === reference) { // XXX workingSet registrations?
                     const registration = workingSet.lookup(ctx.rootType, ctx.root.id);
                     if (registration?.changes.has(ctx.path[0])) {
                         count++;
@@ -82,10 +82,15 @@ const ShortcutItem = fnObserver(({
     return (
         <a
             className={ cx("shortcut-link btn", errorCount ? "btn-danger" : "btn-outline-primary", !!changesCount && "has-changes") }
-            href={ href }
+            href={ href } // a11y-friendly
             title={ title }
             aria-label={ title }
             aria-invalid={ !!errorCount || null }
+            onClick={(event) => {
+                const el = document.getElementById(reference);
+                el.scrollIntoView();
+                event.preventDefault();
+            }}
         >
             {
                 typeof icon == "function" ? icon() : (
