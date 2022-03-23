@@ -207,6 +207,11 @@ export default function promiseUI(promise, options)
             })
         },
         err => {
+            if (typeof defaultReject.render === "function")
+            {
+                defaultReject.render = defaultReject.render(err);
+            }
+
             toast.update(
                 toastId,
                 {
