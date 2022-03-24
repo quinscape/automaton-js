@@ -610,7 +610,10 @@ function checkUpdateEquality(registration, a,b)
         // we have to special case the artificial changes we produce for many-to-many changes
         else if (scalarType === LIST_OF_DOMAIN_OBJECTS_TYPE)
         {
-            return linkedObjectEquality(valueA, valueB)
+            // we have to check all linked objects in the updates set to see if there are changes
+            if (!linkedObjectEquality(valueA, valueB)) {
+                return false;
+            }
         }
         else if (!equalsScalar(scalarType, valueA, valueB))
         {
