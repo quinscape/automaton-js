@@ -141,7 +141,7 @@ const Folder = ({row, render, query, variables, onLoad, actions, children}) => {
                     </button>
                 </div>
                 {
-                    actions && actions.length > 1 && (
+                    actions && actions.length >= 1 && (
                         <ItemMenuWrapper
                             ctx={ctx}
                             selectionId={selectionId}
