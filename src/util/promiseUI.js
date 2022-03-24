@@ -207,11 +207,17 @@ export default function promiseUI(promise, options)
             })
         },
         err => {
+            const clonedDefaultRejectOptions = {...defaultReject};
+            if (typeof defaultReject.render === "function")
+            {
+                clonedDefaultRejectOptions.render = defaultReject.render(err);
+            }
+
             toast.update(
                 toastId,
                 {
                     ... resetLoadingParams,
-                    ... defaultReject
+                    ... clonedDefaultRejectOptions
                 }
             )
             return Promise.reject(err);
