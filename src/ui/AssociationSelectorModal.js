@@ -47,10 +47,11 @@ const AssociationSelectorModal = fnObserver(props => {
                                 </DataGrid.Column>
                                 {
                                     columns.map(
-                                        name => (
+                                        ({name, heading}, idx) => (
                                             <DataGrid.Column
                                                 key={ name }
                                                 name={ name }
+                                                heading={ heading }
                                                 filter="containsIgnoreCase"
                                             />
                                         )
