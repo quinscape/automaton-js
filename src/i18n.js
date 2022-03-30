@@ -1,5 +1,5 @@
+import { registerI18n } from "domainql-form";
 import config from "./config";
-
 
 function format(tag, args)
 {
@@ -53,3 +53,5 @@ export default function i18n(key, ...args) {
     }
     return wrap(key);
 };
+
+registerI18n(i18n);
