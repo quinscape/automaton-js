@@ -82,10 +82,15 @@ const ShortcutItem = fnObserver(({
     return (
         <a
             className={ cx("shortcut-link btn", errorCount ? "btn-danger" : "btn-outline-primary", !!changesCount && "has-changes") }
-            href={ href }
+            href={ href } // a11y-friendly
             title={ title }
             aria-label={ title }
             aria-invalid={ !!errorCount || null }
+            onClick={(event) => {
+                const el = document.getElementById(reference);
+                el.scrollIntoView();
+                event.preventDefault();
+            }}
         >
             {
                 typeof icon == "function" ? icon() : (
