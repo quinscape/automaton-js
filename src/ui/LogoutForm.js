@@ -2,6 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 
 import config from "../config"
+import i18n from "../i18n";
 
 import { Icon } from "domainql-form"
 
@@ -15,7 +16,9 @@ function defaultRenderUser()
 
     return (
         <>
-            {"Logged in as\u00a0"}
+            {
+                i18n("Logged in as ")
+            }
             <span className="text-primary">
                 <Icon className="fa-id-card-alt" title={ devRoles }/>
                 {" " + login}
@@ -46,7 +49,9 @@ function LogoutForm({renderUser = defaultRenderUser })
                     renderUser()
                 }
                 <button type="submit" className="btn btn-link ">
-                    Log out
+                    {
+                        i18n("Log out")
+                    }
                 </button>
                 <input type="hidden" name={ csrfToken.param } value={ csrfToken.value }/>
             </form>

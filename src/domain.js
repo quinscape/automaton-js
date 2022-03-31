@@ -4,6 +4,7 @@ import matchPath from "./matchPath";
 import { INPUT_OBJECT, OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";
 import registerDateTimeConverters from "./registerDateTimeConverters";
 import { getOutputTypeName, getParentObjectType, unwrapAll, unwrapNonNull } from "./util/type-utils";
+import {i18n} from "../lib";
 
 
 let domainClasses = {};
@@ -252,7 +253,7 @@ function registerFieldLengthValidator()
             const maxLength = getMaxLength(ctx);
             if (maxLength > 0 && value.length > maxLength)
             {
-                return "Value too long";
+                return i18n("Value too long");
             }
             return null;
         },
