@@ -62,7 +62,7 @@ const ShortcutItem = fnObserver(({
                 if (!ctx.section) {
                     applyMissingSection(ctx, fieldEl, reference);
                 }
-                if (ctx.section === reference) { // XXX workingSet registrations?
+                if (ctx.section === reference) {
                     const registration = workingSet.lookup(ctx.rootType, ctx.root.id);
                     if (registration?.changes.has(ctx.path[0])) {
                         count++;
