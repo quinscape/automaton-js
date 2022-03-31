@@ -1,6 +1,5 @@
 import React from "react"
 import cx from "classnames"
-import { isObservable, toJS } from "mobx"
 import { observer as fnObserver } from "mobx-react-lite"
 import i18n from "../i18n";
 
@@ -8,6 +7,7 @@ import i18n from "../i18n";
 export const DEFAULT_PAGE_SIZES = [
     5,
     10,
+    20,
     50,
     i18n("All Rows")
 ];
