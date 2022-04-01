@@ -42,7 +42,7 @@ const COLUMN_CONFIG_INPUT_OPTS = {
  */
 const DataGrid = fnObserver(props => {
 
-    const { id, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, children } = props;
+    const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, children } = props;
 
     const { type, columnStates } = value;
 
@@ -179,6 +179,7 @@ const DataGrid = fnObserver(props => {
                                 tableClassName
                             )
                         }
+                        name={name}
                     >
                         <thead>
                         <tr className="headers">

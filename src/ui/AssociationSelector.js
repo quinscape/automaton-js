@@ -411,6 +411,7 @@ const AssociationSelector = fnObserver(props => {
                         className="btn btn-light"
                         onClick={ openModal }
                         disabled={isDisabled}
+                        name={ name }
                     >
                         <Icon className="fa-clipboard-check mr-1"/>
                         Select
