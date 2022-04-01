@@ -37,11 +37,12 @@ import {
     unwrapNonNull
 } from "../util/type-utils"
 
-import { field, Type, value, condition, component } from "../FilterDSL"
+import {field, Type, value, condition, component, Condition} from "../FilterDSL"
 import { isNonNull } from "domainql-form/lib/InputSchema";
 import { SCALAR } from "domainql-form/lib/kind";
 import CachedQuery from "../model/CachedQuery";
 import updateComponentCondition from "../util/updateComponentCondition"
+import {and} from "../../filter";
 
 
 export const NO_SEARCH_FILTER = "NO_SEARCH_FILTER";
@@ -229,6 +230,7 @@ const FKSelector = fnObserver(props => {
         display,
         query :
         queryFromProps,
+        queryCondition,
         searchFilter,
         modalTitle,
         fade,
@@ -423,7 +425,7 @@ const FKSelector = fnObserver(props => {
 
                             query.execute({
                                     config: {
-                                        condition : composite,
+                                        condition : queryCondition ? and(composite, queryCondition) : composite,
                                         offset: 0,
                                         // we only want to know if there's more than one match. We don't care how many
                                         pageSize: 2
@@ -522,7 +524,7 @@ const FKSelector = fnObserver(props => {
                                     {
                                         config: {
                                             ... iQueryDoc ? iQueryDoc.queryConfig : query.defaultVars.config,
-                                            condition: composite
+                                            condition : queryCondition ? and(composite, queryCondition) : composite
                                         }
                                     }
                                 )
@@ -690,6 +692,11 @@ FKSelector.propTypes = {
         PropTypes.instanceOf(GraphQLQuery),
         PropTypes.instanceOf(InteractiveQuery)
     ]).isRequired,
+
+    /**
+     * Optional FilterDSL condition to be applied to the execution of the FKSelector's query
+     */
+    queryCondition: PropTypes.instanceOf(Condition),
 
     /**
      * Title for the modal dialog selecting the target object

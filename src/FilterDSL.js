@@ -232,7 +232,7 @@ function Field(name)
 buildProto(Field.prototype, FIELD_CONDITIONS, buildFn);
 buildProto(Field.prototype, FIELD_OPERATIONS, buildOpFn);
 
-function Condition(name)
+export function Condition(name)
 {
     this.type = Type.CONDITION;
     this.name = name;
