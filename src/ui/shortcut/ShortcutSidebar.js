@@ -7,6 +7,24 @@ import StickyResizingSidebar from "../sticky/StickyResizingSidebar";
 import ShortcutItem from "./ShortcutItem";
 import ShortcutContext from "./ShortcutContext";
 
+function isInNextSiblings(root, needle) {
+    if (root == null || needle == null) {
+        return false;
+    }
+    const nextEl = root.nextElementSibling;
+    if (nextEl == null) {
+        return false;
+    }
+    const found = nextEl.contains(needle);
+    return found || isInNextSiblings(nextEl, needle);
+}
+
+function compareShortcutData(data0, data1) {
+    const el0 = document.getElementById(data0.id);
+    const el1 = document.getElementById(data1.id);
+    return isInNextSiblings(el0.parentElement, el1) ? -1 : 1;
+}
+
 /**
  * Create a Column, that shows all form shortcuts from the surrounding context
  * 
@@ -41,7 +59,7 @@ import ShortcutContext from "./ShortcutContext";
             <div className="scroll-container">
                 <div className="wrapper">
                     {
-                        Array.from(shortcutState.shortcuts.values()).map(
+                        Array.from(shortcutState.shortcuts.values()).sort(compareShortcutData).map(
                             ({id, icon, heading}) => {
                                 return (
                                     <ShortcutItem
