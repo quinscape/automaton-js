@@ -25,6 +25,7 @@ export default class GraphQLQuery {
         this.query = query
         this.queryDef = null
         this.defaultVars = vars
+        this.vars = vars
     }
 
 
@@ -53,6 +54,8 @@ export default class GraphQLQuery {
     execute(variables)
     {
         //console.log("GraphQLQuery.execute", this, JSON.stringify(variables, null, 4));
+
+        this.vars = variables;
 
         return graphql(
             {

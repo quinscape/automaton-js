@@ -230,7 +230,8 @@ const FKSelector = fnObserver(props => {
         display,
         query :
         queryFromProps,
-        queryCondition,
+        queryCondition :
+        queryConditionFromProps,
         searchFilter,
         modalTitle,
         fade,
@@ -245,6 +246,10 @@ const FKSelector = fnObserver(props => {
     } = props;
 
     const haveUserInput = !!searchFilter;
+
+    const queryCondition = typeof queryConditionFromProps === "function" ?
+        queryConditionFromProps() :
+        queryConditionFromProps;
 
     const iQueryDoc = useMemo(
         () => {
@@ -423,6 +428,12 @@ const FKSelector = fnObserver(props => {
                                 fkSelectorId
                             )
 
+                            query.defaultVars.config = {
+                                ... query.defaultVars.config,
+                                offset: 0,
+                                pageSize: query.defaultVars.config?.pageSize ?? 10
+                            };
+
                             query.execute({
                                     config: {
                                         condition : queryCondition ? and(composite, queryCondition) : composite,
@@ -437,7 +448,6 @@ const FKSelector = fnObserver(props => {
                                     //console.log("Received search result: ", toJS(iQuery));
 
                                     //console.log("inputValidation: UPDATE CONFIG", query.defaultVars.config)
-                                    query.defaultVars.config = { ... toJS(iQuery.queryConfig), offset: 0, pageSize: query.defaultVars.config ? query.defaultVars.config.pageSize : 10 }
 
                                     const { length } = iQuery.rows;
 
@@ -520,6 +530,12 @@ const FKSelector = fnObserver(props => {
                             isAmbiguousMatch && modalFilter === NO_SEARCH_FILTER && shouldPreselectFilter ? "fk-selector-grid" : fkSelectorId
                         )
 
+                        query.defaultVars.config = {
+                            ... query.defaultVars.config,
+                            offset: 0,
+                            pageSize: query.defaultVars.config?.pageSize ?? 10
+                        };
+
                         query.execute(
                                     {
                                         config: {
@@ -537,7 +553,6 @@ const FKSelector = fnObserver(props => {
                                     }
 
                                     //console.log("selectFromModal: UPDATE CONFIG", query.defaultVars.config)
-                                    query.defaultVars.config = { ... toJS(iQuery.queryConfig), offset: 0 }
 
                                     try
                                     {
@@ -696,7 +711,10 @@ FKSelector.propTypes = {
     /**
      * Optional FilterDSL condition to be applied to the execution of the FKSelector's query
      */
-    queryCondition: PropTypes.instanceOf(Condition),
+    queryCondition: PropTypes.oneOfType([
+        PropTypes.instanceOf(Condition),
+        PropTypes.func
+    ]),
 
     /**
      * Title for the modal dialog selecting the target object
