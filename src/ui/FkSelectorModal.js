@@ -93,8 +93,10 @@ const FkSelectorModal = fnObserver(
                     // and the effect triggers the debounced condition update
                     newCondition => {
 
+                        const cachedVars = iQueryRef.current._query.vars;
+
                         const composite = updateComponentCondition(
-                            iQueryRef.current._query.defaultVars.config.condition,
+                            iQueryRef.current._query.vars.config.condition,
                             newCondition,
                             fkSelectorId
                         )
@@ -103,7 +105,9 @@ const FkSelectorModal = fnObserver(
                         // which is always null. So we trap the iQueryRef ref instead and change its current prop
                         iQueryRef.current.updateCondition(
                             composite
-                        );
+                        ).then(() => {
+                            iQueryRef.current._query.vars = cachedVars;
+                        });
                     },
                     {
                         delay: searchTimeout,
