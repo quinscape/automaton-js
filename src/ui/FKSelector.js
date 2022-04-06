@@ -376,6 +376,7 @@ const FKSelector = fnObserver(props => {
                         [ gqlMethodName ]
                     );
 
+                    const fieldValue = Field.getValue(formConfig, ctx, errorMessages);
                     useEffect(
                         () => {
                             if (!haveErrors && !userIsTyping)
@@ -390,6 +391,7 @@ const FKSelector = fnObserver(props => {
                                 }
                             }
                         },
+                        [fieldValue]
                     );
 
                     const debouncedInputValidation = useDebouncedCallback(
