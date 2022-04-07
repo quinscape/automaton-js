@@ -3,13 +3,24 @@ import { useFormConfig, Icon } from "domainql-form";
 import { observer as fnObserver } from "mobx-react-lite"
 import cx from "classnames";
 import i18n from "../../i18n";
+import { WorkingSetStatus } from "../../WorkingSet";
 
-function applyMissingSection(ctx, fieldEl, reference) {
-    const sectionEl = document.getElementById(reference)?.parentElement;
-    const isContained = sectionEl?.contains(fieldEl);
-    if (isContained) {
-        ctx.section = reference;
+function isElementInSection(fieldEl, reference) {
+    if (fieldEl != null) {
+        if (fieldEl.dataset.section) {
+            return fieldEl.dataset.section === reference;
+        } else {
+            const sectionEl = document.getElementById(reference)?.parentElement;
+            if (sectionEl != null) {
+                const isContained = sectionEl.contains(fieldEl);
+                if (isContained) {
+                    fieldEl.dataset.section = reference;
+                    return true;
+                }
+            }
+        }
     }
+    return false;
 }
 
 /**
@@ -38,10 +49,7 @@ const ShortcutItem = fnObserver(({
         for (let i = 0; i < fieldContexts.length; i++) {
             const ctx = fieldContexts[i];
             const fieldEl = document.getElementById(ctx.fieldId);
-            if (!ctx.section) {
-                applyMissingSection(ctx, fieldEl, reference);
-            }
-            if (ctx.section === reference) {
+            if (isElementInSection(fieldEl, reference)) {
                 const fieldName = fieldEl.name;
                 const foundError = errors.find(e => e.path === fieldName);
                 if (foundError) {
@@ -54,18 +62,21 @@ const ShortcutItem = fnObserver(({
 
     useEffect(() => {
         if (workingSet != null) {
-            const fieldContexts = formContext.fieldContexts;
+            const registrations = workingSet.registrations;
             let count = 0;
-            for (let i = 0; i < fieldContexts.length; i++) {
-                const ctx = fieldContexts[i];
-                const fieldEl = document.getElementById(ctx.fieldId);
-                if (!ctx.section) {
-                    applyMissingSection(ctx, fieldEl, reference);
-                }
-                if (ctx.section === reference) {
-                    const registration = workingSet.lookup(ctx.rootType, ctx.root.id);
-                    if (registration?.changes.has(ctx.path[0])) {
+            for (const registration of registrations) {
+                if (registration.status !== WorkingSetStatus.REGISTERED
+                && (registration.status !== WorkingSetStatus.MODIFIED || registration.changes.size > 0)) {
+                    const gridEl = document.querySelector(`form[data-form-id] table[name="${registration.typeName}"]`);
+                    if (isElementInSection(gridEl, reference)) {
                         count++;
+                    } else {
+                        for (const [name] of registration.changes) {
+                            const fieldEl = document.querySelector(`form[data-form-id] [name="${name}"]`);
+                            if (isElementInSection(fieldEl, reference)) {
+                                count++;
+                            }
+                        }
                     }
                 }
             }
