@@ -1,13 +1,16 @@
 import React, { useMemo } from "react"
 import PropTypes from "prop-types"
+import { DndProvider } from "react-dnd"
+import { HTML5Backend } from "react-dnd-html5-backend"
 import cx from "classnames"
 import { observer as fnObserver } from "mobx-react-lite"
 import i18n from "../../i18n";
 import GridStateForm from "./GridStateForm";
 import Pagination from "../Pagination";
-import FilterRow from "./FilterRow";
+import HeaderRow from "./rows/HeaderRow";
+import FilterRow from "./rows/FilterRow";
+import DataRow from "./rows/DataRow";
 import { lookupType, lookupTypeContext, unwrapAll } from "../../util/type-utils";
-import SortLink from "./SortLink";
 import useObservableInput from "../../util/useObservableInput";
 import Column from "./Column";
 import RowSelector from "./RowSelector";
@@ -42,7 +45,7 @@ const COLUMN_CONFIG_INPUT_OPTS = {
  */
 const DataGrid = fnObserver(props => {
 
-    const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, children } = props;
+    const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, children, sortColumn } = props;
 
     const { type, columnStates } = value;
 
@@ -83,29 +86,34 @@ const DataGrid = fnObserver(props => {
                 let typeRef = null, sortable = false, enabled = false;
                 if (name)
                 {
-                    const columnState = findColumn(columnStates, name);
-
-                    if (columnState && columnState.enabled)
-                    {
-                        sortable = columnState.sortable;
-                        const typeContext = lookupTypeContext(type, name);
-
-                        if (filter && typeof filter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
-                        {
-                            throw new Error(
-                                "Computed column '" + typeContext.field.name + "' cannot be filtered with a simple filter.\n" +
-                                "You need to write a custom filter function that basically reimplements the computed in SQL and produces a matching filter expression."
-                            )
-                        }
-
-
-                        typeRef = unwrapAll(typeContext.field.type);
-                        if (typeRef.kind !== "SCALAR")
-                        {
-                            throw new Error("Column type is no scalar: " + name);
-                        }
+                    if (sortColumn != null && sortColumn === name) {
                         enabled = true;
                         enabledCount++;
+                    } else {
+                        const columnState = findColumn(columnStates, name);
+
+                        if (columnState && columnState.enabled)
+                        {
+                            sortable = columnState.sortable;
+                            const typeContext = lookupTypeContext(type, name);
+
+                            if (filter && typeof filter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
+                            {
+                                throw new Error(
+                                    "Computed column '" + typeContext.field.name + "' cannot be filtered with a simple filter.\n" +
+                                    "You need to write a custom filter function that basically reimplements the computed in SQL and produces a matching filter expression."
+                                )
+                            }
+
+
+                            typeRef = unwrapAll(typeContext.field.type);
+                            if (typeRef.kind !== "SCALAR")
+                            {
+                                throw new Error("Column type is no scalar: " + name);
+                            }
+                            enabled = true;
+                            enabledCount++;
+                        }
                     }
                 }
                 else
@@ -117,20 +125,38 @@ const DataGrid = fnObserver(props => {
                     enabled = true;
                     enabledCount++;
                 }
-
-                columns.push({
-                    name,
-                    width,
-                    minWidth,
-                    sortable,
-                    filter,
-                    enabled,
-                    type: typeRef && typeRef.name,
-                    heading: heading || name,
-                    sort: sort || name,
-                    renderFilter,
-                    columnElem
-                });
+                if (sortColumn != null && sortColumn === name)
+                {
+                    columns.unshift({
+                        name,
+                        width,
+                        minWidth,
+                        sortable,
+                        filter,
+                        enabled,
+                        type: typeRef && typeRef.name,
+                        heading: heading || name,
+                        sort: sort || name,
+                        renderFilter,
+                        columnElem
+                    });
+                }
+                else
+                {
+                    columns.push({
+                        name,
+                        width,
+                        minWidth,
+                        sortable,
+                        filter,
+                        enabled,
+                        type: typeRef && typeRef.name,
+                        heading: heading || name,
+                        sort: sort || name,
+                        renderFilter,
+                        columnElem
+                    });
+                }
             });
 
             if (enabledCount === 0)
@@ -139,8 +165,6 @@ const DataGrid = fnObserver(props => {
             }
 
             columns[0].enabledCount = enabledCount;
-
-            //console.log("COLUMNS", JSON.stringify(columns, null, 4))
 
             return columns;
 
@@ -155,171 +179,196 @@ const DataGrid = fnObserver(props => {
         []
     );
 
-    return (
-        <GridStateForm
-            iQuery={ value }
-            columns={ columns }
-            componentId={ id }
-            filterTimeout={ filterTimeout }
-        >
-            <div
-                className={
-                    cx(
-                        "data-grid-container mt-3 mb-2",
-                        isCompact && "data-grid-compact"
-                    )
-                }
-            >
-                <div className="data-grid-scrollcontainer">
-                    <table
-                        className={
-                            cx(
-                                // reduced bottom margin to visually connect pagination
-                                "data-grid table",
-                                tableClassName
-                            )
+
+
+    const [records, setRecords] = React.useState([
+        ...(workingSet && queryConfig.offset === 0 && (function () {
+    
+            const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
+    
+            const newObjects = workingSet.newObjects(type);
+            return newObjects.filter( obj => {
+                fieldResolver.current = obj;
+                return filterFn();
+            }).map(context => [context, null]);
+        })() || []),
+        ...rows.map(
+            (context) => {
+
+                let workingSetClass = null;
+                if (workingSet)
+                {
+                    const entry = workingSet.lookup(context._type, context.id);
+                    if (entry)
+                    {
+                        if (entry.status === WorkingSetStatus.DELETED)
+                        {
+                            workingSetClass = "deleted-object";
                         }
-                        name={name}
-                    >
-                        <thead>
-                        <tr className="headers">
-                            {
-                                columns.map(
-                                    (col, idx) => col.enabled && (
-                                        <th
-                                            key={ idx }
-                                            style={
-                                                {
-                                                    width: col.width,
-                                                    minWidth: col.minWidth,
-                                                    maxWidth: col.maxWidth
-                                                }
-                                            }
-                                        >
-                                            <SortLink
-                                                iQuery={ value }
-                                                column={ col }
-                                            />
-                                        </th>
-                                    )
+                        else if (workingSet.isModified(context))
+                        {
+                            workingSetClass = "changed-object";
+                            context = entry.domainObject;
+                        }
+                    }
+                }
+
+                return [context, workingSetClass];
+            }
+        )
+    ]);
+
+    const [sourceRow, setSourceRow] = React.useState();
+    const [targetRow, setTargetRow] = React.useState();
+
+    const moveRow = (dragIndex, dropIndex, dragEl, dropEl, monitor) => {
+        if (dragIndex === dropIndex) {
+            endMoveRow();
+            return;
+        }
+        
+        const hoverBoundingRect = dropEl.getBoundingClientRect();
+        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+        const clientOffset = monitor.getClientOffset();
+        const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+        if (dragIndex < dropIndex && hoverClientY < hoverMiddleY) {
+            dropIndex = dropIndex - 1;
+        }
+        if (dragIndex > dropIndex && hoverClientY > hoverMiddleY) {
+            dropIndex = dropIndex + 1;
+        }
+
+        setSourceRow(dragIndex);
+        setTargetRow(dropIndex);
+    };
+
+    const dropRow = (dragIndex, dropIndex, dragEl, dropEl, monitor) => {
+        if (dragIndex === dropIndex) {
+            endMoveRow();
+            return;
+        }
+
+        const hoverBoundingRect = dropEl.getBoundingClientRect();
+        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+        const clientOffset = monitor.getClientOffset();
+        const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+        if (dragIndex < dropIndex && hoverClientY < hoverMiddleY) {
+            dropIndex = dropIndex - 1;
+        }
+        if (dragIndex > dropIndex && hoverClientY > hoverMiddleY) {
+            dropIndex = dropIndex + 1;
+        }
+        
+        const resRecords = [];
+        for (let i = 0; i  < records.length; ++i) {
+            if (dragIndex > dropIndex && i === dropIndex) {
+                resRecords.push(records[dragIndex]);
+            }
+            if (i !== dragIndex) {
+                resRecords.push(records[i]);
+            }
+            if (dragIndex < dropIndex && i === dropIndex) {
+                resRecords.push(records[dragIndex]);
+            }
+        }
+        setRecords(resRecords);
+
+        // TODO dpeters: update database / array data
+
+        endMoveRow();
+    };
+
+    const endMoveRow = () => {
+        setSourceRow(null);
+        setTargetRow(null);
+    };
+
+    return (
+        <DndProvider backend={HTML5Backend}>
+            <GridStateForm
+                iQuery={ value }
+                columns={ columns }
+                componentId={ id }
+                filterTimeout={ filterTimeout }
+            >
+                <div
+                    className={
+                        cx(
+                            "data-grid-container mt-3 mb-2",
+                            isCompact && "data-grid-compact"
+                        )
+                    }
+                >
+                    <div className="data-grid-scrollcontainer">
+                        <table
+                            data-id={ id }
+                            className={
+                                cx(
+                                    // reduced bottom margin to visually connect pagination
+                                    "data-grid table",
+                                    tableClassName
                                 )
                             }
-                        </tr>
-
-                        <FilterRow
-                            columns={ columns }
-                        />
-                        </thead>
-                        <tbody>
-                        {
-                            workingSet && queryConfig.offset === 0 && (function () {
-
-                                const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
-
-                                const newObjects = workingSet.newObjects(type);
-                                const filtered = newObjects.filter( obj => {
-                                    fieldResolver.current = obj;
-                                    return filterFn();
-                                });
-
-                                //console.log(id, "newObjects, filtered",newObjects, filtered);
-
-                                return (
-                                    filtered
-                                        .map(
-                                            (context, idx) => (
-                                                <tr
-                                                    key={"ws" + idx}
-                                                    className={
-                                                        cx("data", rowClasses ? rowClasses(context) : null, "new-object")
-                                                    }
-                                                >
-                                                    {
-                                                        columns.map(
-                                                            (column, columnIdx) => column.enabled && (
-                                                                React.cloneElement(
-                                                                    column.columnElem,
-                                                                    {
-                                                                        key: columnIdx,
-                                                                        context
-                                                                    }
-                                                                )
-                                                            )
-                                                        )
-                                                    }
-                                                </tr>
-                                            )
-                                        )
-                                )
-                            })()
-                        }
-                        {
-                            rows.map(
-                                (context, idx) => {
-
-                                    let workingSetClass = null;
-                                    if (workingSet)
-                                    {
-                                        const entry = workingSet.lookup(context._type, context.id);
-                                        if (entry)
-                                        {
-                                            if (entry.status === WorkingSetStatus.DELETED)
-                                            {
-                                                workingSetClass = "deleted-object";
-                                            }
-                                            else if (workingSet.isModified(context))
-                                            {
-                                                workingSetClass = "changed-object";
-                                                context = entry.domainObject;
-                                            }
-                                        }
-                                    }
-
-                                    return (
-                                        <tr
-                                            key={idx}
-                                            className={
-                                                cx("data", rowClasses ? rowClasses(context) : null, workingSetClass)
-                                            }
-                                        >
-                                            {
-                                                columns.map(
-                                                    (column, columnIdx) => column.enabled && (
-                                                        React.cloneElement(
-                                                            column.columnElem,
-                                                            {
-                                                                key: columnIdx,
-                                                                context
-                                                            }
-                                                        )
+                            name={name}
+                        >
+                            <thead>
+                            <HeaderRow
+                                value={ value }
+                                columns={ columns }
+                                sortColumn={ sortColumn }
+                            />
+                            <FilterRow
+                                columns={ columns }
+                                sortColumn={ sortColumn }
+                            />
+                            </thead>
+                            <tbody>
+                            {
+                                records.length > 0 ? records.map(
+                                    ([context, workingSetClass], idx) => {
+                                        return (
+                                            <DataRow
+                                                key={ idx }
+                                                idx={ idx }
+                                                context={ context }
+                                                columns={ columns }
+                                                moveRow={ moveRow }
+                                                dropRow={ dropRow }
+                                                sortColumn={ sortColumn }
+                                                className={
+                                                    cx(
+                                                        "data",
+                                                        rowClasses ? rowClasses(context) : null,
+                                                        workingSetClass ?? "new-object",
+                                                        targetRow == idx && "target-row",
+                                                        targetRow == idx && targetRow < sourceRow && "target-row-top",
+                                                        targetRow == idx && targetRow > sourceRow && "target-row-bottom",
+                                                        sourceRow == idx && "source-row"
                                                     )
-                                                )
+                                                }
+                                            />
+                                        );
+                                    }
+                                ) : (
+                                    <tr>
+                                        <td colSpan={ columns[0].enabledCount }>
+                                            {
+                                                i18n("DataGrid:No Rows")
                                             }
-                                        </tr>
-                                    );
-                                }
-                            )
-                        }
-                        {
-                            rows.length === 0 && (
-                                <tr>
-                                    <td colSpan={ columns[0].enabledCount }>
-                                        {
-                                            i18n("DataGrid:No Rows")
-                                        }
-                                    </td>
-                                </tr>
-                            )
-                        }
-                        </tbody>
-                    </table>
+                                        </td>
+                                    </tr>
+                                )
+                            }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            <Pagination
-                iQuery={ value }
-                description={ i18n("Result Navigation") }
-            />
-        </GridStateForm>
+                <Pagination
+                    iQuery={ value }
+                    description={ i18n("Result Navigation") }
+                />
+            </GridStateForm>
+        </DndProvider>
     );
 });
 

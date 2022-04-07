@@ -1,8 +1,8 @@
 import React, { useContext } from "react"
 import { observer as fnObserver } from "mobx-react-lite"
 import { Select } from "domainql-form"
-import i18n from "../../i18n"
-import { FilterContext } from "./GridStateForm";
+import i18n from "../../../i18n"
+import { FilterContext } from "../GridStateForm";
 import { Field } from "domainql-form"
 
 
@@ -19,7 +19,7 @@ const BOOLEAN_VALUES = [
 
 const FilterRow = fnObserver(props => {
 
-    const { columns } = props;
+    const { columns, sortColumn } = props;
 
     const filterState = useContext(FilterContext);
 
@@ -35,16 +35,16 @@ const FilterRow = fnObserver(props => {
     let filterIndex = 0;
 
     columns.forEach(
-        (col, idx) => {
+        (column, columnIdx) => {
 
-            const { name, enabled, filter, renderFilter } = col;
+            const { name, enabled, filter, renderFilter } = column;
 
             if (enabled)
             {
-                if (!filter)
+                if (!filter || (sortColumn != null && sortColumn === name))
                 {
                     filterColumnElements.push(
-                        <th key={ idx }/>
+                        <th key={ columnIdx }/>
                     );
                 }
                 else
@@ -58,7 +58,7 @@ const FilterRow = fnObserver(props => {
                         const fieldType = values[i].type;
                         const label = i18n("Argument {0} for filter on {1}", i +1 , name);
 
-                        const key = idx + "." + i;
+                        const key = columnIdx + "." + i;
 
                         if (fieldType === "Boolean")
                         {
@@ -100,7 +100,7 @@ const FilterRow = fnObserver(props => {
 
                     }
                     filterColumnElements.push(
-                        <th key={ idx }>
+                        <th key={ columnIdx }>
                             {
                                 filterElems
                             }
@@ -123,5 +123,7 @@ const FilterRow = fnObserver(props => {
     );
 
 });
+
+FilterRow.displayName = "FilterRow";
 
 export default FilterRow
