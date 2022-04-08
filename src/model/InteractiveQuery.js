@@ -35,7 +35,6 @@ const updateFromResult = action("Update iQuery from Result", (iQuery, result) =>
     //console.log("updateFromResult: queryConfig =", JSON.stringify(value.queryConfig));
 
     iQuery.rows.replace(value.rows);
-    Object.assign(iQuery.queryConfig, value.queryConfig);
     iQuery.columnStates.replace(value.columnStates);
     iQuery.rowCount = value.rowCount;
 
@@ -153,6 +152,8 @@ export default class InteractiveQuery {
             {
                 vars.config.condition = null;
             }
+
+            Object.assign(this.queryConfig, vars.config);
         }
         else
         {
