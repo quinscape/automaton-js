@@ -83,7 +83,7 @@ function createValues(filter, column, columnCondition)
 
         list[i] = {
             type: valueNode ? valueNode.scalarType : column.type,
-            label: i === 0 ? i18n("Filter:" + name) : null,
+            label: i === 0 ? i18n("Filter:" + column.name) : null,
             value: valueNode ? valueNode.value : null
         };
     }
@@ -216,7 +216,7 @@ function findColumnCondition(componentId = null, name, currentCondition)
 }
 
 
-export function invokeForTemplate(filter)
+export function invokeForTemplate(fieldName, filter)
 {
     const { length } = filter;
 
@@ -226,7 +226,7 @@ export function invokeForTemplate(filter)
         args[i] = null;
     }
 
-    return  filter.apply(null, args);
+    return  filter.call(null, fieldName, ...args);
 }
 
 
@@ -282,12 +282,12 @@ function resolveFilters(columns, componentId, currentCondition)
     for (let i = 0; i < columns.length; i++)
     {
         const column = columns[i];
-        const { filter } = column;
+        const { name, filter } = column;
         if (filter)
         {
             if (typeof filter === "function")
             {
-                const template = invokeForTemplate(filter);
+                const template = invokeForTemplate(name, filter);
 
                 const columnCondition = findConditionByTemplate(
                     componentId,
@@ -390,17 +390,16 @@ const GridStateForm = props => {
                     if (allValuesSet(values))
                     {
                         let cond;
+                        const fieldName = columns[columnIndex].name;
                         if (typeof filter === "function")
                         {
-                            cond = filter(... values.map(v => v.value))
+                            cond = filter(fieldName, ... values.map(v => v.value))
                         }
                         else
                         {
                             cond = condition(filter);
                             cond.operands = [
-                                field(
-                                    columns[columnIndex].name
-                                ),
+                                field(fieldName),
                                 ... values.map( v => value(toJS(v.value), v.type))
                             ];
 

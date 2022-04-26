@@ -16,6 +16,7 @@ import WorkingSetStatusComponent from "./WorkingSetStatus";
 import filterTransformer, { FieldResolver } from "../../util/filterTransformer";
 import config from "../../config"
 import { toJS } from "mobx";
+import { getCustomFilter } from "../../util/CustomFilter";
 
 
 function findColumn(columnStates, name)
@@ -79,6 +80,7 @@ const DataGrid = fnObserver(props => {
                 }
 
                 const {name, width, minWidth, filter, heading, sort, renderFilter } = columnElem.props;
+                const transformedFilter = getCustomFilter(filter) ?? filter;
 
                 let typeRef = null, sortable = false, enabled = false;
                 if (name)
@@ -90,7 +92,7 @@ const DataGrid = fnObserver(props => {
                         sortable = columnState.sortable;
                         const typeContext = lookupTypeContext(type, name);
 
-                        if (filter && typeof filter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
+                        if (transformedFilter && typeof transformedFilter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
                         {
                             throw new Error(
                                 "Computed column '" + typeContext.field.name + "' cannot be filtered with a simple filter.\n" +
@@ -123,7 +125,7 @@ const DataGrid = fnObserver(props => {
                     width,
                     minWidth,
                     sortable,
-                    filter,
+                    filter: transformedFilter,
                     enabled,
                     type: typeRef && typeRef.name,
                     heading: heading || name,

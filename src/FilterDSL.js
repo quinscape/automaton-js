@@ -400,7 +400,7 @@ export function getConditionArgCount(name)
 {
     if (typeof name === "function")
     {
-        return name.length;
+        return name.length - 1;
     }
 
     const count = CONDITION_METHODS[name] || FIELD_CONDITIONS[name];

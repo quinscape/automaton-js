@@ -74,6 +74,8 @@ import ConditionEditor from "./ui/condition/ConditionEditor"
 import {unwrapNonNull} from "./util/type-utils";
 import decompileFilter from "./util/decompileFilter"
 
+import { registerCustomFilter } from "./util/CustomFilter"
+
 // noinspection JSUnusedGlobalSymbols
 export {
     config,
@@ -186,6 +188,8 @@ export {
     ConditionEditor,
     confirmDestructiveTransition,
     unwrapNonNull,
-    decompileFilter
+    decompileFilter,
+
+    registerCustomFilter
 }
 
