@@ -390,28 +390,31 @@ describe("FKSelector", function () {
 
         return selectFromModal(fkSelectorA, "Qux A #3")
             .then(() => {
-                assert(fkSelectorA.value === "Qux A #3");
-                assert(formObj.quxA.name === "Qux A #3")
+                sleep(1000).then(() => { // intercept race condition
+                    assert(fkSelectorA.value === "Qux A #3");
+                    assert(formObj.quxA.name === "Qux A #3")
 
-                const [ ctx, value ] = changeSpy.lastCall.args;
+                    const [ ctx, value ] = changeSpy.lastCall.args;
 
-                assert(value === "17861d28-a11d-4dd5-b66c-b4351ca1a980")
+                    assert(value === "17861d28-a11d-4dd5-b66c-b4351ca1a980")
 
 
-                assert(ctx.fieldContext.isFieldContext)
-                assert(ctx.fieldContext.qualifiedName === "quxAId")
-                assert(ctx.oldValue === "cd816e04-a7cf-4df8-aad9-f021907cd81c")
-                assert.deepEqual(ctx.oldRow, {
-                    "_type": "QuxA",
-                    "name": "Qux A #1",
-                    "value": 1
-                })
-                assert.deepEqual(ctx.row, {
-                    "_type": "QuxA",
-                    "name": "Qux A #3",
-                    "description": "Desc Qux A #3",
-                    "id": "17861d28-a11d-4dd5-b66c-b4351ca1a980",
-                    "value": 3
+                    assert(ctx.fieldContext.isFieldContext)
+                    assert(ctx.fieldContext.qualifiedName === "quxAId")
+                    assert(ctx.oldValue === "cd816e04-a7cf-4df8-aad9-f021907cd81c")
+                    assert.deepEqual(ctx.oldRow, {
+                        "_type": "QuxA",
+                        "name": "Qux A #1",
+                        "value": 1
+                    })
+                    console.log(JSON.stringify(ctx.row, null, 4));
+                    assert.deepEqual(ctx.row, {
+                        "_type": "QuxA",
+                        "name": "Qux A #3",
+                        "description": "Desc Qux A #3",
+                        "id": "17861d28-a11d-4dd5-b66c-b4351ca1a980",
+                        "value": 3
+                    })
                 })
 
             })
@@ -972,7 +975,7 @@ describe("FKSelector", function () {
             .then(
                 () => {
                     const formConfig = renderSpy.lastCall.args[0];
-                    assert.deepEqual(formConfig.getErrors("quxAId"), ["","QuxMain.quxAId:Field Required"])
+                    assert.deepEqual(formConfig.getErrors("quxAId"), ["","[Field Required]"])
                 }
             )
             .then(

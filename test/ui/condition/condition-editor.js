@@ -84,7 +84,7 @@ describe("ConditionEditor", function () {
                 // changing the field to an integer field changes the associated scalarType to "Int"
                 assert(scope.condition.operands[1].scalarType === "Int")
                 // and produces an error because the value is still "aaa" but the type of the field is now "Int"
-                assert(!!getByText(container, "Invalid Integer"))
+                assert(!!getByText(container, "[Invalid Integer]"))
                 assert(scope.condition.operands[1].value === "aaa")
 
                 const fieldValueInput = getByLabelText(container, "Filter value");
@@ -95,7 +95,7 @@ describe("ConditionEditor", function () {
             .then(() => sleep(5))
             .then(() => {
                 assert(scope.condition.operands[1].value === 12)
-                assert(!queryByText(container, "Invalid Integer"))
+                assert(!queryByText(container, "[Invalid Integer]"))
 
                 const conditionSelect = getByLabelText(container,"[condition]");
 
