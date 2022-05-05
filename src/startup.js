@@ -28,6 +28,7 @@ import { registerScalarEquals } from "./util/equalsScalar";
 import { registerEntityRenderer } from "./util/renderEntity";
 import registerBigDecimalConverter from "./registerBigDecimalConverter";
 import WorkingSet from "./WorkingSet";
+import {registerDateRangeFilter} from "./util/filter/registerDateRangeFilter";
 
 
 const SCOPES_MODULE_NAME = "./scopes.js";
@@ -180,6 +181,8 @@ function defaultInit(ctx, initial)
             config.commonScope = commonScope
         }
     }
+
+    registerDateRangeFilter();
 
     return Promise.all(promises);
 }

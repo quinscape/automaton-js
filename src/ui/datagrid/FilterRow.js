@@ -4,6 +4,7 @@ import { Select } from "domainql-form"
 import i18n from "../../i18n"
 import { FilterContext } from "./GridStateForm";
 import { Field } from "domainql-form"
+import {DateRangeField} from "../../index";
 
 
 const BOOLEAN_VALUES = [
@@ -84,6 +85,16 @@ const FilterRow = fnObserver(props => {
                                     }
                                 )
                             );
+                        }
+                        else if(fieldType === "Timestamp")
+                        {
+                            filterElems.push(<DateRangeField
+                                key={ key }
+                                labelClass="sr-only"
+                                label={ label }
+                                name={ fieldName }
+                                type="DateRange"
+                            />);
                         }
                         else
                         {

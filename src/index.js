@@ -11,6 +11,7 @@ import DataGrid from "./ui/datagrid/DataGrid"
 import Button from "./ui/Button"
 import Link from "./ui/Link"
 import CalendarField from "./ui/CalendarField"
+import DateRangeField from "./ui/form/date/DateRangeField";
 import ScrollTracker from "./ui/ScrollTracker"
 import graphql from "./graphql"
 import GraphQLQuery from "./GraphQLQuery"
@@ -121,6 +122,7 @@ export {
 
     FilterDSL,
     CalendarField,
+    DateRangeField,
     LogoutForm,
     extractTypeData,
     FKSelector,
