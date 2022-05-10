@@ -12,9 +12,22 @@ export function getCustomFilter(name) {
     return null;
 }
 
-export function resetConverter()
+/**
+ * Remove all stored filters
+ */
+export function removeAllCustomFilters()
 {
     filter = {};
+}
+
+/**
+ * Remove a stored filter by alias
+ *
+ * @param {String} name                     filter alias
+ */
+export function removeCustomFilter(name)
+{
+    filter[name] = null;
 }
 
 /**
