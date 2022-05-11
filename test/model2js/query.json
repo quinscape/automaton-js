@@ -1,0 +1,13 @@
+{
+  "query": {
+    "query": "query Q_AppUser($config: QueryConfigInput!)\n    {\n        iQueryAppUser(config: $config)\n        {\n            columnStates{\n                }\n            queryConfig{\n                }\n            rows{\n                }\n    }",
+    "variables": {
+      "configs": [
+        {
+          "name": "config",
+          "pageSize": 20
+        }
+      ]
+    }
+  }
+}

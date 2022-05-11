@@ -1,0 +1,46 @@
+{
+  "processExports": {
+    "type": "ProcessExport",
+    "configuration": [],
+    "init": [
+      "let target, context;",
+      "if (process.input.object) context = process.input.object;",
+      "return Promise.resolve().then(() => {",
+      "}).then(() => { return target; })"
+    ],
+    "startState": null,
+    "scope": {
+      "name": "ProzessKatalogverwaltung",
+      "observables": [
+        {
+          "name": "ausgewaehlterKatalog",
+          "defaultValue": "false"
+        }
+      ],
+      "actions": [
+        {
+          "name": "updateAusgewaehlterKatalog",
+          "params": [
+            "ausgewaehlterKatalog"
+          ],
+          "code": "this.ausgewaehlterKatalog = ausgewaehlterKatalog;"
+        }
+      ],
+      "helpers": [
+        {
+          "name": "decisionPuefeWelcherKatalogGeoeffnetWerdenSoll",
+          "params": ["t, process"],
+          "code": "/***Implementierung Katalogverwaltung abgeschlossen***/\nreturn false;\n"
+        },
+        {
+          "actionAnnotation": true,
+          "name": "decisionPuefeWelcherKatalogGeoeffnetWerdenSoll",
+          "code": "/***Implementierung Katalogverwaltung abgeschlossen***/\nreturn false;\n"
+        }
+      ]
+    },
+    "extraConstants": [
+      "// deconstruct FilterDSL methods\nconst { field, value, and, or, not } = FilterDSL;\nconst auth = config.auth;"
+    ]
+  }
+}
