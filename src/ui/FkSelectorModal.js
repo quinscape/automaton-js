@@ -232,7 +232,7 @@ const FkSelectorModal = fnObserver(
                                                         showColumnFilter ? (
                                                             columnTypes[idx] === "String" ?
                                                                 "containsIgnoreCase" :
-                                                                val =>
+                                                                (fieldName, val) =>
                                                                     field(name).toString()
                                                                     .containsIgnoreCase(
                                                                         value(val, "String")
