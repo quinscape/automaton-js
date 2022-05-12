@@ -43,6 +43,7 @@ import { SCALAR } from "domainql-form/lib/kind";
 import CachedQuery from "../model/CachedQuery";
 import updateComponentCondition from "../util/updateComponentCondition"
 import {and} from "../../filter";
+import { OfflineQuery } from "../model/OfflineQuery";
 
 
 export const NO_SEARCH_FILTER = "NO_SEARCH_FILTER";
@@ -259,6 +260,10 @@ const FKSelector = fnObserver(props => {
                     queryFromProps, {
                         pageSize: cachedPageSize
                     });
+            }
+            else if (queryFromProps instanceof OfflineQuery)
+            {
+                return queryFromProps;
             }
             else
             {
