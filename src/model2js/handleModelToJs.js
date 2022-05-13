@@ -616,7 +616,11 @@ export default class ${name} {
         if (helpers && helpers.length >= 1) {
 
             helpers.map((helper) => {
-                const {name, defaultValue, code, params} = helper
+                const {name, defaultValue, code, params, actionAnnotation} = helper
+                if (actionAnnotation) {
+                    processScript +=`
+                    @action`
+                }
                 if (params) {
                     params.length === 1 ? params : params.join(', ')
                 }

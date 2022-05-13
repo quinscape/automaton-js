@@ -391,20 +391,23 @@ function resetHistoryTo(historyIndex)
 export function findProcessScopeWithWorkingSet(process)
 {
     let { scope } = process
-    let current = process
-    do
-    {
-        if (scope.workingSet instanceof WorkingSet)
+    
+    if (scope != null) {
+        let current = process
+        do
         {
-            return scope
-        }
-        else if (typeof scope.isDirty === "function")
-        {
-            return scope
-        }
-        current = current[secret].parent
-
-    } while (current)
+            if (scope.workingSet instanceof WorkingSet)
+            {
+                return scope
+            }
+            else if (typeof scope.isDirty === "function")
+            {
+                return scope
+            }
+            current = current[secret].parent
+    
+        } while (current)
+    }
 
     return null
 }
