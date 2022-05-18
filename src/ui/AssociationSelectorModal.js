@@ -12,7 +12,17 @@ import { observer as fnObserver } from "mobx-react-lite";
  */
 const AssociationSelectorModal = fnObserver(props => {
 
-    const { isOpen, iQuery, columns, title, toggle, fade, selected, idPath } = props;
+    const {
+        isOpen,
+        iQuery,
+        columns,
+        title,
+        toggle,
+        fade,
+        selected,
+        idPath,
+        alignPagination
+    } = props;
 
     return(
         <Modal isOpen={ isOpen } toggle={ toggle } size="lg" fade={ fade }>
@@ -31,6 +41,7 @@ const AssociationSelectorModal = fnObserver(props => {
                                 id="fk-selector-grid"
                                 tableClassName="table-hover table-striped table-bordered table-sm"
                                 value={ iQuery }
+                                alignPagination={ alignPagination }
                                 isCompact
                             >
                                 <DataGrid.Column
