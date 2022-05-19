@@ -17,6 +17,20 @@ const BUTTON_PREV = i18n("Pagination:Prev");
 const BUTTON_NEXT = i18n("Pagination:Next");
 const BUTTON_LAST = i18n("Pagination:Last");
 
+function getJustifyContentClass(align) {
+    switch (align) {
+        case "right": {
+            return "justify-content-end"
+        }
+        case "center": {
+            return "justify-content-center"
+        }
+        default: {
+            return "justify-content-start"
+        }
+    }
+}
+
 function getTargetPage(btn, currentPage, numPages)
 {
     const { name, offset } = btn;
@@ -159,7 +173,9 @@ const RowCountDisplay = props =>
  */
 const Pagination = fnObserver(props => {
 
-    const { iQuery, pageSizes, description, buttonConfig } = props;
+    const { iQuery, pageSizes, description, buttonConfig, align } = props;
+
+    const justifyContentClass = getJustifyContentClass(align);
 
     const { queryConfig : { offset, pageSize }, rowCount } = iQuery;
 
@@ -193,7 +209,8 @@ const Pagination = fnObserver(props => {
     {
         return (
             <div
-                className="table-page-control"
+                aria-label={description}
+                className={cx("table-page-control", justifyContentClass)}
             >
                 <div
                     className="form-inline page-sizes"
@@ -214,9 +231,9 @@ const Pagination = fnObserver(props => {
     return (
         <div
             aria-label={description}
-            className="table-page-control"
+            className={cx("table-page-control", justifyContentClass)}
         >
-            <ul className="mr-2 pagination form-group input-group">
+            <ul className="mr-2 ml-2 pagination form-group input-group">
                 {
                     buttonConfig.map((btn, idx) => {
 
@@ -264,7 +281,7 @@ const Pagination = fnObserver(props => {
                     })
                 }
             </ul>
-            <div className="form-inline page-sizes">
+            <div className="mr-2 ml-2 form-inline page-sizes">
                 <PageSizeSelect
                     pageSize={ pageSize }
                     changePageSize={ changePageSize }

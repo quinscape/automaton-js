@@ -43,7 +43,7 @@ const COLUMN_CONFIG_INPUT_OPTS = {
  */
 const DataGrid = fnObserver(props => {
 
-    const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, children } = props;
+    const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, alignPagination, children } = props;
 
     const { type, columnStates } = value;
 
@@ -320,6 +320,7 @@ const DataGrid = fnObserver(props => {
             <Pagination
                 iQuery={ value }
                 description={ i18n("Result Navigation") }
+                align={ alignPagination }
             />
         </GridStateForm>
     );
@@ -355,7 +356,11 @@ DataGrid.propTypes = {
     /**
      * Working set with in-memory objects to be mixed in
      */
-    workingSet: PropTypes.instanceOf(WorkingSet)
+    workingSet: PropTypes.instanceOf(WorkingSet),
+    /**
+     * set the pagination alignment ("left" [default], "center", "right")
+     */
+    alignPagination: PropTypes.string,
 };
 
 
