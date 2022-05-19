@@ -228,10 +228,10 @@ const FKSelector = fnObserver(props => {
 
     const {
         display,
-        query :
-        queryFromProps,
-        queryCondition :
-        queryConditionFromProps,
+        query: queryFromProps,
+        queryCondition: queryConditionFromProps,
+        rootType: rootTypeFromProps,
+        sourceName,
         searchFilter,
         modalTitle,
         fade,
@@ -283,7 +283,8 @@ const FKSelector = fnObserver(props => {
                     const errorMessages  = formConfig.getErrors(ctx.qualifiedName);
                     const haveErrors = errorMessages.length > 0;
 
-                    const rootType = getOutputTypeName(formConfig.type);
+                    const rootType = rootTypeFromProps ?? getOutputTypeName(formConfig.type);
+                    const sourcePath = sourceName?.split(".") ?? path;
 
                     const relation = useMemo(
                         () => {
@@ -293,17 +294,17 @@ const FKSelector = fnObserver(props => {
                             let objectType;
                             let fieldName;
 
-                            if (path.length === 1)
+                            if (sourcePath.length === 1)
                             {
                                 // simple case
                                 objectType = rootType;
-                                fieldName = qualifiedName;
+                                fieldName = sourcePath[0];
                             }
                             else
                             {
                                 // path is more than 1 element long, we need to figure out the correct object type and field
-                                objectType = getParentObjectType(rootType, path);
-                                fieldName = path[path.length - 1];
+                                objectType = getParentObjectType(rootType, sourcePath);
+                                fieldName = sourcePath[sourcePath.length - 1];
                             }
 
                             const relations = inputSchema.getRelations().filter(
@@ -342,7 +343,7 @@ const FKSelector = fnObserver(props => {
                         let fieldValue;
                         if (display)
                         {
-                            fieldValue = typeof display === "function" ? display(formConfig) : get(formConfig.root, display);
+                            fieldValue = typeof display === "function" ? display(formConfig, ctx) : get(formConfig.root, display);
                         }
                         else
                         {

@@ -75,7 +75,9 @@ import ConditionEditor from "./ui/condition/ConditionEditor"
 import {unwrapNonNull} from "./util/type-utils";
 import decompileFilter from "./util/decompileFilter"
 
-import { registerCustomFilter } from "./util/CustomFilter"
+import { registerCustomFilter } from "./util/filter/CustomFilter"
+import { registerCustomFilterRenderer } from "./util/filter/CustomFilterRenderer"
+import { registerFKSelectorFilterAndRenderer } from "./util/filter/registerFKSelectorFilter"
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -192,6 +194,8 @@ export {
     unwrapNonNull,
     decompileFilter,
 
-    registerCustomFilter
+    registerCustomFilter,
+    registerCustomFilterRenderer,
+    registerFKSelectorFilterAndRenderer
 }
 

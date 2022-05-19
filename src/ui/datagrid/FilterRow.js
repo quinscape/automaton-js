@@ -5,6 +5,7 @@ import i18n from "../../i18n"
 import { FilterContext } from "./GridStateForm";
 import { Field } from "domainql-form"
 import {DateRangeField} from "../../index";
+import {getCustomFilterRenderer} from "../../util/filter/CustomFilterRenderer";
 
 
 const BOOLEAN_VALUES = [
@@ -61,7 +62,21 @@ const FilterRow = fnObserver(props => {
 
                         const key = idx + "." + i;
 
-                        if (fieldType === "Boolean")
+                        if (renderFilter)
+                        {
+                            const resolvedFilterRenderer = getCustomFilterRenderer(renderFilter) ?? renderFilter;
+                            const customElem = resolvedFilterRenderer(fieldName, fieldType, label, i);
+                            filterElems.push(
+                                React.cloneElement(
+                                    customElem,
+                                    {
+                                        key,
+                                        suspendAutoUpdate: true
+                                    }
+                                )
+                            );
+                        }
+                        else if (fieldType === "Boolean")
                         {
                             filterElems.push(
                                 <Select
@@ -72,19 +87,6 @@ const FilterRow = fnObserver(props => {
                                     values={ BOOLEAN_VALUES }
                                     type={ fieldType }
                                 />
-                            );
-                        }
-                        else if (renderFilter)
-                        {
-                            const customElem = renderFilter(fieldName, fieldType, label, i);
-                            filterElems.push(
-                                React.cloneElement(
-                                    customElem,
-                                    {
-                                        key,
-                                        suspendAutoUpdate: true
-                                    }
-                                )
                             );
                         }
                         else if(fieldType === "Timestamp")

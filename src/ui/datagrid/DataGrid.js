@@ -16,7 +16,7 @@ import WorkingSetStatusComponent from "./WorkingSetStatus";
 import filterTransformer, { FieldResolver } from "../../util/filterTransformer";
 import config from "../../config"
 import { toJS } from "mobx";
-import { getCustomFilter } from "../../util/CustomFilter";
+import { getCustomFilter } from "../../util/filter/CustomFilter";
 
 
 function findColumn(columnStates, name)

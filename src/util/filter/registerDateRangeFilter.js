@@ -1,4 +1,4 @@
-import {registerCustomFilter} from "../CustomFilter";
+import {registerCustomFilter} from "./CustomFilter";
 import {and, field, value} from "../../../filter";
 
 export function registerDateRangeFilter()
