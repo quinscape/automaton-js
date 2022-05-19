@@ -37,6 +37,11 @@ function sortRowsByFields(rows, sortFields) {
     });
 }
 
+/**
+ * Offline version of {@link InteractiveQuery} emulating sort, filter and paging functionality.
+ *
+ * @category iquery
+ */
 export class OfflineQuery
 {
 
@@ -50,9 +55,9 @@ export class OfflineQuery
     columnStates
 
     /**
-     * Creates a new OfflineQuery
+     * Creates a new OfflineQuery running either on array data or the result of an executed {@link InteractiveQuery}
      * 
-     * @param {InteractiveQuery | Object[]} source     source iQuery document containing all rows
+     * @param {InteractiveQuery | Object[]} source     source iQuery document or array containing all rows
      */
     constructor(source)
     {
