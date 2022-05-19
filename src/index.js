@@ -20,6 +20,7 @@ import { storeDomainObject, deleteDomainObject, storeDomainObjects, generateDoma
 import { backToParent } from "./process/back-functions"
 import { getGenericType, getWireFormat } from "./domain"
 import InteractiveQuery, { getFirstValue } from "./model/InteractiveQuery"
+import { OfflineQuery } from "./model/OfflineQuery";
 import createDomainObject from "./createDomainObject"
 import LogoutForm from "./ui/LogoutForm"
 import extractTypeData from "./extractTypeData"
@@ -119,6 +120,7 @@ export {
 
     getGenericType,
     InteractiveQuery,
+    OfflineQuery,
     getFirstValue,
 
 
