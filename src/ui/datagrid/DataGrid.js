@@ -17,6 +17,7 @@ import filterTransformer, { FieldResolver } from "../../util/filterTransformer";
 import config from "../../config"
 import { toJS } from "mobx";
 import { getCustomFilter } from "../../util/CustomFilter";
+import { OfflineQuery } from "../../../lib";
 
 
 function findColumn(columnStates, name)
@@ -45,7 +46,14 @@ const DataGrid = fnObserver(props => {
 
     const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, alignPagination, children } = props;
 
-    const { type, columnStates } = value;
+    const [suppressFilter, internalQuery] = useMemo(() => {
+        if (Array.isArray(value)) {
+            return [true, new OfflineQuery(value)];
+        }
+        return [false, value];
+    }, [value]);
+
+    const { type, columnStates } = internalQuery;
 
     const columnStatesInput = useObservableInput(
         () => {
@@ -90,21 +98,24 @@ const DataGrid = fnObserver(props => {
                     if (columnState && columnState.enabled)
                     {
                         sortable = columnState.sortable;
-                        const typeContext = lookupTypeContext(type, name);
 
-                        if (transformedFilter && typeof transformedFilter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
-                        {
-                            throw new Error(
-                                "Computed column '" + typeContext.field.name + "' cannot be filtered with a simple filter.\n" +
-                                "You need to write a custom filter function that basically reimplements the computed in SQL and produces a matching filter expression."
-                            )
-                        }
-
-
-                        typeRef = unwrapAll(typeContext.field.type);
-                        if (typeRef.kind !== "SCALAR")
-                        {
-                            throw new Error("Column type is no scalar: " + name);
+                        if (type) {
+                            const typeContext = lookupTypeContext(type, name);
+    
+                            if (transformedFilter && typeof transformedFilter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
+                            {
+                                throw new Error(
+                                    "Computed column '" + typeContext.field.name + "' cannot be filtered with a simple filter.\n" +
+                                    "You need to write a custom filter function that basically reimplements the computed in SQL and produces a matching filter expression."
+                                )
+                            }
+    
+    
+                            typeRef = unwrapAll(typeContext.field.type);
+                            if (typeRef.kind !== "SCALAR")
+                            {
+                                throw new Error("Column type is no scalar: " + name);
+                            }
                         }
                         enabled = true;
                         enabledCount++;
@@ -127,7 +138,7 @@ const DataGrid = fnObserver(props => {
                     sortable,
                     filter: transformedFilter,
                     enabled,
-                    type: typeRef && typeRef.name,
+                    type: typeRef?.name,
                     heading: heading || name,
                     sort: sort || name,
                     renderFilter,
@@ -150,7 +161,7 @@ const DataGrid = fnObserver(props => {
         [ type, columnStatesInput ]
     );
 
-    const { rows, queryConfig } = value;
+    const { rows, queryConfig } = internalQuery;
 
     const fieldResolver = useMemo(
         () => new FieldResolver(),
@@ -159,7 +170,7 @@ const DataGrid = fnObserver(props => {
 
     return (
         <GridStateForm
-            iQuery={ value }
+            iQuery={ internalQuery }
             columns={ columns }
             componentId={ id }
             filterTimeout={ filterTimeout }
@@ -199,7 +210,7 @@ const DataGrid = fnObserver(props => {
                                             }
                                         >
                                             <SortLink
-                                                iQuery={ value }
+                                                iQuery={ internalQuery }
                                                 column={ col }
                                             />
                                         </th>
@@ -207,10 +218,13 @@ const DataGrid = fnObserver(props => {
                                 )
                             }
                         </tr>
-
-                        <FilterRow
-                            columns={ columns }
-                        />
+                        {
+                            !suppressFilter && (
+                                <FilterRow
+                                    columns={ columns }
+                                />
+                            )
+                        }
                         </thead>
                         <tbody>
                         {
@@ -318,7 +332,7 @@ const DataGrid = fnObserver(props => {
                 </div>
             </div>
             <Pagination
-                iQuery={ value }
+                iQuery={ internalQuery }
                 description={ i18n("Result Navigation") }
                 align={ alignPagination }
             />
