@@ -10,12 +10,12 @@ import {FKSelector} from "../../index";
 /**
  * Register a filter renderer for an FKSelector
  *
- * @param {String} name             filter renderer alias
- * @param {Object} query            the query used for the FKSelector
- * @param {String} rootType         the table that the FKSelector works on
- * @param {String} sourceName       path of the FKSelector inside the table
- * @param {String} modalTitle       title of the FKSelectorModal
- * @param {String} valueFieldName   the value of the FKSelector table used by the filter
+ * @param {String} name filter renderer alias
+ * @param {Object} query the query used for the FKSelector
+ * @param {String} rootType the table that the FKSelector works on
+ * @param {String} sourceName path of the FKSelector inside the table
+ * @param {String} modalTitle title of the FKSelectorModal
+ * @param {String} valueFieldName the value of the FKSelector table used by the filter
  */
 export function registerFKSelectorFilterAndRenderer(name, query, rootType, sourceName, modalTitle, valueFieldName) {
     registerCustomFilter(name, (fieldName, row) => {

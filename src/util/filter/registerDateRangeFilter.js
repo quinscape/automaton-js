@@ -1,6 +1,9 @@
 import {registerCustomFilter} from "./CustomFilter";
 import {and, field, value} from "../../../filter";
 
+/**
+ * Creates and registers the filter for date ranges.
+ */
 export function registerDateRangeFilter()
 {
     registerCustomFilter("DateRange", (fieldName, val) => {

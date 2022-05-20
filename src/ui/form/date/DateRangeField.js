@@ -47,8 +47,6 @@ const DateRangeField = props => {
 
                     const fieldValue = Field.getValue(formConfig, ctx, errorMessages);
 
-                    //console.log("CalendarField value = ", fieldValue);
-
                     const buttonTitle = i18n("Open calendar");
 
                     let fieldElement;

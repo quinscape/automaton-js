@@ -231,8 +231,8 @@ const FKSelector = fnObserver(props => {
         display,
         query: queryFromProps,
         queryCondition: queryConditionFromProps,
-        rootType: rootTypeFromProps,
-        sourceName,
+        catalogueRootType,
+        catalogueFieldQualifiedName,
         searchFilter,
         modalTitle,
         fade,
@@ -289,8 +289,8 @@ const FKSelector = fnObserver(props => {
                     const errorMessages  = formConfig.getErrors(ctx.qualifiedName);
                     const haveErrors = errorMessages.length > 0;
 
-                    const rootType = rootTypeFromProps ?? getOutputTypeName(formConfig.type);
-                    const sourcePath = sourceName?.split(".") ?? path;
+                    const rootType = catalogueRootType ?? getOutputTypeName(formConfig.type);
+                    const sourcePath = catalogueFieldQualifiedName?.split(".") ?? path;
 
                     const relation = useMemo(
                         () => {
