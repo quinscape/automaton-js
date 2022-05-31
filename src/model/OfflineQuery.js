@@ -42,7 +42,7 @@ function sortRowsByFields(rows, sortFields) {
  *
  * @category iquery
  */
-export class OfflineQuery
+export default class OfflineQuery
 {
 
     @observable

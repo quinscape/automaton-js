@@ -16,8 +16,8 @@ import WorkingSetStatusComponent from "./WorkingSetStatus";
 import filterTransformer, { FieldResolver } from "../../util/filterTransformer";
 import config from "../../config"
 import { toJS } from "mobx";
-import { getCustomFilter } from "../../util/CustomFilter";
-import { OfflineQuery } from "../../../lib";
+import { getCustomFilter } from "../../util/filter/CustomFilter";
+import OfflineQuery from "../../model/OfflineQuery";
 
 
 function findColumn(columnStates, name)
@@ -101,7 +101,7 @@ const DataGrid = fnObserver(props => {
 
                         if (type) {
                             const typeContext = lookupTypeContext(type, name);
-    
+
                             if (transformedFilter && typeof transformedFilter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
                             {
                                 throw new Error(
@@ -109,8 +109,8 @@ const DataGrid = fnObserver(props => {
                                     "You need to write a custom filter function that basically reimplements the computed in SQL and produces a matching filter expression."
                                 )
                             }
-    
-    
+
+
                             typeRef = unwrapAll(typeContext.field.type);
                             if (typeRef.kind !== "SCALAR")
                             {

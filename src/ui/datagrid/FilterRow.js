@@ -4,6 +4,8 @@ import { Select } from "domainql-form"
 import i18n from "../../i18n"
 import { FilterContext } from "./GridStateForm";
 import { Field } from "domainql-form"
+import {DateRangeField} from "../../index";
+import {getCustomFilterRenderer} from "../../util/filter/CustomFilterRenderer";
 
 
 const BOOLEAN_VALUES = [
@@ -60,7 +62,21 @@ const FilterRow = fnObserver(props => {
 
                         const key = idx + "." + i;
 
-                        if (fieldType === "Boolean")
+                        if (renderFilter)
+                        {
+                            const resolvedFilterRenderer = getCustomFilterRenderer(renderFilter) ?? renderFilter;
+                            const customElem = resolvedFilterRenderer(fieldName, fieldType, label, i);
+                            filterElems.push(
+                                React.cloneElement(
+                                    customElem,
+                                    {
+                                        key,
+                                        suspendAutoUpdate: true
+                                    }
+                                )
+                            );
+                        }
+                        else if (fieldType === "Boolean")
                         {
                             filterElems.push(
                                 <Select
@@ -73,18 +89,15 @@ const FilterRow = fnObserver(props => {
                                 />
                             );
                         }
-                        else if (renderFilter)
+                        else if(fieldType === "Timestamp")
                         {
-                            const customElem = renderFilter(fieldName, fieldType, label, i);
-                            filterElems.push(
-                                React.cloneElement(
-                                    customElem,
-                                    {
-                                        key,
-                                        suspendAutoUpdate: true
-                                    }
-                                )
-                            );
+                            filterElems.push(<DateRangeField
+                                key={ key }
+                                labelClass="sr-only"
+                                label={ label }
+                                name={ fieldName }
+                                type="DateRange"
+                            />);
                         }
                         else
                         {
