@@ -71,6 +71,7 @@ import { openDialog } from "./util/openDialog";
 import ViewState from "./process/ViewState";
 
 import promiseUI, {configurePromiseUI} from "./util/promiseUI"
+import { promiseThrobber } from "./ui/throbber/Throbber";
 
 import ConditionEditor from "./ui/condition/ConditionEditor"
 import {unwrapNonNull} from "./util/type-utils";
@@ -190,6 +191,7 @@ export {
 
     promiseUI,
     configurePromiseUI,
+    promiseThrobber,
 
     ConditionEditor,
     confirmDestructiveTransition,
