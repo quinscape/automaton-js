@@ -36,20 +36,20 @@ const SelectionList = (props) => {
         : elements;
 
     return (
-        <div className="selection-list-container">
-            <div className="selection-list-header">
+        <div className="d-flex flex-column flex-fill m-4 selection-list-container">
+            <div className="font-weight-bold selection-list-header">
                 { header }
             </div>
-            <div className="d-flex flex-row">
-                <ul className="selection-list list-group">
+            <div className="d-flex flex-row flex-fill">
+                <ul className="flex-fill selection-list list-group border rounded">
                     {
                         sortedElements.length < 1
-                            ? (<span>{i18n("No Elements")}</span>)
+                            ? (<span className="m-2 font-italic">{i18n("No Elements")}</span>)
                             : sortedElements.map((element, index) => {
                                 return (
                                     <li
                                         key={index}
-                                        className={cx("selection-list-element list-group-item p-2", selected === element.name && "active")}
+                                        className={cx("p-2 list-group-item selection-list-element", selected === element.name && "active")}
                                         onClick={(event) => {
                                             selectElement(element);
                                         }}
