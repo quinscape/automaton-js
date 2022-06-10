@@ -91,7 +91,7 @@ const SelectionList = (props) => {
     )
 }
 
-SelectionList.PropTypes = {
+SelectionList.propTypes = {
     /**
      * the header of the list
      */
@@ -105,7 +105,7 @@ SelectionList.PropTypes = {
     /**
      * the selected item in the list
      */
-    selected: PropTypes.object,
+    selected: PropTypes.string,
 
     /**
      * whether the list should be automatically sorted, mutually exclusive with onMoveElementClick being set

@@ -89,7 +89,7 @@ const UserColumnConfigDialogModal = (props) => {
     )
 }
 
-UserColumnConfigDialogModal.PropTypes = {
+UserColumnConfigDialogModal.propTypes = {
     /**
      * set whether the Modal is open or closed
      */

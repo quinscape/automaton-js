@@ -193,7 +193,7 @@ const DualListSelector = (props) => {
     )
 }
 
-DualListSelector.PropTypes = {
+DualListSelector.propTypes = {
     /**
      * the header of the left list
      */

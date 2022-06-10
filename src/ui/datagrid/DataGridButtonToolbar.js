@@ -65,7 +65,7 @@ const DataGridButtonToolbar = (props) => {
     )
 }
 
-DataGridButtonToolbar.PropTypes = {
+DataGridButtonToolbar.propTypes = {
     /**
      * set whether the "Reset Filters" button is disabled or not
      */

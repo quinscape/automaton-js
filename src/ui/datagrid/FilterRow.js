@@ -140,7 +140,7 @@ const FilterRow = fnObserver(props => {
 
 });
 
-FilterRow.PropTypes = {
+FilterRow.propTypes = {
     /**
      * the rows of the data grid
      */
