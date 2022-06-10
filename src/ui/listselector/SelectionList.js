@@ -2,6 +2,7 @@ import React from "react";
 import cx from "classnames";
 import i18n from "../../i18n";
 import {Icon} from "../../../../domainql-form";
+import PropTypes from "prop-types";
 
 function elementComparator(element0, element1) {
     const label0 = element0.label ?? element0.name;
@@ -88,6 +89,38 @@ const SelectionList = (props) => {
             </div>
         </div>
     )
+}
+
+SelectionList.PropTypes = {
+    /**
+     * the header of the list
+     */
+    header: PropTypes.string,
+
+    /**
+     * the elements of the list
+     */
+    elements: PropTypes.array,
+
+    /**
+     * the selected item in the list
+     */
+    selected: PropTypes.object,
+
+    /**
+     * whether the list should be automatically sorted, mutually exclusive with onMoveElementClick being set
+     */
+    autoSort: PropTypes.bool,
+
+    /**
+     * the function called on changes to the list
+     */
+    onChange: PropTypes.func,
+
+    /**
+     * the function called on elements being moved by the user, mutually exclusive with autoSort
+     */
+    onMoveElementClick: PropTypes.func
 }
 
 export default SelectionList;

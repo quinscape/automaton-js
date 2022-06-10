@@ -3,6 +3,7 @@ import {ButtonToolbar, Container, Modal, ModalBody, ModalHeader} from "reactstra
 import i18n from "../../../i18n";
 import DualListSelector from "../../listselector/DualListSelector";
 import {Icon} from "../../../../../domainql-form";
+import PropTypes from "prop-types";
 
 const UserColumnConfigDialogModal = (props) => {
     const {
@@ -86,6 +87,33 @@ const UserColumnConfigDialogModal = (props) => {
             </ModalBody>
         </Modal>
     )
+}
+
+UserColumnConfigDialogModal.PropTypes = {
+    /**
+     * set whether the Modal is open or closed
+     */
+    isOpen: PropTypes.bool,
+
+    /**
+     * function used to toggle Modal open / closed
+     */
+    toggle: PropTypes.func,
+
+    /**
+     * list of inactive (not displayed) columns
+     */
+    inactiveElements: PropTypes.array,
+
+    /**
+     * list of active (displayed) columns
+     */
+    activeElements: PropTypes.array,
+
+    /**
+     * submit function
+     */
+    onSubmit: PropTypes.func
 }
 
 export default UserColumnConfigDialogModal;

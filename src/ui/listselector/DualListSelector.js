@@ -4,6 +4,7 @@ import DateTimeCalendar from "../form/date/components/DateTimeCalendar";
 import {Icon} from "../../../../domainql-form";
 import SelectionList from "./SelectionList";
 import {Container} from "reactstrap";
+import PropTypes from "prop-types";
 
 function getPositionInArray(array, name) {
     for(let i = 0; i < array.length; i++) {
@@ -190,6 +191,53 @@ const DualListSelector = (props) => {
             </div>
         </Container>
     )
+}
+
+DualListSelector.PropTypes = {
+    /**
+     * the header of the left list
+     */
+    leftHeader: PropTypes.string,
+
+    /**
+     * the header of the right list
+     */
+    rightHeader: PropTypes.string,
+
+    /**
+     * the elements in the left list
+     */
+    leftElements: PropTypes.array,
+
+    /**
+     * the elements in the right list
+     */
+    rightElements: PropTypes.array,
+
+    /**
+     * whether the left list should be automatically sorted, mutually exclusive with leftSortable
+     */
+    autoSortLeft: PropTypes.bool,
+
+    /**
+     * whether the left list should be sortable by the user, mutually exclusive with autoSortLeft
+     */
+    leftSortable: PropTypes.bool,
+
+    /**
+     * whether the right list should be automatically sorted, mutually exclusive with rightSortable
+     */
+    autoSortRight: PropTypes.bool,
+
+    /**
+     * whether the right list should be sortable by the user, mutually exclusive with autoSortRight
+     */
+    rightSortable: PropTypes.bool,
+
+    /**
+     * the function called on changes to the lists
+     */
+    onChange: PropTypes.func
 }
 
 export default DualListSelector;

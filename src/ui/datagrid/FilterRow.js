@@ -6,6 +6,7 @@ import { FilterContext } from "./GridStateForm";
 import { Field } from "domainql-form"
 import {DateRangeField} from "../../index";
 import {getCustomFilterRenderer} from "../../util/filter/CustomFilterRenderer";
+import PropTypes from "prop-types";
 
 
 const BOOLEAN_VALUES = [
@@ -138,5 +139,12 @@ const FilterRow = fnObserver(props => {
     );
 
 });
+
+FilterRow.PropTypes = {
+    /**
+     * the rows of the data grid
+     */
+    columns: PropTypes.array
+}
 
 export default FilterRow

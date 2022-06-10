@@ -470,6 +470,31 @@ DataGrid.propTypes = {
      * set the pagination alignment ("left" [default], "center", "right")
      */
     alignPagination: PropTypes.string,
+
+    /**
+     * set whether the control buttons should be displayed or not
+     */
+    displayControlButtons: PropTypes.bool,
+
+    /**
+     * set whether the "Reset Filters" button is disabled or not
+     */
+    resetFilterButtonDisabled: PropTypes.bool,
+
+    /**
+     * set whether the "Customize Columns" button is disabled or not
+     */
+    customizeColumnsButtonDisabled: PropTypes.bool,
+
+    /**
+     * the user table configuration
+     */
+    tableConfig: PropTypes.object,
+
+    /**
+     * the function called on changes to the user table configuration
+     */
+    onTableConfigChange: PropTypes.func
 };
 
 

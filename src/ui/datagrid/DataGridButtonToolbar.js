@@ -3,6 +3,7 @@ import {ButtonGroup, ButtonToolbar} from "reactstrap";
 import {Button} from "../../index";
 import i18n from "../../i18n";
 import {FilterContext} from "./GridStateForm";
+import PropTypes from "prop-types";
 
 const DataGridButtonToolbar = (props) => {
     const {
@@ -62,6 +63,23 @@ const DataGridButtonToolbar = (props) => {
             </ButtonGroup>
         </ButtonToolbar>
     )
+}
+
+DataGridButtonToolbar.PropTypes = {
+    /**
+     * set whether the "Reset Filters" button is disabled or not
+     */
+    resetFilterButtonDisabled: PropTypes.bool,
+
+    /**
+     * set whether the "Customize Columns" button is disabled or not
+     */
+    customizeColumnsButtonDisabled: PropTypes.bool,
+
+    /**
+     * function that opens the user config customisation Modal
+     */
+    setIsColumnModalOpen: PropTypes.func
 }
 
 export default DataGridButtonToolbar;
