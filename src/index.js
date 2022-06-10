@@ -81,6 +81,8 @@ import { registerCustomFilter } from "./util/filter/CustomFilter"
 import { registerCustomFilterRenderer } from "./util/filter/CustomFilterRenderer"
 import { registerFKSelectorFilterAndRenderer } from "./util/filter/registerFKSelectorFilter"
 
+import UserColumnConfigDialogModal from "./ui/datagrid/userconfig/UserColumnConfigDialogModal"
+
 // noinspection JSUnusedGlobalSymbols
 export {
     config,
@@ -200,6 +202,8 @@ export {
 
     registerCustomFilter,
     registerCustomFilterRenderer,
-    registerFKSelectorFilterAndRenderer
+    registerFKSelectorFilterAndRenderer,
+
+    UserColumnConfigDialogModal
 }
 
