@@ -44,7 +44,19 @@ const COLUMN_CONFIG_INPUT_OPTS = {
  */
 const DataGrid = fnObserver(props => {
 
-    const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, alignPagination, children } = props;
+    const {
+        id,
+        name,
+        value,
+        isCompact,
+        tableClassName,
+        rowClasses,
+        filterTimeout,
+        workingSet,
+        alignPagination,
+        paginationPageSizes,
+        children
+    } = props;
 
     const [suppressFilter, internalQuery] = useMemo(() => {
         if (Array.isArray(value)) {
@@ -335,6 +347,7 @@ const DataGrid = fnObserver(props => {
                 iQuery={ internalQuery }
                 description={ i18n("Result Navigation") }
                 align={ alignPagination }
+                pageSizes={ paginationPageSizes }
             />
         </GridStateForm>
     );
@@ -375,6 +388,11 @@ DataGrid.propTypes = {
      * set the pagination alignment ("left" [default], "center", "right")
      */
     alignPagination: PropTypes.string,
+
+    /**
+     * set the available page sizes for the pagination
+     */
+    paginationPageSizes: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
 };
 
 
