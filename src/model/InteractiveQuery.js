@@ -112,6 +112,17 @@ export default class InteractiveQuery {
      */
     @observable rowCount = 0;
 
+    /**
+     * Set the new queryConfig without mobx printing warnings.
+     * 
+     * This is supposed to be only called from the inside.
+     * 
+     * @param {Object} config the new query configuration
+     */
+    @action
+    setQueryConfig(config) {
+        this.queryConfig = config;
+    }
 
     /**
      * Updates the current iQuery base on a new query config. The given query config is merged with the current config
@@ -153,7 +164,7 @@ export default class InteractiveQuery {
                 vars.config.condition = null;
             }
 
-            Object.assign(this.queryConfig, vars.config);
+            this.setQueryConfig(vars.config);
         }
         else
         {
