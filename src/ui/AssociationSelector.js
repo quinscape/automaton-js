@@ -17,7 +17,7 @@ import { getGenericType, INTERACTIVE_QUERY } from "../domain";
 
 import AssociationSelectorModal from "./AssociationSelectorModal";
 import autoSubmitHack from "../util/autoSubmitHack";
-import { and, field, values } from "../FilterDSL";
+import { and, Condition, field, values } from "../FilterDSL";
 import { lookupType } from "../util/type-utils";
 
 
