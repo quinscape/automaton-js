@@ -259,19 +259,21 @@ const DataGrid = fnObserver(props => {
             dropIndex = dropIndex + 1;
         }
         
-        const resRecords = [];
-        for (let i = 0; i  < records.length; ++i) {
-            if (dragIndex > dropIndex && i === dropIndex) {
-                resRecords.push(records[dragIndex]);
+        if (dragIndex != dropIndex) {
+            const resRecords = [];
+            for (let i = 0; i  < records.length; ++i) {
+                if (dragIndex > dropIndex && i === dropIndex) {
+                    resRecords.push(records[dragIndex]);
+                }
+                if (i !== dragIndex) {
+                    resRecords.push(records[i]);
+                }
+                if (dragIndex < dropIndex && i === dropIndex) {
+                    resRecords.push(records[dragIndex]);
+                }
             }
-            if (i !== dragIndex) {
-                resRecords.push(records[i]);
-            }
-            if (dragIndex < dropIndex && i === dropIndex) {
-                resRecords.push(records[dragIndex]);
-            }
+            setRecords(resRecords);
         }
-        setRecords(resRecords);
 
         // TODO dpeters: update database / array data
 
