@@ -23,6 +23,11 @@ export const modelSchemaValidation = (jsonData) => {
     return valid
 }
 
+/**
+ *This is a description of the function that convert copyrights json part.
+ * @param {string} copyRights - the json part of the copyrights from JsonData.
+ * @returns {copyRightsStatement: string}
+ */
 export const renderCopyRights = (copyRights) => {
     let copyRightsStatement = ``;
     if (copyRights) {
@@ -32,6 +37,11 @@ export const renderCopyRights = (copyRights) => {
     return copyRightsStatement
 }
 
+/**
+ * This is a description of the function that convert import statement json part.
+ * @param {string} importDeclarations - the json part of the import statement from JsonData.
+ * @returns {importStatements: string}
+ */
 export const renderImportStatements = (importDeclarations) => {
     let importStatements = "";
 
@@ -78,6 +88,11 @@ export const renderImportStatements = (importDeclarations) => {
     return importStatements;
 }
 
+/**
+ * This is a description of the function that convert extra Constants json part.
+ * @param {string} extraConstants - the json part of the extra Constants from JsonData.
+ * @returns {extraConstantsScript: string}
+ */
 export const renderExtraConstantsScript = (extraConstants) => {
     let extraConstantsScript = ''
     extraConstants.forEach(extraConstant => {
@@ -87,6 +102,11 @@ export const renderExtraConstantsScript = (extraConstants) => {
     return extraConstantsScript;
 }
 
+/**
+ * This is a description of the function that convert query json part.
+ * @param {string} query - the json part of the query from JsonData.
+ * @returns {queryScript: string}
+ */
 export const renderQueryScript = (query) => {
     let queryScript = ''
     const {query: queryElement, variables} = query
@@ -202,6 +222,11 @@ export default query(
     return queryScript
 }
 
+/**
+ *This is a description of the function that convert state json part.
+ * @param {string} state - the json part of the state from JsonData.
+ * @returns {stateScript: string}
+ */
 export const renderStateScript = (state) => {
     let stateScript = ''
     const {name, composite, transitionMap} = state
@@ -547,6 +572,11 @@ export const renderStateScript = (state) => {
     return stateScript;
 }
 
+/**
+ *This is a description of the function that convert the process json part.
+ * @param {string} processExports - the json part of the process from JsonData.
+ * @returns {processScript: string}
+ */
 export const renderProcessExportScript = (processExports) => {
     let processScript = "";
 
@@ -668,6 +698,11 @@ export default class ${name} {
     return jsBeautify(processScript);
 }
 
+/**
+ *This is a description of the function that convert the userScope json part.
+ * @param {string} userScope - the json part of the userScope from JsonData.
+ * @returns {userScopeScript: string}
+ */
 export const renderUserScopeScript = (userScope) => {
     let userScopeScript = ''
     const {name, observables, actions, computeds, helpers} = userScope
@@ -687,6 +722,11 @@ export class ${name}
     return userScopeScript
 }
 
+/**
+ * This is a description of the function that convert the sessionScope json part.
+ * @param {string} sessionScope - the json part of the sessionScope from JsonData.
+ * @returns {sessionScopeScript: string}
+ */
 export const renderSessionScopeScript = (sessionScope) => {
     let sessionScopeScript = ''
     const {name, observables, actions, computeds, helpers} = sessionScope
@@ -706,6 +746,11 @@ export class ${name}
     return sessionScopeScript
 }
 
+/**
+ * This is a description of the function that convert domain json part.
+ * @param {string} domain - the json part of the domain from JsonData.
+ * @returns {domainScript: string}
+ */
 export const renderDomainScript = (domain) => {
     let domainScript = '';
     const {computeds, observables, name} = domain
