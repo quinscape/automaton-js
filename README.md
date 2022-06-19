@@ -7,7 +7,7 @@ Contains common functionality referenced in the generated code.
 ## Documentation
 
  * [Automaton-Js Documentation](https://quinscape.github.io/automaton-js/)
- * ![Model to Js flow] (/tooling/resources/model-to-js flow.png)
+ 
 ## Model Documentation (babel-plugin-automaton)
  
  * [Concepts](https://github.com/quinscape/babel-plugin-automaton/blob/master/docs/concepts.md)
