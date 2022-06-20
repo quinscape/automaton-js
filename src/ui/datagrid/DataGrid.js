@@ -19,6 +19,8 @@ import WorkingSetStatusComponent from "./WorkingSetStatus";
 import filterTransformer, { FieldResolver } from "../../util/filterTransformer";
 import config from "../../config"
 import { toJS } from "mobx";
+import { getCustomFilter } from "../../util/filter/CustomFilter";
+import OfflineQuery from "../../model/OfflineQuery";
 
 
 function findColumn(columnStates, name)
@@ -45,9 +47,16 @@ const COLUMN_CONFIG_INPUT_OPTS = {
  */
 const DataGrid = fnObserver(props => {
 
-    const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, children, sortColumn } = props;
+    const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, alignPagination, children, sortColumn } = props;
 
-    const { type, columnStates } = value;
+    const [suppressFilter, internalQuery] = useMemo(() => {
+        if (Array.isArray(value)) {
+            return [true, new OfflineQuery(value)];
+        }
+        return [false, value];
+    }, [value]);
+
+    const { type, columnStates } = internalQuery;
 
     const columnStatesInput = useObservableInput(
         () => {
@@ -82,6 +91,7 @@ const DataGrid = fnObserver(props => {
                 }
 
                 const {name, width, minWidth, filter, heading, sort, renderFilter } = columnElem.props;
+                const transformedFilter = getCustomFilter(filter) ?? filter;
 
                 let typeRef = null, sortable = false, enabled = false;
                 if (name)
@@ -95,21 +105,24 @@ const DataGrid = fnObserver(props => {
                         if (columnState && columnState.enabled)
                         {
                             sortable = columnState.sortable;
-                            const typeContext = lookupTypeContext(type, name);
 
-                            if (filter && typeof filter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
-                            {
-                                throw new Error(
-                                    "Computed column '" + typeContext.field.name + "' cannot be filtered with a simple filter.\n" +
-                                    "You need to write a custom filter function that basically reimplements the computed in SQL and produces a matching filter expression."
-                                )
-                            }
+                            if (type) {
+                                const typeContext = lookupTypeContext(type, name);
+
+                                if (transformedFilter && typeof transformedFilter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
+                                {
+                                    throw new Error(
+                                        "Computed column '" + typeContext.field.name + "' cannot be filtered with a simple filter.\n" +
+                                        "You need to write a custom filter function that basically reimplements the computed in SQL and produces a matching filter expression."
+                                    )
+                                }
 
 
-                            typeRef = unwrapAll(typeContext.field.type);
-                            if (typeRef.kind !== "SCALAR")
-                            {
-                                throw new Error("Column type is no scalar: " + name);
+                                typeRef = unwrapAll(typeContext.field.type);
+                                if (typeRef.kind !== "SCALAR")
+                                {
+                                    throw new Error("Column type is no scalar: " + name);
+                                }
                             }
                             enabled = true;
                             enabledCount++;
@@ -125,37 +138,25 @@ const DataGrid = fnObserver(props => {
                     enabled = true;
                     enabledCount++;
                 }
-                if (sortColumn != null && sortColumn === name)
-                {
-                    columns.unshift({
-                        name,
-                        width,
-                        minWidth,
-                        sortable,
-                        filter,
-                        enabled,
-                        type: typeRef && typeRef.name,
-                        heading: heading || name,
-                        sort: sort || name,
-                        renderFilter,
-                        columnElem
-                    });
-                }
-                else
-                {
-                    columns.push({
-                        name,
-                        width,
-                        minWidth,
-                        sortable,
-                        filter,
-                        enabled,
-                        type: typeRef && typeRef.name,
-                        heading: heading || name,
-                        sort: sort || name,
-                        renderFilter,
-                        columnElem
-                    });
+
+                const newColumn = {
+                    name,
+                    width,
+                    minWidth,
+                    sortable,
+                    filter: transformedFilter,
+                    enabled,
+                    type: typeRef?.name,
+                    heading: heading || name,
+                    sort: sort || name,
+                    renderFilter,
+                    columnElem
+                };
+
+                if (sortColumn != null && sortColumn === name) {
+                    columns.unshift(newColumn);
+                } else {
+                    columns.push(newColumn);
                 }
             });
 
@@ -172,14 +173,12 @@ const DataGrid = fnObserver(props => {
         [ type, columnStatesInput ]
     );
 
-    const { rows, queryConfig } = value;
+    const { rows, queryConfig } = internalQuery;
 
     const fieldResolver = useMemo(
         () => new FieldResolver(),
         []
     );
-
-
 
     const [records, setRecords] = React.useState([
         ...(workingSet && queryConfig.offset === 0 && (function () {
@@ -288,7 +287,7 @@ const DataGrid = fnObserver(props => {
     return (
         <DndProvider backend={HTML5Backend}>
             <GridStateForm
-                iQuery={ value }
+                iQuery={ internalQuery }
                 columns={ columns }
                 componentId={ id }
                 filterTimeout={ filterTimeout }
@@ -319,10 +318,14 @@ const DataGrid = fnObserver(props => {
                                 columns={ columns }
                                 sortColumn={ sortColumn }
                             />
-                            <FilterRow
-                                columns={ columns }
-                                sortColumn={ sortColumn }
-                            />
+                            {
+                                !suppressFilter && (
+                                    <FilterRow
+                                        columns={ columns }
+                                        sortColumn={ sortColumn }
+                                    />
+                                )
+                            }
                             </thead>
                             <tbody>
                             {
@@ -366,8 +369,9 @@ const DataGrid = fnObserver(props => {
                     </div>
                 </div>
                 <Pagination
-                    iQuery={ value }
+                    iQuery={ internalQuery }
                     description={ i18n("Result Navigation") }
+                    align={ alignPagination }
                 />
             </GridStateForm>
         </DndProvider>
@@ -404,7 +408,11 @@ DataGrid.propTypes = {
     /**
      * Working set with in-memory objects to be mixed in
      */
-    workingSet: PropTypes.instanceOf(WorkingSet)
+    workingSet: PropTypes.instanceOf(WorkingSet),
+    /**
+     * set the pagination alignment ("left" [default], "center", "right")
+     */
+    alignPagination: PropTypes.string,
 };
 
 

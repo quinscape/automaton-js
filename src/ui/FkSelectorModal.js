@@ -42,7 +42,8 @@ const FkSelectorModal = fnObserver(
             searchFilter,
             searchTimeout,
             fkSelectorId,
-            selectButtonContentRenderer
+            selectButtonContentRenderer,
+            alignPagination
         } = props;
 
         const formObject = useLocalObservable(() => observable({filter}));
@@ -201,6 +202,7 @@ const FkSelectorModal = fnObserver(
                                     }
                                     value={ iQuery }
                                     filterTimeout={ searchTimeout }
+                                    alignPagination={ alignPagination }
                                     isCompact
                                 >
                                     <DataGrid.Column
@@ -232,7 +234,7 @@ const FkSelectorModal = fnObserver(
                                                         showColumnFilter ? (
                                                             columnTypes[idx] === "String" ?
                                                                 "containsIgnoreCase" :
-                                                                val =>
+                                                                (fieldName, val) =>
                                                                     field(name).toString()
                                                                     .containsIgnoreCase(
                                                                         value(val, "String")

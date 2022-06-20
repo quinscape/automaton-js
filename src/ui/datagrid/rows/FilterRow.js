@@ -1,9 +1,10 @@
-import React, { useContext } from "react"
-import { observer as fnObserver } from "mobx-react-lite"
-import { Select } from "domainql-form"
-import i18n from "../../../i18n"
+import React, { useContext } from "react";
+import { observer as fnObserver } from "mobx-react-lite";
+import { Select, Field } from "domainql-form";
+import i18n from "../../../i18n";
 import { FilterContext } from "../GridStateForm";
-import { Field } from "domainql-form"
+import { getCustomFilterRenderer } from "../../../util/filter/CustomFilterRenderer";
+import DateRangeField from "../../form/date/DateRangeField";
 
 
 const BOOLEAN_VALUES = [
@@ -60,7 +61,21 @@ const FilterRow = fnObserver(props => {
 
                         const key = columnIdx + "." + i;
 
-                        if (fieldType === "Boolean")
+                        if (renderFilter)
+                        {
+                            const resolvedFilterRenderer = getCustomFilterRenderer(renderFilter) ?? renderFilter;
+                            const customElem = resolvedFilterRenderer(fieldName, fieldType, label, i);
+                            filterElems.push(
+                                React.cloneElement(
+                                    customElem,
+                                    {
+                                        key,
+                                        suspendAutoUpdate: true
+                                    }
+                                )
+                            );
+                        }
+                        else if (fieldType === "Boolean")
                         {
                             filterElems.push(
                                 <Select
@@ -73,16 +88,16 @@ const FilterRow = fnObserver(props => {
                                 />
                             );
                         }
-                        else if (renderFilter)
+                        else if(fieldType === "Timestamp")
                         {
-                            const customElem = renderFilter(fieldName, fieldType, label, i);
                             filterElems.push(
-                                React.cloneElement(
-                                    customElem,
-                                    {
-                                        key
-                                    }
-                                )
+                                <DateRangeField
+                                    key={ key }
+                                    labelClass="sr-only"
+                                    label={ label }
+                                    name={ fieldName }
+                                    type="DateRange"
+                                />
                             );
                         }
                         else
@@ -94,6 +109,7 @@ const FilterRow = fnObserver(props => {
                                     label={ label }
                                     name={fieldName}
                                     type={ fieldType }
+                                    suspendAutoUpdate
                                 />
                             );
                         }
