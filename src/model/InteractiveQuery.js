@@ -34,8 +34,8 @@ const updateFromResult = action("Update iQuery from Result", (iQuery, result) =>
 
     //console.log("updateFromResult: queryConfig =", JSON.stringify(value.queryConfig));
 
-    iQuery.rows.replace(value.rows);
-    iQuery.columnStates.replace(value.columnStates);
+    iQuery.rows = value.rows;
+    iQuery.columnStates = value.columnStates;
     iQuery.rowCount = value.rowCount;
 
     return true;
@@ -132,6 +132,7 @@ export default class InteractiveQuery {
      * @param {Object} queryConfig      query config structure (see de.quinscape.automaton.model.data.QueryConfig)
      * @return {Promise<* | never>}
      */
+    @action
     update(
         queryConfig
     )

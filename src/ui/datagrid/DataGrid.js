@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useEffect, useMemo } from "react"
 import PropTypes from "prop-types"
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
@@ -41,13 +41,22 @@ const COLUMN_CONFIG_INPUT_OPTS = {
     name: "React to column changes"
 };
 
+function sortByField(array, field) {
+    if (field != null) {
+        return array.sort((el0, el1) => {
+            return el0[field] < el1[field] ? -1 : 1;
+        });
+    }
+    return array;
+}
+
 
 /**
  * Data grid what works based on degenerified InteractiveQuery types.
  */
 const DataGrid = fnObserver(props => {
 
-    const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, alignPagination, children, sortColumn } = props;
+    const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, alignPagination, children, sortColumn, moveRowHandler } = props;
 
     const [suppressFilter, internalQuery] = useMemo(() => {
         if (Array.isArray(value)) {
@@ -180,21 +189,13 @@ const DataGrid = fnObserver(props => {
         []
     );
 
-    const [records, setRecords] = React.useState([
-        ...(workingSet && queryConfig.offset === 0 && (function () {
-    
-            const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
-    
-            const newObjects = workingSet.newObjects(type);
-            return newObjects.filter( obj => {
-                fieldResolver.current = obj;
-                return filterFn();
-            }).map(context => [context, null]);
-        })() || []),
-        ...rows.map(
+    const [records, setRecords] = React.useState([]);
+
+    useEffect(() => {
+        const sortedRows = sortByField(rows, sortColumn).map(
             (context) => {
 
-                let workingSetClass = null;
+                let workingSetClass = "original-object";
                 if (workingSet)
                 {
                     const entry = workingSet.lookup(context._type, context.id);
@@ -214,7 +215,26 @@ const DataGrid = fnObserver(props => {
 
                 return [context, workingSetClass];
             }
-        )
+        );
+
+        const result = [
+            ...(workingSet && queryConfig.offset === 0 && (function () {
+        
+                const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
+        
+                const newObjects = workingSet.newObjects(type);
+                return newObjects.filter( obj => {
+                    fieldResolver.current = obj;
+                    return filterFn();
+                }).map(context => [context, null]);
+            })() || []),
+            ...sortedRows
+        ];
+
+        setRecords(result);
+    }, [
+        rows,
+        workingSet?.newObjects(type)
     ]);
 
     const [sourceRow, setSourceRow] = React.useState();
@@ -260,21 +280,45 @@ const DataGrid = fnObserver(props => {
         
         if (dragIndex != dropIndex) {
             const resRecords = [];
-            for (let i = 0; i  < records.length; ++i) {
+            let movedRow;
+            for (let i = 0; i < records.length; ++i) {
                 if (dragIndex > dropIndex && i === dropIndex) {
+                    // push element down to new position
                     resRecords.push(records[dragIndex]);
+                    // update sortColumn field
+                    movedRow = records[dragIndex][0];
+                    const nextRow = records[i][0];
+                    if (i === 0) {
+                        movedRow[sortColumn] = nextRow[sortColumn] - 1
+                    } else {
+                        const prevRow = records[i - 1][0];
+                        movedRow[sortColumn] = nextRow[sortColumn] - (nextRow[sortColumn] - prevRow[sortColumn]) / 2
+                    }
                 }
                 if (i !== dragIndex) {
+                    // push unchanged element
                     resRecords.push(records[i]);
                 }
                 if (dragIndex < dropIndex && i === dropIndex) {
+                    // push element up to new position
                     resRecords.push(records[dragIndex]);
+                    // update sortColumn field
+                    movedRow = records[dragIndex][0];
+                    const prevRow = records[i][0];
+                    if (i === records.length - 1) {
+                        movedRow[sortColumn] = prevRow[sortColumn] + 1
+                    } else {
+                        const nextRow = records[i + 1][0];
+                        movedRow[sortColumn] = prevRow[sortColumn] + (nextRow[sortColumn] - prevRow[sortColumn]) / 2
+                    }
                 }
             }
             setRecords(resRecords);
+            // call handler callback fnction
+            if (typeof moveRowHandler === "function") {
+                moveRowHandler(movedRow, resRecords.map((e) => e[0]), movedRow[sortColumn]);
+            }
         }
-
-        // TODO dpeters: update database / array data
 
         endMoveRow();
     };

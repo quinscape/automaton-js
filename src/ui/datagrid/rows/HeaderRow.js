@@ -1,6 +1,8 @@
 import React from "react"
 import SortLink from "../SortLink";
 
+const SORT_COLUMN_WIDTH = "34px";
+
 const HeaderRow = ({
     value,
     columns,
@@ -19,9 +21,9 @@ const HeaderRow = ({
                                         key={ columnIdx }
                                         style={
                                             {
-                                                width: sortColumn === name ? "34px" : width,
-                                                minWidth: sortColumn === name ? "34px" : minWidth,
-                                                maxWidth: sortColumn === name ? "34px" : maxWidth
+                                                width: sortColumn === name ? SORT_COLUMN_WIDTH : width,
+                                                minWidth: sortColumn === name ? SORT_COLUMN_WIDTH : minWidth,
+                                                maxWidth: sortColumn === name ? SORT_COLUMN_WIDTH : maxWidth
                                             }
                                         }
                                     >
