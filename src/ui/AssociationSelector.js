@@ -266,6 +266,7 @@ const AssociationSelector = fnObserver(props => {
         onNew,
         visibleColumns,
         alignPagination,
+        paginationPageSizes,
         disabled
     } = props;
 
@@ -426,6 +427,7 @@ const AssociationSelector = fnObserver(props => {
                 toggle={toggle}
                 fade={fade}
                 alignPagination={ alignPagination }
+                paginationPageSizes={ paginationPageSizes }
             />
         </React.Fragment>
     )
@@ -522,6 +524,11 @@ AssociationSelector.propTypes = {
      * set the pagination alignment of the datagrid in the modal ("left" [default], "center", "right")
      */
      alignPagination: PropTypes.string,
+
+    /**
+     * set the available page sizes for the datagrid pagination
+     */
+    paginationPageSizes: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
 
 };
 
