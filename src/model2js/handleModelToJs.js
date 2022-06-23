@@ -213,8 +213,9 @@ export const renderStateScript = (state) => {
     if(filterFunctions){
         const {name: nameOfFilterFunctions, filterParams} = filterFunctions
         filterParams.map((filterParam)=> {
+            const {name, query, rootType, sourceName, modalTitle, valueFieldName} = filterParam
             stateScript += `
-            ${nameOfFilterFunctions} (${filterParam});
+            ${nameOfFilterFunctions} (${name}, ${query}, ${rootType}, ${sourceName}, ${modalTitle}, ${valueFieldName});
     `
         })
     }
