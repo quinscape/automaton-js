@@ -6,7 +6,7 @@ const SORT_COLUMN_WIDTH = "34px";
 const HeaderRow = ({
     value,
     columns,
-    sortColumn
+    moveRowColumn
 }) => {
     return (
         <tr className="headers">
@@ -15,20 +15,21 @@ const HeaderRow = ({
                     (column, columnIdx) => {
                         const {name, enabled, width, minWidth, maxWidth} = column;
                         if (enabled) {
-                            if (sortColumn != null) {
+                            if (moveRowColumn != null) {
+                                const isMoveRowColumn = moveRowColumn === name;
                                 return (
                                     <th
                                         key={ columnIdx }
                                         style={
                                             {
-                                                width: sortColumn === name ? SORT_COLUMN_WIDTH : width,
-                                                minWidth: sortColumn === name ? SORT_COLUMN_WIDTH : minWidth,
-                                                maxWidth: sortColumn === name ? SORT_COLUMN_WIDTH : maxWidth
+                                                width: isMoveRowColumn ? SORT_COLUMN_WIDTH : width,
+                                                minWidth: isMoveRowColumn ? SORT_COLUMN_WIDTH : minWidth,
+                                                maxWidth: isMoveRowColumn ? SORT_COLUMN_WIDTH : maxWidth
                                             }
                                         }
                                     >
                                         {
-                                            sortColumn === name ? "" : column.heading
+                                            isMoveRowColumn ? "" : column.heading
                                         }
                                     </th>
                                 );

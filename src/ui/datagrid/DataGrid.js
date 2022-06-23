@@ -56,7 +56,20 @@ function sortByField(array, field) {
  */
 const DataGrid = fnObserver(props => {
 
-    const { id, name, value, isCompact, tableClassName, rowClasses, filterTimeout, workingSet, alignPagination, children, sortColumn, moveRowHandler } = props;
+    const {
+        id,
+        name,
+        value,
+        isCompact,
+        tableClassName,
+        rowClasses,
+        filterTimeout,
+        workingSet,
+        alignPagination,
+        moveRowColumn,
+        moveRowHandler,
+        children
+    } = props;
 
     const [suppressFilter, internalQuery] = useMemo(() => {
         if (Array.isArray(value)) {
@@ -105,7 +118,7 @@ const DataGrid = fnObserver(props => {
                 let typeRef = null, sortable = false, enabled = false;
                 if (name)
                 {
-                    if (sortColumn != null && sortColumn === name) {
+                    if (moveRowColumn != null && moveRowColumn === name) {
                         enabled = true;
                         enabledCount++;
                     } else {
@@ -162,7 +175,7 @@ const DataGrid = fnObserver(props => {
                     columnElem
                 };
 
-                if (sortColumn != null && sortColumn === name) {
+                if (moveRowColumn != null && moveRowColumn === name) {
                     columns.unshift(newColumn);
                 } else {
                     columns.push(newColumn);
@@ -192,7 +205,7 @@ const DataGrid = fnObserver(props => {
     const [records, setRecords] = React.useState([]);
 
     useEffect(() => {
-        const sortedRows = sortByField(rows, sortColumn).map(
+        const sortedRows = sortByField(rows, moveRowColumn).map(
             (context) => {
 
                 let workingSetClass = "original-object";
@@ -285,14 +298,14 @@ const DataGrid = fnObserver(props => {
                 if (dragIndex > dropIndex && i === dropIndex) {
                     // push element down to new position
                     resRecords.push(records[dragIndex]);
-                    // update sortColumn field
+                    // update moveRowColumn field
                     movedRow = records[dragIndex][0];
                     const nextRow = records[i][0];
                     if (i === 0) {
-                        movedRow[sortColumn] = nextRow[sortColumn] - 1
+                        movedRow[moveRowColumn] = nextRow[moveRowColumn] - 1
                     } else {
                         const prevRow = records[i - 1][0];
-                        movedRow[sortColumn] = nextRow[sortColumn] - (nextRow[sortColumn] - prevRow[sortColumn]) / 2
+                        movedRow[moveRowColumn] = nextRow[moveRowColumn] - (nextRow[moveRowColumn] - prevRow[moveRowColumn]) / 2
                     }
                 }
                 if (i !== dragIndex) {
@@ -302,21 +315,21 @@ const DataGrid = fnObserver(props => {
                 if (dragIndex < dropIndex && i === dropIndex) {
                     // push element up to new position
                     resRecords.push(records[dragIndex]);
-                    // update sortColumn field
+                    // update moveRowColumn field
                     movedRow = records[dragIndex][0];
                     const prevRow = records[i][0];
                     if (i === records.length - 1) {
-                        movedRow[sortColumn] = prevRow[sortColumn] + 1
+                        movedRow[moveRowColumn] = prevRow[moveRowColumn] + 1
                     } else {
                         const nextRow = records[i + 1][0];
-                        movedRow[sortColumn] = prevRow[sortColumn] + (nextRow[sortColumn] - prevRow[sortColumn]) / 2
+                        movedRow[moveRowColumn] = prevRow[moveRowColumn] + (nextRow[moveRowColumn] - prevRow[moveRowColumn]) / 2
                     }
                 }
             }
             setRecords(resRecords);
-            // call handler callback fnction
+            // call handler callback function
             if (typeof moveRowHandler === "function") {
-                moveRowHandler(movedRow, resRecords.map((e) => e[0]), movedRow[sortColumn]);
+                moveRowHandler(movedRow, resRecords.map((e) => e[0]), movedRow[moveRowColumn]);
             }
         }
 
@@ -360,13 +373,13 @@ const DataGrid = fnObserver(props => {
                             <HeaderRow
                                 value={ value }
                                 columns={ columns }
-                                sortColumn={ sortColumn }
+                                moveRowColumn={ moveRowColumn }
                             />
                             {
                                 !suppressFilter && (
                                     <FilterRow
                                         columns={ columns }
-                                        sortColumn={ sortColumn }
+                                        moveRowColumn={ moveRowColumn }
                                     />
                                 )
                             }
@@ -383,7 +396,7 @@ const DataGrid = fnObserver(props => {
                                                 columns={ columns }
                                                 moveRow={ moveRow }
                                                 dropRow={ dropRow }
-                                                sortColumn={ sortColumn }
+                                                moveRowColumn={ moveRowColumn }
                                                 className={
                                                     cx(
                                                         "data",
@@ -457,6 +470,20 @@ DataGrid.propTypes = {
      * set the pagination alignment ("left" [default], "center", "right")
      */
     alignPagination: PropTypes.string,
+
+    /**
+     * The column used for manually sorting rows.
+     * The column must contain number values.
+     * It will be rendered in front of all other columns and a grabber icon is renddered instead of the value.
+     */
+    moveRowColumn: PropTypes.string,
+    /**
+     * Handler for reacting to manual row movement.
+     * @param {Object} movedRow the row that has been moved (with the updated moveRowColumn value)
+     * @param {Object[]} sortedRows the new sorted row set
+     * @param {Number} newValue the new moveRowColumn value of the moved row
+     */
+    moveRowHandler: PropTypes.func
 };
 
 

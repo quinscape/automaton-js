@@ -20,7 +20,7 @@ const BOOLEAN_VALUES = [
 
 const FilterRow = fnObserver(props => {
 
-    const { columns, sortColumn } = props;
+    const { columns, moveRowColumn } = props;
 
     const filterState = useContext(FilterContext);
 
@@ -42,7 +42,7 @@ const FilterRow = fnObserver(props => {
 
             if (enabled)
             {
-                if (!filter || (sortColumn != null && sortColumn === name))
+                if (!filter || (moveRowColumn != null && moveRowColumn === name))
                 {
                     filterColumnElements.push(
                         <th key={ columnIdx }/>

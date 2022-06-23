@@ -8,7 +8,7 @@ const DataRow = ({
     idx,
     context,
     columns,
-    sortColumn,
+    moveRowColumn,
     moveRow,
     dropRow,
     className
@@ -50,7 +50,7 @@ const DataRow = ({
 
     return (
         <tr
-            className={ cx(className, sortColumn != null && "draggable", isDragging && "dragging", isOver && "dragover") }
+            className={ cx(className, moveRowColumn != null && "draggable", isDragging && "dragging", isOver && "dragover") }
             ref={!!moveRow && dropRef}
             data-idx={ idx }
         >
@@ -59,7 +59,7 @@ const DataRow = ({
                     (column, columnIdx) => {
                         const {name, enabled} = column;
                         if (enabled) {
-                            if (sortColumn != null && sortColumn === name) {
+                            if (moveRowColumn != null && moveRowColumn === name) {
                                 return (
                                     <td
                                         ref={!!moveRow && dragRef}
