@@ -82,6 +82,8 @@ import { registerCustomFilterRenderer } from "./util/filter/CustomFilterRenderer
 import { registerFKSelectorFilterAndRenderer } from "./util/filter/registerFKSelectorFilter"
 import CollapsiblePanel from "./ui/CollapsiblePanel"
 
+import UserColumnConfigDialogModal from "./ui/datagrid/userconfig/UserColumnConfigDialogModal"
+
 // noinspection JSUnusedGlobalSymbols
 export {
     config,
@@ -202,6 +204,8 @@ export {
     registerCustomFilter,
     registerCustomFilterRenderer,
     registerFKSelectorFilterAndRenderer,
-    CollapsiblePanel
+    CollapsiblePanel,
+
+    UserColumnConfigDialogModal
 }
 

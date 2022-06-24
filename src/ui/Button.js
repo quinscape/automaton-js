@@ -26,7 +26,17 @@ const Button = props => {
     const formConfig = useFormConfig();
     const env = useAutomatonEnv();
 
-    const { className, name, text, transition, disabled, tooltip, formContext = formConfig.formContext, children } = props;
+    const {
+        className,
+        name,
+        text,
+        transition,
+        disabled,
+        tooltip,
+        formContext = formConfig.formContext,
+        type="button",
+        children
+    } = props;
     /**
      * Returns either the explicit context set as prop or the current form object model if present.
      *
@@ -141,7 +151,7 @@ const Button = props => {
 
     return (
         <button
-            type="button"
+            type={ type }
             name={ name }
             className={ className }
             disabled={ isDisabled() }
@@ -188,7 +198,11 @@ Button.propTypes = {
     /**
      * Optional action function, receives the context as argument
      */
-    action: PropTypes.func
+    action: PropTypes.func,
+    /**
+     * the type of the button, defaults to "button"
+     */
+    type: PropTypes.string
 };
 
 Button.defaultProps = {
