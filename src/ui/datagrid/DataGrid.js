@@ -333,8 +333,6 @@ const DataGrid = fnObserver(props => {
                                         return filterFn();
                                     });
 
-                                    //console.log(id, "newObjects, filtered",newObjects, filtered);
-
                                     return (
                                         filtered
                                             .map(
