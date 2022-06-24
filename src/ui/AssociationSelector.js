@@ -17,7 +17,7 @@ import { getGenericType, INTERACTIVE_QUERY } from "../domain";
 
 import AssociationSelectorModal from "./AssociationSelectorModal";
 import autoSubmitHack from "../util/autoSubmitHack";
-import { field, values } from "../FilterDSL";
+import { and, Condition, field, values } from "../FilterDSL";
 import { lookupType } from "../util/type-utils";
 
 
@@ -161,6 +161,7 @@ function updateLinks(root, name, modalState, selected, generateId, onNew)
                     .in(
                         values(type.name, ... linkIdsToFetch)
                     ),
+                condition : queryCondition ? and(composite, queryCondition) : composite,
                 pageSize: 0
             }
         })
@@ -257,6 +258,7 @@ const AssociationSelector = fnObserver(props => {
         mode: modeFromProps,
         label,
         query,
+        queryCondition: queryConditionFromProps,
         modalTitle,
         fade,
         helpText,
@@ -280,9 +282,21 @@ const AssociationSelector = fnObserver(props => {
 
     const selected = useLocalObservable(() => new Set());
 
+    const queryCondition = typeof queryConditionFromProps === "function" ?
+        queryConditionFromProps() :
+        queryConditionFromProps;
+
+    const defaultQueryCondition = query.defaultVars.config.condition;
+
     const openModal = () => {
         query.execute(
-            query.defaultVars
+            {
+                ...query.defaultVars,
+                config: {
+                    ...query.defaultVars.config,
+                    condition : queryCondition ? and(defaultQueryCondition, queryCondition) : defaultQueryCondition
+                }
+            }
         ).then(
             result => {
                 try
@@ -452,6 +466,14 @@ AssociationSelector.propTypes = {
      * iQuery GraphQL query to fetch the current list of target objects
      */
     query: PropTypes.instanceOf(GraphQLQuery).isRequired,
+
+    /**
+     * Optional FilterDSL condition to be applied to the execution of the AssociationSelector's query
+     */
+    queryCondition: PropTypes.oneOfType([
+        PropTypes.instanceOf(Condition),
+        PropTypes.func
+    ]),
 
     /**
      * Title for the modal dialog selecting the target object
