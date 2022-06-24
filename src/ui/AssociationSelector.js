@@ -17,7 +17,7 @@ import { getGenericType, INTERACTIVE_QUERY } from "../domain";
 
 import AssociationSelectorModal from "./AssociationSelectorModal";
 import autoSubmitHack from "../util/autoSubmitHack";
-import { field, values } from "../FilterDSL";
+import { and, Condition, field, values } from "../FilterDSL";
 import { lookupType } from "../util/type-utils";
 
 
@@ -161,6 +161,7 @@ function updateLinks(root, name, modalState, selected, generateId, onNew)
                     .in(
                         values(type.name, ... linkIdsToFetch)
                     ),
+                condition : queryCondition ? and(composite, queryCondition) : composite,
                 pageSize: 0
             }
         })
@@ -257,6 +258,7 @@ const AssociationSelector = fnObserver(props => {
         mode: modeFromProps,
         label,
         query,
+        queryCondition: queryConditionFromProps,
         modalTitle,
         fade,
         helpText,
@@ -266,6 +268,7 @@ const AssociationSelector = fnObserver(props => {
         onNew,
         visibleColumns,
         alignPagination,
+        paginationPageSizes,
         disabled
     } = props;
 
@@ -279,9 +282,21 @@ const AssociationSelector = fnObserver(props => {
 
     const selected = useLocalObservable(() => new Set());
 
+    const queryCondition = typeof queryConditionFromProps === "function" ?
+        queryConditionFromProps() :
+        queryConditionFromProps;
+
+    const defaultQueryCondition = query.defaultVars.config.condition;
+
     const openModal = () => {
         query.execute(
-            query.defaultVars
+            {
+                ...query.defaultVars,
+                config: {
+                    ...query.defaultVars.config,
+                    condition : queryCondition ? and(defaultQueryCondition, queryCondition) : defaultQueryCondition
+                }
+            }
         ).then(
             result => {
                 try
@@ -426,6 +441,7 @@ const AssociationSelector = fnObserver(props => {
                 toggle={toggle}
                 fade={fade}
                 alignPagination={ alignPagination }
+                paginationPageSizes={ paginationPageSizes }
             />
         </React.Fragment>
     )
@@ -450,6 +466,14 @@ AssociationSelector.propTypes = {
      * iQuery GraphQL query to fetch the current list of target objects
      */
     query: PropTypes.instanceOf(GraphQLQuery).isRequired,
+
+    /**
+     * Optional FilterDSL condition to be applied to the execution of the AssociationSelector's query
+     */
+    queryCondition: PropTypes.oneOfType([
+        PropTypes.instanceOf(Condition),
+        PropTypes.func
+    ]),
 
     /**
      * Title for the modal dialog selecting the target object
@@ -522,6 +546,11 @@ AssociationSelector.propTypes = {
      * set the pagination alignment of the datagrid in the modal ("left" [default], "center", "right")
      */
      alignPagination: PropTypes.string,
+
+    /**
+     * set the available page sizes for the datagrid pagination
+     */
+    paginationPageSizes: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
 
 };
 

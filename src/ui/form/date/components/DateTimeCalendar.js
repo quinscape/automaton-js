@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react"
 import Calendar from "react-calendar"
 import {DateTime} from "luxon";
-import {Icon} from "../../../../../../domainql-form";
+import {Icon} from "domainql-form";
 import i18n from "../../../../i18n";
 import {Container} from "reactstrap";
 

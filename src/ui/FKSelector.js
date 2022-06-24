@@ -244,6 +244,7 @@ const FKSelector = fnObserver(props => {
         selectButtonContentRenderer,
         visibleColumns,
         alignPagination,
+        paginationPageSizes,
         ... fieldProps
     } = props;
 
@@ -692,6 +693,7 @@ const FKSelector = fnObserver(props => {
                                 fkSelectorId={ fkSelectorId }
                                 selectButtonContentRenderer={ selectButtonContentRenderer }
                                 alignPagination={ alignPagination }
+                                paginationPageSizes={ paginationPageSizes }
                             />
                         </FormGroup>
                     );
@@ -854,6 +856,11 @@ FKSelector.propTypes = {
      * set the pagination alignment of the datagrid in the modal ("left" [default], "center", "right")
      */
     alignPagination: PropTypes.string,
+
+    /**
+     * set the available page sizes for the datagrid pagination
+     */
+    paginationPageSizes: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
 };
 
 FKSelector.defaultProps = {

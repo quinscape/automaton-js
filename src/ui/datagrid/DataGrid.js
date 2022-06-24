@@ -58,6 +58,7 @@ const DataGrid = fnObserver(props => {
         filterTimeout,
         workingSet,
         alignPagination,
+        paginationPageSizes,
         displayControlButtons,
         resetFilterButtonDisabled,
         customizeColumnsButtonDisabled,
@@ -429,6 +430,7 @@ const DataGrid = fnObserver(props => {
                     iQuery={ internalQuery }
                     description={ i18n("Result Navigation") }
                     align={ alignPagination }
+                    pageSizes={ paginationPageSizes }
                 />
             </div>
         </GridStateForm>
@@ -470,6 +472,11 @@ DataGrid.propTypes = {
      * set the pagination alignment ("left" [default], "center", "right")
      */
     alignPagination: PropTypes.string,
+
+    /**
+     * set the available page sizes for the pagination
+     */
+    paginationPageSizes: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
 
     /**
      * set whether the control buttons should be displayed or not

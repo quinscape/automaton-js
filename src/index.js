@@ -80,6 +80,7 @@ import decompileFilter from "./util/decompileFilter"
 import { registerCustomFilter } from "./util/filter/CustomFilter"
 import { registerCustomFilterRenderer } from "./util/filter/CustomFilterRenderer"
 import { registerFKSelectorFilterAndRenderer } from "./util/filter/registerFKSelectorFilter"
+import CollapsiblePanel from "./ui/CollapsiblePanel"
 
 import UserColumnConfigDialogModal from "./ui/datagrid/userconfig/UserColumnConfigDialogModal"
 
@@ -203,6 +204,7 @@ export {
     registerCustomFilter,
     registerCustomFilterRenderer,
     registerFKSelectorFilterAndRenderer,
+    CollapsiblePanel,
 
     UserColumnConfigDialogModal
 }
