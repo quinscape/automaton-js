@@ -43,7 +43,8 @@ const FkSelectorModal = fnObserver(
             searchTimeout,
             fkSelectorId,
             selectButtonContentRenderer,
-            alignPagination
+            alignPagination,
+            paginationPageSizes
         } = props;
 
         const formObject = useLocalObservable(() => observable({filter}));
@@ -203,6 +204,7 @@ const FkSelectorModal = fnObserver(
                                     value={ iQuery }
                                     filterTimeout={ searchTimeout }
                                     alignPagination={ alignPagination }
+                                    paginationPageSizes={paginationPageSizes}
                                     isCompact
                                 >
                                     <DataGrid.Column

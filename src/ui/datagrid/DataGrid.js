@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react"
+import React, {useEffect, useMemo, useState} from "react"
 import PropTypes from "prop-types"
 import { DndProvider } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
@@ -21,6 +21,10 @@ import config from "../../config"
 import { toJS } from "mobx";
 import { getCustomFilter } from "../../util/filter/CustomFilter";
 import OfflineQuery from "../../model/OfflineQuery";
+import {Button} from "../../index";
+import {ButtonGroup, ButtonToolbar} from "reactstrap";
+import UserColumnConfigDialogModal from "./userconfig/UserColumnConfigDialogModal";
+import DataGridButtonToolbar from "./DataGridButtonToolbar";
 
 
 function findColumn(columnStates, name)
@@ -66,10 +70,27 @@ const DataGrid = fnObserver(props => {
         filterTimeout,
         workingSet,
         alignPagination,
+        paginationPageSizes,
+        displayControlButtons,
+        resetFilterButtonDisabled,
+        customizeColumnsButtonDisabled,
+        tableConfig = {},
+        onTableConfigChange,
         moveRowColumn,
         moveRowHandler,
         children
     } = props;
+
+    const {
+        visibleColumns,
+        paginationSize,
+        sortColumn
+    } = tableConfig;
+
+    const visibleColumnsNotSet = visibleColumns == null || visibleColumns.length < 1;
+
+    const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+    const toggleColumnModalOpen = () => setIsColumnModalOpen(!isColumnModalOpen);
 
     const [suppressFilter, internalQuery] = useMemo(() => {
         if (Array.isArray(value)) {
@@ -98,12 +119,17 @@ const DataGrid = fnObserver(props => {
     /**
      * A memoized copy of the columnStates structure with resolved column types and filters
      */
-    const columns = useMemo(
+    const [columns, nonVisibleColumns, currentVisibleColumns] = useMemo(
         () => {
 
             let enabledCount = 0;
 
             const columns = [];
+            const columnMap = new Map();
+
+            const nonVisibleColumns = [];
+
+            let filterIndex = 0;
 
             React.Children.forEach(children, (columnElem, idx) => {
 
@@ -112,27 +138,25 @@ const DataGrid = fnObserver(props => {
                     return;
                 }
 
-                const {name, width, minWidth, filter, heading, sort, renderFilter } = columnElem.props;
+                const {name, width, minWidth, filter, heading, sort, renderFilter, children : columnChildren } = columnElem.props;
                 const transformedFilter = getCustomFilter(filter) ?? filter;
 
                 let typeRef = null, sortable = false, enabled = false;
-                if (name)
+                if (name && typeof columnChildren !== "function")
                 {
                     if (moveRowColumn != null && moveRowColumn === name) {
                         enabled = true;
                         enabledCount++;
-                    } else {
+                    } else if (visibleColumnsNotSet || visibleColumns.includes(name)) {
                         const columnState = findColumn(columnStates, name);
 
-                        if (columnState && columnState.enabled)
-                        {
+                        if (columnState && columnState.enabled) {
                             sortable = columnState.sortable;
 
                             if (type) {
                                 const typeContext = lookupTypeContext(type, name);
 
-                                if (transformedFilter && typeof transformedFilter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed"))
-                                {
+                                if (transformedFilter && typeof transformedFilter !== "function" && config.inputSchema.getFieldMeta(typeContext.domainType, typeContext.field.name, "computed")) {
                                     throw new Error(
                                         "Computed column '" + typeContext.field.name + "' cannot be filtered with a simple filter.\n" +
                                         "You need to write a custom filter function that basically reimplements the computed in SQL and produces a matching filter expression."
@@ -141,8 +165,7 @@ const DataGrid = fnObserver(props => {
 
 
                                 typeRef = unwrapAll(typeContext.field.type);
-                                if (typeRef.kind !== "SCALAR")
-                                {
+                                if (typeRef.kind !== "SCALAR") {
                                     throw new Error("Column type is no scalar: " + name);
                                 }
                             }
@@ -161,12 +184,13 @@ const DataGrid = fnObserver(props => {
                     enabledCount++;
                 }
 
-                const newColumn = {
+                const column = {
                     name,
                     width,
                     minWidth,
                     sortable,
                     filter: transformedFilter,
+                    filterIndex: null,
                     enabled,
                     type: typeRef?.name,
                     heading: heading || name,
@@ -175,10 +199,23 @@ const DataGrid = fnObserver(props => {
                     columnElem
                 };
 
+                if (transformedFilter != null) {
+                    column.filterIndex = filterIndex;
+                    filterIndex++;
+                }
+
                 if (moveRowColumn != null && moveRowColumn === name) {
-                    columns.unshift(newColumn);
+                    columns.unshift(column);
+                } else if (visibleColumnsNotSet || !name) {
+                    columns.push(column);
+                    if(name) {
+                        nonVisibleColumns.push({name, label: heading});
+                    }
                 } else {
-                    columns.push(newColumn);
+                    columnMap.set(name, column);
+                    if (!visibleColumns.includes(name)) {
+                        nonVisibleColumns.push({name, label: heading});
+                    }
                 }
             });
 
@@ -187,12 +224,29 @@ const DataGrid = fnObserver(props => {
                 throw new Error("Grid (id = " +  id + ") must have visible columns");
             }
 
-            columns[0].enabledCount = enabledCount;
+            const sortedColumns = [];
+            const currentVisibleColumns = [];
 
-            return columns;
+            if (visibleColumns != null) {
+                for (const name of visibleColumns) {
+                    if (columnMap.has(name)) {
+                        const element = columnMap.get(name);
+                        if (element != null) {
+                            sortedColumns.push(element);
+                            currentVisibleColumns.push({name, label: element.heading});
+                        }
+                    }
+                }
+            }
+
+            const resultColumns = [...columns, ...sortedColumns];
+
+            resultColumns[0].enabledCount = enabledCount;
+
+            return [resultColumns, nonVisibleColumns, currentVisibleColumns];
 
         },
-        [ type, columnStatesInput ]
+        [ type, columnStatesInput, visibleColumns ]
     );
 
     const { rows, queryConfig } = internalQuery;
@@ -201,7 +255,6 @@ const DataGrid = fnObserver(props => {
         () => new FieldResolver(),
         []
     );
-
     const [records, setRecords] = React.useState([]);
 
     useEffect(() => {
@@ -349,87 +402,114 @@ const DataGrid = fnObserver(props => {
                 componentId={ id }
                 filterTimeout={ filterTimeout }
             >
-                <div
-                    className={
-                        cx(
-                            "data-grid-container mt-3 mb-2",
-                            isCompact && "data-grid-compact"
+                <div className="d-flex flex-column my-2 w-100">
+                    {
+                        displayControlButtons && (
+                            <>
+                                <DataGridButtonToolbar
+                                    resetFilterButtonDisabled={resetFilterButtonDisabled}
+                                    customizeColumnsButtonDisabled={customizeColumnsButtonDisabled}
+                                    setIsColumnModalOpen={setIsColumnModalOpen}
+                                />
+                                <UserColumnConfigDialogModal
+                                    isOpen={isColumnModalOpen}
+                                    toggle={toggleColumnModalOpen}
+                                    activeElements={currentVisibleColumns}
+                                    inactiveElements={nonVisibleColumns}
+                                    onSubmit={(newVisibleColumns) => {
+                                        onTableConfigChange({
+                                            paginationSize,
+                                            sortColumn,
+                                            visibleColumns: newVisibleColumns.map((element) => element.name)
+                                        });
+                                    }}
+                                />
+                            </>
                         )
                     }
-                >
-                    <div className="data-grid-scrollcontainer">
-                        <table
-                            data-id={ id }
-                            className={
-                                cx(
-                                    // reduced bottom margin to visually connect pagination
-                                    "data-grid table",
-                                    tableClassName
-                                )
-                            }
-                            name={name}
-                        >
-                            <thead>
-                            <HeaderRow
-                                value={ value }
-                                columns={ columns }
-                                moveRowColumn={ moveRowColumn }
-                            />
-                            {
-                                !suppressFilter && (
-                                    <FilterRow
-                                        columns={ columns }
-                                        moveRowColumn={ moveRowColumn }
-                                    />
-                                )
-                            }
-                            </thead>
-                            <tbody>
-                            {
-                                records.length > 0 ? records.map(
-                                    ([context, workingSetClass], idx) => {
-                                        return (
-                                            <DataRow
-                                                key={ idx }
-                                                idx={ idx }
-                                                context={ context }
-                                                columns={ columns }
-                                                moveRow={ moveRow }
-                                                dropRow={ dropRow }
-                                                moveRowColumn={ moveRowColumn }
-                                                className={
-                                                    cx(
-                                                        "data",
-                                                        rowClasses ? rowClasses(context) : null,
-                                                        workingSetClass ?? "new-object",
-                                                        targetRow == idx && "target-row",
-                                                        targetRow == idx && targetRow < sourceRow && "target-row-top",
-                                                        targetRow == idx && targetRow > sourceRow && "target-row-bottom",
-                                                        sourceRow == idx && "source-row"
-                                                    )
+                    <div
+                        className={
+                            cx(
+                                "data-grid-container my-2",
+                                isCompact && "data-grid-compact"
+                            )
+                        }
+                    >
+                        <div className="data-grid-scrollcontainer">
+                            <table
+                                data-id={ id }
+                                className={
+                                    cx(
+                                        // reduced bottom margin to visually connect pagination
+                                        "data-grid table",
+                                        tableClassName
+                                    )
+                                }
+                                name={name}
+                            >
+                                <thead>
+                                <HeaderRow
+                                    value={ internalQuery }
+                                    columns={ columns }
+                                    moveRowColumn={ moveRowColumn }
+                                />
+                                {
+                                    !suppressFilter && (
+                                        <FilterRow
+                                            columns={ columns }
+                                            moveRowColumn={ moveRowColumn }
+                                        />
+                                    )
+                                }
+                                </thead>
+                                <tbody>
+                                {
+                                    records.length > 0 ? records.map(
+                                        ([context, workingSetClass], idx) => {
+                                            return (
+                                                <DataRow
+                                                    key={ idx }
+                                                    idx={ idx }
+                                                    context={ context }
+                                                    columns={ columns }
+                                                    moveRow={ moveRow }
+                                                    dropRow={ dropRow }
+                                                    moveRowColumn={ moveRowColumn }
+                                                    className={
+                                                        cx(
+                                                            "data",
+                                                            rowClasses ? rowClasses(context) : null,
+                                                            workingSetClass ?? "new-object",
+                                                            targetRow == idx && "target-row",
+                                                            targetRow == idx && targetRow < sourceRow && "target-row-top",
+                                                            targetRow == idx && targetRow > sourceRow && "target-row-bottom",
+                                                            sourceRow == idx && "source-row"
+                                                        )
+                                                    }
+                                                />
+                                            );
+                                        }
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={ columns[0].enabledCount }>
+                                                {
+                                                    i18n("DataGrid:No Rows")
                                                 }
-                                            />
-                                        );
-                                    }
-                                ) : (
-                                    <tr>
-                                        <td colSpan={ columns[0].enabledCount }>
-                                            {
-                                                i18n("DataGrid:No Rows")
-                                            }
-                                        </td>
-                                    </tr>
-                                )
-                            }
-                            </tbody>
-                        </table>
+                                            </td>
+                                        </tr>
+                                    )
+                                }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+                    <Pagination
+                        iQuery={ internalQuery }
+                        description={ i18n("Result Navigation") }
+                        align={ alignPagination }
+                        pageSizes={ paginationPageSizes }
+                    />
                 </div>
-                <Pagination
-                    iQuery={ internalQuery }
-                    description={ i18n("Result Navigation") }
-                    align={ alignPagination }
-                />
             </GridStateForm>
         </DndProvider>
     );
@@ -483,7 +563,37 @@ DataGrid.propTypes = {
      * @param {Object[]} sortedRows the new sorted row set
      * @param {Number} newValue the new moveRowColumn value of the moved row
      */
-    moveRowHandler: PropTypes.func
+    moveRowHandler: PropTypes.func,
+
+    /**
+     * set the available page sizes for the pagination
+     */
+    paginationPageSizes: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
+
+    /**
+     * set whether the control buttons should be displayed or not
+     */
+    displayControlButtons: PropTypes.bool,
+
+    /**
+     * set whether the "Reset Filters" button is disabled or not
+     */
+    resetFilterButtonDisabled: PropTypes.bool,
+
+    /**
+     * set whether the "Customize Columns" button is disabled or not
+     */
+    customizeColumnsButtonDisabled: PropTypes.bool,
+
+    /**
+     * the user table configuration
+     */
+    tableConfig: PropTypes.object,
+
+    /**
+     * the function called on changes to the user table configuration
+     */
+    onTableConfigChange: PropTypes.func
 };
 
 

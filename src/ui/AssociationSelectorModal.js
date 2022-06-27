@@ -21,7 +21,8 @@ const AssociationSelectorModal = fnObserver(props => {
         fade,
         selected,
         idPath,
-        alignPagination
+        alignPagination,
+        paginationPageSizes
     } = props;
 
     return(
@@ -42,6 +43,7 @@ const AssociationSelectorModal = fnObserver(props => {
                                 tableClassName="table-hover table-striped table-bordered table-sm"
                                 value={ iQuery }
                                 alignPagination={ alignPagination }
+                                paginationPageSizes={ paginationPageSizes }
                                 isCompact
                             >
                                 <DataGrid.Column
