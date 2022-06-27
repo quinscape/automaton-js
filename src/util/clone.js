@@ -1,4 +1,4 @@
-import { isPropertyWritable } from "../../../domainql-form/src/util/PropertyUtils"
+import { isPropertyWritable } from "domainql-form"
 
 /**
  * Clone function for JSON object graphs
