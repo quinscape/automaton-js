@@ -2,6 +2,63 @@
   "state": {
     "type": "stateType",
     "name": "stateName",
+    "filterFunctions": {
+
+      "name": "registerFKSelectorFilterAndRenderer",
+
+      "filterParams": [
+
+        {
+
+          "name": "\"FKSelectorAKZI\"",
+
+          "query": "Q_AnlagenAppUser",
+
+          "rootType": "\"AAnlage\"",
+
+          "sourceName": "\"anBenutzerId\"",
+
+          "modalTitle": "\"Auswahldialog: AKZI Nutzer *\"",
+
+          "valueFieldName":  "\"akzi\""
+
+        },
+
+        {
+
+          "name": "\"FKSelectorFOO\"",
+
+          "query": "Q_FooAppUser",
+
+          "rootType": "\"AFoo\"",
+
+          "sourceName": "\"anBenutzerId\"",
+
+          "modalTitle": "\"Auswahldialog: FOO Nutzer *\"",
+
+          "valueFieldName": "\"foo\""
+
+        },
+
+        {
+
+          "name": "\"FKSelectorBAR\"",
+
+          "query": "Q_Bar",
+
+          "rootType": "\"ABar\"",
+
+          "sourceName": "\"anBenutzerId\"",
+
+          "modalTitle": "\"Auswahldialog: BAR Nutzer *\"",
+
+          "valueFieldName": "\"bar\""
+
+        }
+
+      ]
+
+    },
     "transitionMap": {
       "TransitionName": {
           "discard": true,

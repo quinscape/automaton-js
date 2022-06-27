@@ -46,7 +46,7 @@ describe("handle model to js", () => {
     it("expect the start of state", () => {
         const result = renderStateScript(state)
         assert(result.includes(`
-    const stateName = new ViewState( "stateName", `))
+    const stateName = new ViewState("stateName", (process, scope) => {`))
     });
 
     it("expect end of State", () => {
@@ -56,10 +56,21 @@ describe("handle model to js", () => {
     export default stateName;`))
     });
 
+//filterFunctions part within State
+    it("expect the filter functions", () => {
+        const result = renderStateScript(state)
+        assert(result.includes(`
+            registerFKSelectorFilterAndRenderer ("FKSelectorAKZI", Q_AnlagenAppUser, "AAnlage", "anBenutzerId", "Auswahldialog: AKZI Nutzer *", "akzi");
+    
+            registerFKSelectorFilterAndRenderer ("FKSelectorFOO", Q_FooAppUser, "AFoo", "anBenutzerId", "Auswahldialog: FOO Nutzer *", "foo");
+    
+            registerFKSelectorFilterAndRenderer ("FKSelectorBAR", Q_Bar, "ABar", "anBenutzerId", "Auswahldialog: BAR Nutzer *", "bar");`))
+    });
+
 //transitionMap part within State
     it("expect the start of transitionMap", () => {
         const result = renderStateScript(state)
-        assert(result.includes(`(process, scope) => ({`))
+        assert(result.includes(`return {`))
     });
 
     it("expect a complete transitionMap process", () => {
@@ -74,12 +85,14 @@ describe("handle model to js", () => {
             /***zur vorherigen Maske zurückkehren***/
 
         },
-    }`))
+    },`))
     });
 
     it("expect the end of transitionMap", () => {
         const result = renderStateScript(state)
-        assert(result.includes(`}), `))
+        assert(result.includes(`
+}
+}, `))
     });
 
 //composite part within State
