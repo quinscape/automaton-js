@@ -74,12 +74,7 @@ const conditionImpl = {
     },
     containsIgnoreCase: (a, b) => {
         // arguments are lowercased outside
-        if (!a)
-        {
-            return !!b;
-        }
-
-        return a.indexOf(b) >= 0;
+        return a && a.indexOf(b) >= 0;
     },
     eq: (a, b) => {
         return a === b;
@@ -98,22 +93,14 @@ const conditionImpl = {
         return a === true;
     },
     contains: (a, b) => {
-        return a.indexOf(b) >= 0;
+        return a && a.indexOf(b) >= 0;
     },
     notContainsIgnoreCase: (a, b) => {
         // arguments are lowercased outside
-        if (!a)
-        {
-            return !b;
-        }
-        return !(a.indexOf(b) >= 0);
+        return !(a && a.indexOf(b) >= 0);
     },
     notContains: (a, b) => {
-        if (!a)
-        {
-            return !b;
-        }
-        return a.indexOf(b) < 0;
+        return !(a && a.indexOf(b) >= 0);
     },
     ne: (a, b) => {
         return a !== b;
@@ -428,22 +415,10 @@ function transform(condition, resolverFactory)
                         const bIsFunction = typeof b === "function";
 
                         // the non-functions operands are toLowerCase()d once above
-                        if (!aIsFunction && !bIsFunction)
-                        {
-                            return fn(a,b)
-                        }
-                        else if (!aIsFunction && bIsFunction)
-                        {
-                            return () => fn(a,b().toLowerCase())
-                        }
-                        else if (aIsFunction && !bIsFunction)
-                        {
-                            return () => fn(a().toLowerCase(),b)
-
-                        }
-                        else if (aIsFunction && bIsFunction)
-                        {
-                            return () => fn(a().toLowerCase(),b().toLowerCase())
+                        return () => {
+                            const aVal = aIsFunction ? a()?.toLowerCase() : a;
+                            const bVal = bIsFunction ? b()?.toLowerCase() : b;
+                            return fn(aVal, bVal);
                         }
                     }
                     else
@@ -460,22 +435,11 @@ function transform(condition, resolverFactory)
                         }
 
                         // the non-functions operands are toLowerCase()d once above
-                        if (!aIsFunction && !bIsFunction)
-                        {
-                            return fn(a,b)
-                        }
-                        else if (!aIsFunction && bIsFunction)
-                        {
-                            return () => fn(a,b())
-                        }
-                        else if (aIsFunction && !bIsFunction)
-                        {
-                            return () => fn(a(),b)
-                        }
-                        else if (aIsFunction && bIsFunction)
-                        {
-                            return () => fn(a(),b())
-                        }
+                        return () => {
+                            const aVal = aIsFunction ? a() : a;
+                            const bVal = bIsFunction ? b() : b;
+                            return fn(aVal, bVal);
+                        };
                     }
                     break;
                 }

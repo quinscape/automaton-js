@@ -5,6 +5,8 @@ import { DateTime } from "luxon";
 import i18n from "./i18n";
 import { registerCustomConverter, GlobalConfig, resolveStaticRenderer } from "domainql-form";
 
+const DATE_RANGE_SEPARATOR = " - ";
+
 export const NO_DEFAULT = { default: false };
 
 export default function registerDateTimeConverters()
@@ -115,6 +117,73 @@ export default function registerDateTimeConverters()
 
             const dateFormat = (ctx && ctx.dateFormat) || config.dateFormat;
             return DateTime.fromFormat(value, dateFormat);
+        }
+    )
+
+
+    registerCustomConverter(
+        "DateRange",
+        (value, ctx) => {
+            if (value === null) {
+                return null;
+            }
+
+            const dateFormat = ctx?.dateFormat ?? config.dateFormat;
+            if (!Array.isArray(value)) {
+                value = value.split(DATE_RANGE_SEPARATOR).map(dateString => {
+                    return DateTime.fromFormat(dateString, dateFormat);
+                });
+            }
+
+            if(value.length > 2) {
+                return i18n("Too many elements in DateRange ({0}), DateRange must have at most 2 elements.", value.length);
+            }
+            const isValid = value.reduce((acc, dateTime) => {
+                if(!dateTime.isValid) {
+                    acc[0] = false;
+                    acc.push(dateTime.invalidReason);
+                }
+                return acc;
+            }, [true]);
+
+            return isValid.shift() ? null : i18n("Invalid DateRange Object: Does not match {0}, {1}", dateFormat, isValid.join(", "));
+        },
+        (scalar, ctx) => {
+            if (!scalar) {
+                return "";
+            }
+
+            const dateFormat = ctx?.dateFormat ?? config.dateFormat;
+
+            if (scalar[0].equals(scalar[1])) {
+                return scalar[0].toFormat(dateFormat);
+            }
+
+            return scalar.map(dateTime => {
+                return dateTime.toFormat(dateFormat);
+            }).join(DATE_RANGE_SEPARATOR);
+        },
+        (value, ctx) => {
+            if (!value) {
+                return [];
+            }
+            if (Array.isArray(value)) {
+                return value;
+            }
+
+            const dateFormat = ctx?.dateFormat ?? config.dateFormat;
+            const values = value.split(DATE_RANGE_SEPARATOR).map(dateString => {
+                return DateTime.fromFormat(dateString, dateFormat);
+            });
+
+            if (values.length === 0) {
+                values.push(DateTime.now());
+                values.push(DateTime.now());
+            } else if (values.length === 1) {
+                values.push(values[0]);
+            }
+
+            return values;
         }
     )
 

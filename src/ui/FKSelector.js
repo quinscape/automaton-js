@@ -43,6 +43,7 @@ import { SCALAR } from "domainql-form/lib/kind";
 import CachedQuery from "../model/CachedQuery";
 import updateComponentCondition from "../util/updateComponentCondition"
 import {and} from "../../filter";
+import OfflineQuery from "../model/OfflineQuery";
 
 
 export const NO_SEARCH_FILTER = "NO_SEARCH_FILTER";
@@ -228,10 +229,10 @@ const FKSelector = fnObserver(props => {
 
     const {
         display,
-        query :
-        queryFromProps,
-        queryCondition :
-        queryConditionFromProps,
+        query: queryFromProps,
+        queryCondition: queryConditionFromProps,
+        catalogueRootType,
+        catalogueFieldQualifiedName,
         searchFilter,
         modalTitle,
         fade,
@@ -242,6 +243,8 @@ const FKSelector = fnObserver(props => {
         onChange,
         selectButtonContentRenderer,
         visibleColumns,
+        alignPagination,
+        paginationPageSizes,
         ... fieldProps
     } = props;
 
@@ -259,6 +262,10 @@ const FKSelector = fnObserver(props => {
                     queryFromProps, {
                         pageSize: cachedPageSize
                     });
+            }
+            else if (queryFromProps instanceof OfflineQuery)
+            {
+                return queryFromProps;
             }
             else
             {
@@ -283,7 +290,8 @@ const FKSelector = fnObserver(props => {
                     const errorMessages  = formConfig.getErrors(ctx.qualifiedName);
                     const haveErrors = errorMessages.length > 0;
 
-                    const rootType = getOutputTypeName(formConfig.type);
+                    const rootType = catalogueRootType ?? getOutputTypeName(formConfig.type);
+                    const sourcePath = catalogueFieldQualifiedName?.split(".") ?? path;
 
                     const relation = useMemo(
                         () => {
@@ -293,17 +301,17 @@ const FKSelector = fnObserver(props => {
                             let objectType;
                             let fieldName;
 
-                            if (path.length === 1)
+                            if (sourcePath.length === 1)
                             {
                                 // simple case
                                 objectType = rootType;
-                                fieldName = qualifiedName;
+                                fieldName = sourcePath[0];
                             }
                             else
                             {
                                 // path is more than 1 element long, we need to figure out the correct object type and field
-                                objectType = getParentObjectType(rootType, path);
-                                fieldName = path[path.length - 1];
+                                objectType = getParentObjectType(rootType, sourcePath);
+                                fieldName = sourcePath[sourcePath.length - 1];
                             }
 
                             const relations = inputSchema.getRelations().filter(
@@ -342,7 +350,7 @@ const FKSelector = fnObserver(props => {
                         let fieldValue;
                         if (display)
                         {
-                            fieldValue = typeof display === "function" ? display(formConfig) : get(formConfig.root, display);
+                            fieldValue = typeof display === "function" ? display(formConfig, ctx) : get(formConfig.root, display);
                         }
                         else
                         {
@@ -684,6 +692,8 @@ const FKSelector = fnObserver(props => {
                                 searchTimeout={ searchTimeout }
                                 fkSelectorId={ fkSelectorId }
                                 selectButtonContentRenderer={ selectButtonContentRenderer }
+                                alignPagination={ alignPagination }
+                                paginationPageSizes={ paginationPageSizes }
                             />
                         </FormGroup>
                     );
@@ -841,6 +851,16 @@ FKSelector.propTypes = {
         PropTypes.string,
         PropTypes.arrayOf(PropTypes.string)
     ]),
+
+    /**
+     * set the pagination alignment of the datagrid in the modal ("left" [default], "center", "right")
+     */
+    alignPagination: PropTypes.string,
+
+    /**
+     * set the available page sizes for the datagrid pagination
+     */
+    paginationPageSizes: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
 };
 
 FKSelector.defaultProps = {

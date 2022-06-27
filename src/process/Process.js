@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import render from "../render";
 import { action, get, keys, set } from "mobx";
 
@@ -18,7 +18,7 @@ import ShortcutContext, { ShortcutContextState } from "../ui/shortcut/ShortcutCo
 import StickySizesContext from "../ui/sticky/StickySizesContext";
 import WorkingSet from "../WorkingSet"
 import { getGraphQLMethodType } from "../util/type-utils"
-
+import Throbber from "../ui/throbber/Throbber";
 
 let processImporter;
 
@@ -156,14 +156,15 @@ function renderCurrentView()
                     <Layout
                         env={ env }
                     >
-                            {
-                                ViewComponent && (
-                                    <ViewComponent
-                                        key={ `processId-${process.id}` }
-                                        env={ env }
-                                    />
-                                )
-                            }
+                        {
+                            ViewComponent && (
+                                <ViewComponent
+                                    key={ `processId-${process.id}` }
+                                    env={ env }
+                                />
+                            )
+                        }
+                        <Throbber />
                     </Layout>
                 </ShortcutContext.Provider>
                 {

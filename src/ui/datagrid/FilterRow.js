@@ -4,6 +4,9 @@ import { Select } from "domainql-form"
 import i18n from "../../i18n"
 import { FilterContext } from "./GridStateForm";
 import { Field } from "domainql-form"
+import {DateRangeField} from "../../index";
+import {getCustomFilterRenderer} from "../../util/filter/CustomFilterRenderer";
+import PropTypes from "prop-types";
 
 
 const BOOLEAN_VALUES = [
@@ -32,12 +35,12 @@ const FilterRow = fnObserver(props => {
 
     const filterColumnElements = [];
 
-    let filterIndex = 0;
+    let internalFilterIndex = 0;
 
     columns.forEach(
         (col, idx) => {
 
-            const { name, enabled, filter, renderFilter } = col;
+            const { name, enabled, filter, filterIndex,  renderFilter } = col;
 
             if (enabled)
             {
@@ -49,7 +52,7 @@ const FilterRow = fnObserver(props => {
                 }
                 else
                 {
-                    const { values } = filterState.filters[filterIndex];
+                    const { values } = filterState.filters[internalFilterIndex];
 
                     const filterElems = [];
                     for (let i = 0; i < values.length; i++)
@@ -60,7 +63,21 @@ const FilterRow = fnObserver(props => {
 
                         const key = idx + "." + i;
 
-                        if (fieldType === "Boolean")
+                        if (renderFilter)
+                        {
+                            const resolvedFilterRenderer = getCustomFilterRenderer(renderFilter) ?? renderFilter;
+                            const customElem = resolvedFilterRenderer(fieldName, fieldType, label, i);
+                            filterElems.push(
+                                React.cloneElement(
+                                    customElem,
+                                    {
+                                        key,
+                                        suspendAutoUpdate: true
+                                    }
+                                )
+                            );
+                        }
+                        else if (fieldType === "Boolean")
                         {
                             filterElems.push(
                                 <Select
@@ -73,17 +90,15 @@ const FilterRow = fnObserver(props => {
                                 />
                             );
                         }
-                        else if (renderFilter)
+                        else if(fieldType === "Timestamp")
                         {
-                            const customElem = renderFilter(fieldName, fieldType, label, i);
-                            filterElems.push(
-                                React.cloneElement(
-                                    customElem,
-                                    {
-                                        key
-                                    }
-                                )
-                            );
+                            filterElems.push(<DateRangeField
+                                key={ key }
+                                labelClass="sr-only"
+                                label={ label }
+                                name={ fieldName }
+                                type="DateRange"
+                            />);
                         }
                         else
                         {
@@ -94,6 +109,7 @@ const FilterRow = fnObserver(props => {
                                     label={ label }
                                     name={fieldName}
                                     type={ fieldType }
+                                    suspendAutoUpdate
                                 />
                             );
                         }
@@ -107,7 +123,7 @@ const FilterRow = fnObserver(props => {
                         </th>
                     );
 
-                    filterIndex++;
+                    internalFilterIndex++;
 
                 }
             }
@@ -123,5 +139,12 @@ const FilterRow = fnObserver(props => {
     );
 
 });
+
+FilterRow.propTypes = {
+    /**
+     * the rows of the data grid
+     */
+    columns: PropTypes.array
+}
 
 export default FilterRow

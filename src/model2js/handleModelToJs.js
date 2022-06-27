@@ -204,18 +204,26 @@ export default query(
 
 export const renderStateScript = (state) => {
     let stateScript = ''
-    const {name, composite, transitionMap} = state
+    const {name, composite, transitionMap, filterFunctions} = state
 
     stateScript += `
-    const ${name} = new ViewState(`
+    const ${name} = new ViewState("${name}", (process, scope) => {
+    `
 
-    if (name) {
-        stateScript += ` "${name}", `
+    if(filterFunctions){
+        const {name: nameOfFilterFunctions, filterParams} = filterFunctions
+        filterParams.map((filterParam)=> {
+            const {name, query, rootType, sourceName, modalTitle, valueFieldName} = filterParam
+            stateScript += `
+            ${nameOfFilterFunctions} (${name}, ${query}, ${rootType}, ${sourceName}, ${modalTitle}, ${valueFieldName});
+    `
+        })
     }
 
     if (transitionMap) {
         let transitionScript = ''
-        transitionScript += `(process, scope) => ({`
+        transitionScript += `return {
+        `
 
         for (let transitionName in transitionMap) {
             if (transitionMap.hasOwnProperty(transitionName)) {
@@ -253,7 +261,8 @@ export const renderStateScript = (state) => {
 
         }
         transitionScript += `
-    }),`
+        }
+    },`
         stateScript += `${jsBeautify(transitionScript)}`;
     }
 

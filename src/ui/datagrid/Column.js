@@ -19,7 +19,7 @@ const Column = fnObserver(props => {
     const scalarType = useMemo(
         () => {
 
-            if (!name)
+            if (!name || typeof children === "function")
             {
                 return null;
             }
