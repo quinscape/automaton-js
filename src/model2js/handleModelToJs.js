@@ -356,6 +356,10 @@ export const renderStateScript = (state) => {
                                     }
                                     compositeScript += `}`
                                 }
+                            
+                                if (value.root.attrPath) {
+                                    compositeScript += ` ${name} = {${paramsName}.${value.root.attrPath}} `
+                                }
 
                                 if (value.root.attrs) {
                                     const {name: nameOfRoot, attrs, kids} = value.root
