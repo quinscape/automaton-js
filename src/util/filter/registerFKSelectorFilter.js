@@ -7,6 +7,15 @@ import {Field, useFormConfig} from "../../../../domainql-form";
 import {FKSelector} from "../../index";
 import config from "../../config";
 
+function getScalarType(fieldSchema) {
+    if (fieldSchema != null) {
+        if (fieldSchema.kind === "SCALAR") {
+            return fieldSchema.name;
+        }
+        return getScalarType(fieldSchema.ofType);
+    }
+}
+
 
 /**
  * Register a filter renderer for an FKSelector
@@ -31,7 +40,7 @@ export function registerFKSelectorFilterAndRenderer(name, query, rootType, sourc
         const formConfig = useFormConfig();
         if (!fieldType) {
             const fieldSchemaType = config.inputSchema.resolveType(rootType, sourceName);
-            fieldType = fieldSchemaType.ofType.name;
+            fieldType = getScalarType(fieldSchemaType);
         }
         return(<FKSelector
             name={fieldName}
