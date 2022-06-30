@@ -5,6 +5,7 @@ import {registerCustomFilterRenderer} from "./CustomFilterRenderer";
 import {field, value} from "../../../filter";
 import {Field, useFormConfig} from "../../../../domainql-form";
 import {FKSelector} from "../../index";
+import config from "../../config";
 
 
 /**
@@ -28,13 +29,17 @@ export function registerFKSelectorFilterAndRenderer(name, query, rootType, sourc
 
     registerCustomFilterRenderer(name, (fieldName, fieldType, label) => {
         const formConfig = useFormConfig();
+        if (!fieldType) {
+            const fieldSchemaType = config.inputSchema.resolveType(rootType, sourceName);
+            fieldType = fieldSchemaType.ofType.name;
+        }
         return(<FKSelector
             name={fieldName}
             type={fieldType}
             label={label}
             query={query}
-            rootType={rootType}
-            sourceName={sourceName}
+            catalogueRootType={rootType}
+            catalogueFieldQualifiedName={sourceName}
             labelClass="sr-only"
             display={(formConfig, ctx) => {
                 const row = Field.getValue(formConfig, ctx);
