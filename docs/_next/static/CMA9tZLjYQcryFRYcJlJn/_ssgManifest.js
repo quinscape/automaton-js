@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002F","\u002Fdeclarative-api","\u002Fcomponent","\u002Fconfig","\u002Fdomain","\u002Fiquery","\u002Fclass","\u002Fmisc","\u002Fprocess","\u002Fwebsocket","\u002Fexplanation\u002F[name]","\u002Ftutorial\u002F[name]"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()

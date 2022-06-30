@@ -408,7 +408,7 @@ public class MyMetadataProvider
         typeMeta.setMeta("typeMeta", ...);
 
         // provide field-level meta
-        typeMeta.setFieldMeta("field", "typeMeta", ...);
+        typeMeta.setFieldMeta("field", "fieldMeta", ...);
     }
 }
 ```
