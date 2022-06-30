@@ -40,7 +40,7 @@
         "react-dnd": "^14.0.4",
         "react-dnd-html5-backend": "^14.0.2",
         "recursive-readdir": "^2.2.2",
-        "simple-git": "^2.47.1",
+        "simple-git": "^3.5.0",
         "unicode-substring": "^1.0.0",
         "uuid": "^8.3.2"
     },
