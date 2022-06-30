@@ -1,0 +1,324 @@
+{
+  "state": {
+    "type": "stateType",
+    "name": "stateName",
+    "filterFunctions": {
+
+      "name": "registerFKSelectorFilterAndRenderer",
+
+      "filterParams": [
+
+        {
+
+          "name": "\"FKSelectorAKZI\"",
+
+          "query": "Q_AnlagenAppUser",
+
+          "rootType": "\"AAnlage\"",
+
+          "sourceName": "\"anBenutzerId\"",
+
+          "modalTitle": "\"Auswahldialog: AKZI Nutzer *\"",
+
+          "valueFieldName":  "\"akzi\""
+
+        },
+
+        {
+
+          "name": "\"FKSelectorFOO\"",
+
+          "query": "Q_FooAppUser",
+
+          "rootType": "\"AFoo\"",
+
+          "sourceName": "\"anBenutzerId\"",
+
+          "modalTitle": "\"Auswahldialog: FOO Nutzer *\"",
+
+          "valueFieldName": "\"foo\""
+
+        },
+
+        {
+
+          "name": "\"FKSelectorBAR\"",
+
+          "query": "Q_Bar",
+
+          "rootType": "\"ABar\"",
+
+          "sourceName": "\"anBenutzerId\"",
+
+          "modalTitle": "\"Auswahldialog: BAR Nutzer *\"",
+
+          "valueFieldName": "\"bar\""
+
+        }
+
+      ]
+
+    },
+    "transitionMap": {
+      "TransitionName": {
+          "discard": true,
+          "to": "Target",
+          "action": {
+            "type": "Action",
+            "params": [
+              "t"
+            ],
+            "code": "{t.back(backToParent(t)); t.isRecorded = false;\n/***zur vorherigen Maske zur\u00FCckkehren***/\n\n}"
+          }
+      }
+    },
+    "composite": {
+      "type": "CompositeComponent",
+      "constants": [
+        {
+          "type": "VariableDeclaration",
+          "kind": "const",
+          "declarations": [
+            {
+              "type": "VariableDeclarator",
+              "id": {
+                "type": "Identifier",
+                "name": "selectValues"
+              },
+              "init": "['Stammdaten', 'Störfall']"
+            }
+          ]
+        },
+        {
+          "type": "VariableDeclaration",
+          "kind": "const",
+          "declarations": [
+            {
+              "type": "VariableDeclarator",
+              "id": {
+                "type": "ObjectPattern",
+                "properties": [
+                  {
+                    "type": "ObjectProperty",
+                    "key": "scope",
+                    "value": {
+                      "type": "Identifier",
+                      "name": "scope"
+                    }
+                  }
+                ]
+              },
+              "init": "props"
+            }
+          ]
+        },
+        {
+          "type": "VariableDeclaration",
+          "kind": "const",
+          "declarations": [
+            {
+              "type": "VariableDeclarator",
+              "id": {
+                "type": "ListPattern",
+                "properties": [
+                  {
+                    "type": "ObjectProperty",
+                    "key": "dropdownOpen",
+                    "value": {
+                      "type": "Identifier",
+                      "name": "dropdownOpen"
+                    }
+                  },
+                  {
+                    "type": "ObjectProperty",
+                    "key": "setDropdownOpen",
+                    "value": {
+                      "type": "Identifier",
+                      "name": "setDropdownOpen"
+                    }
+                  }
+                ]
+              },
+              "init": "useState(false)"
+            }
+          ]
+        },
+        {
+          "type": "VariableDeclaration",
+          "kind": "const",
+          "declarations": [
+            {
+              "type": "VariableDeclarator",
+              "id": {
+                "type": "FunctionPattern",
+                "properties": [
+                  {
+                    "type": "ObjectProperty",
+                    "key": "toggle",
+                    "value": {
+                      "type": "Identifier",
+                      "name": "toggle"
+                    }
+                  }
+                ]
+              },
+              "init": "() => setDropdownOpen(prevState => !prevState)"
+            }
+          ]
+        },
+        {
+          "type": "VariableDeclaration",
+          "kind": "const",
+          "declarations": [
+            {
+              "type": "VariableDeclarator",
+              "id": {
+                "type": "ArrayPattern",
+                "elements": [
+                  {
+                    "type": "Identifier",
+                    "name": "modalOpen"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "setModalOpen"
+                  }
+                ]
+              },
+              "init": "useState(false)"
+            }
+          ]
+        }
+      ],
+      "root": {
+        "name": "root.name",
+        "attrs": [],
+        "kids": [
+          {
+            "name": "nameOfKid",
+            "attrs": [
+              {
+                "type": "JSXAttribute",
+                "name": "renderedIf",
+                "value": {
+                  "type": "Expression",
+                  "code": "renderedIfCode"
+                }
+              }
+            ],
+            "kids": [
+              {
+                "name": "nameOfKid",
+                "attrs": [],
+                "kids": [
+                  {
+                    "type": "JSXText",
+                    "value": "valueOfKid"
+                  }
+                ],
+                "type": "JSXElement"
+              }
+            ],
+            "type": "JSXElement"
+          },
+          {
+            "name": "div",
+            "attrs": [
+              {
+                "type": "JSXAttribute",
+                "name": "className",
+                "value": {
+                  "type": "Expression",
+                  "code": "\"row\""
+                }
+              }
+            ],
+            "kids": [
+              {
+                "name": "div",
+                "attrs": [
+                  {
+                    "type": "JSXAttribute",
+                    "name": "rowClasses",
+                    "value": {
+                      "type": "JSXRenderFunction",
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "name": "nameOfParamsOfAttrs"
+                        }
+                      ],
+                      "constants": [],
+                      "root": {
+                        "type": "Expression",
+                        "code": "\"the code of roots from Attrs is here\""
+                      }
+                    }
+                  }
+                ],
+                "kids": [],
+                "type": "JSXElement"
+              },
+              {
+                "type": "JSXRenderFunction",
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "name": "nameOfParamsOfKid"
+                  }
+                ],
+                "constants": [],
+                "root": {
+                  "name": "rootNameOnly",
+                  "attrs": [],
+                  "kids": [],
+                  "type": "JSXElement"
+                }
+              },
+              {
+                "type": "JSXRenderFunction",
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "name": "nameOfParamsOfKid"
+                  }
+                ],
+                "constants": [],
+                "root": {
+                  "name": "rootNameWithkKids",
+                  "attrs": [],
+                  "kids": [
+                    {
+                      "name": "Button",
+                      "attrs": [],
+                      "kids": [],
+                      "type": "JSXElement"
+                    }
+                  ],
+                  "type": "JSXElement"
+                }
+              },
+              {
+                "type": "JSXElement",
+                "name": "CardHeader",
+                "attrs": [],
+                "kids": [
+                  {
+                    "type": "JSXText",
+                    "value": "kid with only value key"
+                  }
+                ]
+              },
+              {
+                "type": "JSXExpressionContainer",
+                "code": "{() => <React.Fragment><Col md=\"3\">kid with only code key</Col></React.Fragment>}"
+              }
+            ],
+            "type": "JSXElement"
+          }
+        ],
+        "type": "JSXElement"
+      }
+    }
+  }
+}

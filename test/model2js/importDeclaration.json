@@ -1,0 +1,52 @@
+{
+  "importDeclarations": [
+    {
+      "type": "ImportDeclaration",
+      "source": "react",
+      "specifiers": [
+        {
+          "type": "ImportDefaultSpecifier",
+          "name": "React"
+        }
+      ]
+    },
+    {
+      "type": "ImportDeclaration",
+      "source": "mobx-react-lite",
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "name": "DataGrid",
+          "aliasOf": "IQueryGrid"
+        },
+        {
+          "type": "ImportSpecifier",
+          "name": "fnObserver",
+          "aliasOf": "observer"
+        }
+      ]
+    },
+    {
+      "type": "ImportDeclaration",
+      "source": "mobx",
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "name": "action"
+        },
+        {
+          "type": "ImportSpecifier",
+          "name": "computed"
+        },
+        {
+          "type": "ImportSpecifier",
+          "name": "observable"
+        },
+        {
+          "type": "ImportSpecifier",
+          "name": "toJS"
+        }
+      ]
+    }
+  ]
+}
