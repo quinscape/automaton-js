@@ -27,6 +27,7 @@ module.exports = {
         { src: "documentation-domain.md" },
 
         { src: "explanation-injection.md" },
+        { src: "explanation-schema.md" },
         { src: "explanation-filter-dsl.md" },
         { src: "explanation-form-structure.md" },
         { src: "declarative-api.md" },
