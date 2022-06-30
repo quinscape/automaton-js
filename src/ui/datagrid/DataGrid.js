@@ -1,13 +1,16 @@
-import React, {useCallback, useMemo, useState} from "react"
+import React, {useEffect, useMemo, useState} from "react"
 import PropTypes from "prop-types"
+import { DndProvider } from "react-dnd"
+import { HTML5Backend } from "react-dnd-html5-backend"
 import cx from "classnames"
 import { observer as fnObserver } from "mobx-react-lite"
 import i18n from "../../i18n";
 import GridStateForm from "./GridStateForm";
 import Pagination from "../Pagination";
-import FilterRow from "./FilterRow";
+import HeaderRow from "./rows/HeaderRow";
+import FilterRow from "./rows/FilterRow";
+import DataRow from "./rows/DataRow";
 import { lookupType, lookupTypeContext, unwrapAll } from "../../util/type-utils";
-import SortLink from "./SortLink";
 import useObservableInput from "../../util/useObservableInput";
 import Column from "./Column";
 import RowSelector from "./RowSelector";
@@ -42,6 +45,15 @@ const COLUMN_CONFIG_INPUT_OPTS = {
     name: "React to column changes"
 };
 
+function sortByField(array, field) {
+    if (field != null) {
+        return array.sort((el0, el1) => {
+            return el0[field] < el1[field] ? -1 : 1;
+        });
+    }
+    return array;
+}
+
 
 /**
  * Data grid what works based on degenerified InteractiveQuery types.
@@ -64,6 +76,8 @@ const DataGrid = fnObserver(props => {
         customizeColumnsButtonDisabled,
         tableConfig = {},
         onTableConfigChange,
+        moveRowColumn,
+        moveRowHandler,
         children
     } = props;
 
@@ -76,7 +90,6 @@ const DataGrid = fnObserver(props => {
     const visibleColumnsNotSet = visibleColumns == null || visibleColumns.length < 1;
 
     const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
-
     const toggleColumnModalOpen = () => setIsColumnModalOpen(!isColumnModalOpen);
 
     const [suppressFilter, internalQuery] = useMemo(() => {
@@ -131,7 +144,10 @@ const DataGrid = fnObserver(props => {
                 let typeRef = null, sortable = false, enabled = false;
                 if (name && typeof columnChildren !== "function")
                 {
-                    if (visibleColumnsNotSet || visibleColumns.includes(name)) {
+                    if (moveRowColumn != null && moveRowColumn === name) {
+                        enabled = true;
+                        enabledCount++;
+                    } else if (visibleColumnsNotSet || visibleColumns.includes(name)) {
                         const columnState = findColumn(columnStates, name);
 
                         if (columnState && columnState.enabled) {
@@ -188,7 +204,9 @@ const DataGrid = fnObserver(props => {
                     filterIndex++;
                 }
 
-                if (visibleColumnsNotSet || !name) {
+                if (moveRowColumn != null && moveRowColumn === name) {
+                    columns.unshift(column);
+                } else if (visibleColumnsNotSet || !name) {
                     columns.push(column);
                     if(name) {
                         nonVisibleColumns.push({name, label: heading});
@@ -237,201 +255,263 @@ const DataGrid = fnObserver(props => {
         () => new FieldResolver(),
         []
     );
+    const [records, setRecords] = React.useState([]);
+
+    useEffect(() => {
+        const sortedRows = sortByField(rows, moveRowColumn).map(
+            (context) => {
+
+                let workingSetClass = "original-object";
+                if (workingSet)
+                {
+                    const entry = workingSet.lookup(context._type, context.id);
+                    if (entry)
+                    {
+                        if (entry.status === WorkingSetStatus.DELETED)
+                        {
+                            workingSetClass = "deleted-object";
+                        }
+                        else if (workingSet.isModified(context))
+                        {
+                            workingSetClass = "changed-object";
+                            context = entry.domainObject;
+                        }
+                    }
+                }
+
+                return [context, workingSetClass];
+            }
+        );
+
+        const result = [
+            ...(workingSet && queryConfig.offset === 0 && (function () {
+        
+                const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
+        
+                const newObjects = workingSet.newObjects(type);
+                return newObjects.filter( obj => {
+                    fieldResolver.current = obj;
+                    return filterFn();
+                }).map(context => [context, null]);
+            })() || []),
+            ...sortedRows
+        ];
+
+        setRecords(result);
+    }, [
+        rows,
+        workingSet?.newObjects(type)
+    ]);
+
+    const [sourceRow, setSourceRow] = React.useState();
+    const [targetRow, setTargetRow] = React.useState();
+
+    const moveRow = (dragIndex, dropIndex, dragEl, dropEl, monitor) => {
+        if (dragIndex === dropIndex) {
+            endMoveRow();
+            return;
+        }
+        
+        const hoverBoundingRect = dropEl.getBoundingClientRect();
+        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+        const clientOffset = monitor.getClientOffset();
+        const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+        if (dragIndex < dropIndex && hoverClientY < hoverMiddleY) {
+            dropIndex = dropIndex - 1;
+        }
+        if (dragIndex > dropIndex && hoverClientY > hoverMiddleY) {
+            dropIndex = dropIndex + 1;
+        }
+
+        setSourceRow(dragIndex);
+        setTargetRow(dropIndex);
+    };
+
+    const dropRow = (dragIndex, dropIndex, dragEl, dropEl, monitor) => {
+        if (dragIndex === dropIndex) {
+            endMoveRow();
+            return;
+        }
+
+        const hoverBoundingRect = dropEl.getBoundingClientRect();
+        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+        const clientOffset = monitor.getClientOffset();
+        const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+        if (dragIndex < dropIndex && hoverClientY < hoverMiddleY) {
+            dropIndex = dropIndex - 1;
+        }
+        if (dragIndex > dropIndex && hoverClientY > hoverMiddleY) {
+            dropIndex = dropIndex + 1;
+        }
+        
+        if (dragIndex != dropIndex) {
+            const resRecords = [];
+            let movedRow;
+            for (let i = 0; i < records.length; ++i) {
+                if (dragIndex > dropIndex && i === dropIndex) {
+                    // push element down to new position
+                    resRecords.push(records[dragIndex]);
+                    // update moveRowColumn field
+                    movedRow = records[dragIndex][0];
+                    const nextRow = records[i][0];
+                    if (i === 0) {
+                        movedRow[moveRowColumn] = nextRow[moveRowColumn] - 1
+                    } else {
+                        const prevRow = records[i - 1][0];
+                        movedRow[moveRowColumn] = nextRow[moveRowColumn] - (nextRow[moveRowColumn] - prevRow[moveRowColumn]) / 2
+                    }
+                }
+                if (i !== dragIndex) {
+                    // push unchanged element
+                    resRecords.push(records[i]);
+                }
+                if (dragIndex < dropIndex && i === dropIndex) {
+                    // push element up to new position
+                    resRecords.push(records[dragIndex]);
+                    // update moveRowColumn field
+                    movedRow = records[dragIndex][0];
+                    const prevRow = records[i][0];
+                    if (i === records.length - 1) {
+                        movedRow[moveRowColumn] = prevRow[moveRowColumn] + 1
+                    } else {
+                        const nextRow = records[i + 1][0];
+                        movedRow[moveRowColumn] = prevRow[moveRowColumn] + (nextRow[moveRowColumn] - prevRow[moveRowColumn]) / 2
+                    }
+                }
+            }
+            setRecords(resRecords);
+            // call handler callback function
+            if (typeof moveRowHandler === "function") {
+                moveRowHandler(movedRow, resRecords.map((e) => e[0]), movedRow[moveRowColumn]);
+            }
+        }
+
+        endMoveRow();
+    };
+
+    const endMoveRow = () => {
+        setSourceRow(null);
+        setTargetRow(null);
+    };
 
     return (
-        <GridStateForm
-            iQuery={ internalQuery }
-            columns={ columns }
-            componentId={ id }
-            filterTimeout={ filterTimeout }
-        >
-            <div className="d-flex flex-column my-2 w-100">
-                {
-                    displayControlButtons && (
-                        <>
-                            <DataGridButtonToolbar
-                                resetFilterButtonDisabled={resetFilterButtonDisabled}
-                                customizeColumnsButtonDisabled={customizeColumnsButtonDisabled}
-                                setIsColumnModalOpen={setIsColumnModalOpen}
-                            />
-                            <UserColumnConfigDialogModal
-                                isOpen={isColumnModalOpen}
-                                toggle={toggleColumnModalOpen}
-                                activeElements={currentVisibleColumns}
-                                inactiveElements={nonVisibleColumns}
-                                onSubmit={(newVisibleColumns) => {
-                                    onTableConfigChange({
-                                        paginationSize,
-                                        sortColumn,
-                                        visibleColumns: newVisibleColumns.map((element) => element.name)
-                                    });
-                                }}
-                            />
-                        </>
-                    )
-                }
-                <div
-                    className={
-                        cx(
-                            "data-grid-container my-2",
-                            isCompact && "data-grid-compact"
+        <DndProvider backend={HTML5Backend}>
+            <GridStateForm
+                iQuery={ internalQuery }
+                columns={ columns }
+                componentId={ id }
+                filterTimeout={ filterTimeout }
+            >
+                <div className="d-flex flex-column my-2 w-100">
+                    {
+                        displayControlButtons && (
+                            <>
+                                <DataGridButtonToolbar
+                                    resetFilterButtonDisabled={resetFilterButtonDisabled}
+                                    customizeColumnsButtonDisabled={customizeColumnsButtonDisabled}
+                                    setIsColumnModalOpen={setIsColumnModalOpen}
+                                />
+                                <UserColumnConfigDialogModal
+                                    isOpen={isColumnModalOpen}
+                                    toggle={toggleColumnModalOpen}
+                                    activeElements={currentVisibleColumns}
+                                    inactiveElements={nonVisibleColumns}
+                                    onSubmit={(newVisibleColumns) => {
+                                        onTableConfigChange({
+                                            paginationSize,
+                                            sortColumn,
+                                            visibleColumns: newVisibleColumns.map((element) => element.name)
+                                        });
+                                    }}
+                                />
+                            </>
                         )
                     }
-                >
-                    <div className="data-grid-scrollcontainer">
-                        <table
-                            className={
-                                cx(
-                                    // reduced bottom margin to visually connect pagination
-                                    "data-grid table",
-                                    tableClassName
-                                )
-                            }
-                            name={name}
-                        >
-                            <thead>
-                            <tr className="headers">
-                                {
-                                    columns.map(
-                                        (col, idx) => col.enabled && (
-                                            <th
-                                                key={ idx }
-                                                style={
-                                                    {
-                                                        width: col.width,
-                                                        minWidth: col.minWidth,
-                                                        maxWidth: col.maxWidth
-                                                    }
-                                                }
-                                            >
-                                                <SortLink
-                                                    iQuery={ internalQuery }
-                                                    column={ col }
-                                                />
-                                            </th>
-                                        )
+                    <div
+                        className={
+                            cx(
+                                "data-grid-container my-2",
+                                isCompact && "data-grid-compact"
+                            )
+                        }
+                    >
+                        <div className="data-grid-scrollcontainer">
+                            <table
+                                data-id={ id }
+                                className={
+                                    cx(
+                                        // reduced bottom margin to visually connect pagination
+                                        "data-grid table",
+                                        tableClassName
                                     )
                                 }
-                            </tr>
-                            {
-                                !suppressFilter && (
-                                    <FilterRow
-                                        columns={ columns }
-                                    />
-                                )
-                            }
-                            </thead>
-                            <tbody>
-                            {
-                                workingSet && queryConfig.offset === 0 && (function () {
-
-                                    const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
-
-                                    const newObjects = workingSet.newObjects(type);
-                                    const filtered = newObjects.filter( obj => {
-                                        fieldResolver.current = obj;
-                                        return filterFn();
-                                    });
-
-                                    return (
-                                        filtered
-                                            .map(
-                                                (context, idx) => (
-                                                    <tr
-                                                        key={"ws" + idx}
-                                                        className={
-                                                            cx("data", rowClasses ? rowClasses(context) : null, "new-object")
-                                                        }
-                                                    >
-                                                        {
-                                                            columns.map(
-                                                                (column, columnIdx) => column.enabled && (
-                                                                    React.cloneElement(
-                                                                        column.columnElem,
-                                                                        {
-                                                                            key: columnIdx,
-                                                                            context
-                                                                        }
-                                                                    )
-                                                                )
-                                                            )
-                                                        }
-                                                    </tr>
-                                                )
-                                            )
+                                name={name}
+                            >
+                                <thead>
+                                <HeaderRow
+                                    value={ internalQuery }
+                                    columns={ columns }
+                                    moveRowColumn={ moveRowColumn }
+                                />
+                                {
+                                    !suppressFilter && (
+                                        <FilterRow
+                                            columns={ columns }
+                                            moveRowColumn={ moveRowColumn }
+                                        />
                                     )
-                                })()
-                            }
-                            {
-                                rows.map(
-                                    (context, idx) => {
-
-                                        let workingSetClass = null;
-                                        if (workingSet)
-                                        {
-                                            const entry = workingSet.lookup(context._type, context.id);
-                                            if (entry)
-                                            {
-                                                if (entry.status === WorkingSetStatus.DELETED)
-                                                {
-                                                    workingSetClass = "deleted-object";
-                                                }
-                                                else if (workingSet.isModified(context))
-                                                {
-                                                    workingSetClass = "changed-object";
-                                                    context = entry.domainObject;
-                                                }
-                                            }
-                                        }
-
-                                        return (
-                                            <tr
-                                                key={idx}
-                                                className={
-                                                    cx("data", rowClasses ? rowClasses(context) : null, workingSetClass)
-                                                }
-                                            >
-                                                {
-                                                    columns.map(
-                                                        (column, columnIdx) => column.enabled && (
-                                                            React.cloneElement(
-                                                                column.columnElem,
-                                                                {
-                                                                    key: columnIdx,
-                                                                    context
-                                                                }
-                                                            )
+                                }
+                                </thead>
+                                <tbody>
+                                {
+                                    records.length > 0 ? records.map(
+                                        ([context, workingSetClass], idx) => {
+                                            return (
+                                                <DataRow
+                                                    key={ idx }
+                                                    idx={ idx }
+                                                    context={ context }
+                                                    columns={ columns }
+                                                    moveRow={ moveRow }
+                                                    dropRow={ dropRow }
+                                                    moveRowColumn={ moveRowColumn }
+                                                    className={
+                                                        cx(
+                                                            "data",
+                                                            rowClasses ? rowClasses(context) : null,
+                                                            workingSetClass ?? "new-object",
+                                                            targetRow == idx && "target-row",
+                                                            targetRow == idx && targetRow < sourceRow && "target-row-top",
+                                                            targetRow == idx && targetRow > sourceRow && "target-row-bottom",
+                                                            sourceRow == idx && "source-row"
                                                         )
-                                                    )
+                                                    }
+                                                />
+                                            );
+                                        }
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={ columns[0].enabledCount }>
+                                                {
+                                                    i18n("DataGrid:No Rows")
                                                 }
-                                            </tr>
-                                        );
-                                    }
-                                )
-                            }
-                            {
-                                rows.length === 0 && (
-                                    <tr>
-                                        <td colSpan={ columns[0].enabledCount }>
-                                            {
-                                                i18n("DataGrid:No Rows")
-                                            }
-                                        </td>
-                                    </tr>
-                                )
-                            }
-                            </tbody>
-                        </table>
+                                            </td>
+                                        </tr>
+                                    )
+                                }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+                    <Pagination
+                        iQuery={ internalQuery }
+                        description={ i18n("Result Navigation") }
+                        align={ alignPagination }
+                        pageSizes={ paginationPageSizes }
+                    />
                 </div>
-                <Pagination
-                    iQuery={ internalQuery }
-                    description={ i18n("Result Navigation") }
-                    align={ alignPagination }
-                    pageSizes={ paginationPageSizes }
-                />
-            </div>
-        </GridStateForm>
+            </GridStateForm>
+        </DndProvider>
     );
 });
 
@@ -470,6 +550,20 @@ DataGrid.propTypes = {
      * set the pagination alignment ("left" [default], "center", "right")
      */
     alignPagination: PropTypes.string,
+
+    /**
+     * The column used for manually sorting rows.
+     * The column must contain number values.
+     * It will be rendered in front of all other columns and a grabber icon is renddered instead of the value.
+     */
+    moveRowColumn: PropTypes.string,
+    /**
+     * Handler for reacting to manual row movement.
+     * @param {Object} movedRow the row that has been moved (with the updated moveRowColumn value)
+     * @param {Object[]} sortedRows the new sorted row set
+     * @param {Number} newValue the new moveRowColumn value of the moved row
+     */
+    moveRowHandler: PropTypes.func,
 
     /**
      * set the available page sizes for the pagination

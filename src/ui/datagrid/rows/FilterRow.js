@@ -1,10 +1,10 @@
 import React, { useContext } from "react"
 import { observer as fnObserver } from "mobx-react-lite"
-import { Select } from "domainql-form"
+import { Select, Field } from "domainql-form"
 import i18n from "../../i18n"
 import { FilterContext } from "./GridStateForm";
 import { Field } from "domainql-form"
-import {DateRangeField} from "../../index";
+import DateRangeField from "../../form/date/DateRangeField";
 import {getCustomFilterRenderer} from "../../util/filter/CustomFilterRenderer";
 import PropTypes from "prop-types";
 
@@ -22,7 +22,7 @@ const BOOLEAN_VALUES = [
 
 const FilterRow = fnObserver(props => {
 
-    const { columns } = props;
+    const { columns, moveRowColumn } = props;
 
     const filterState = useContext(FilterContext);
 
@@ -38,16 +38,16 @@ const FilterRow = fnObserver(props => {
     let internalFilterIndex = 0;
 
     columns.forEach(
-        (col, idx) => {
+        (column, columnIdx) => {
 
-            const { name, enabled, filter, filterIndex,  renderFilter } = col;
+            const { name, enabled, filter, filterIndex,  renderFilter } = column;
 
             if (enabled)
             {
-                if (!filter)
+                if (!filter || (moveRowColumn != null && moveRowColumn === name))
                 {
                     filterColumnElements.push(
-                        <th key={ idx }/>
+                        <th key={ columnIdx }/>
                     );
                 }
                 else
@@ -61,7 +61,7 @@ const FilterRow = fnObserver(props => {
                         const fieldType = values[i].type;
                         const label = i18n("Argument {0} for filter on {1}", i +1 , name);
 
-                        const key = idx + "." + i;
+                        const key = columnIdx + "." + i;
 
                         if (renderFilter)
                         {
@@ -92,13 +92,15 @@ const FilterRow = fnObserver(props => {
                         }
                         else if(fieldType === "Timestamp")
                         {
-                            filterElems.push(<DateRangeField
-                                key={ key }
-                                labelClass="sr-only"
-                                label={ label }
-                                name={ fieldName }
-                                type="DateRange"
-                            />);
+                            filterElems.push(
+                                <DateRangeField
+                                    key={ key }
+                                    labelClass="sr-only"
+                                    label={ label }
+                                    name={ fieldName }
+                                    type="DateRange"
+                                />
+                            );
                         }
                         else
                         {
@@ -116,7 +118,7 @@ const FilterRow = fnObserver(props => {
 
                     }
                     filterColumnElements.push(
-                        <th key={ idx }>
+                        <th key={ columnIdx }>
                             {
                                 filterElems
                             }
@@ -139,6 +141,8 @@ const FilterRow = fnObserver(props => {
     );
 
 });
+
+FilterRow.displayName = "FilterRow";
 
 FilterRow.propTypes = {
     /**
