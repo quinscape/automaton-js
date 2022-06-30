@@ -1,3 +1,5 @@
+import { isPropertyWritable } from "domainql-form"
+
 /**
  * Clone function for JSON object graphs
  * 
@@ -21,7 +23,9 @@ export default function clone(value)
         {
             if (value.hasOwnProperty(prop))
             {
-                out[prop] = clone(value[prop])
+                if(isPropertyWritable(out, prop)) {
+                    out[prop] = clone(value[prop])
+                }
             }
         }
         return out
