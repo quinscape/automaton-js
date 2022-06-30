@@ -3,7 +3,6 @@ import { observer as fnObserver } from "mobx-react-lite"
 import { Select, Field } from "domainql-form"
 import i18n from "../../i18n"
 import { FilterContext } from "./GridStateForm";
-import { Field } from "domainql-form"
 import DateRangeField from "../../form/date/DateRangeField";
 import {getCustomFilterRenderer} from "../../util/filter/CustomFilterRenderer";
 import PropTypes from "prop-types";
