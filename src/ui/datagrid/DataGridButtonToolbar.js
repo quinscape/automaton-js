@@ -1,6 +1,6 @@
 import React, {useContext} from "react";
 import {ButtonGroup, ButtonToolbar} from "reactstrap";
-import {Button} from "../../index";
+import Button from "../Button";
 import i18n from "../../i18n";
 import {FilterContext} from "./GridStateForm";
 import PropTypes from "prop-types";

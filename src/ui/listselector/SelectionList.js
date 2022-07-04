@@ -1,7 +1,7 @@
 import React from "react";
 import cx from "classnames";
 import i18n from "../../i18n";
-import {Icon} from "../../../../domainql-form";
+import {Icon} from "domainql-form";
 import PropTypes from "prop-types";
 
 function elementComparator(element0, element1) {
