@@ -1,7 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import i18n from "../../i18n";
-import DateTimeCalendar from "../form/date/components/DateTimeCalendar";
-import {Icon} from "../../../../domainql-form";
+import {Icon} from "domainql-form";
 import SelectionList from "./SelectionList";
 import {Container} from "reactstrap";
 import PropTypes from "prop-types";

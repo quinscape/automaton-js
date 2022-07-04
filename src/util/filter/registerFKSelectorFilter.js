@@ -3,8 +3,8 @@ import React from "react";
 import {registerCustomFilter} from "./CustomFilter";
 import {registerCustomFilterRenderer} from "./CustomFilterRenderer";
 import {field, value} from "../../../filter";
-import {Field, useFormConfig} from "../../../../domainql-form";
-import {FKSelector} from "../../index";
+import {Field, useFormConfig} from "domainql-form";
+import FKSelector from "../../ui/FKSelector";
 import config from "../../config";
 
 function getScalarType(fieldSchema) {

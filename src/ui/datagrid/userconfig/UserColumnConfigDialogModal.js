@@ -1,8 +1,8 @@
 import React, {useState} from "react";
-import {ButtonToolbar, Container, Modal, ModalBody, ModalHeader} from "reactstrap";
+import {ButtonToolbar, Modal, ModalBody, ModalHeader} from "reactstrap";
 import i18n from "../../../i18n";
 import DualListSelector from "../../listselector/DualListSelector";
-import {Icon} from "../../../../../domainql-form";
+import {Icon} from "domainql-form";
 import PropTypes from "prop-types";
 
 const UserColumnConfigDialogModal = (props) => {

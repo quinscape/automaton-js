@@ -10,7 +10,7 @@ import Pagination from "../Pagination";
 import HeaderRow from "./rows/HeaderRow";
 import FilterRow from "./rows/FilterRow";
 import DataRow from "./rows/DataRow";
-import { lookupType, lookupTypeContext, unwrapAll } from "../../util/type-utils";
+import { lookupTypeContext, unwrapAll } from "../../util/type-utils";
 import useObservableInput from "../../util/useObservableInput";
 import Column from "./Column";
 import RowSelector from "./RowSelector";
@@ -18,11 +18,8 @@ import WorkingSet, { WorkingSetStatus } from "../../WorkingSet";
 import WorkingSetStatusComponent from "./WorkingSetStatus";
 import filterTransformer, { FieldResolver } from "../../util/filterTransformer";
 import config from "../../config"
-import { toJS } from "mobx";
 import { getCustomFilter } from "../../util/filter/CustomFilter";
 import OfflineQuery from "../../model/OfflineQuery";
-import {Button} from "../../index";
-import {ButtonGroup, ButtonToolbar} from "reactstrap";
 import UserColumnConfigDialogModal from "./userconfig/UserColumnConfigDialogModal";
 import DataGridButtonToolbar from "./DataGridButtonToolbar";
 

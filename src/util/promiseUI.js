@@ -1,7 +1,7 @@
 import React from "react";
 import { toast } from "react-toastify";
 import i18n from "../i18n";
-import { getGenericType } from "../index";
+import { getGenericType } from "../domain";
 import { toJS } from "mobx";
 
 
