@@ -1,7 +1,7 @@
 import parseQuery from "./parseQuery"
 import config from "./config"
 import graphql from "./graphql"
-import clone from "./util/clone"
+import cloneJSONObject from "./util/cloneJSONObject"
 
 
 /**
@@ -73,7 +73,7 @@ export default class GraphQLQuery {
      */
     clone()
     {
-        const c = new GraphQLQuery(this.query, clone(this.defaultVars))
+        const c = new GraphQLQuery(this.query, cloneJSONObject(this.defaultVars))
         c.queryDef = this.queryDef
         return c
     }
