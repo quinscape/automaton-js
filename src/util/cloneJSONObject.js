@@ -5,14 +5,14 @@ import { isPropertyWritable } from "domainql-form"
  * 
  * @param {Object|Array|string|number|boolean} value value to clone
  */
-export default function clone(value)
+export default function cloneJSONObject(value)
 {
     if (Array.isArray(value))
     {
         const out = []
         for (let i = 0; i < value.length; i++)
         {
-            out[i] = clone(value[i])
+            out[i] = cloneJSONObject(value[i])
         }
         return out
     }
@@ -24,7 +24,7 @@ export default function clone(value)
             if (value.hasOwnProperty(prop))
             {
                 if(isPropertyWritable(out, prop)) {
-                    out[prop] = clone(value[prop])
+                    out[prop] = cloneJSONObject(value[prop])
                 }
             }
         }

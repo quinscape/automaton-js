@@ -17,6 +17,7 @@ import { MergeOperation } from "./merge/MergeOperation"
 import { openDialog } from "./util/openDialog"
 import toJSEveryThing from "./util/toJSEveryThing"
 import { getCurrentProcess } from "./process/Process"
+import { isPropertyWritable } from "domainql-form"
 
 
 const LIST_OF_DOMAIN_OBJECTS_TYPE = "[DomainObject]";
@@ -903,6 +904,10 @@ class EntityRegistration
         for (let i = 0; i < scalarFields.length; i++)
         {
             const {name, type} = scalarFields[i];
+
+            if(!isPropertyWritable(domainObject, name)) {
+                continue;
+            }
 
             const currValue = domainObject[name];
 
