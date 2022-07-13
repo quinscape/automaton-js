@@ -73,17 +73,23 @@ export default class OfflineQuery
                 "offset": 0
             };
             this.columnStates = [];
-            for (const columnName in source[0]) {
-                if (columnName != "_type") {
-                    this.columnStates.push({
-                        "_type": "ColumnState",
-                        "name": columnName,
-                        "sortable": true,
-                        "enabled": true
-                    });
+
+            const targetObject = source[0];
+            if(targetObject){
+                for (const columnName in targetObject) {
+                    if (columnName !== "_type") {
+                        this.columnStates.push({
+                            "_type": "ColumnState",
+                            "name": columnName,
+                            "sortable": true,
+                            "enabled": true
+                        });
+                    }
                 }
+                this.type = targetObject._type;
+            }else {
+                this.type = null;
             }
-            this.type = null;
             this._type = "OfflineQuery";
         } else if (source instanceof InteractiveQuery) {
             this.data = source.rows;
