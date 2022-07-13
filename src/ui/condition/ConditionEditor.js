@@ -82,8 +82,17 @@ const DEFAULT_OPTIONS = {
     extraSVG: () => false
 }
 
-const ConditionEditor = observer(function ConditionEditor({rootType, container, path : containerPath = "", className, options, formContext = FormContext.getDefault()})
-{
+const ConditionEditor = observer(function ConditionEditor(props) {
+    const {
+        rootType,
+        container,
+        path : containerPath = "",
+        className,
+        options,
+        formContext = FormContext.getDefault(),
+        fields
+    } = props;
+
     const opts = useMemo(
         () => {
 
@@ -193,7 +202,7 @@ const ConditionEditor = observer(function ConditionEditor({rootType, container, 
     const nodes = [];
     const decorations = [];
 
-    renderLayoutNodes(layoutRoot, nodes, decorations, editorState, condition, editorState.conditionTree)
+    renderLayoutNodes(layoutRoot, nodes, decorations, editorState, condition, editorState.conditionTree, fields);
 
     return (
         <>
@@ -323,7 +332,7 @@ function StructuralAddButton({condition, path, editorState})
  * Creates flat React elements for the hierarchical component tree and adds them either to "nodes" which are normal
  * relative-absolute positioned HTML content and decorations which are SVG elements
  */
-export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, conditionRoot, tree)
+export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, conditionRoot, tree, fields)
 {
     if (!layoutNode)
     {
@@ -395,11 +404,11 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
 
         if (isConditionTree)
         {
-            renderCondition(elements, layoutNode, layoutNode.data,  path, tree, conditionRoot)
+            renderCondition(elements, layoutNode, layoutNode.data,  path, tree, conditionRoot, fields)
         }
         else
         {
-            renderExpression(elements, layoutNode, layoutNode.data,  path, tree, conditionRoot)
+            renderExpression(elements, layoutNode, layoutNode.data,  path, tree, conditionRoot, fields)
         }
 
         nodes.push(
@@ -420,12 +429,12 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
 
     if (isStructural)
     {
-        flattenStructuralKids(layoutNode, nodes, decorations, editorState, conditionRoot, tree);
+        flattenStructuralKids(layoutNode, nodes, decorations, editorState, conditionRoot, tree, fields);
     }
 }
 
 
-function flattenStructuralKids(node, nodes, decorations, editorState, conditionRoot, tree)
+function flattenStructuralKids(node, nodes, decorations, editorState, conditionRoot, tree, fields)
 {
     const { children } = node;
 
@@ -434,13 +443,12 @@ function flattenStructuralKids(node, nodes, decorations, editorState, conditionR
         for (let i = 0; i < children.length; i++)
         {
             const kid = children[i];
-            renderLayoutNodes(kid, nodes, decorations, editorState, conditionRoot, tree)
+            renderLayoutNodes(kid, nodes, decorations, editorState, conditionRoot, tree, fields)
         }
     }
 }
 
-function renderCondition(elements, layoutNode, condition, path, tree, conditionRoot)
-{
+function renderCondition(elements, layoutNode, condition, path, tree, conditionRoot, fields) {
     const {type} = condition;
 
     const nodeId = ConditionEditorState.getNodeId(condition);
@@ -453,7 +461,7 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
         const unary = operands.length === 1;
         if (!unary)
         {
-            renderCondition(kids, layoutNode, operands[0], join(path, "operands.0"), tree, conditionRoot)
+            renderCondition(kids, layoutNode, operands[0], join(path, "operands.0"), tree, conditionRoot, fields)
         }
 
         kids.push(
@@ -472,7 +480,7 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
 
         for (let i = unary ? 0 : 1; i < operands.length; i++)
         {
-            renderCondition(kids, layoutNode, operands[i], join(path, "operands." + i), tree, conditionRoot)
+            renderCondition(kids, layoutNode, operands[i], join(path, "operands." + i), tree, conditionRoot, fields)
         }
 
         if (isCondition)
@@ -510,6 +518,7 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
                 conditionRoot={ conditionRoot }
                 path={ path }
                 editorState={ tree.editorState }
+                fields={ fields }
             />
         )
     }
@@ -602,7 +611,7 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
     }
 }
 
-function renderExpression(elements, layoutNode, condition, path, tree, conditionRoot)
+function renderExpression(elements, layoutNode, condition, path, tree, conditionRoot, fields)
 {
     const {type} = condition;
 
@@ -617,6 +626,7 @@ function renderExpression(elements, layoutNode, condition, path, tree, condition
                 conditionRoot={ conditionRoot }
                 path={ path }
                 editorState={ tree.editorState }
+                fields={ fields }
             />
         )
     }

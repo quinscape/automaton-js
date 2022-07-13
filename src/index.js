@@ -84,6 +84,8 @@ import CollapsiblePanel from "./ui/CollapsiblePanel"
 
 import UserColumnConfigDialogModal from "./ui/datagrid/userconfig/UserColumnConfigDialogModal"
 
+import SelectionTreeModal from "./ui/treeselection/SelectionTreeModal"
+
 // noinspection JSUnusedGlobalSymbols
 export {
     config,
@@ -206,6 +208,8 @@ export {
     registerFKSelectorFilterAndRenderer,
     CollapsiblePanel,
 
-    UserColumnConfigDialogModal
+    UserColumnConfigDialogModal,
+
+    SelectionTreeModal
 }
 
