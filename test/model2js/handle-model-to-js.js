@@ -34,11 +34,17 @@ describe("handle model to js", () => {
         const result = renderDomainScript(domain)
         assert(result.includes(
             `export default class Foo {
+
     @observable id
 
     @computed get code() {
         return this.name + ":" + this.num + ":" + this.type;
     }
+
+    constructor() {
+        makeObservable(this);
+    }
+
 }`))
     });
 

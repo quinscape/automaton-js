@@ -88,6 +88,7 @@
         "prepublish": "cross-env NODE_ENV=production BABEL_ENV=package; node tooling/package.js",
         "watch": "cross-env NODE_ENV=development babel -s -w src --out-dir lib",
         "test": "cross-env BABEL_ENV=test mocha -r ignore-styles -r @babel/register -r ./test/setup.js --recursive test/ --exit",
+        "testm2js": "cross-env BABEL_ENV=test mocha -r ignore-styles -r @babel/register -r ./test/setup.js --recursive ./test/model2js --exit",
         "build-docs": "node -r @babel/register tooling/build-component-docs.js"
     },
     "directories": {
