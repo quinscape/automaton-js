@@ -19,12 +19,13 @@ const TreeNode = React.forwardRef((props, ref) => {
     const ctx = useContext(TreeContext);
 
     const isSelected = ctx.selected === selectionId;
+    const isDirectory = children && children.length > 0;
     return (
         <li
             ref={ ref }
             role="treeitem"
             tabIndex={ isSelected ? 0 : -1 }
-            className={ cx("d-flex flex-column align-items-stretch", isSelected && "selected") }
+            className={ cx("tree-node d-flex flex-column align-items-stretch", isSelected && "selected") }
             data-sel={ selectionId }
             onFocus={ev => {
                 if (!isSelected)
@@ -55,11 +56,13 @@ const TreeNode = React.forwardRef((props, ref) => {
                     )
                 }
                 {
-                    typeof renderer === "function" ? renderer() : renderer
+                    typeof renderer === "function" ? renderer(selectionId, {
+                        isDirectory
+                    }) : renderer ?? selectionId
                 }
             </label>
             {
-                children && children.length > 0 && (
+                isDirectory && (
                     <ul className="d-block ml-4">
                         {
                             children

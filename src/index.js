@@ -85,6 +85,7 @@ import CollapsiblePanel from "./ui/CollapsiblePanel"
 import UserColumnConfigDialogModal from "./ui/datagrid/userconfig/UserColumnConfigDialogModal"
 
 import SelectionTreeModal from "./ui/treeselection/SelectionTreeModal"
+import QueryEditor from "./ui/queryeditor/QueryEditor";
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -210,6 +211,7 @@ export {
 
     UserColumnConfigDialogModal,
 
-    SelectionTreeModal
+    SelectionTreeModal,
+    QueryEditor
 }
 

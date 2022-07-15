@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {ButtonToolbar, Modal, ModalBody, ModalHeader} from "reactstrap";
 import {Icon} from "../../../../domainql-form";
 import i18n from "../../i18n";
@@ -11,10 +11,15 @@ const SelectionTreeModal = (props) => {
         isOpen,
         selected,
         onSubmit,
-        treeContent
+        treeContent,
+        valueRenderer
     } = props;
 
     const [selectedElements, setSelectedElements] = useState(selected);
+
+    useEffect(() => {
+        setSelectedElements(selected);
+    }, [selected])
 
     function doSubmit() {
         onSubmit(selectedElements);
@@ -44,6 +49,7 @@ const SelectionTreeModal = (props) => {
                     onSelectedElementsChange={(newSelectedElements) => {
                         setSelectedElements(newSelectedElements)
                     }}
+                    valueRenderer={valueRenderer}
                 />
                 <ButtonToolbar>
                     <button

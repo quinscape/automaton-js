@@ -27,7 +27,8 @@ const FieldSelect = observer((props) => {
         conditionRoot,
         path,
         editorState,
-        fields
+        fields,
+        renderer
     } = props;
 
     const formConfig = useFormConfig();
@@ -263,6 +264,7 @@ const FieldSelect = observer((props) => {
                                     toggle={toggleFieldSelectListModal}
                                     isOpen={isFieldSelectListModalOpen}
                                     elements={fields}
+                                    renderer={renderer}
                                     selected={selectedElement}
                                     onSubmit={onFieldSelectListModalSubmit}
                                 />

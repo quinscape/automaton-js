@@ -5,7 +5,8 @@ const SelectionTree = (props) => {
     const {
         treeContent,
         selectedElements = [],
-        onSelectedElementsChange
+        onSelectedElementsChange,
+        valueRenderer
     } = props;
 
     return (
@@ -14,13 +15,13 @@ const SelectionTree = (props) => {
             onSelectedElementsChange={onSelectedElementsChange}
         >
             {
-                renderObject(treeContent)
+                renderObject(treeContent, valueRenderer)
             }
         </Tree>
     )
 }
 
-function renderObject(treeObject, path = "") {
+function renderObject(treeObject, valueRenderer, path = "") {
     const renderedElements = [];
 
     for(const treeElement in treeObject) {
@@ -30,11 +31,13 @@ function renderObject(treeObject, path = "") {
                 <Tree.TreeNode
                     key={newPath}
                     selectionId={newPath}
-                    renderer={treeElement}
+                    renderer={valueRenderer ? valueRenderer(treeElement, {
+                        isDirectory: true
+                    }) : treeElement}
                     renderCheckbox
                 >
                     {
-                        renderObject(treeObject[treeElement], newPath)
+                        renderObject(treeObject[treeElement], valueRenderer, newPath)
                     }
                 </Tree.TreeNode>
             )
@@ -43,7 +46,9 @@ function renderObject(treeObject, path = "") {
                 <Tree.TreeNode
                     key={newPath}
                     selectionId={newPath}
-                    renderer={treeElement}
+                    renderer={valueRenderer ? valueRenderer(treeElement, {
+                        isDirectory: false
+                    }) : treeElement}
                     renderCheckbox
                 />
             )

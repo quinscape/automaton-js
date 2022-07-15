@@ -203,10 +203,6 @@ const Tree = (props) => {
 
     const [selectionList, setSelectionList] = useState(selectedElements);
 
-    useEffect(() => {
-        setSelectionList(selectedElements);
-    }, [selectedElements]);
-
     /** Memoized Tree ctx */
     const ctx = useMemo(
         () =>
@@ -244,14 +240,6 @@ const Tree = (props) => {
                 },
 
                 checkItem: selectionId => {
-                    // if (!state.selectionList.includes(selectionId)) {
-                    //     dispatch(
-                    //         {
-                    //             type: CHECK,
-                    //             selectionId
-                    //         }
-                    //     );
-                    // }
                     if (!selectionList.includes(selectionId)) {
                         const newSelectionList = [
                             ... selectionList,
@@ -264,14 +252,6 @@ const Tree = (props) => {
                 },
 
                 uncheckItem: selectionId => {
-                    // if (state.selectionList.includes(selectionId)) {
-                    //     dispatch(
-                    //         {
-                    //             type: UNCHECK,
-                    //             selectionId
-                    //         }
-                    //     );
-                    // }
                     if (selectionList.includes(selectionId)) {
                         const index = selectionList.indexOf(selectionId);
                         const newSelectionList = [
@@ -332,6 +312,10 @@ const Tree = (props) => {
         },
         []
     );
+
+    useEffect(() => {
+        setSelectionList(selectedElements);
+    }, [selectedElements]);
 
 
     const onKeyDown = ev => {

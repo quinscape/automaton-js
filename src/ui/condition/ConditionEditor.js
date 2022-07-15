@@ -90,7 +90,8 @@ const ConditionEditor = observer(function ConditionEditor(props) {
         className,
         options,
         formContext = FormContext.getDefault(),
-        fields
+        fields,
+        renderer
     } = props;
 
     const opts = useMemo(
