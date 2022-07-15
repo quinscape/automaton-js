@@ -4,6 +4,7 @@ import { v4 } from "uuid";
 import { observable } from "mobx";
 import { getFields, unwrapNonNull } from "./util/type-utils";
 import { LIST } from "domainql-form/lib/kind";
+import { isPropertyWritable } from "domainql-form";
 
 const DEFAULT_OPTIONS = {
     /**
@@ -71,7 +72,7 @@ export default function createDomainObject(type, id = v4(), opts )
         {
             const { name, type } = fields[i];
 
-            if (name !== "id")
+            if (name !== "id" && isPropertyWritable(instance, name))
             {
                 if (unwrapNonNull(type).kind === LIST)
                 {
