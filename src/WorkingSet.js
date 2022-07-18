@@ -248,16 +248,18 @@ function getChangesForNewObject(domainObject, mergePlan)
         {
             const {name, type} = fieldsOfGroup[j];
 
-            const currValue = domainObject[name];
+            if (isPropertyWritable(domainObject, name)) {
+                const currValue = domainObject[name];
+    
+                fieldChanges.push({
+                    field: name,
+                    value: {
+                        type,
+                        value: currValue
+                    }
+                });
 
-            fieldChanges.push({
-                field: name,
-                value: {
-                    type,
-                    value: currValue
-                }
-            });
-
+            }
         }
     }
 
@@ -265,19 +267,21 @@ function getChangesForNewObject(domainObject, mergePlan)
     {
         const {name, type} = scalarFields[i];
 
-        const currValue = domainObject[name];
+        if (isPropertyWritable(domainObject, name)) {
+            const currValue = domainObject[name];
 
-        // XXX: We ignore all undefined values so clearing a former existing value with undefined won't work.
-        //      Use null in that case
-        if (currValue !== undefined)
-        {
-            fieldChanges.push({
-                field: name,
-                value: {
-                    type,
-                    value: currValue
-                }
-            });
+            // XXX: We ignore all undefined values so clearing a former existing value with undefined won't work.
+            //      Use null in that case
+            if (currValue !== undefined)
+            {
+                fieldChanges.push({
+                    field: name,
+                    value: {
+                        type,
+                        value: currValue
+                    }
+                });
+            }
         }
     }
 
