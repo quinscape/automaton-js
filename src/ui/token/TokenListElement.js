@@ -15,9 +15,13 @@ const TokenListElement = (props) => {
         <li
             className="token-list-element d-flex justify-content-between align-items-center"
         >
-            {
-                typeof renderer === "function" ? renderer(value) : value
-            }
+            <div
+                className="token-list-element-text"
+            >
+                {
+                    typeof renderer === "function" ? renderer(value) : value
+                }
+            </div>
             <button
                 type="Button"
                 className="btn btn-link m-0 p-0"

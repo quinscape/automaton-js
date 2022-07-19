@@ -13,13 +13,21 @@ const SelectionListModal = (props) => {
         isOpen,
         elements,
         selected,
+        resetOnSubmit,
         onSubmit
     } = props;
-
     const [selectedElement, setSelectedElement] = useState(selected);
 
     function doSubmit() {
-        onSubmit(selectedElement);
+        const isSelectedInElements = elements.some((sortColumnElement) => {
+            return sortColumnElement.name === selectedElement;
+        });
+        if (isSelectedInElements) {
+            onSubmit(selectedElement);
+        }
+        if (resetOnSubmit) {
+            setSelectedElement();
+        }
         toggle();
     }
 

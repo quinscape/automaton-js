@@ -1,10 +1,13 @@
-import React, {useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import TokenList from "../token/TokenList";
 import SelectionTreeModal from "../treeselection/SelectionTreeModal";
 import i18n from "../../i18n";
 import ConditionEditor from "../condition/ConditionEditor";
 import cx from "classnames";
 import flattenObject from "../../util/flattenObject";
+import SortColumnList from "./SortColumnList";
+import ConditionEditorScope from "./ConditionEditorScope";
+import get from "lodash.get";
 
 const ORIGINS = {
     CONDITION_EDITOR_FIELD_SELECTION: "ConditionEditorFieldSelection",
@@ -17,9 +20,9 @@ const QueryEditor = (props) => {
         header,
         columnNameRenderer,
         availableColumnTreeObject,
-        rootType,
-        container,
+        // rootType,
         containerPath,
+        workingSet,
         className
     } = props;
 
@@ -32,12 +35,27 @@ const QueryEditor = (props) => {
         }
     });
 
+    //scope
+    const conditionEditorScope = useMemo(() => {
+        return new ConditionEditorScope();
+    }, []);
+    useEffect(() => {
+        console.log("CONDITION EDITOR SCOPE, CONDITION EDITOR ONCHANGE");
+        console.log(conditionEditorScope);
+        console.log(workingSet.changes);
+    }, [conditionEditorScope.condition, workingSet.changes]);
+
     // modal control states
     const [columnSelectionModalOpen, setColumnSelectionModalOpen] = useState(false);
 
     // data states
     const [selectedColumns, setSelectedColumns] = useState([]);
-    const [queryCondition, setQueryCondition] = useState({});
+    const [queryCondition_, setQueryCondition] = useState({});
+    const queryCondition = get(conditionEditorScope, conditionEditorScope.rootType);
+    useEffect(() => {
+        console.log("QUERY CONDITION");
+        console.log(queryCondition);
+    }, [queryCondition]);
 
     // renderers
     const tokenListRenderer = columnNameRenderer ? (value, options = {}) => {
@@ -94,10 +112,19 @@ const QueryEditor = (props) => {
             </div>
             <div>
                 <ConditionEditor
-                    rootType={rootType}
-                    container={container}
+                    rootType={conditionEditorScope.rootType}
+                    container={conditionEditorScope}
                     path={containerPath}
                     fields={availableColumnList}
+                />
+            </div>
+            <div>
+                <SortColumnList
+                    allColumns={availableColumnList}
+                    onChange={(sortColumnList) => {
+                        console.log("SORT COLUMN LIST SELECT");
+                        console.log(sortColumnList);
+                    }}
                 />
             </div>
         </div>

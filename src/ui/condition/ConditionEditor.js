@@ -86,11 +86,13 @@ const ConditionEditor = observer(function ConditionEditor(props) {
     const {
         rootType,
         container,
+        workingSet,
         path : containerPath = "",
         className,
         options,
         formContext = FormContext.getDefault(),
         fields,
+        onChange,
         renderer
     } = props;
 
@@ -117,20 +119,18 @@ const ConditionEditor = observer(function ConditionEditor(props) {
 
     const editorState = useLocalObservable(
         () => new ConditionEditorState(rootType, container, containerPath, opts)
-    )
+    );
 
     useLayoutEffect(
         () => {
             if (editorState.revalidateCount)
             {
-                //console.log("trigger revalidation")
-
                 formContext.removeAllErrors();
                 formContext.revalidate();
             }
         },
         [ editorState.revalidateCount ]
-    )
+    );
 
     const { layoutRoot, layoutCounter, aabb } = editorState.conditionTree;
 
@@ -154,7 +154,7 @@ const ConditionEditor = observer(function ConditionEditor(props) {
             }
         },
         []
-    )
+    );
 
     useEffect(
         () => {
@@ -194,11 +194,10 @@ const ConditionEditor = observer(function ConditionEditor(props) {
                 aabb.add(0, 0);
             }
 
-            //console.log("AABB", aabb)
             editorState.conditionTree.updateAABB(aabb)
         },
         [ layoutCounter ]
-    )
+    );
 
     const nodes = [];
     const decorations = [];
@@ -289,20 +288,6 @@ const ConditionEditor = observer(function ConditionEditor(props) {
         </>
     );
 });
-
-/*
-            <Card className="mt-3">
-                <CardHeader>JSON</CardHeader>
-                <CardBody>
-                    <pre>
-                        {
-                            JSON.stringify(condition, null, 4)
-                        }
-                    </pre>
-                </CardBody>
-            </Card>
-
- */
 
 ///   NODE RENDERING ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -425,8 +410,6 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
             </Leaf>
         )
     }
-
-    //console.log("offsetX", offsetX, "offsetY", offsetY)
 
     if (isStructural)
     {
