@@ -96,6 +96,11 @@ const ConditionEditor = observer(function ConditionEditor(props) {
         renderer
     } = props;
 
+    const onConditionChange = () => {
+        const queryCondition = get(container, containerPath);
+        onChange(queryCondition);
+    };
+
     const opts = useMemo(
         () => {
 
@@ -195,6 +200,8 @@ const ConditionEditor = observer(function ConditionEditor(props) {
             }
 
             editorState.conditionTree.updateAABB(aabb)
+
+            onConditionChange();
         },
         [ layoutCounter ]
     );
@@ -215,7 +222,8 @@ const ConditionEditor = observer(function ConditionEditor(props) {
                     value={ condition }
                     formContext={ formContext }
                     options={ {
-                        layout: FormLayout.INLINE
+                        layout: FormLayout.INLINE,
+                        onChange: onConditionChange
                     } }
                 >
                     {
@@ -776,6 +784,7 @@ export function drawStructuralDecorator(layoutNode, tree, offsetX, offsetY)
         }
 
         path += "M" + (x2 - offsetX ) + "," + (kidY - offsetY) + "L" + (kidX - offsetX) + "," + (kidY - offsetY);
+                
 
     }
 
@@ -784,7 +793,7 @@ export function drawStructuralDecorator(layoutNode, tree, offsetX, offsetY)
     return (
         <path
             key={ "deco" + ConditionEditorState.getNodeId(layoutNode.data) }
-            d={ path }
+            d={ /infinite|nan/i.test(path) ? "" : path }
             { ... opts.pathProps}
 
         />

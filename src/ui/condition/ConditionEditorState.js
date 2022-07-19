@@ -551,10 +551,6 @@ export default class ConditionEditorState {
         this.expressionTree.update();
 
         this.updateCounter++;
-
-        container.updateCondition({
-            ...container.condition
-        });
     }
 
 

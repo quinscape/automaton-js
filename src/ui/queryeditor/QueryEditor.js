@@ -8,6 +8,7 @@ import flattenObject from "../../util/flattenObject";
 import SortColumnList from "./SortColumnList";
 import ConditionEditorScope from "./ConditionEditorScope";
 import get from "lodash.get";
+import { FormContext } from "domainql-form";
 
 const ORIGINS = {
     CONDITION_EDITOR_FIELD_SELECTION: "ConditionEditorFieldSelection",
@@ -21,8 +22,8 @@ const QueryEditor = (props) => {
         columnNameRenderer,
         availableColumnTreeObject,
         // rootType,
-        containerPath,
-        workingSet,
+        // containerPath,
+        formContext = FormContext.getDefault(),
         className
     } = props;
 
@@ -42,20 +43,22 @@ const QueryEditor = (props) => {
     useEffect(() => {
         console.log("CONDITION EDITOR SCOPE, CONDITION EDITOR ONCHANGE");
         console.log(conditionEditorScope);
-        console.log(workingSet.changes);
-    }, [conditionEditorScope.condition, workingSet.changes]);
+    }, [conditionEditorScope.condition]);
 
     // modal control states
     const [columnSelectionModalOpen, setColumnSelectionModalOpen] = useState(false);
 
     // data states
     const [selectedColumns, setSelectedColumns] = useState([]);
-    const [queryCondition_, setQueryCondition] = useState({});
-    const queryCondition = get(conditionEditorScope, conditionEditorScope.rootType);
+    const [queryCondition, setQueryCondition] = useState({});
     useEffect(() => {
         console.log("QUERY CONDITION");
         console.log(queryCondition);
     }, [queryCondition]);
+    // useEffect(() => {
+    //     console.log("QUERY CONDITION");
+    //     console.log(queryCondition);
+    // }, [formContext]);
 
     // renderers
     const tokenListRenderer = columnNameRenderer ? (value, options = {}) => {
@@ -114,8 +117,12 @@ const QueryEditor = (props) => {
                 <ConditionEditor
                     rootType={conditionEditorScope.rootType}
                     container={conditionEditorScope}
-                    path={containerPath}
+                    path="condition"
                     fields={availableColumnList}
+                    formContext={formContext}
+                    onChange={(queryCondition) => {
+                        console.log("onChange", queryCondition);
+                    }}
                 />
             </div>
             <div>
