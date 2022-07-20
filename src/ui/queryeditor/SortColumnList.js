@@ -30,6 +30,7 @@ const SortColumnList = (props) => {
                     sortColumns.map((sortColumnElement, idx) => {
                         return (
                             <SortColumnListElement
+                                key={sortColumnElement.name}
                                 sortColumnElement={sortColumnElement}
                                 disabled={disabled}
                                 removeElement={(element) => {

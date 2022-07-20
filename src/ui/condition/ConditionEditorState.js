@@ -539,7 +539,6 @@ export default class ConditionEditorState {
     @action
     replaceCondition(condition, path = "")
     {
-        console.log("replace condition");
         const {container, containerPath} = this;
 
         const p = toPath(containerPath).concat(toPath(path));

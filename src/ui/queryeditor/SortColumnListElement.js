@@ -12,7 +12,7 @@ const SortColumnListElement = (props) => {
     } = props;
 
     const {
-        value,
+        name,
         label,
         order
     } = sortColumnElement;
@@ -38,7 +38,7 @@ const SortColumnListElement = (props) => {
                 className="sort-column-list-element-text flex-grow-1 mx-2"
             >
                 {
-                    label != null ? label : value
+                    label != null ? label : name
                 }
             </div>
             <button

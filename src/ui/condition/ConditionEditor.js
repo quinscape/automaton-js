@@ -109,7 +109,6 @@ const ConditionEditor = observer(function ConditionEditor(props) {
                 ... options,
                 rootType
             };
-            //console.log("PREPARE OPTS MEMO", opts)
             return opts
         },
         [
@@ -163,8 +162,6 @@ const ConditionEditor = observer(function ConditionEditor(props) {
 
     useEffect(
         () => {
-
-            //console.log("LAYOUT TREE, root #", FormContext.getUniqueId(layoutRoot))
 
             editorState.conditionTree.updateDimensions(containerRef.current);
 
@@ -738,12 +735,9 @@ export function drawStructuralDecorator(layoutNode, tree, offsetX, offsetY)
     x = y;
     y = tmp - dimension.height;
 
-    //console.log("DIM", ConditionEditorState.getNodeId(layoutNode.data), dimension)
-
     const { children } = layoutNode;
     if (!children)
     {
-        //console.log("drawStructuralDecorator: no children for ", layoutNode, toJS(layoutNode.data))
         return;
     }
 

@@ -186,7 +186,6 @@ const FieldSelect = observer((props) => {
                         type="button"
                         className="btn btn-light border"
                         onClick={() => {
-                            console.log("CHOOSE FIELD");
                             toggleFieldSelectListModal();
                         }}
                     >
