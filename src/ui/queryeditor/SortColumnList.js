@@ -89,6 +89,7 @@ const SortColumnList = (props) => {
                 isOpen={isModalOpen}
                 elements={selectableColumns}
                 resetOnSubmit
+                showSearch
                 onSubmit={(elementName) => {
                     const foundElement = allColumns.find((current) => {
                         return current.name === elementName;

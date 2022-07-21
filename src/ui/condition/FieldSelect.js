@@ -58,7 +58,6 @@ const FieldSelect = observer((props) => {
         try
         {
             typeDef = lookupType(opts.rootType, value);
-
         }
         catch(e)
         {
@@ -265,6 +264,7 @@ const FieldSelect = observer((props) => {
                                     elements={fields}
                                     renderer={renderer}
                                     selected={selectedElement}
+                                    showSearch
                                     onSubmit={onFieldSelectListModalSubmit}
                                 />
                             </FormGroup>

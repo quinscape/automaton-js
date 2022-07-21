@@ -14,6 +14,7 @@ const SelectionListModal = (props) => {
         elements,
         selected,
         resetOnSubmit,
+        showSearch,
         onSubmit
     } = props;
     const [selectedElement, setSelectedElement] = useState(selected);
@@ -55,6 +56,7 @@ const SelectionListModal = (props) => {
                     onChange={(newSelectedElement) => {
                         setSelectedElement(newSelectedElement.name);
                     }}
+                    showSearch={showSearch}
                 />
                 <ButtonToolbar>
                     <button

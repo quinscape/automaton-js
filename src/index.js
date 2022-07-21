@@ -86,6 +86,9 @@ import UserColumnConfigDialogModal from "./ui/datagrid/userconfig/UserColumnConf
 
 import SelectionTreeModal from "./ui/treeselection/SelectionTreeModal"
 import QueryEditor from "./ui/queryeditor/QueryEditor";
+import ColumnSelect from "./ui/queryeditor/ColumnSelect";
+
+import { createTreeRepresentationForInputSchema } from "./util/inputSchemaUtilities"
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -212,6 +215,9 @@ export {
     UserColumnConfigDialogModal,
 
     SelectionTreeModal,
-    QueryEditor
+    QueryEditor,
+    ColumnSelect,
+
+    createTreeRepresentationForInputSchema
 }
 

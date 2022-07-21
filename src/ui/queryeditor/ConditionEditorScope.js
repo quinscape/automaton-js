@@ -3,19 +3,15 @@ import {action, makeObservable, observable} from "mobx";
 export default class ConditionEditorScope {
 
     @observable
-    rootType = "Foo"
+    rootType = ""
 
     @observable
     condition = null;
 
 
-    constructor()
+    constructor(rootType)
     {
-        makeObservable(this)
-    }
-
-    @action
-    updateCondition(condition) {
-        this.condition = condition;
+        makeObservable(this);
+        this.rootType = rootType;
     }
 }

@@ -9,6 +9,7 @@ import SortColumnList from "./SortColumnList";
 import ConditionEditorScope from "./ConditionEditorScope";
 import {FormContext, Icon} from "domainql-form";
 import {ButtonToolbar} from "reactstrap";
+import ColumnSelect from "./ColumnSelect";
 
 const ORIGINS = {
     CONDITION_EDITOR_FIELD_SELECTION: "ConditionEditorFieldSelection",
@@ -22,6 +23,7 @@ const QueryEditor = (props) => {
         columnNameRenderer,
         availableColumnTreeObject,
         formContext = FormContext.getDefault(),
+        rootType,
         saveButtonText,
         saveButtonOnClick,
         className
@@ -38,11 +40,8 @@ const QueryEditor = (props) => {
 
     // scope
     const conditionEditorScope = useMemo(() => {
-        return new ConditionEditorScope();
-    }, []);
-
-    // modal control states
-    const [columnSelectionModalOpen, setColumnSelectionModalOpen] = useState(false);
+        return new ConditionEditorScope(rootType);
+    }, [rootType]);
 
     // data states
     const [selectedColumns, setSelectedColumns] = useState([]);
@@ -77,30 +76,15 @@ const QueryEditor = (props) => {
                     )
                 }
             </div>
-            {/*TODO outsource to own module*/}
-            <div>
-                <TokenList
-                    tokens={selectedColumns}
-                    renderer={tokenListRenderer}
-                    onChange={(tokenList) => {
-                        setSelectedColumns(tokenList);
-                    }}
-                    onEdit={() => {
-                        setColumnSelectionModalOpen(true);
-                    }}
-                />
-                <SelectionTreeModal
-                    modalHeader={i18n("Select Columns")}
-                    toggle={() => setColumnSelectionModalOpen(!columnSelectionModalOpen)}
-                    isOpen={columnSelectionModalOpen}
-                    selected={selectedColumns}
-                    valueRenderer={fieldSelectionTreeRenderer}
-                    onSubmit={(selectedElements) => {
-                        setSelectedColumns(selectedElements);
-                    }}
-                    treeContent={availableColumnTreeObject}
-                />
-            </div>
+            <ColumnSelect
+                availableColumnTreeObject={availableColumnTreeObject}
+                selectedColumns={selectedColumns}
+                tokenListRenderer={tokenListRenderer}
+                fieldSelectionTreeRenderer={fieldSelectionTreeRenderer}
+                onChange={(tokenList) => {
+                    setSelectedColumns(tokenList);
+                }}
+            />
             <div>
                 <ConditionEditor
                     rootType={conditionEditorScope.rootType}
