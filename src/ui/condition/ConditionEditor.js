@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import cx from "classnames"
 import { observer, useLocalObservable } from "mobx-react-lite";
 import get from "lodash.get";
+import set from "lodash.set";
 
 import { field, toJSON, Type, value as dslValue } from "../../FilterDSL";
 import { AABB, isStructuralCondition, join } from "./condition-layout";
@@ -86,14 +87,13 @@ const ConditionEditor = observer(function ConditionEditor(props) {
     const {
         rootType,
         container,
-        workingSet,
         path : containerPath = "",
         className,
         options,
         formContext = FormContext.getDefault(),
         fields,
         onChange,
-        renderer
+        queryCondition: queryConditionFromProps
     } = props;
 
     const onConditionChange = () => {
@@ -124,6 +124,10 @@ const ConditionEditor = observer(function ConditionEditor(props) {
     const editorState = useLocalObservable(
         () => new ConditionEditorState(rootType, container, containerPath, opts)
     );
+
+    useEffect(() => {
+        editorState.replaceCondition(queryConditionFromProps);
+    }, [queryConditionFromProps]);
 
     useLayoutEffect(
         () => {
@@ -800,7 +804,22 @@ ConditionEditor.propTypes = {
     path : PropTypes.string.isRequired,
     className : PropTypes.string,
     options : PropTypes.object,
-    formContext: PropTypes.instanceOf(FormContext)
+    formContext: PropTypes.instanceOf(FormContext),
+
+    /**
+     * available fields for field selects
+     */
+    fields: PropTypes.arrayOf(PropTypes.object),
+
+    /**
+     * callback function called on changes to the condition
+     */
+    onChange: PropTypes.func,
+
+    /**
+     * the current condition
+     */
+    queryCondition: PropTypes.object
 }
 
 export default ConditionEditor;

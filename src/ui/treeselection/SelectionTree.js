@@ -1,5 +1,6 @@
 import React from "react";
 import Tree from "../tree/Tree";
+import PropTypes from "prop-types";
 
 const SelectionTree = (props) => {
     const {
@@ -56,6 +57,28 @@ function renderObject(treeObject, valueRenderer, path = "") {
     }
 
     return renderedElements;
+}
+
+SelectionTree.propTypes = {
+    /**
+     * the elements of the tree
+     */
+    treeContent: PropTypes.object,
+
+    /**
+     * list of selected elements
+     */
+    selectedElements: PropTypes.arrayOf(PropTypes.string),
+
+    /**
+     * callback function called on changes to selected elements
+     */
+    onSelectedElementsChange: PropTypes.func,
+
+    /**
+     * rendering function for rendering tree element values
+     */
+    valueRenderer: PropTypes.func
 }
 
 export default SelectionTree;

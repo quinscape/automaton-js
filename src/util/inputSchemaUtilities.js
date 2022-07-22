@@ -4,7 +4,7 @@ import {unwrapAll} from "./type-utils";
 /**
  * Generates a tree representation of the table structure based on the given path.
  * @param {string} schemaPath the root path
- * @param {function} filterCallback callback function to filter found tables and fields [optional]
+ * @param {function} [filterCallback] callback function to filter found tables and fields
  * @returns {Object} tree representation object
  */
 export function createTreeRepresentationForInputSchema(schemaPath, filterCallback) {

@@ -1,19 +1,20 @@
 import React from "react";
 import i18n from "../../i18n";
 import {Icon} from "domainql-form";
+import PropTypes from "prop-types";
 
 const TokenListElement = (props) => {
 
     const {
         value,
         renderer,
-        removeToken,
+        onRemoveTokenClick,
         disabled
     } = props;
 
     return (
         <li
-            className="token-list-element d-flex justify-content-between align-items-center"
+            className="token-list-element d-flex justify-content-between align-items-center list-group-item"
         >
             <div
                 className="token-list-element-text"
@@ -29,7 +30,7 @@ const TokenListElement = (props) => {
                     i18n("Remove")
                 }
                 onClick={
-                    () => removeToken(value)
+                    () => onRemoveTokenClick(value)
                 }
                 disabled={disabled}
             >
@@ -37,6 +38,28 @@ const TokenListElement = (props) => {
             </button>
         </li>
     );
+}
+
+TokenListElement.propTypes = {
+    /**
+     * the value of the token
+     */
+    value: PropTypes.string,
+
+    /**
+     * optional rendering function used to display the token value
+     */
+    renderer: PropTypes.func,
+
+    /**
+     * callback function used for removing tokens
+     */
+    onRemoveTokenClick: PropTypes.func,
+
+    /**
+     * if this element is disabled or not
+     */
+    disabled: PropTypes.bool
 }
 
 export default TokenListElement;

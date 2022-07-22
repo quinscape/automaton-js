@@ -3,6 +3,7 @@ import {ButtonToolbar, Modal, ModalBody, ModalHeader} from "reactstrap";
 import {Icon} from "../../../../domainql-form";
 import i18n from "../../i18n";
 import SelectionTree from "./SelectionTree";
+import PropTypes from "prop-types";
 
 const SelectionTreeModal = (props) => {
     const {
@@ -86,6 +87,43 @@ const SelectionTreeModal = (props) => {
             </ModalBody>
         </Modal>
     )
+}
+
+SelectionTreeModal.propTypes = {
+    /**
+     * the header of the modal
+     */
+    modalHeader: PropTypes.string,
+
+    /**
+     * function to toggle the modal visibility
+     */
+    toggle: PropTypes.func,
+
+    /**
+     * if the modal is opened or not
+     */
+    isOpen: PropTypes.bool,
+
+    /**
+     * list of selected elements
+     */
+    selected: PropTypes.arrayOf(PropTypes.string),
+
+    /**
+     * callback function called on submit
+     */
+    onSubmit: PropTypes.func,
+
+    /**
+     * the elements displayed in the tree
+     */
+    treeContent: PropTypes.object,
+
+    /**
+     * rendering function for rendering tree elements
+     */
+    valueRenderer: PropTypes.func
 }
 
 export default SelectionTreeModal;

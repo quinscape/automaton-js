@@ -479,7 +479,17 @@ Tree.propTypes = {
          * True if the tree should render small button variants.
          */
         small: PropTypes.bool
-    })
+    }),
+
+    /**
+     * list of selected elements
+     */
+    selectedElements: PropTypes.arrayOf(PropTypes.string),
+
+    /**
+     * callback function called on selected element changes
+     */
+    onSelectedElementsChange: PropTypes.func
 };
 
 Tree.displayName = "Tree";

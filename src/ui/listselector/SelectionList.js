@@ -161,6 +161,11 @@ SelectionList.propTypes = {
     onChange: PropTypes.func,
 
     /**
+     * if the search bar should be shown or not
+     */
+    showSearch: PropTypes.bool,
+
+    /**
      * the function called on elements being moved by the user, mutually exclusive with autoSort
      */
     onMoveElementClick: PropTypes.func

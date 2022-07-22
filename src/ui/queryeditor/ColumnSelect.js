@@ -67,4 +67,31 @@ ColumnSelect.propTypes = {
     onChange: PropTypes.func
 }
 
+ColumnSelect.propTypes = {
+    /**
+     * the tree representation of all columns available for selection
+     */
+    availableColumnTreeObject: PropTypes.object,
+
+    /**
+     * list of all currently selected columns
+     */
+    selectedColumns: PropTypes.arrayOf(PropTypes.string),
+
+    /**
+     * rendering function for rendering token list elements
+     */
+    tokenListRenderer: PropTypes.func,
+
+    /**
+     * rendering function for rendering selection tree elements
+     */
+    fieldSelectionTreeRenderer: PropTypes.func,
+
+    /**
+     * callback function called on changes to the selected elements
+     */
+    onChange: PropTypes.func
+}
+
 export default ColumnSelect;

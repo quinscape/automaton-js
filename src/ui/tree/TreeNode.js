@@ -1,6 +1,9 @@
-import React, { useContext, useMemo } from "react"
+import React, {useContext, useMemo, useState} from "react"
 import cx from "classnames"
 import { TreeContext } from "./Tree";
+import i18n from "../../i18n";
+import {Icon} from "../../../../domainql-form";
+import PropTypes from "prop-types";
 
 
 /**
@@ -13,6 +16,7 @@ const TreeNode = React.forwardRef((props, ref) => {
         selectionId,
         renderer,
         renderCheckbox,
+        initiallyCollapsed = true,
         children
     } = props;
 
@@ -20,6 +24,9 @@ const TreeNode = React.forwardRef((props, ref) => {
 
     const isSelected = ctx.selected === selectionId;
     const isDirectory = children && children.length > 0;
+
+    const [collapsed, setCollapsed] = useState(initiallyCollapsed);
+
     return (
         <li
             ref={ ref }
@@ -37,32 +44,51 @@ const TreeNode = React.forwardRef((props, ref) => {
                 }
             }}
         >
-
-            <label className="d-flex">
+            <div className="d-flex">
                 {
-                    renderCheckbox && (!children || children.length < 1) && (
-                        <input
-                            type="checkbox"
-                            className="mr-2"
-                            checked={ctx.selectionList.includes(selectionId)}
-                            onChange={(event) => {
-                                if (event.target.checked) {
-                                    ctx.checkItem(selectionId);
-                                } else {
-                                    ctx.uncheckItem(selectionId);
+                    isDirectory && (
+                        <button
+                            type="Button"
+                            className="btn btn-link m-0 p-0 mr-2 px-2"
+                            title={
+                                i18n(collapsed ? "Expand" : "Collapse")
+                            }
+                            onClick={
+                                () => {
+                                    setCollapsed(!collapsed);
                                 }
-                            }}
-                        />
+                            }
+                        >
+                            <Icon className={ cx(collapsed ? "fa-chevron-down" : "fa-chevron-up") }/>
+                        </button>
                     )
                 }
-                {
-                    typeof renderer === "function" ? renderer(selectionId, {
-                        isDirectory
-                    }) : renderer ?? selectionId
-                }
-            </label>
+                <label className="d-flex align-content-center">
+                    {
+                        renderCheckbox && (!children || children.length < 1) && (
+                            <input
+                                type="checkbox"
+                                className="mr-2"
+                                checked={ctx.selectionList.includes(selectionId)}
+                                onChange={(event) => {
+                                    if (event.target.checked) {
+                                        ctx.checkItem(selectionId);
+                                    } else {
+                                        ctx.uncheckItem(selectionId);
+                                    }
+                                }}
+                            />
+                        )
+                    }
+                    {
+                        typeof renderer === "function" ? renderer(selectionId, {
+                            isDirectory
+                        }) : renderer ?? selectionId
+                    }
+                </label>
+            </div>
             {
-                isDirectory && (
+                isDirectory && !collapsed && (
                     <ul className="d-block ml-4">
                         {
                             children

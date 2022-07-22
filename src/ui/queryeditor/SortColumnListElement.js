@@ -2,6 +2,7 @@ import React from "react";
 import i18n from "../../i18n";
 import {Icon} from "../../../../domainql-form";
 import cx from "classnames";
+import PropTypes from "prop-types";
 
 const SortColumnListElement = (props) => {
     const {
@@ -19,7 +20,7 @@ const SortColumnListElement = (props) => {
 
     return (
         <li
-            className="sort-column-list-element d-flex justify-content-between align-items-center"
+            className="sort-column-list-element d-flex justify-content-between align-items-center list-group-item"
         >
             <button
                 type="Button"
@@ -56,6 +57,28 @@ const SortColumnListElement = (props) => {
             </button>
         </li>
     )
+}
+
+SortColumnListElement.propTypes = {
+    /**
+     * indicates if this module is disabled
+     */
+    disabled: PropTypes.bool,
+
+    /**
+     * the object containing data about the sort column element, specifically the name, order and optionally label
+     */
+    sortColumnElement: PropTypes.object,
+
+    /**
+     * callback function used to remove the current element from the list
+     */
+    removeElement: PropTypes.func,
+
+    /**
+     * callback function used to toggle the order of the current element
+     */
+    toggleElementOrder: PropTypes.func
 }
 
 export default SortColumnListElement;

@@ -128,6 +128,15 @@ SelectionListModal.propTypes = {
     toggle: PropTypes.func,
 
     /**
+     * if the selected element should be reset or not
+     */
+    resetOnSubmit: PropTypes.bool,
+
+    /**
+     * if the search bar should be displayed or not
+     */
+    showSearch: PropTypes.bool,
+    /**
      * submit function
      */
     onSubmit: PropTypes.func

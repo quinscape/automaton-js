@@ -3,6 +3,7 @@ import {Icon} from "domainql-form";
 import {ButtonToolbar} from "reactstrap";
 import i18n from "../../i18n";
 import TokenListElement from "./TokenListElement";
+import PropTypes from "prop-types";
 
 const TokenList = (props) => {
 
@@ -23,7 +24,7 @@ const TokenList = (props) => {
     return (
         <>
             <ul
-                className="token-list"
+                className="token-list list-group"
             >
                 {
                     tokenList.map((value,idx) => {
@@ -34,7 +35,7 @@ const TokenList = (props) => {
                                 value={value}
                                 disabled={disabled}
                                 renderer={renderer}
-                                removeToken={(value) => {
+                                onRemoveTokenClick={(value) => {
                                     if (tokenList.includes(value)) {
                                         const index = tokenList.indexOf(value);
                                         const newTokenList = [
@@ -51,7 +52,7 @@ const TokenList = (props) => {
                     })
                 }
             </ul>
-            <ButtonToolbar>
+            <ButtonToolbar className="mt-2">
                 <button
                     type="Button"
                     className="btn btn-light"
@@ -66,6 +67,33 @@ const TokenList = (props) => {
             </ButtonToolbar>
         </>
     )
+}
+
+TokenList.propTypes = {
+    /**
+     * the tokens displayed in the list
+     */
+    tokens: PropTypes.arrayOf(PropTypes.string),
+
+    /**
+     * rendering function for rendering the list elements
+     */
+    renderer: PropTypes.func,
+
+    /**
+     * if this module is disabled
+     */
+    disabled: PropTypes.bool,
+
+    /**
+     * callback function called on changes to the token list
+     */
+    onChange: PropTypes.func,
+
+    /**
+     * callback function called on edit button click
+     */
+    onEdit: PropTypes.func
 }
 
 export default TokenList;
