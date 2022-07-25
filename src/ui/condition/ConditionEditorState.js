@@ -391,6 +391,14 @@ export default class ConditionEditorState {
      */
     expressionTree = null
 
+    /**
+     * Increased to signal condition updates.
+     *
+     * @type {number}
+     */
+    @observable
+    updateCounter = 0;
+
 
     constructor(rootType, container, containerPath, opts)
     {
@@ -533,13 +541,15 @@ export default class ConditionEditorState {
     {
         const {container, containerPath} = this;
 
-        const p = toPath(containerPath).concat(toPath(path))
-        set(container, p, condition)
+        const p = toPath(containerPath).concat(toPath(path));
+        set(container, p, condition);
 
-        this.updatePathLookup()
+        this.updatePathLookup();
 
         this.conditionTree.update();
         this.expressionTree.update();
+
+        this.updateCounter++;
     }
 
 
@@ -584,10 +594,10 @@ export default class ConditionEditorState {
     {
         const rel = toPath(path);
         const {container, containerPath} = this;
-        const p = toPath(containerPath).concat(rel.slice(0, -2))
+        const p = toPath(containerPath).concat(rel.slice(0, -2));
 
         const node = get(container, p);
-        node.operands.replace(operands)
+        node.operands = operands;
 
         if (revalidate)
         {
@@ -599,7 +609,6 @@ export default class ConditionEditorState {
     @action
     updateJSON(json)
     {
-        //console.log("updateJSON", json)
         this.json = json;
     }
 

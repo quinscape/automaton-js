@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useRef, useState} from "react";
 import cx from "classnames";
 import i18n from "../../i18n";
 import {Icon} from "domainql-form";
@@ -18,10 +18,14 @@ const SelectionList = (props) => {
         selected,
         autoSort,
         onChange,
+        showSearch,
         onMoveElementClick
     } = props;
 
     const sortable = typeof onMoveElementClick === "function";
+
+    const [searchValue, setSearchValue] = useState("");
+    const searchFieldRef = useRef();
 
     if(sortable && autoSort) {
         console.warn("SelectionList is set to be both manually sortable and automatically sorted, only one may be set at a time. Manual sorting will be ignored.");
@@ -31,15 +35,54 @@ const SelectionList = (props) => {
         onChange(element);
     }
 
-    const sortedElements = autoSort
-        ? elements.sort(elementComparator)
+    const filteredElements = searchValue !== ""
+        ? elements.filter((element) => {
+            const elementValue = element.label ?? element.name;
+            return elementValue?.toLowerCase().includes(searchValue) ?? false;
+        })
         : elements;
+
+    const sortedElements = autoSort
+        ? filteredElements.sort(elementComparator)
+        : filteredElements;
 
     return (
         <div className="d-flex flex-column flex-fill m-4 selection-list-container">
             <div className="font-weight-bold selection-list-header">
                 { header }
             </div>
+            {
+                showSearch && (
+                    <div className="form-group form-row">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">
+                                <Icon className="fa-search"/>
+                            </span>
+                        </div>
+                        <input
+                            onChange={(event) => {
+                                setSearchValue(event.target.value.toLowerCase());
+                            }}
+                            value={searchValue}
+                            ref={searchFieldRef}
+                        />
+                        <div className="input-group-append">
+                            <button
+                                className="btn btn-light border"
+                                onClick={() => {
+                                    setSearchValue("");
+                                    searchFieldRef.current?.focus();
+                                }}
+                            >
+                                <Icon className="fa-eraser mr-1"/>
+                                {
+                                    i18n("Clear")
+                                }
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
             <div className="d-flex flex-row flex-fill">
                 <ul className="flex-fill selection-list list-group border rounded">
                     {
@@ -100,7 +143,7 @@ SelectionList.propTypes = {
     /**
      * the elements of the list
      */
-    elements: PropTypes.array,
+    elements: PropTypes.array.isRequired,
 
     /**
      * the selected item in the list
@@ -116,6 +159,11 @@ SelectionList.propTypes = {
      * the function called on changes to the list
      */
     onChange: PropTypes.func,
+
+    /**
+     * if the search bar should be shown or not
+     */
+    showSearch: PropTypes.bool,
 
     /**
      * the function called on elements being moved by the user, mutually exclusive with autoSort

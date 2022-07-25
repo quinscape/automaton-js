@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import cx from "classnames"
 import { observer, useLocalObservable } from "mobx-react-lite";
 import get from "lodash.get";
+import set from "lodash.set";
 
 import { field, toJSON, Type, value as dslValue } from "../../FilterDSL";
 import { AABB, isStructuralCondition, join } from "./condition-layout";
@@ -82,8 +83,24 @@ const DEFAULT_OPTIONS = {
     extraSVG: () => false
 }
 
-const ConditionEditor = observer(function ConditionEditor({rootType, container, path : containerPath = "", className, options, formContext = FormContext.getDefault()})
-{
+const ConditionEditor = observer(function ConditionEditor(props) {
+    const {
+        rootType,
+        container,
+        path : containerPath = "",
+        className,
+        options,
+        formContext = FormContext.getDefault(),
+        fields,
+        onChange,
+        queryCondition: queryConditionFromProps
+    } = props;
+
+    const onConditionChange = () => {
+        const queryCondition = get(container, containerPath);
+        onChange(queryCondition);
+    };
+
     const opts = useMemo(
         () => {
 
@@ -92,7 +109,6 @@ const ConditionEditor = observer(function ConditionEditor({rootType, container, 
                 ... options,
                 rootType
             };
-            //console.log("PREPARE OPTS MEMO", opts)
             return opts
         },
         [
@@ -107,20 +123,22 @@ const ConditionEditor = observer(function ConditionEditor({rootType, container, 
 
     const editorState = useLocalObservable(
         () => new ConditionEditorState(rootType, container, containerPath, opts)
-    )
+    );
+
+    useEffect(() => {
+        editorState.replaceCondition(queryConditionFromProps);
+    }, [queryConditionFromProps]);
 
     useLayoutEffect(
         () => {
             if (editorState.revalidateCount)
             {
-                //console.log("trigger revalidation")
-
                 formContext.removeAllErrors();
                 formContext.revalidate();
             }
         },
         [ editorState.revalidateCount ]
-    )
+    );
 
     const { layoutRoot, layoutCounter, aabb } = editorState.conditionTree;
 
@@ -144,12 +162,10 @@ const ConditionEditor = observer(function ConditionEditor({rootType, container, 
             }
         },
         []
-    )
+    );
 
     useEffect(
         () => {
-
-            //console.log("LAYOUT TREE, root #", FormContext.getUniqueId(layoutRoot))
 
             editorState.conditionTree.updateDimensions(containerRef.current);
 
@@ -184,16 +200,17 @@ const ConditionEditor = observer(function ConditionEditor({rootType, container, 
                 aabb.add(0, 0);
             }
 
-            //console.log("AABB", aabb)
             editorState.conditionTree.updateAABB(aabb)
+
+            onConditionChange();
         },
         [ layoutCounter ]
-    )
+    );
 
     const nodes = [];
     const decorations = [];
 
-    renderLayoutNodes(layoutRoot, nodes, decorations, editorState, condition, editorState.conditionTree)
+    renderLayoutNodes(layoutRoot, nodes, decorations, editorState, condition, editorState.conditionTree, fields);
 
     return (
         <>
@@ -206,7 +223,8 @@ const ConditionEditor = observer(function ConditionEditor({rootType, container, 
                     value={ condition }
                     formContext={ formContext }
                     options={ {
-                        layout: FormLayout.INLINE
+                        layout: FormLayout.INLINE,
+                        onChange: onConditionChange
                     } }
                 >
                     {
@@ -280,20 +298,6 @@ const ConditionEditor = observer(function ConditionEditor({rootType, container, 
     );
 });
 
-/*
-            <Card className="mt-3">
-                <CardHeader>JSON</CardHeader>
-                <CardBody>
-                    <pre>
-                        {
-                            JSON.stringify(condition, null, 4)
-                        }
-                    </pre>
-                </CardBody>
-            </Card>
-
- */
-
 ///   NODE RENDERING ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 function StructuralAddButton({condition, path, editorState})
@@ -323,7 +327,7 @@ function StructuralAddButton({condition, path, editorState})
  * Creates flat React elements for the hierarchical component tree and adds them either to "nodes" which are normal
  * relative-absolute positioned HTML content and decorations which are SVG elements
  */
-export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, conditionRoot, tree)
+export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, conditionRoot, tree, fields)
 {
     if (!layoutNode)
     {
@@ -395,11 +399,11 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
 
         if (isConditionTree)
         {
-            renderCondition(elements, layoutNode, layoutNode.data,  path, tree, conditionRoot)
+            renderCondition(elements, layoutNode, layoutNode.data,  path, tree, conditionRoot, fields)
         }
         else
         {
-            renderExpression(elements, layoutNode, layoutNode.data,  path, tree, conditionRoot)
+            renderExpression(elements, layoutNode, layoutNode.data,  path, tree, conditionRoot, fields)
         }
 
         nodes.push(
@@ -416,16 +420,14 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
         )
     }
 
-    //console.log("offsetX", offsetX, "offsetY", offsetY)
-
     if (isStructural)
     {
-        flattenStructuralKids(layoutNode, nodes, decorations, editorState, conditionRoot, tree);
+        flattenStructuralKids(layoutNode, nodes, decorations, editorState, conditionRoot, tree, fields);
     }
 }
 
 
-function flattenStructuralKids(node, nodes, decorations, editorState, conditionRoot, tree)
+function flattenStructuralKids(node, nodes, decorations, editorState, conditionRoot, tree, fields)
 {
     const { children } = node;
 
@@ -434,13 +436,12 @@ function flattenStructuralKids(node, nodes, decorations, editorState, conditionR
         for (let i = 0; i < children.length; i++)
         {
             const kid = children[i];
-            renderLayoutNodes(kid, nodes, decorations, editorState, conditionRoot, tree)
+            renderLayoutNodes(kid, nodes, decorations, editorState, conditionRoot, tree, fields)
         }
     }
 }
 
-function renderCondition(elements, layoutNode, condition, path, tree, conditionRoot)
-{
+function renderCondition(elements, layoutNode, condition, path, tree, conditionRoot, fields) {
     const {type} = condition;
 
     const nodeId = ConditionEditorState.getNodeId(condition);
@@ -453,7 +454,7 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
         const unary = operands.length === 1;
         if (!unary)
         {
-            renderCondition(kids, layoutNode, operands[0], join(path, "operands.0"), tree, conditionRoot)
+            renderCondition(kids, layoutNode, operands[0], join(path, "operands.0"), tree, conditionRoot, fields)
         }
 
         kids.push(
@@ -472,7 +473,7 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
 
         for (let i = unary ? 0 : 1; i < operands.length; i++)
         {
-            renderCondition(kids, layoutNode, operands[i], join(path, "operands." + i), tree, conditionRoot)
+            renderCondition(kids, layoutNode, operands[i], join(path, "operands." + i), tree, conditionRoot, fields)
         }
 
         if (isCondition)
@@ -510,6 +511,7 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
                 conditionRoot={ conditionRoot }
                 path={ path }
                 editorState={ tree.editorState }
+                fields={ fields }
             />
         )
     }
@@ -602,7 +604,7 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
     }
 }
 
-function renderExpression(elements, layoutNode, condition, path, tree, conditionRoot)
+function renderExpression(elements, layoutNode, condition, path, tree, conditionRoot, fields)
 {
     const {type} = condition;
 
@@ -617,6 +619,7 @@ function renderExpression(elements, layoutNode, condition, path, tree, condition
                 conditionRoot={ conditionRoot }
                 path={ path }
                 editorState={ tree.editorState }
+                fields={ fields }
             />
         )
     }
@@ -736,12 +739,9 @@ export function drawStructuralDecorator(layoutNode, tree, offsetX, offsetY)
     x = y;
     y = tmp - dimension.height;
 
-    //console.log("DIM", ConditionEditorState.getNodeId(layoutNode.data), dimension)
-
     const { children } = layoutNode;
     if (!children)
     {
-        //console.log("drawStructuralDecorator: no children for ", layoutNode, toJS(layoutNode.data))
         return;
     }
 
@@ -782,6 +782,7 @@ export function drawStructuralDecorator(layoutNode, tree, offsetX, offsetY)
         }
 
         path += "M" + (x2 - offsetX ) + "," + (kidY - offsetY) + "L" + (kidX - offsetX) + "," + (kidY - offsetY);
+                
 
     }
 
@@ -790,7 +791,7 @@ export function drawStructuralDecorator(layoutNode, tree, offsetX, offsetY)
     return (
         <path
             key={ "deco" + ConditionEditorState.getNodeId(layoutNode.data) }
-            d={ path }
+            d={ /infinite|nan/i.test(path) ? "" : path }
             { ... opts.pathProps}
 
         />
@@ -803,7 +804,22 @@ ConditionEditor.propTypes = {
     path : PropTypes.string.isRequired,
     className : PropTypes.string,
     options : PropTypes.object,
-    formContext: PropTypes.instanceOf(FormContext)
+    formContext: PropTypes.instanceOf(FormContext),
+
+    /**
+     * available fields for field selects
+     */
+    fields: PropTypes.arrayOf(PropTypes.object),
+
+    /**
+     * callback function called on changes to the condition
+     */
+    onChange: PropTypes.func,
+
+    /**
+     * the current condition
+     */
+    queryCondition: PropTypes.object
 }
 
 export default ConditionEditor;

@@ -84,6 +84,12 @@ import CollapsiblePanel from "./ui/CollapsiblePanel"
 
 import UserColumnConfigDialogModal from "./ui/datagrid/userconfig/UserColumnConfigDialogModal"
 
+import SelectionTreeModal from "./ui/treeselection/SelectionTreeModal"
+import QueryEditor from "./ui/queryeditor/QueryEditor";
+import ColumnSelect from "./ui/queryeditor/ColumnSelect";
+
+import { createTreeRepresentationForInputSchema } from "./util/inputSchemaUtilities"
+
 // noinspection JSUnusedGlobalSymbols
 export {
     config,
@@ -206,6 +212,12 @@ export {
     registerFKSelectorFilterAndRenderer,
     CollapsiblePanel,
 
-    UserColumnConfigDialogModal
+    UserColumnConfigDialogModal,
+
+    SelectionTreeModal,
+    QueryEditor,
+    ColumnSelect,
+
+    createTreeRepresentationForInputSchema
 }
 
