@@ -8,14 +8,20 @@ import {unwrapAll} from "./type-utils";
  * @returns {Object} tree representation object
  */
 export function createTreeRepresentationForInputSchema(schemaPath, filterCallback) {
-    const inputSchema = config.inputSchema;
-    return recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, "", filterCallback);
+    if (typeof schemaPath === "string" && schemaPath !== "") {
+        const inputSchema = config.inputSchema;
+        return recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, "", filterCallback);
+    }
+    return {};
 }
 
 function recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, fieldPath, filterCallback) {
     const splitPath = schemaPath.split(".");
     const tableName = splitPath.at(-1);
     const table = findSchemaObjectByName(inputSchema, tableName);
+    if (table == null) {
+        return {};
+    }
 
     const result = {};
 

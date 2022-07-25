@@ -124,7 +124,7 @@ SortColumnList.propTypes = {
     /**
      * all columns available to be selected as sort columns
      */
-    allColumns: PropTypes.arrayOf(PropTypes.object),
+    allColumns: PropTypes.arrayOf(PropTypes.object).isRequired,
 
     /**
      * optional input sort columns, if provided these will be loaded

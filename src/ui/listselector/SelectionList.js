@@ -38,7 +38,7 @@ const SelectionList = (props) => {
     const filteredElements = searchValue !== ""
         ? elements.filter((element) => {
             const elementValue = element.label ?? element.name;
-            return elementValue.toLowerCase().includes(searchValue);
+            return elementValue?.toLowerCase().includes(searchValue) ?? false;
         })
         : elements;
 
@@ -143,7 +143,7 @@ SelectionList.propTypes = {
     /**
      * the elements of the list
      */
-    elements: PropTypes.array,
+    elements: PropTypes.array.isRequired,
 
     /**
      * the selected item in the list

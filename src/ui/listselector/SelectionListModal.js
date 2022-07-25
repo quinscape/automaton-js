@@ -110,7 +110,7 @@ SelectionListModal.propTypes = {
     /**
      * the elements of the list
      */
-    elements: PropTypes.array,
+    elements: PropTypes.array.isRequired,
 
     /**
      * the selected item in the list
