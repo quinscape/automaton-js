@@ -15,6 +15,10 @@
         "code": "return this.name + \":\" + this.num + \":\" + this.type;"
       }
     ],
+    "constructorFunction": {
+      "params": [],
+      "code": "makeObservable(this);"
+    },
     "helpers": []
   }
 }

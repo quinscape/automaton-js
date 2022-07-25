@@ -598,7 +598,7 @@ export const renderProcessExportScript = (processExports) => {
 
     //End the section of EXPORT AND STATES
     if (scope !== null) {
-        const {name, observables, actions, computeds, helpers} = scope
+        const {name, observables, actions, computeds, helpers, constructorFunction} = scope
         processScript += `
 export default class ${name} {
 `;
@@ -608,6 +608,16 @@ export default class ${name} {
         ${observable.name} = ${observable.defaultValue};
     `
         });
+
+        if (constructorFunction != null) {
+            const {params, code} = constructorFunction;
+            const param = params.length === 1 ? params : params.join(', ')
+            processScript += `
+        constructor(${param}) {
+            ${code}
+        }
+    `
+        }
 
         actions.map((action) => {
             const {name, params, code, noAnnotation} = action
@@ -683,17 +693,28 @@ export default class ${name} {
 
 export const renderUserScopeScript = (userScope) => {
     let userScopeScript = ''
-    const {name, observables, actions, computeds, helpers} = userScope
+    const {name, observables, actions, computeds, helpers, constructorFunction} = userScope
 
     userScopeScript += `
 export class ${name}
- {`
+ {
+    `
 
     observables.forEach(observable => {
         const {name, defaultValue} = observable
         userScopeScript += `
     @observable ${name} = ${defaultValue};`
     })
+
+    if (constructorFunction != null) {
+        const {params, code} = constructorFunction;
+        const param = params.length === 1 ? params : params.join(', ')
+        userScopeScript += `
+    constructor(${param}) {
+        ${code}
+    }
+`
+    }
 
     userScopeScript += `
  }`
@@ -702,17 +723,28 @@ export class ${name}
 
 export const renderSessionScopeScript = (sessionScope) => {
     let sessionScopeScript = ''
-    const {name, observables, actions, computeds, helpers} = sessionScope
+    const {name, observables, actions, computeds, helpers, constructorFunction} = sessionScope
 
     sessionScopeScript += `
 export class ${name}
- {`
+ {
+    `
 
     observables.forEach(observable => {
         const {name, defaultValue} = observable
         sessionScopeScript += `
     @observable ${name} = ${defaultValue};`
     })
+
+    if (constructorFunction != null) {
+        const {params, code} = constructorFunction;
+        const param = params.length === 1 ? params : params.join(', ')
+        sessionScopeScript += `
+    constructor(${param}) {
+        ${code}
+    }
+`
+    }
 
     sessionScopeScript += `
  }`
@@ -721,9 +753,10 @@ export class ${name}
 
 export const renderDomainScript = (domain) => {
     let domainScript = '';
-    const {computeds, observables, name} = domain
+    const {computeds, observables, name, constructorFunction} = domain
     domainScript += `
-    export default class ${name} {`
+    export default class ${name} {
+    `
 
     if (observables && observables.length >= 1) {
         observables.forEach(observable => {
@@ -741,9 +774,21 @@ export const renderDomainScript = (domain) => {
         @computed get ${name}()
         {
             ${code}
-        }`
+        }
+        `
         })
     }
+
+    if (constructorFunction != null) {
+        const {params, code} = constructorFunction;
+        const param = params.length === 1 ? params : params.join(', ')
+        domainScript += `
+    constructor(${param}) {
+        ${code}
+    }
+`
+    }
+
     domainScript += `
     }`
     return jsBeautify(domainScript)
