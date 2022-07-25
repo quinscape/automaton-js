@@ -191,7 +191,7 @@ const Tree = (props) => {
         id = "tree",
         "aria-labelledby" : labelledBy,
         options,
-        selectedElements = [],
+        selectedElements,
         onSelectedElementsChange,
         children
     } = props;
@@ -314,7 +314,7 @@ const Tree = (props) => {
     );
 
     useEffect(() => {
-        setSelectionList(selectedElements);
+        setSelectionList(selectedElements ?? []);
     }, [selectedElements]);
 
 
