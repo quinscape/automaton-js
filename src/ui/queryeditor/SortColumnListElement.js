@@ -9,12 +9,12 @@ const SortColumnListElement = (props) => {
         disabled,
         sortColumnElement,
         removeElement,
-        toggleElementOrder
+        toggleElementOrder,
+        renderer
     } = props;
 
     const {
         name,
-        label,
         order
     } = sortColumnElement;
 
@@ -38,9 +38,9 @@ const SortColumnListElement = (props) => {
             <div
                 className="sort-column-list-element-text flex-grow-1 mx-2"
             >
-                {
-                    label != null ? label : name
-                }
+            {
+                typeof renderer === "function" ? renderer(name) : renderer ?? name
+            }
             </div>
             <button
                 type="Button"
@@ -78,7 +78,15 @@ SortColumnListElement.propTypes = {
     /**
      * callback function used to toggle the order of the current element
      */
-    toggleElementOrder: PropTypes.func
+    toggleElementOrder: PropTypes.func,
+
+    /**
+     * callback function used to alter the display value of the element
+     */
+    renderer: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.func
+    ])
 }
 
 export default SortColumnListElement;

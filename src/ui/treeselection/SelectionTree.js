@@ -7,7 +7,10 @@ const SelectionTree = (props) => {
         treeContent,
         selectedElements = [],
         onSelectedElementsChange,
-        valueRenderer
+        onExpandDirectory,
+        onCollapseDirectory,
+        valueRenderer,
+        singleSelect
     } = props;
 
     return (
@@ -16,13 +19,20 @@ const SelectionTree = (props) => {
             onSelectedElementsChange={onSelectedElementsChange}
         >
             {
-                renderObject(treeContent, valueRenderer)
+                renderObject(treeContent, valueRenderer, singleSelect, onExpandDirectory, onCollapseDirectory)
             }
         </Tree>
     )
 }
 
-function renderObject(treeObject, valueRenderer, path = "") {
+function renderObject(
+    treeObject,
+    valueRenderer,
+    singleSelect,
+    onExpandDirectory,
+    onCollapseDirectory,
+    path = ""
+) {
     const renderedElements = [];
 
     for(const treeElement in treeObject) {
@@ -32,13 +42,22 @@ function renderObject(treeObject, valueRenderer, path = "") {
                 <Tree.TreeNode
                     key={newPath}
                     selectionId={newPath}
-                    renderer={valueRenderer ? valueRenderer(treeElement, {
-                        isDirectory: true
-                    }) : treeElement}
+                    renderer={valueRenderer}
                     renderCheckbox
+                    singleSelect={singleSelect}
+                    forceDirectory
+                    onExpandDirectory={onExpandDirectory}
+                    onCollapseDirectory={onCollapseDirectory}
                 >
                     {
-                        renderObject(treeObject[treeElement], valueRenderer, newPath)
+                        renderObject(
+                            treeObject[treeElement],
+                            valueRenderer,
+                            singleSelect,
+                            onExpandDirectory,
+                            onCollapseDirectory,
+                            newPath
+                        )
                     }
                 </Tree.TreeNode>
             )
@@ -47,10 +66,9 @@ function renderObject(treeObject, valueRenderer, path = "") {
                 <Tree.TreeNode
                     key={newPath}
                     selectionId={newPath}
-                    renderer={valueRenderer ? valueRenderer(treeElement, {
-                        isDirectory: false
-                    }) : treeElement}
+                    renderer={valueRenderer}
                     renderCheckbox
+                    singleSelect={singleSelect}
                 />
             )
         }
@@ -74,11 +92,26 @@ SelectionTree.propTypes = {
      * callback function called on changes to selected elements
      */
     onSelectedElementsChange: PropTypes.func,
+    
+    /**
+     * callback function called on directory expand
+     */
+    onExpandDirectory: PropTypes.func,
+
+    /**
+     * callback function called on directory collapse
+     */
+    onCollapseDirectory: PropTypes.func,
 
     /**
      * rendering function for rendering tree element values
      */
-    valueRenderer: PropTypes.func
+    valueRenderer: PropTypes.func,
+
+    /**
+     * if the tree is in single select mode
+     */
+    singleSelect: PropTypes.bool
 }
 
 export default SelectionTree;

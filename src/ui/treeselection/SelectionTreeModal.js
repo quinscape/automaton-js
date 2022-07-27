@@ -13,7 +13,10 @@ const SelectionTreeModal = (props) => {
         selected,
         onSubmit,
         treeContent,
-        valueRenderer
+        onExpandDirectory,
+        onCollapseDirectory,
+        valueRenderer,
+        singleSelect
     } = props;
 
     const [selectedElements, setSelectedElements] = useState(selected);
@@ -51,6 +54,9 @@ const SelectionTreeModal = (props) => {
                         setSelectedElements(newSelectedElements)
                     }}
                     valueRenderer={valueRenderer}
+                    onExpandDirectory={onExpandDirectory}
+                    onCollapseDirectory={onCollapseDirectory}
+                    singleSelect={singleSelect}
                 />
                 <ButtonToolbar>
                     <button
@@ -119,11 +125,26 @@ SelectionTreeModal.propTypes = {
      * the elements displayed in the tree
      */
     treeContent: PropTypes.object,
+    
+    /**
+     * callback function called on directory expand
+     */
+    onExpandDirectory: PropTypes.func,
+
+    /**
+     * callback function called on directory collapse
+     */
+    onCollapseDirectory: PropTypes.func,
 
     /**
      * rendering function for rendering tree elements
      */
-    valueRenderer: PropTypes.func
+    valueRenderer: PropTypes.func,
+
+    /**
+     * if the tree is in single select mode
+     */
+    singleSelect: PropTypes.bool
 }
 
 export default SelectionTreeModal;

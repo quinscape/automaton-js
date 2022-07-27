@@ -91,7 +91,8 @@ const ConditionEditor = observer(function ConditionEditor(props) {
         className,
         options,
         formContext = FormContext.getDefault(),
-        fields,
+        valueRenderer,
+        schemaResolveFilterCallback,
         onChange,
         queryCondition: queryConditionFromProps
     } = props;
@@ -210,7 +211,7 @@ const ConditionEditor = observer(function ConditionEditor(props) {
     const nodes = [];
     const decorations = [];
 
-    renderLayoutNodes(layoutRoot, nodes, decorations, editorState, condition, editorState.conditionTree, fields);
+    renderLayoutNodes(rootType, layoutRoot, nodes, decorations, editorState, condition, editorState.conditionTree, valueRenderer, schemaResolveFilterCallback);
 
     return (
         <>
@@ -327,7 +328,7 @@ function StructuralAddButton({condition, path, editorState})
  * Creates flat React elements for the hierarchical component tree and adds them either to "nodes" which are normal
  * relative-absolute positioned HTML content and decorations which are SVG elements
  */
-export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, conditionRoot, tree, fields)
+export function renderLayoutNodes(rootType, layoutNode, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback)
 {
     if (!layoutNode)
     {
@@ -399,11 +400,11 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
 
         if (isConditionTree)
         {
-            renderCondition(elements, layoutNode, layoutNode.data,  path, tree, conditionRoot, fields)
+            renderCondition(rootType, elements, layoutNode, layoutNode.data,  path, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
         }
         else
         {
-            renderExpression(elements, layoutNode, layoutNode.data,  path, tree, conditionRoot, fields)
+            renderExpression(rootType, elements, layoutNode, layoutNode.data,  path, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
         }
 
         nodes.push(
@@ -422,12 +423,12 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
 
     if (isStructural)
     {
-        flattenStructuralKids(layoutNode, nodes, decorations, editorState, conditionRoot, tree, fields);
+        flattenStructuralKids(rootType, layoutNode, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback);
     }
 }
 
 
-function flattenStructuralKids(node, nodes, decorations, editorState, conditionRoot, tree, fields)
+function flattenStructuralKids(rootType, node, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback)
 {
     const { children } = node;
 
@@ -436,12 +437,12 @@ function flattenStructuralKids(node, nodes, decorations, editorState, conditionR
         for (let i = 0; i < children.length; i++)
         {
             const kid = children[i];
-            renderLayoutNodes(kid, nodes, decorations, editorState, conditionRoot, tree, fields)
+            renderLayoutNodes(rootType, kid, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback)
         }
     }
 }
 
-function renderCondition(elements, layoutNode, condition, path, tree, conditionRoot, fields) {
+function renderCondition(rootType, elements, layoutNode, condition, path, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback) {
     const {type} = condition;
 
     const nodeId = ConditionEditorState.getNodeId(condition);
@@ -454,7 +455,7 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
         const unary = operands.length === 1;
         if (!unary)
         {
-            renderCondition(kids, layoutNode, operands[0], join(path, "operands.0"), tree, conditionRoot, fields)
+            renderCondition(rootType, kids, layoutNode, operands[0], join(path, "operands.0"), tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
         }
 
         kids.push(
@@ -473,7 +474,7 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
 
         for (let i = unary ? 0 : 1; i < operands.length; i++)
         {
-            renderCondition(kids, layoutNode, operands[i], join(path, "operands." + i), tree, conditionRoot, fields)
+            renderCondition(rootType, kids, layoutNode, operands[i], join(path, "operands." + i), tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
         }
 
         if (isCondition)
@@ -508,10 +509,12 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
             <FieldSelect
                 key={ nodeId }
                 layoutId={ nodeId }
-                conditionRoot={ conditionRoot }
+                rootType={ rootType }
+                conditionRoot={conditionRoot}
                 path={ path }
                 editorState={ tree.editorState }
-                fields={ fields }
+                valueRenderer={ valueRenderer }
+                schemaResolveFilterCallback={schemaResolveFilterCallback}
             />
         )
     }
@@ -604,7 +607,7 @@ function renderCondition(elements, layoutNode, condition, path, tree, conditionR
     }
 }
 
-function renderExpression(elements, layoutNode, condition, path, tree, conditionRoot, fields)
+function renderExpression(rootType, elements, layoutNode, condition, path, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
 {
     const {type} = condition;
 
@@ -616,10 +619,12 @@ function renderExpression(elements, layoutNode, condition, path, tree, condition
             <FieldSelect
                 key={ nodeId }
                 layoutId={ nodeId }
-                conditionRoot={ conditionRoot }
+                rootType={ rootType }
+                conditionRoot={conditionRoot}
                 path={ path }
                 editorState={ tree.editorState }
-                fields={ fields }
+                valueRenderer={ valueRenderer }
+                schemaResolveFilterCallback={schemaResolveFilterCallback}
             />
         )
     }

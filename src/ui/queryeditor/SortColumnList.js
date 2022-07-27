@@ -3,29 +3,58 @@ import SortColumnListElement from "./SortColumnListElement";
 import {ButtonToolbar} from "reactstrap";
 import {Icon} from "../../../../domainql-form";
 import i18n from "../../i18n";
-import SelectionListModal from "../listselector/SelectionListModal";
 import PropTypes from "prop-types";
+import { removeFromObjectAtPath, setInObjectAtPathImmutable } from "../../util/mutateObject";
+import SelectionTreeModal from "../treeselection/SelectionTreeModal";
+import { createTreeRepresentationForInputSchema, createTreeRepresentationForInputSchemaByPath } from "../../util/inputSchemaUtilities";
+
+// TODO outsource selectiontreemodal code as it is used at least 3 times
 
 const SortColumnList = (props) => {
     const {
+        rootType,
         disabled,
-        allColumns,
         sortColumns: sortColumnsFromProps,
-        onChange
+        valueRenderer,
+        onChange,
+        schemaResolveFilterCallback
     } = props;
 
     const [sortColumns, setSortColumns] = useState([]); // value, label, asc/desc ("A", "D")
     const [isModalOpen, setModalOpen] = useState(false);
+    const [columnTreeObject, setColumnTreeObject] = useState({});
 
     useEffect(() => {
         setSortColumns(sortColumnsFromProps);
     }, [sortColumnsFromProps]);
 
-    const selectableColumns = allColumns.filter((element) => {
-        return !sortColumns.some((sortColumnElement) => {
-            return sortColumnElement.name === element.name;
+    useEffect(() => {
+        setColumnTreeObject(createTreeRepresentationForInputSchema(rootType, {
+            filterCallback: schemaResolveFilterCallback
+        }));
+    }, [rootType]);
+
+    function expandDirectory(path) {
+        const directoryContents = createTreeRepresentationForInputSchemaByPath(rootType, path, {
+            filterCallback: schemaResolveFilterCallback
         });
-    })
+        const result = {};
+        if (setInObjectAtPathImmutable(columnTreeObject, path, directoryContents, result)) {
+            setColumnTreeObject(result);
+        }
+    }
+
+    function collapseDirectory(path) {
+        const result = {};
+        if (setInObjectAtPathImmutable(columnTreeObject, path, {}, result)) {
+            setColumnTreeObject(result);
+        }
+    }
+
+    const selectableColumns = structuredClone(columnTreeObject);
+    for (const column of sortColumns) {
+        removeFromObjectAtPath(selectableColumns, column.name)
+    }
 
     return (
         <>
@@ -39,6 +68,7 @@ const SortColumnList = (props) => {
                                 key={sortColumnElement.name}
                                 sortColumnElement={sortColumnElement}
                                 disabled={disabled}
+                                renderer={valueRenderer}
                                 removeElement={(element) => {
                                     if (sortColumns.includes(element)) {
                                         const index = sortColumns.indexOf(element);
@@ -87,44 +117,45 @@ const SortColumnList = (props) => {
                     }
                 </button>
             </ButtonToolbar>
-            <SelectionListModal
+            
+            <SelectionTreeModal
                 modalHeader={i18n("Select Sort Column")}
-                toggle={() => {
-                    setModalOpen(!isModalOpen);
-                }}
+                toggle={() => setModalOpen(!isModalOpen)}
                 isOpen={isModalOpen}
-                elements={selectableColumns}
-                resetOnSubmit
-                showSearch
+                valueRenderer={valueRenderer}
+                singleSelect
                 onSubmit={(elementName) => {
-                    const foundElement = allColumns.find((current) => {
-                        return current.name === elementName;
-                    });
-                    const newSortColumns = [
-                        ... sortColumns,
-                        {
-                            ...foundElement,
-                            order: "A"
-                        }
-                    ];
-                    setSortColumns(newSortColumns);
-                    onChange(newSortColumns);
+                    if (elementName.length > 0) {
+                        const newSortColumns = [
+                            ... sortColumns,
+                            {
+                                name: elementName[0],
+                                order: "A"
+                            }
+                        ];
+                        setSortColumns(newSortColumns);
+                        onChange(newSortColumns);
+                    }
                 }}
+                treeContent={selectableColumns}
+                onExpandDirectory={expandDirectory}
+                onCollapseDirectory={collapseDirectory}
             />
         </>
     )
 }
 
 SortColumnList.propTypes = {
+
+    /**
+     * the root type of the tree, used to resolve catalogs
+     */
+    rootType: PropTypes.string.isRequired,
+
     /**
      * indicates if this module is disabled
      */
     disabled: PropTypes.bool,
-
-    /**
-     * all columns available to be selected as sort columns
-     */
-    allColumns: PropTypes.arrayOf(PropTypes.object).isRequired,
 
     /**
      * optional input sort columns, if provided these will be loaded
@@ -132,9 +163,19 @@ SortColumnList.propTypes = {
     sortColumns: PropTypes.arrayOf(PropTypes.object),
 
     /**
+     * the renderer for the selection tree elements and selected columns
+     */
+    valueRenderer: PropTypes.func,
+
+    /**
      * callback function called when the sort column list changes
      */
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+
+    /**
+     * Callback to filter schema catalog resolver
+     */
+    schemaResolveFilterCallback: PropTypes.func
 }
 
 export default SortColumnList;

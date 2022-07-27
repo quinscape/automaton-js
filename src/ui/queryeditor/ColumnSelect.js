@@ -1,26 +1,52 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import TokenList from "../token/TokenList";
 import SelectionTreeModal from "../treeselection/SelectionTreeModal";
 import i18n from "../../i18n";
 import PropTypes from "prop-types";
+import { createTreeRepresentationForInputSchema, createTreeRepresentationForInputSchemaByPath } from "../../util/inputSchemaUtilities";
+import { setInObjectAtPathImmutable } from "../../util/mutateObject";
 
 const ColumnSelect = (props) => {
 
     const {
-        availableColumnTreeObject,
+        rootType,
         selectedColumns,
-        tokenListRenderer,
-        fieldSelectionTreeRenderer,
-        onChange
+        valueRenderer,
+        onChange,
+        schemaResolveFilterCallback
     } = props;
 
     const [columnSelectionModalOpen, setColumnSelectionModalOpen] = useState(false);
+    const [columnTreeObject, setColumnTreeObject] = useState({});
+
+    useEffect(() => {
+        setColumnTreeObject(createTreeRepresentationForInputSchema(rootType, {
+            filterCallback: schemaResolveFilterCallback
+        }));
+    }, [rootType]);
+
+    function expandDirectory(path) {
+        const directoryContents = createTreeRepresentationForInputSchemaByPath(rootType, path, {
+            filterCallback: schemaResolveFilterCallback
+        });
+        const result = {};
+        if (setInObjectAtPathImmutable(columnTreeObject, path, directoryContents, result)) {
+            setColumnTreeObject(result);
+        }
+    }
+
+    function collapseDirectory(path) {
+        const result = {};
+        if (setInObjectAtPathImmutable(columnTreeObject, path, {}, result)) {
+            setColumnTreeObject(result);
+        }
+    }
 
     return (
         <div className="column-select">
             <TokenList
                 tokens={selectedColumns}
-                renderer={tokenListRenderer}
+                renderer={valueRenderer}
                 onChange={onChange}
                 onEdit={() => {
                     setColumnSelectionModalOpen(true);
@@ -31,19 +57,22 @@ const ColumnSelect = (props) => {
                 toggle={() => setColumnSelectionModalOpen(!columnSelectionModalOpen)}
                 isOpen={columnSelectionModalOpen}
                 selected={selectedColumns}
-                valueRenderer={fieldSelectionTreeRenderer}
+                valueRenderer={valueRenderer}
                 onSubmit={onChange}
-                treeContent={availableColumnTreeObject}
+                treeContent={columnTreeObject}
+                onExpandDirectory={expandDirectory}
+                onCollapseDirectory={collapseDirectory}
             />
         </div>
     )
 }
 
 ColumnSelect.propTypes = {
+
     /**
-     * the tree representation of the table structure
+     * the root type of the tree, used to resolve catalogs
      */
-    availableColumnTreeObject: PropTypes.object.isRequired,
+    rootType: PropTypes.string.isRequired,
 
     /**
      * the currently selected column paths
@@ -51,47 +80,20 @@ ColumnSelect.propTypes = {
     selectedColumns: PropTypes.arrayOf(PropTypes.string),
 
     /**
-     * the renderer for the token list elements
+     * the renderer for the selection tree elements and selected columns
      */
-    tokenListRenderer: PropTypes.func,
-
-    /**
-     * the renderer for the selection tree elements
-     */
-    fieldSelectionTreeRenderer: PropTypes.func,
+    valueRenderer: PropTypes.func,
 
     /**
      * onChange callback
      * parameter: array of selected column paths
      */
-    onChange: PropTypes.func
-}
-
-ColumnSelect.propTypes = {
-    /**
-     * the tree representation of all columns available for selection
-     */
-    availableColumnTreeObject: PropTypes.object,
+    onChange: PropTypes.func,
 
     /**
-     * list of all currently selected columns
+     * Callback to filter schema catalog resolver
      */
-    selectedColumns: PropTypes.arrayOf(PropTypes.string),
-
-    /**
-     * rendering function for rendering token list elements
-     */
-    tokenListRenderer: PropTypes.func,
-
-    /**
-     * rendering function for rendering selection tree elements
-     */
-    fieldSelectionTreeRenderer: PropTypes.func,
-
-    /**
-     * callback function called on changes to the selected elements
-     */
-    onChange: PropTypes.func
+    schemaResolveFilterCallback: PropTypes.func
 }
 
 export default ColumnSelect;
