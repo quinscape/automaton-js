@@ -95,7 +95,6 @@ function recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, fie
             continue;
         }
         if (unwrappedKind === "SCALAR") {
-            // console.log(`add field "${fieldName}"`);
             result[fieldName] = true;
         } else if (unwrappedKind === "OBJECT") {
             if (!splitPath.includes(unwrappedName)) {
