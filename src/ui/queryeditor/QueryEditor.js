@@ -9,6 +9,7 @@ import {FormContext, Icon} from "domainql-form";
 import {ButtonToolbar} from "reactstrap";
 import ColumnSelect from "./ColumnSelect";
 import PropTypes from "prop-types";
+import { createTreeRepresentationForInputSchema } from "../../util/inputSchemaUtilities";
 
 const ORIGINS = {
     CONDITION_EDITOR_FIELD_SELECTION: "ConditionEditorFieldSelection",
@@ -20,27 +21,37 @@ const QueryEditor = (props) => {
     const {
         header,
         columnNameRenderer,
-        availableColumnTreeObject,
         formContext = FormContext.getDefault(),
         rootType,
         saveButtonText,
         saveButtonOnClick,
         queryConfiguration,
+        schemaResolveFilterCallback,
         className
     } = props;
 
-    const availableColumnList = Object.keys(flattenObject(availableColumnTreeObject)).map((element) => {
-        return {
-            name: element,
-            label: columnNameRenderer ? columnNameRenderer(element, {
-                origin: ORIGINS.CONDITION_EDITOR_FIELD_SELECTION
-            }) : element
-        }
-    });
-
     // scope
-    const conditionEditorScope = useMemo(() => {
-        return new ConditionEditorScope(rootType);
+    const [
+        conditionEditorScope,
+        availableColumnTreeObject,
+        availableColumnList
+    ] = useMemo(() => {
+        const availableColumnTreeObject = createTreeRepresentationForInputSchema(rootType, {
+            filterCallback: schemaResolveFilterCallback
+        });
+        const availableColumnList = Object.keys(flattenObject(availableColumnTreeObject)).map((element) => {
+            return {
+                name: element,
+                label: columnNameRenderer ? columnNameRenderer(element, {
+                    origin: ORIGINS.CONDITION_EDITOR_FIELD_SELECTION
+                }) : element
+            }
+        });
+        return [
+            new ConditionEditorScope(rootType),
+            availableColumnTreeObject,
+            availableColumnList
+        ];
     }, [rootType]);
 
     // data states
@@ -63,21 +74,6 @@ const QueryEditor = (props) => {
         }) ?? []);
     }, [queryConfiguration]);
 
-    // renderers
-    const tokenListRenderer = columnNameRenderer ? (value, options = {}) => {
-        return columnNameRenderer(value, {
-            ... options,
-            origin: ORIGINS.FIELD_SELECTION_TOKEN_LIST
-        });
-    } : null;
-
-    const fieldSelectionTreeRenderer = columnNameRenderer ? (value, options = {}) => {
-        return columnNameRenderer(value, {
-            ... options,
-            origin: ORIGINS.FIELD_SELECTION_TREE
-        });
-    } : null;
-
     return (
         <div className={cx("query-editor", className)}>
             <div className="card">
@@ -94,13 +90,13 @@ const QueryEditor = (props) => {
                 </div>
                 <div className="card-body">
                     <ColumnSelect
-                        availableColumnTreeObject={availableColumnTreeObject}
+                        rootType={rootType}
                         selectedColumns={selectedColumns}
-                        tokenListRenderer={tokenListRenderer}
-                        fieldSelectionTreeRenderer={fieldSelectionTreeRenderer}
+                        valueRenderer={columnNameRenderer}
                         onChange={(tokenList) => {
                             setSelectedColumns(tokenList);
                         }}
+                        schemaResolveFilterCallback={schemaResolveFilterCallback}
                     />
                 </div>
                 <div className="card-body border-top">
@@ -108,21 +104,24 @@ const QueryEditor = (props) => {
                         rootType={conditionEditorScope.rootType}
                         container={conditionEditorScope}
                         path="condition"
-                        fields={availableColumnList}
+                        valueRenderer={columnNameRenderer}
                         formContext={formContext}
                         queryCondition={queryCondition}
                         onChange={(queryCondition) => {
                             setQueryCondition(queryCondition);
                         }}
+                        schemaResolveFilterCallback={schemaResolveFilterCallback}
                     />
                 </div>
                 <div className="card-body border-top">
                     <SortColumnList
-                        allColumns={availableColumnList}
+                        rootType={rootType}
+                        valueRenderer={columnNameRenderer}
                         sortColumns={sortColumns}
                         onChange={(sortColumnList) => {
                             setSortColumns(sortColumnList);
                         }}
+                        schemaResolveFilterCallback={schemaResolveFilterCallback}
                     />
                 </div>
                 <div className="card-footer">
@@ -189,7 +188,7 @@ QueryEditor.propTypes = {
     /**
      * root type used by the condition editor
      */
-    rootType: PropTypes.string,
+    rootType: PropTypes.string.isRequired,
 
     /**
      * the text / elements to be displayed inside the save button
@@ -206,6 +205,11 @@ QueryEditor.propTypes = {
      * optional input query configuration, if provided this will be loaded into the query editor
      */
     queryConfiguration: PropTypes.object,
+
+    /**
+     * Callback to filter schema catalog resolver
+     */
+    schemaResolveFilterCallback: PropTypes.func,
 
     /**
      * optional additional classes to be given to the wrapping div, mostly for styling

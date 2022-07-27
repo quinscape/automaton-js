@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite";
 import get from "lodash.get";
 import toPath from "lodash.topath";
@@ -7,9 +7,10 @@ import { join } from "./condition-layout";
 import i18n from "../../i18n"
 import { lookupType } from "../../util/type-utils";
 import { Type } from "../../FilterDSL";
-import SelectionListModal from "../listselector/SelectionListModal";
 import cx from "classnames";
-import FkSelectorModal from "../FkSelectorModal";
+import SelectionTreeModal from "../treeselection/SelectionTreeModal";
+import { createTreeRepresentationForInputSchema, createTreeRepresentationForInputSchemaByPath } from "../../util/inputSchemaUtilities";
+import { setInObjectAtPathImmutable } from "../../util/mutateObject";
 
 
 function getOperandsFromParent(conditionRoot, path)
@@ -24,11 +25,12 @@ const FieldSelect = observer((props) => {
 
     const {
         layoutId,
+        rootType,
         conditionRoot,
         path,
         editorState,
-        fields,
-        renderer
+        valueRenderer,
+        schemaResolveFilterCallback
     } = props;
 
     const formConfig = useFormConfig();
@@ -40,10 +42,30 @@ const FieldSelect = observer((props) => {
 
     const { opts } = editorState;
 
-    const [isFieldSelectListModalOpen, setIsFieldSelectListModalOpen] = useState(false);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [columnTreeObject, setColumnTreeObject] = useState({});
 
-    const toggleFieldSelectListModal = () => {
-        setIsFieldSelectListModalOpen(!isFieldSelectListModalOpen);
+    useEffect(() => {
+        setColumnTreeObject(createTreeRepresentationForInputSchema(rootType, {
+            filterCallback: schemaResolveFilterCallback
+        }));
+    }, [rootType]);
+
+    function expandDirectory(path) {
+        const directoryContents = createTreeRepresentationForInputSchemaByPath(rootType, path, {
+            filterCallback: schemaResolveFilterCallback
+        });
+        const result = {};
+        if (setInObjectAtPathImmutable(columnTreeObject, path, directoryContents, result)) {
+            setColumnTreeObject(result);
+        }
+    }
+
+    function collapseDirectory(path) {
+        const result = {};
+        if (setInObjectAtPathImmutable(columnTreeObject, path, {}, result)) {
+            setColumnTreeObject(result);
+        }
     }
 
     const validatePath = (fieldContext, value) => {
@@ -185,7 +207,7 @@ const FieldSelect = observer((props) => {
                         type="button"
                         className="btn btn-light border"
                         onClick={() => {
-                            toggleFieldSelectListModal();
+                            setModalOpen(true);
                         }}
                     >
                         &hellip;
@@ -244,7 +266,11 @@ const FieldSelect = observer((props) => {
                                             type="text"
                                             placeholder={ placeholder }
                                             title={ tooltip }
-                                            value={ selectedElement }
+                                            value={
+                                                typeof valueRenderer === "function" ?
+                                                    valueRenderer(selectedElement) :
+                                                    selectedElement
+                                            }
                                             onKeyPress={ handleKeyPress }
                                             onChange={ (event) => {
                                                 const value = event.target.value;
@@ -256,16 +282,23 @@ const FieldSelect = observer((props) => {
                                         addons
                                     )
                                 }
-                                <SelectionListModal
+            
+                                <SelectionTreeModal
                                     modalHeader={i18n("Select Field")}
-                                    listHeader="Kuhbar"
-                                    toggle={toggleFieldSelectListModal}
-                                    isOpen={isFieldSelectListModalOpen}
-                                    elements={fields}
-                                    renderer={renderer}
-                                    selected={selectedElement}
-                                    showSearch
-                                    onSubmit={onFieldSelectListModalSubmit}
+                                    toggle={() => setModalOpen(!isModalOpen)}
+                                    isOpen={isModalOpen}
+                                    valueRenderer={valueRenderer}
+                                    singleSelect
+                                    onSubmit={(elementName) => {
+                                        if (elementName.length > 0) {
+                                            onFieldSelectListModalSubmit(elementName[0]);
+                                        } else {
+                                            onFieldSelectListModalSubmit();
+                                        }
+                                    }}
+                                    treeContent={columnTreeObject}
+                                    onExpandDirectory={expandDirectory}
+                                    onCollapseDirectory={collapseDirectory}
                                 />
                             </FormGroup>
                         );

@@ -16,14 +16,18 @@ const TreeNode = React.forwardRef((props, ref) => {
         selectionId,
         renderer,
         renderCheckbox,
+        singleSelect = false,
         initiallyCollapsed = true,
+        forceDirectory,
+        onExpandDirectory,
+        onCollapseDirectory,
         children
     } = props;
 
     const ctx = useContext(TreeContext);
 
     const isSelected = ctx.selected === selectionId;
-    const isDirectory = children && children.length > 0;
+    const isDirectory = forceDirectory || children && children.length > 0;
 
     const [collapsed, setCollapsed] = useState(initiallyCollapsed);
 
@@ -55,7 +59,15 @@ const TreeNode = React.forwardRef((props, ref) => {
                             }
                             onClick={
                                 () => {
-                                    setCollapsed(!collapsed);
+                                    const newCollapsedState = !collapsed;
+                                    if (!newCollapsedState) {
+                                        if (typeof onExpandDirectory === "function") {
+                                            onExpandDirectory(selectionId);
+                                        }
+                                    } else if (typeof onCollapseDirectory === "function") {
+                                        onCollapseDirectory(selectionId,);
+                                    }
+                                    setCollapsed(newCollapsedState);
                                 }
                             }
                         >
@@ -65,16 +77,16 @@ const TreeNode = React.forwardRef((props, ref) => {
                 }
                 <label className="d-flex align-content-center">
                     {
-                        renderCheckbox && (!children || children.length < 1) && (
+                        renderCheckbox && !isDirectory && (
                             <input
                                 type="checkbox"
                                 className="mr-2"
                                 checked={ctx.selectionList.includes(selectionId)}
                                 onChange={(event) => {
                                     if (event.target.checked) {
-                                        ctx.checkItem(selectionId);
+                                        ctx.checkItem(selectionId, singleSelect);
                                     } else {
-                                        ctx.uncheckItem(selectionId);
+                                        ctx.uncheckItem(selectionId, singleSelect);
                                     }
                                 }}
                             />
@@ -82,6 +94,7 @@ const TreeNode = React.forwardRef((props, ref) => {
                     }
                     {
                         typeof renderer === "function" ? renderer(selectionId, {
+                            isTree: true,
                             isDirectory
                         }) : renderer ?? selectionId
                     }
@@ -91,7 +104,13 @@ const TreeNode = React.forwardRef((props, ref) => {
                 isDirectory && !collapsed && (
                     <ul className="d-block ml-4">
                         {
-                            children
+                            children.length > 0 ? children : (
+                                <li className="text-muted">
+                                    {
+                                        i18n("No Elements")
+                                    }
+                                </li>
+                            )
                         }
                     </ul>
                 )

@@ -239,20 +239,27 @@ const Tree = (props) => {
                     );
                 },
 
-                checkItem: selectionId => {
+                checkItem: (selectionId, singleSelect = false) => {
                     if (!selectionList.includes(selectionId)) {
-                        const newSelectionList = [
-                            ... selectionList,
-                            selectionId
-                        ];
-
-                        setSelectionList(newSelectionList);
-                        onSelectedElementsChange(newSelectionList);
+                        if (singleSelect) {
+                            const newSelectionList = [selectionId];
+                            
+                            setSelectionList(newSelectionList);
+                            onSelectedElementsChange(newSelectionList);
+                        } else {
+                            const newSelectionList = [
+                                ... selectionList,
+                                selectionId
+                            ];
+    
+                            setSelectionList(newSelectionList);
+                            onSelectedElementsChange(newSelectionList);
+                        }
                     }
                 },
 
-                uncheckItem: selectionId => {
-                    if (selectionList.includes(selectionId)) {
+                uncheckItem: (selectionId, singleSelect = false) => {
+                    if (!singleSelect && selectionList.includes(selectionId)) {
                         const index = selectionList.indexOf(selectionId);
                         const newSelectionList = [
                             ... selectionList.slice(0, index),
