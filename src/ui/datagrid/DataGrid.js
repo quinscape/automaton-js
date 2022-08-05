@@ -297,7 +297,8 @@ const DataGrid = fnObserver(props => {
         setRecords(result);
     }, [
         rows,
-        workingSet?.newObjects(type)
+        workingSet?.newObjects(type),
+        workingSet?.changes
     ]);
 
     const [sourceRow, setSourceRow] = React.useState();

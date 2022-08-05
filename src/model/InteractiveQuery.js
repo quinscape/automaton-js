@@ -29,6 +29,14 @@ export function getFirstValue(m)
     return null;
 }
 
+function resolveBatchExecuteQueryEntry(entry) {
+    if (entry instanceof InteractiveQuery) {
+        return {query: entry};
+    } else {
+        return entry;
+    }
+}
+
 const updateFromResult = action("Update iQuery from Result", (iQuery, result) => {
     const value = getFirstValue(result);
 
@@ -180,6 +188,124 @@ export default class InteractiveQuery {
             .then(
                 result => updateFromResult(this, result)
             );
+    }
+
+    /**
+     * Batch execute InteractiveQuery requests and write the results back into the respective InteractiveQuery.
+     * If only a single InteractiveQuery is given, it will simply be executed like normal.
+     * If no InteractiveQuery is given this will just return a Promise with an empty object.
+     * 
+     * @param {Object} queries all queries to be batch executed and the config override
+     * @param {InteractiveQuery} queries[].query the query to be executed
+     * @param {QueryConfiguration} [queries[].config] the config override
+     * @param {boolean} [queries[].forceOverwriteCondition] if the condition should be completely overwritten or merged
+     * @returns {Promise<Object.<string, InteractiveQuery>>} the queries in an object with "iq"+index as key
+     */
+    @action
+    static updateAll(...queries) {
+        const names = [];
+        const params = [];
+        const queryDefinitions = [];
+        const queryConfigs = {};
+
+        if (queries.length === 0) {
+            Promise.resolve({});
+        } else if (queries.length === 1) {
+            const entry = queries[0];
+            const {query, config, forceOverwriteCondition = false} = resolveBatchExecuteQueryEntry(entry);
+            // set config
+            if (config != null) {
+                if (config.condition != null && !forceOverwriteCondition) {
+                    const newCondition = updateComponentCondition(
+                        query.queryConfig.condition,
+                        config.condition,
+                        NO_COMPONENT,
+                        true
+                    )
+                    queryConfigs["config"] = {
+                        ... query.queryConfig,
+                        ... config,
+                        condition: newCondition
+                    };
+                } else {
+                    queryConfigs["config"] = {
+                        ... query.queryConfig,
+                        ... config
+                    };
+                }
+            } else {
+                queryConfigs["config"] = config;
+            }
+            
+            return query._query.execute(queryConfigs).then(
+                (result) => {
+                    updateFromResult(query, result);
+                    return {
+                        iq1: query
+                    };
+                }
+            );
+        } else {
+            for (const entry of queries) {
+                const {query, config, forceOverwriteCondition = false} = resolveBatchExecuteQueryEntry(entry);
+                const paramName = `config${params.length + 1}`;
+                params.push(`$${paramName}: QueryConfigInput!`);
+                // get query definition
+                const rawQuery = query._query.query;
+                const rawQueryLines = rawQuery.split("\n");
+                const newQueryLines = rawQueryLines.slice(2, -1);
+                const newQuery = newQueryLines.join("\n").replace("$config", `$${paramName}`);
+                // get name
+                const name = /\s*(?:iQuery)?([^(]+)\(/.exec(newQueryLines[0])[1];
+                names.push(name);
+                queryDefinitions.push(newQuery);
+                // set config
+                if (config != null) {
+                    if (config.condition != null && !forceOverwriteCondition) {
+                        const newCondition = updateComponentCondition(
+                            query.queryConfig.condition,
+                            config.condition,
+                            NO_COMPONENT,
+                            true
+                        )
+                        queryConfigs[paramName] = {
+                            ... query.queryConfig,
+                            ... config,
+                            condition: newCondition
+                        };
+                    } else {
+                        queryConfigs[paramName] = {
+                            ... query.queryConfig,
+                            ... config
+                        };
+                    }
+                } else {
+                    queryConfigs[paramName] = query.queryConfig;
+                }
+            }
+            // create concatenated query
+            const queryDefinition = `query CQ_${names.join("_")}(${params.join(", ")})
+            {
+                ${queryDefinitions.map((value, index) => {
+                    return `iq${index + 1}: ${value.trim()}`
+                }).join(",\n")}
+            }`;
+            
+            const concatQuery = new GraphQLQuery(queryDefinition, queryConfigs);
+            return concatQuery.execute(queryConfigs).then(
+                (result) => {
+                    // split result and write to respective queries
+                    let res = {};
+                    let count = 1;
+                    for (const iQuery of queries) {
+                        const queryAlias = `iq${count++}`;
+                        const queryResult = result[queryAlias];
+                        res[queryAlias] = updateFromResult(iQuery.query, {queryResult});
+                    }
+                    return res;
+                }
+            );
+        }
     }
 
 
