@@ -208,7 +208,6 @@ export default class InteractiveQuery {
         const queryDefinitions = [];
         const queryConfigs = {};
 
-        // TODO on single query just execute it with the given config
         if (queries.length === 0) {
             Promise.resolve({});
         } else if (queries.length === 1) {
@@ -237,7 +236,7 @@ export default class InteractiveQuery {
             } else {
                 queryConfigs["config"] = config;
             }
-            // execute query
+            
             return query._query.execute(queryConfigs).then(
                 (result) => {
                     updateFromResult(query, result);
@@ -291,7 +290,7 @@ export default class InteractiveQuery {
                     return `iq${index + 1}: ${value.trim()}`
                 }).join(",\n")}
             }`;
-            // execute query
+            
             const concatQuery = new GraphQLQuery(queryDefinition, queryConfigs);
             return concatQuery.execute(queryConfigs).then(
                 (result) => {
