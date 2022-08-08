@@ -16,7 +16,11 @@ const NOT_REGISTERED = 4100;
 
 function createWebSocket(cid, resolve, reject)
 {
-    const url = "ws://" + location.hostname + (location.port ? ":" + location.port : "") + config.contextPath + "/automaton-ws?cid="+ cid;
+    const origin = location.origin.replace(/^http/, "ws");
+    const pathname = `/${config.contextPath}/automaton-ws`.replace(/\/\//g, "/");
+    const search = `?cid=${cid}`;
+
+    const url = `${origin}${pathname}${search}`;
     const webSocket = new WebSocket(url);
 
     webSocket.onopen = function () {
