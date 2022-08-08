@@ -9,7 +9,7 @@ const HeaderRow = ({
     moveRowColumn
 }) => {
     return (
-        <tr className="headers">
+        <tr className="data-grid-row headers">
             {
                 columns.map(
                     (column, columnIdx) => {
