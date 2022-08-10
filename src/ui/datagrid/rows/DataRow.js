@@ -1,8 +1,7 @@
-import React, { useMemo } from "react"
+import React from "react"
 import cx from "classnames"
 import { useDrag, useDrop } from "react-dnd"
-import PropTypes from "prop-types"
-import { Icon } from "domainql-form";
+import { Icon, useFormConfig } from "domainql-form";
 
 const DataRow = ({
     idx,
@@ -13,6 +12,10 @@ const DataRow = ({
     dropRow,
     className
 }) => {
+
+    const formConfig = useFormConfig();
+    const rowErrors = formConfig.formContext.getErrorsForRoot(context);
+    const isInvalid = rowErrors?.length > 0 ?? false;
 
     const dropRef = React.useRef(null)
     const dragRef = React.useRef(null)
@@ -50,7 +53,14 @@ const DataRow = ({
 
     return (
         <tr
-            className={ cx(className, moveRowColumn != null && "draggable", isDragging && "dragging", isOver && "dragover") }
+            className={ cx(
+                "data-grid-row data-row",
+                className,
+                moveRowColumn != null && "draggable",
+                isDragging && "dragging",
+                isOver && "dragover",
+                isInvalid && "is-invalid"
+            ) }
             ref={!!moveRow && dropRef}
             data-idx={ idx }
         >

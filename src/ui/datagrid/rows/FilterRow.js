@@ -7,7 +7,6 @@ import DateRangeField from "../../form/date/DateRangeField";
 import {getCustomFilterRenderer} from "../../../util/filter/CustomFilterRenderer";
 import PropTypes from "prop-types";
 
-
 const BOOLEAN_VALUES = [
     {
         name : i18n("Boolean:False"),
@@ -24,8 +23,6 @@ const FilterRow = fnObserver(props => {
     const { columns, moveRowColumn } = props;
 
     const filterState = useContext(FilterContext);
-
-    //console.log("FilterRow", {filterState});
 
     if (filterState.filters.length === 0)
     {
@@ -132,7 +129,7 @@ const FilterRow = fnObserver(props => {
     );
 
     return (
-        <tr className="filter">
+        <tr className="data-grid-row filter">
             {
                 filterColumnElements
             }

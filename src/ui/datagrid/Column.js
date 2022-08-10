@@ -2,12 +2,9 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react"
 import get from "lodash.get"
 import cx from "classnames"
-import { GlobalConfig } from "domainql-form"
+import { GlobalConfig, useFormConfig } from "domainql-form"
 import { observer as fnObserver } from "mobx-react-lite"
 import { lookupType, unwrapNonNull } from "../../util/type-utils";
-
-
-
 
 /**
  * DataGrid column component
@@ -15,6 +12,11 @@ import { lookupType, unwrapNonNull } from "../../util/type-utils";
 const Column = fnObserver(props => {
 
     const { name, context, width, minWidth, maxWidth, nobreak, className, children} = props;
+
+    const formConfig = useFormConfig();
+    const rowErrors = formConfig.formContext.getErrorsForRoot(context);
+    const fieldError = formConfig.formContext.findError(context, name);
+    const isInvalid = fieldError?.length > 0 ?? false;
 
     const scalarType = useMemo(
         () => {
@@ -38,13 +40,15 @@ const Column = fnObserver(props => {
 
     if (typeof children === "function")
     {
-        const result = children(context);
-
-        //console.log("FN-RESULT", result);
+        const result = children(context, {fieldError, rowErrors});
 
         return (
             <td
-                className={ effectiveClass }
+                className={cx(
+                    "data-grid-cell",
+                    effectiveClass,
+                    isInvalid && "is-invalid"
+                )}
                 style={ { width, minWidth, maxWidth } }
             >
                 {
@@ -70,10 +74,8 @@ const Column = fnObserver(props => {
             "Either use <DataGrid.Column name=\"field\" ... /> or <DataGrid.Column>{ row => (...) }</DataGrid.Column>)"
         )
     }
-
-    //console.log("context[name] = ", context[name]);
-
-    const value = get(context, name);
+    
+    const value = isInvalid ? fieldError[0] : get(context, name);
 
     const renderedValue = value === null || value === undefined || value === "" ?
         GlobalConfig.none() :
@@ -81,11 +83,18 @@ const Column = fnObserver(props => {
 
     return (
         <td
-            className={ effectiveClass }
+            className={cx(
+                "data-grid-cell",
+                effectiveClass,
+                isInvalid && "is-invalid"
+            )}
             style={ { width, minWidth, maxWidth } }
         >
             <p
-                className={ cx("form-control-plaintext", nobreak && "nobreak") }
+                className={cx(
+                    "form-control-plaintext",
+                    nobreak && "nobreak")
+                }
                 title={ nobreak && renderedValue }
             >
                 { renderedValue }
