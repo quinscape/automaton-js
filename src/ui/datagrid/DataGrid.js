@@ -22,6 +22,7 @@ import { getCustomFilter } from "../../util/filter/CustomFilter";
 import OfflineQuery from "../../model/OfflineQuery";
 import UserColumnConfigDialogModal from "./userconfig/UserColumnConfigDialogModal";
 import DataGridButtonToolbar from "./DataGridButtonToolbar";
+import useEffectNoInitial from "../../util/useEffectNoInitial"
 
 
 function findColumn(columnStates, name)
@@ -96,7 +97,42 @@ const DataGrid = fnObserver(props => {
         return [false, value];
     }, [value]);
 
-    const { type, columnStates } = internalQuery;
+    const { type, columnStates, rows, queryConfig } = internalQuery;
+
+    /* BEGIN: update query related userConfig */
+    useEffect(() => {
+        const newQueryConfig = {};
+        if (typeof sortColumn === "string") {
+            newQueryConfig.sortFields = [sortColumn]
+        }
+        if (typeof paginationSize === "number") {
+            newQueryConfig.pageSize = paginationSize
+        }
+        if (Object.keys(newQueryConfig).length > 0) {
+            internalQuery.update(newQueryConfig);
+        }
+    }, [
+        paginationSize,
+        sortColumn
+    ]);
+
+    useEffectNoInitial(() => {
+        if (typeof onTableConfigChange === "function") {
+            const newPaginationSize = queryConfig?.pageSize;
+            const newSortColumn = queryConfig?.sortFields?.[0];
+            if (paginationSize !== newPaginationSize || sortColumn !== newSortColumn) {
+                onTableConfigChange({
+                    paginationSize: queryConfig?.pageSize,
+                    sortColumn: queryConfig?.sortFields?.[0],
+                    visibleColumns
+                });
+            }
+        }
+    }, [
+        queryConfig?.sortFields,
+        queryConfig?.pageSize
+    ]);
+    /* END: update query related userConfig */
 
     const columnStatesInput = useObservableInput(
         () => {
@@ -245,8 +281,6 @@ const DataGrid = fnObserver(props => {
         },
         [ type, columnStatesInput, visibleColumns ]
     );
-
-    const { rows, queryConfig } = internalQuery;
 
     const fieldResolver = useMemo(
         () => new FieldResolver(),
@@ -415,11 +449,13 @@ const DataGrid = fnObserver(props => {
                                     activeElements={currentVisibleColumns}
                                     inactiveElements={nonVisibleColumns}
                                     onSubmit={(newVisibleColumns) => {
-                                        onTableConfigChange({
-                                            paginationSize,
-                                            sortColumn,
-                                            visibleColumns: newVisibleColumns.map((element) => element.name)
-                                        });
+                                        if (typeof onTableConfigChange === "function") {
+                                            onTableConfigChange({
+                                                paginationSize,
+                                                sortColumn,
+                                                visibleColumns: newVisibleColumns.map((element) => element.name)
+                                            });
+                                        }
                                     }}
                                 />
                             </>
