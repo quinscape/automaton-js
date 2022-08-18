@@ -1,8 +1,8 @@
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import PropTypes from "prop-types"
 import { ButtonToolbar, ListGroup, ListGroupItem } from "reactstrap"
 import { FieldMode, FormGroup, useFormConfig, Icon } from "domainql-form"
-import { action, observable } from "mobx";
+import { action } from "mobx";
 import { observer as fnObserver, useLocalObservable } from "mobx-react-lite";
 import toPath from "lodash.topath"
 import get from "lodash.get"
@@ -18,7 +18,69 @@ import { getGenericType, INTERACTIVE_QUERY } from "../domain";
 import AssociationSelectorModal from "./AssociationSelectorModal";
 import autoSubmitHack from "../util/autoSubmitHack";
 import { and, Condition, field, values } from "../FilterDSL";
-import { lookupType } from "../util/type-utils";
+import { getGraphQLMethodType, lookupType, unwrapNonNull } from "../util/type-utils";
+
+
+export const NO_SEARCH_FILTER = "NO_SEARCH_FILTER";
+/**
+ * Filter Mode: Do not offer a column filter by default.
+ */
+export const NO_FILTER = "NO_FILTER";
+/**
+ * Filter Mode: Offer a column filter even if a search filter is defined (with the searchFilter prop).
+ */
+export const COLUMN_FILTER = "COLUMN_FILTER";
+
+/**
+ * Creates a filter condition for the given type, searchFilter prop and search term
+ *
+ * @param {String} type                     GraphQL base type
+ * @param {function|String}searchFilter    searchFilter prop
+ * @param {String} searchTerm               current search value
+ * @return {object} condition graph or null
+ */
+export function createSearchFilter(type, searchFilter, searchTerm)
+{
+    if (!searchFilter)
+    {
+        return null;
+    }
+
+    let condition;
+    if (typeof searchFilter === "function")
+    {
+        condition = searchFilter(searchTerm)
+    }
+    else
+    {
+        const scalarType = unwrapNonNull(lookupType(type, "rows." + searchFilter)).name;
+
+        if (scalarType === "String")
+        {
+            condition = field(searchFilter)
+                .containsIgnoreCase(
+                    value(
+                        searchTerm,
+                        scalarType
+                    )
+                );
+        }
+        else
+        {
+            condition = field(searchFilter)
+                .toString()
+                .containsIgnoreCase(
+                    value(
+                        searchTerm,
+                        scalarType
+                    )
+                );
+
+        }
+    }
+
+    return condition;
+}
 
 
 function toggleOpen(modalState)
@@ -246,10 +308,15 @@ const updateSelected = action("AssociationSelector.updateSelected", (selected, l
     selected.replace(newSelected);
 })
 
+
+let associationSelectorCounter = 0
+
 /**
  * Displays the currently associated entities of a many-to-many relationship as seen from one of the associated sides.
  */
 const AssociationSelector = fnObserver(props => {
+
+    const [associationSelectorId] = useState("associationSelector-"+ associationSelectorCounter++)
 
     const {
         name,
@@ -269,8 +336,19 @@ const AssociationSelector = fnObserver(props => {
         visibleColumns,
         alignPagination,
         paginationPageSizes,
+        searchFilter,
+        modalFilter,
         disabled
     } = props;
+
+    const queryDef = query.getQueryDefinition();
+    const aliases = queryDef.aliases;
+    const queryName = queryDef.methodCalls[0];
+    const gqlMethodName = aliases ? aliases[queryName] || queryName : queryName;
+    const iQueryType = useMemo(
+        () => getGraphQLMethodType(gqlMethodName).name,
+        [ gqlMethodName ]
+    );
 
     const [elementId] = useState("assoc-selector-" + (++associationSelectorCount));
 
@@ -436,12 +514,16 @@ const AssociationSelector = fnObserver(props => {
             </FormGroup>
             <AssociationSelectorModal
                 { ... modalState }
+                iQueryType={ iQueryType }
                 selected={ selected }
                 title={modalTitle}
                 toggle={toggle}
                 fade={fade}
+                modalFilter={ modalFilter }
+                searchFilter={ searchFilter }
                 alignPagination={ alignPagination }
                 paginationPageSizes={ paginationPageSizes }
+                associationSelectorId={ associationSelectorId }
             />
         </React.Fragment>
     )
@@ -541,6 +623,20 @@ AssociationSelector.propTypes = {
         PropTypes.bool,
         PropTypes.func
     ]),
+
+    /**
+     * Field name or function returning a filter expression used to allow and
+     * validate text-input changes of the selected value.
+     *
+     * The field or filter must match exactly one element from the current `query`.
+     *
+     * (Function must be of the form `value => ...` and must return a Filter DSL condition.)
+     *
+     */
+    searchFilter: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.func
+    ]),
     
     /**
      * set the pagination alignment of the datagrid in the modal ("left" [default], "center", "right")
@@ -550,7 +646,30 @@ AssociationSelector.propTypes = {
     /**
      * set the available page sizes for the datagrid pagination
      */
-    paginationPageSizes: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
+    paginationPageSizes: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
+
+    /**
+     * Field name or function returning a filter expression used to allow and
+     * validate text-input changes of the selected value.
+     *
+     * The field or filter must match exactly one element from the current `query`.
+     *
+     * (Function must be of the form `value => ...` and must return a Filter DSL condition.)
+     *
+     */
+     searchFilter: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.func
+    ]),
+
+    /**
+     * Filter mode for the selector modal. Controls display of column and repeated search filter in interaction with the searchFilter prop,
+     */
+    modalFilter: PropTypes.oneOf([
+        NO_SEARCH_FILTER,
+        NO_FILTER,
+        COLUMN_FILTER
+    ]),
 
 };
 
