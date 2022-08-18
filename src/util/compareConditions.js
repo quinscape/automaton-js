@@ -61,6 +61,36 @@ export default function compareConditions( a, b, compareValueNodes = false)
             }
             return a.scalarType === b.scalarType && a.value === b.value;
         }
+        else if (type === Type.VALUES)
+        {
+            if (!compareValueNodes)
+            {
+                // all value nodes are equal
+                return true;
+            }
+
+            if (a.scalarType !== b.scalarType) {
+                return false;
+            }
+
+            const { values : valuesA } = a;
+            const { values : valuesB } = b;
+
+            if (valuesA.length !== valuesB.length)
+            {
+                return false;
+            }
+
+            for (let i = 0; i < valuesA.length; i++)
+            {
+                if (valuesA[i] !== valuesB[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
         else
         {
             throw new Error("Unhandled condition node: " + JSON.stringify(a))
