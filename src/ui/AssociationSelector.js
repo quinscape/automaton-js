@@ -18,7 +18,7 @@ import { getGenericType, INTERACTIVE_QUERY } from "../domain";
 import AssociationSelectorModal from "./AssociationSelectorModal";
 import autoSubmitHack from "../util/autoSubmitHack";
 import { and, Condition, field, values } from "../FilterDSL";
-import { getGraphQLMethodType, lookupType, unwrapNonNull } from "../util/type-utils";
+import { getGraphQLMethodType, lookupType, unwrapAll, unwrapNonNull } from "../util/type-utils";
 
 
 export const NO_SEARCH_FILTER = "NO_SEARCH_FILTER";
@@ -410,10 +410,13 @@ const AssociationSelector = fnObserver(props => {
                     updateSelected(selected, links, valuePath);
 
                     const selectedBefore = new Set(selected);
+                    
+                    const columnTypes = columns.map(({name}) => unwrapAll(lookupType(iQuery.type, name)).name)
 
                     setModalState({
                         iQuery,
                         columns,
+                        columnTypes,
                         isOpen: true,
                         valuePath,
                         selectedBefore,
@@ -470,8 +473,6 @@ const AssociationSelector = fnObserver(props => {
                 >
                     {
                         links.map((link,idx) => {
-
-                            //console.log({link: toJS(link), display});
 
                             return (
                                 <ListGroupItem

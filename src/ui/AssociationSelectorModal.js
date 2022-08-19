@@ -27,6 +27,7 @@ const AssociationSelectorModal = fnObserver(props => {
         iQuery,
         iQueryType,
         columns,
+        columnTypes,
         title,
         toggle,
         fade,
