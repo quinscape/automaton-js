@@ -11,6 +11,7 @@ import React from "react";
 import searchParams from "../util/searchParams";
 import i18n from "../i18n"
 import {FormContext} from "domainql-form";
+import { formatGraphQLErrors } from "../graphql"
 
 const NUMBER_RE = /^-?[0-9]{1-15}$/;
 
@@ -151,13 +152,28 @@ export default function runProcess(processName, input) {
 
     return fetchProcessInjections(config.appName, processName, input)
         .then(
-            ({input, injections}) =>
-                renderProcess(
+            ({data,errors}) => {
+                if (!data)
+                {
+                    if (errors.find(e => e.message === "SESSION_EXPIRED"))
+                    {
+                        alert(
+                            i18n("Session Expired Message")
+                        )
+                    }
+                    else
+                    {
+                        console.error("PROCESS ERROR", formatGraphQLErrors(errors))
+                    }
+                }
+
+                return renderProcess(
                     processName,
-                    input,
-                    injections
-            )
-        , err => <ErrorView title="Error running Process" info={ err } />)
+                    data.input,
+                    data.injections
+                )
+            }
+            , err => <ErrorView title="Error running Process" info={ err } />)
         .then(elem => render(elem))
         .catch(err => console.error("ERROR RUNNING PROCESS", err))
 }

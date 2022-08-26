@@ -19,6 +19,7 @@ import StickySizesContext from "../ui/sticky/StickySizesContext";
 import WorkingSet from "../WorkingSet"
 import { getGraphQLMethodType } from "../util/type-utils"
 import Throbber from "../ui/throbber/Throbber";
+import { formatGraphQLErrors } from "../graphql"
 
 let processImporter;
 
@@ -957,10 +958,14 @@ export function fetchProcessInjections(appName, processName, input = {})
     )
         .then(response => response.json())
         .then(
-            (data) => {
-                if (data.error)
+            ({data, errors}) => {
+                if (errors)
                 {
-                    return Promise.reject(data.error);
+                    return Promise.reject(
+                        new Error(
+                            "Error fetching process injections: " + formatGraphQLErrors(errors)
+                        )
+                    );
                 }
                 return data;
             }

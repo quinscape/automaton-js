@@ -1,5 +1,6 @@
 import config from "./config";
 import uri from "./uri";
+import { formatGraphQLErrors } from "./graphql"
 
 
 /**
@@ -34,9 +35,13 @@ export default function deleteAttachment(attachmentId)
     )
         .then(response => response.json())
         .then(result => {
-            if (!result || !result.ok)
+            if (!result || !result.data)
             {
-                return Promise.reject(new Error("Upload removal failed"));
+                return Promise.reject(
+                    new Error(
+                        "Upload removal failed:" + formatGraphQLErrors(result && result.errors)
+                    )
+                );
             }
         })
 

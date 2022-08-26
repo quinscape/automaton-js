@@ -1,5 +1,6 @@
 import config from "./config";
 import uri from "./uri";
+import { formatGraphQLErrors } from "./graphql"
 
 
 /**
@@ -48,9 +49,13 @@ export default function uploadAttachment(attachmentId, description, type, file =
     )
         .then(response => response.json())
         .then(result => {
-            if (!result || !result.ok)
+            if (!result || !result.data)
             {
-                return Promise.reject(new Error("Upload failed"));
+                return Promise.reject(
+                    new Error(
+                        "Upload failed: " + formatGraphQLErrors(result && result.errors)
+                    )
+                );
             }
         })
 }

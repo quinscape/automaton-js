@@ -4,6 +4,7 @@ import {
     set,
     runInAction
 } from "mobx"
+import { formatGraphQLErrors } from "./graphql"
 
 
 const wasCalled = {};
@@ -49,10 +50,12 @@ export function serverSync(name, scope, uri)
             )
                 .then(response => response.json())
                 .then(
-                    ({error}) => {
-                        if (error)
+                    ({errors}) => {
+                        if (errors)
                         {
-                            return Promise.reject(error);
+                            return Promise.reject(
+                                new Error("Error syncing scope: "+ formatGraphQLErrors(errors))
+                            );
                         }
                     }
                 );
