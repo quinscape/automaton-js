@@ -46,28 +46,39 @@ function convertInput(varTypes, variables)
 }
 
 
+export function formatGraphQLErrors(errors)
+{
+    if (!errors)
+    {
+        return "---";
+    }
+
+    return errors.map(
+        e => (
+            e.message +
+            ( e.path ? (
+
+            "\nPath: " +
+            e.path.join(".")
+            ) : "") +
+            " " +
+            (e.locations ? e.locations.map(
+                l =>
+            "line " +
+            l.line +
+            ", " +
+            l.column
+            ).join(", ") : "") +
+            "\n"
+        )
+    );
+}
+
+
 export function formatGraphQLError(params, errors)
 {
     return "\nQUERY ERROR:\n" + params.query.query + "\nvariables: " + JSON.stringify(params.variables, null, 4) + "\n\n" +
-           errors.map(
-               e => (
-           e.message +
-           ( e.path ? (
-
-           "\nPath: " +
-           e.path.join(".")
-               ) : "") +
-           " " +
-           (e.locations ? e.locations.map(
-               l =>
-           "line " +
-           l.line +
-           ", " +
-           l.column
-           ).join(", ") : "") +
-           "\n"
-               )
-           );
+        formatGraphQLErrors(errors);
 }
 
 const postProcessedTypes = new Map();
