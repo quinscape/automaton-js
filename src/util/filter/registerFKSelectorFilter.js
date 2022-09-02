@@ -29,11 +29,8 @@ function getScalarType(fieldSchema) {
  */
 export function registerFKSelectorFilterAndRenderer(name, query, rootType, sourceName, modalTitle, valueFieldName) {
     registerCustomFilter(name, (fieldName, row) => {
-        const fieldValue = row?.[valueFieldName];
-        if (fieldValue) {
-            return field(fieldName).eq(value(fieldValue, "String"));
-        }
-        return null;
+        const fieldValue = typeof row === "string" ? row : row?.[valueFieldName];
+        return field(fieldName).eq(value(fieldValue, "String"));
     });
 
     registerCustomFilterRenderer(name, (fieldName, fieldType, label) => {
@@ -52,7 +49,8 @@ export function registerFKSelectorFilterAndRenderer(name, query, rootType, sourc
             labelClass="sr-only"
             display={(formConfig, ctx) => {
                 const row = Field.getValue(formConfig, ctx);
-                return row?.[valueFieldName];
+                const fieldValue = typeof row === "string" ? row : row?.[valueFieldName];
+                return fieldValue;
             }}
             modalTitle={modalTitle}
             searchFilter={valueFieldName}

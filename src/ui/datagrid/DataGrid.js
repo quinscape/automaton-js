@@ -18,7 +18,7 @@ import WorkingSet, { WorkingSetStatus } from "../../WorkingSet";
 import WorkingSetStatusComponent from "./WorkingSetStatus";
 import filterTransformer, { FieldResolver } from "../../util/filterTransformer";
 import config from "../../config"
-import { getCustomFilter } from "../../util/filter/CustomFilter";
+import { getCustomFilter, getCustomGetValue } from "../../util/filter/CustomFilter";
 import OfflineQuery from "../../model/OfflineQuery";
 import UserColumnConfigDialogModal from "./userconfig/UserColumnConfigDialogModal";
 import DataGridButtonToolbar from "./DataGridButtonToolbar";
@@ -173,6 +173,7 @@ const DataGrid = fnObserver(props => {
 
                 const {name, width, minWidth, filter, heading, sort, renderFilter, children : columnChildren } = columnElem.props;
                 const transformedFilter = getCustomFilter(filter) ?? filter;
+                const getValueFn = getCustomGetValue(filter);
 
                 let typeRef = null, sortable = false, enabled = false;
                 if (name && typeof columnChildren !== "function")
@@ -224,6 +225,7 @@ const DataGrid = fnObserver(props => {
                     sortable,
                     filter: transformedFilter,
                     filterIndex: null,
+                    getValue: getValueFn,
                     enabled,
                     type: typeRef?.name,
                     heading: heading || name,
