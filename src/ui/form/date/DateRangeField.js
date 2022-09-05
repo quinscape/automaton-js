@@ -16,7 +16,16 @@ function toggleValue(open)
 
 const DateRangeField = props => {
 
-    const { minDate, maxDate, addonClass = "btn-light", autoFocus, children, dateFormat = config.dateFormat, timestampFormat = config.timestampFormat,... fieldProps} = props;
+    const {
+        minDate,
+        maxDate,
+        addonClass = "btn-light",
+        autoFocus,
+        children,
+        dateFormat = config.dateFormat,
+        timestampFormat = config.timestampFormat,
+        ... fieldProps
+    } = props;
 
     const [ isOpen, setOpen] = useState(false);
 

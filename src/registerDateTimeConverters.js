@@ -149,7 +149,7 @@ export default function registerDateTimeConverters()
             return isValid.shift() ? null : i18n("Invalid DateRange Object: Does not match {0}, {1}", dateFormat, isValid.join(", "));
         },
         (scalar, ctx) => {
-            if (!scalar) {
+            if (scalar?.[0] == null) {
                 return "";
             }
 
