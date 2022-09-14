@@ -4,7 +4,7 @@ import ReactDOM from "react-dom"
 /**
  * Renders the given React element and returns a promise that resolves when the rendering is done.
  *
- * @param {React.Element} elem      element to render
+ * @param {Element} elem      element to render
  * @param {String} [targetId]       Id attribute of the element to render into (default is our "root" element)
  * 
  * @return {Promise}  promise that resolves after the element has rendered. Exceptions happening during the ReactDOM.render call will cause a rejection of the promise.
