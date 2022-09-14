@@ -101,7 +101,7 @@ function createEnv(process)
         processName: process && process.name,
         config: config,
         state: process && process[secret].currentState,
-        scope: process && process.scope,
+        scope: process ? process.scope : {},
         process: process
     };
 }
@@ -1098,7 +1098,7 @@ export function ErrorView(props)
     const Layout = config.layout;
 
     return (
-        <Layout env={ createEnv(null) }>
+        <div className="container">
             <div className="row">
                 <div className="col">
                     <div className="alert alert-secondary">
@@ -1116,7 +1116,7 @@ export function ErrorView(props)
                     </div>
                 </div>
             </div>
-        </Layout>
+        </div>
     )
 
 }
