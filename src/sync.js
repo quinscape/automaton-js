@@ -5,6 +5,8 @@ import {
     runInAction
 } from "mobx"
 import { formatGraphQLErrors } from "./graphql"
+import createUnifiedErrors from "./util/createUnifiedErrors"
+import triggerToastsForErrors from "./util/triggerToastsForErrors"
 
 
 const wasCalled = {};
@@ -48,13 +50,26 @@ export function serverSync(name, scope, uri)
                     body: json
                 }
             )
-                .then(response => response.json())
+                .then(
+                    response => response.json(),
+                    err => {
+                        const errors = createUnifiedErrors(err.message)
+                        // do not generate toasts for failed scope syncs due to network errors
+                        return Promise.reject(
+                            new Error(
+                                "Network error during scope syncing: "+ formatGraphQLErrors(errors)
+                            )
+                        );
+                    }
+                )
                 .then(
                     ({errors}) => {
                         if (errors)
                         {
                             return Promise.reject(
-                                new Error("Error syncing scope: "+ formatGraphQLErrors(errors))
+                                new Error(
+                                    "Error syncing scope: "+ formatGraphQLErrors(errors)
+                                )
                             );
                         }
                     }

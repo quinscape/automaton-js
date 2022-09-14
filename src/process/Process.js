@@ -20,6 +20,7 @@ import WorkingSet from "../WorkingSet"
 import { getGraphQLMethodType } from "../util/type-utils"
 import Throbber from "../ui/throbber/Throbber";
 import { formatGraphQLErrors } from "../graphql"
+import triggerToastsForErrors from "../util/triggerToastsForErrors"
 
 let processImporter;
 
@@ -29,7 +30,6 @@ export function registerProcessImporter(factory)
 {
     processImporter = factory;
 }
-
 
 const secret = Symbol("ProcessSecret");
 
@@ -764,30 +764,28 @@ export class Process {
 
         // create new promise that will resolve when the sub-process ends
         return new Promise(
-            (resolve, reject) => fetchProcessInjections(config.appName, processName, input)
-                .then(
-                    injections => {
+            (resolve, reject) => {
+                fetchProcessInjections(config.appName, processName, input)
+                    .then(
+                        data => renderSubProcess(processName, input, data.injections, opts),
+                        errors => {
+                            triggerToastsForErrors(errors)
+                            return Promise.reject(new Error("Received errors fetching process injections for sub process: " + formatGraphQLErrors(errors)))
+                        }
+                    )
+                    .then(element => {
 
-                        //console.log("INJECTIONS", injections);
+                        //console.log("RENDER SUB-PROCESS VIEW", elem);
 
-                        return (
-                            renderSubProcess(processName, input, injections.injections, opts)
-                        );
-                    },
-                        err => <ErrorView title="Error starting Process" info={ err } />
-                )
-                .then(element => {
+                        currentProcess[secret].subProcessPromise = {
+                            resolve,
+                            reject
+                        }
 
-                    //console.log("RENDER SUB-PROCESS VIEW", elem);
-
-                    currentProcess[secret].subProcessPromise = {
-                        resolve,
-                        reject
-                    };
-
-                    return render(element);
-                })
-            )
+                        return render(element)
+                    })
+            }
+        )
             .then(output => {
 
                 const { nukeOnExit } = opts;
@@ -942,41 +940,42 @@ export function fetchProcessInjections(appName, processName, input = {})
     const { csrfToken } = config;
 
     return fetch(
-        window.location.origin + uri("/_auto/process/{appName}/{processName}", {
-                                   appName,
-                                   processName
-                               }),
-        {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-                "Content-Type": "text/plain",
+            window.location.origin + uri("/_auto/process/{appName}/{processName}", {
+                                       appName,
+                                       processName
+                                   }),
+            {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
 
-                // spring security enforces every POST request to carry a csrf token as either parameter or header
-                [csrfToken.header]: csrfToken.value
-            },
-            body: JSON.stringify(input)
-        }
-    )
-        .then(response => response.json())
-        .then(
-            ({data, errors}) => {
-                if (errors)
-                {
-                    return Promise.reject(
-                        new Error(
-                            "Error fetching process injections: " + formatGraphQLErrors(errors)
-                        )
-                    );
-                }
-                return data;
+                    // spring security enforces every POST request to carry a csrf token as either parameter or header
+                    [csrfToken.header]: csrfToken.value
+                },
+                body: JSON.stringify(input)
             }
         )
-        .catch(err => {
-            console.error("ERROR FETCHING PROCESS INJECTIONS", err)
-
-            return Promise.reject(err);
-        });
+        .then(
+            response => response.json(),
+            err => Promise.reject([
+                    {
+                        message: err.message,
+                        path: [],
+                        autoClose: true
+                    }
+                ]
+            )
+        )
+        .then(
+            ({data,errors = []}) => {
+                if (errors.length)
+                {
+                    return Promise.reject(errors)
+                }
+                return data
+            }
+        )
 }
 
 /**

@@ -3,7 +3,7 @@ import {
     renderProcess,
     ErrorView,
     confirmDestructiveTransition,
-    findProcessScopeWithWorkingSet, getCurrentProcess
+    findProcessScopeWithWorkingSet, getCurrentProcess, SESSION_EXPIRED
 } from "./Process"
 import config from "../config";
 import render from "../render";
@@ -12,6 +12,8 @@ import searchParams from "../util/searchParams";
 import i18n from "../i18n"
 import {FormContext} from "domainql-form";
 import { formatGraphQLErrors } from "../graphql"
+import { toast } from "react-toastify"
+import triggerToastsForErrors from "../util/triggerToastsForErrors"
 
 const NUMBER_RE = /^-?[0-9]{1-15}$/;
 
@@ -152,29 +154,23 @@ export default function runProcess(processName, input) {
 
     return fetchProcessInjections(config.appName, processName, input)
         .then(
-            ({data,errors}) => {
-                if (!data)
-                {
-                    if (errors.find(e => e.message === "SESSION_EXPIRED"))
-                    {
-                        alert(
-                            i18n("Session Expired Message")
-                        )
-                    }
-                    else
-                    {
-                        console.error("PROCESS ERROR", formatGraphQLErrors(errors))
-                    }
-                }
-
-                return renderProcess(
-                    processName,
-                    data.input,
-                    data.injections
-                )
+            data => renderProcess(
+                processName,
+                data.input,
+                data.injections
+            ),
+            errors => {
+                triggerToastsForErrors(errors)
+                return Promise.reject(new Error("Received errors fetching process injections: " + formatGraphQLErrors(errors)))
             }
-            , err => <ErrorView title="Error running Process" info={ err } />)
-        .then(elem => render(elem))
-        .catch(err => console.error("ERROR RUNNING PROCESS", err))
+        )
+        .then(
+            elem => render(elem)
+        )
+        .catch(
+            err => {
+                console.error("ERROR RUNNING PROCESS", err)
+            }
+        )
 }
 

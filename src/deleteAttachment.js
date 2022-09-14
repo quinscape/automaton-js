@@ -1,6 +1,8 @@
 import config from "./config";
 import uri from "./uri";
 import { formatGraphQLErrors } from "./graphql"
+import createUnifiedErrors from "./util/createUnifiedErrors"
+import triggerToastsForErrors from "./util/triggerToastsForErrors"
 
 
 /**
@@ -33,7 +35,19 @@ export default function deleteAttachment(attachmentId)
             body: "0"
         }
     )
-        .then(response => response.json())
+        .then(
+            response => response.json(),
+            err => {
+                // network errors
+                const errors = createUnifiedErrors(err.message)
+                triggerToastsForErrors( errors )
+                return Promise.reject(
+                    new Error(
+                        "Network error during upload removal:" + formatGraphQLErrors(errors)
+                    )
+                );
+            }
+        )
         .then(result => {
             if (!result || !result.data)
             {

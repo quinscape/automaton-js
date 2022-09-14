@@ -3,6 +3,8 @@ import { observable } from "mobx";
 import { getWireFormat } from "./domain";
 import GraphQLQuery from "./GraphQLQuery";
 import { getGraphQLMethodType } from "./util/type-utils"
+import triggerToastsForErrors from "./util/triggerToastsForErrors"
+import createUnifiedErrors from "./util/createUnifiedErrors"
 
 
 /**
@@ -203,16 +205,21 @@ export default function graphql(params) {
                 })
             }
         )
-        .then(response => response.json())
+        .then(
+            response => response.json(),
+            err => {
+                // network errors
+                const errors = createUnifiedErrors(err.message)
+                triggerToastsForErrors( errors )
+                return Promise.reject({ errors })
+            }
+        )
         .then(
             ({data, errors}) => {
                 if (errors)
                 {
-                    const err = new Error(
-                        formatGraphQLError(params, errors)
-                    );
-
-                    return Promise.reject(err);
+                    triggerToastsForErrors(errors)
+                    return Promise.reject({ errors })
                 }
 
                 // console.log("GQL response", { ... data });
