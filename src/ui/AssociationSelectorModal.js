@@ -9,6 +9,7 @@ import { action, comparer, observable, reaction } from "mobx";
 import { NO_FILTER, NO_SEARCH_FILTER, COLUMN_FILTER, createSearchFilter } from "./AssociationSelector";
 import { Addon, Field, Form, Icon } from "domainql-form";
 import updateComponentCondition from "../util/updateComponentCondition";
+import { field, value } from "../../filter";
 
 const setFilter = action(
     "FkSelectorModal.setFilter",
