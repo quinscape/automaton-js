@@ -5,13 +5,24 @@ import cx from "classnames"
 import { GlobalConfig, useFormConfig } from "domainql-form"
 import { observer as fnObserver } from "mobx-react-lite"
 import { lookupType, unwrapNonNull } from "../../util/type-utils";
+import { resolveFieldDependencies, resolveFieldDependenciesValue } from "../../util/dependencyUtilities";
 
 /**
  * DataGrid column component
  */
 const Column = fnObserver(props => {
 
-    const { name, context, width, minWidth, maxWidth, nobreak, className, children} = props;
+    const {
+        name,
+        context,
+        workingSet,
+        width,
+        minWidth,
+        maxWidth,
+        nobreak,
+        className,
+        children
+    } = props;
 
     const formConfig = useFormConfig();
     const rowErrors = formConfig.formContext.getErrorsForRoot(context);
@@ -75,7 +86,7 @@ const Column = fnObserver(props => {
         )
     }
     
-    const value = isInvalid ? fieldError[0] : get(context, name);
+    const value = isInvalid ? fieldError[0] : resolveFieldDependenciesValue(workingSet, context, name);
 
     const renderedValue = value === null || value === undefined || value === "" ?
         GlobalConfig.none() :
