@@ -55,15 +55,12 @@ export function resolveFieldDependencies(type, name) {
  */
 export function resolveFieldDependenciesValue(workingSet, context, name) {
     const dependencies = resolveFieldDependencies(context._type, name);
-    if (dependencies != null) {
-        if (workingSet) {
-            for (const dependency of dependencies) {
-                const [dependencyType, dependencyName] = dependency.split(".");
-                const entry = workingSet.lookup(dependencyType, context.id);
-                if (entry && entry.changes.has(dependencyName)) {
-                    const value = entry.changes.get(dependencyName).value;
-                    return value;
-                }
+    if (dependencies != null && workingSet) {
+        for (const dependency of dependencies) {
+            const [dependencyType, dependencyName] = dependency.split(".");
+            const entry = workingSet.lookup(dependencyType, context.id);
+            if (entry && entry.changes.has(dependencyName)) {
+                return entry.changes.get(dependencyName).value;
             }
         }
     }
