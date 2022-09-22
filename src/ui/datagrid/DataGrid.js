@@ -23,6 +23,7 @@ import OfflineQuery from "../../model/OfflineQuery";
 import UserColumnConfigDialogModal from "./userconfig/UserColumnConfigDialogModal";
 import DataGridButtonToolbar from "./DataGridButtonToolbar";
 import useEffectNoInitial from "../../util/useEffectNoInitial"
+import { resolveTableDependencies } from "../../util/dependencyUtilities"
 
 
 function findColumn(columnStates, name)
@@ -290,6 +291,14 @@ const DataGrid = fnObserver(props => {
     );
     const [records, setRecords] = React.useState([]);
 
+    const viewDependencies = resolveTableDependencies(type);
+    const newWorkingSetObjects = useMemo(() => {
+        return workingSet ? [
+            ...workingSet.newObjects(type),
+            ...viewDependencies?.map((dependency) => workingSet.newObjects(dependency)).flat() ?? []
+        ] : []
+    }, [workingSet?.newObjects()]);
+
     useEffect(() => {
         const sortedRows = sortByField(rows, moveRowColumn).map(
             (context) => {
@@ -321,10 +330,12 @@ const DataGrid = fnObserver(props => {
         
                 const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
         
-                const newObjects = workingSet.newObjects(type);
-                return newObjects.filter( obj => {
-                    fieldResolver.current = obj;
-                    return filterFn();
+                return newWorkingSetObjects.filter( obj => {
+                    if (obj._type === type) {
+                        fieldResolver.current = obj;
+                        return filterFn();
+                    }
+                    return true;
                 }).map(context => [context, null]);
             })() || []),
             ...sortedRows
@@ -333,7 +344,7 @@ const DataGrid = fnObserver(props => {
         setRecords(result);
     }, [
         rows,
-        workingSet?.newObjects(type),
+        newWorkingSetObjects,
         workingSet?.changes
     ]);
 
@@ -507,6 +518,7 @@ const DataGrid = fnObserver(props => {
                                                     key={ idx }
                                                     idx={ idx }
                                                     context={ context }
+                                                    workingSet={ workingSet }
                                                     columns={ columns }
                                                     moveRow={ moveRow }
                                                     dropRow={ dropRow }

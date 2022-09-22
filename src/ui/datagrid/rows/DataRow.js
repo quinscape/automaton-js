@@ -6,6 +6,7 @@ import { Icon, useFormConfig } from "domainql-form";
 const DataRow = ({
     idx,
     context,
+    workingSet,
     columns,
     moveRowColumn,
     moveRow,
@@ -89,7 +90,8 @@ const DataRow = ({
                                     column.columnElem,
                                     {
                                         key: columnIdx,
-                                        context
+                                        context,
+                                        workingSet
                                     }
                                 );
                             }
