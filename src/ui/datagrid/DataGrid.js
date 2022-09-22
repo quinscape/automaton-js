@@ -23,7 +23,8 @@ import OfflineQuery from "../../model/OfflineQuery";
 import UserColumnConfigDialogModal from "./userconfig/UserColumnConfigDialogModal";
 import DataGridButtonToolbar from "./DataGridButtonToolbar";
 import useEffectNoInitial from "../../util/useEffectNoInitial"
-import { resolveTableDependencies } from "../../util/dependencyUtilities"
+import { resolveFieldDependencies, resolveTableDependencies } from "../../util/dependencyUtilities"
+import { createDomainObject } from "domainql-form/lib/util/clone"
 
 
 function findColumn(columnStates, name)
@@ -292,10 +293,27 @@ const DataGrid = fnObserver(props => {
     const [records, setRecords] = React.useState([]);
 
     const viewDependencies = resolveTableDependencies(type);
+    function mapWorkingSetDependencies(dependency) {
+        return workingSet.newObjects(dependency).map((entry) => {
+            const newEntry = createDomainObject(type);
+            newEntry.id = entry.id;
+            for (const fieldName in newEntry) {
+                const fieldDependencies = resolveFieldDependencies(type, fieldName);
+                if (fieldDependencies != null) {
+                    const fieldDependency = fieldDependencies.filter(e => e.startsWith(`${dependency}.`))[0];
+                    if (fieldDependency != null) {
+                        const [, fieldDependencyName] = fieldDependency.split(".");
+                        newEntry[fieldName] = entry[fieldDependencyName];
+                    }
+                }
+            }
+            return newEntry;
+        });
+    }
     const newWorkingSetObjects = useMemo(() => {
         return workingSet ? [
             ...workingSet.newObjects(type),
-            ...viewDependencies?.map((dependency) => workingSet.newObjects(dependency)).flat() ?? []
+            ...viewDependencies?.map(mapWorkingSetDependencies).flat() ?? []
         ] : []
     }, [workingSet?.newObjects()]);
 
@@ -330,13 +348,7 @@ const DataGrid = fnObserver(props => {
         
                 const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
         
-                return newWorkingSetObjects.filter( obj => {
-                    if (obj._type === type) {
-                        fieldResolver.current = obj;
-                        return filterFn();
-                    }
-                    return true;
-                }).map(context => [context, null]);
+                return newWorkingSetObjects.map(context => [context, null]);
             })() || []),
             ...sortedRows
         ];
