@@ -4,6 +4,20 @@ import { DateTime } from "luxon";
 import { extractValueNodes } from "../../ui/datagrid/GridStateForm";
 import i18n from "../../i18n";
 
+function convertDate(date) {
+    return DateTime.fromObject({
+        year: date.year,
+        month: date.month,
+        day: date.day,
+        hour: 23,
+        minute: 59,
+        second: 59,
+        millisecond: 999
+    }, {
+        zone: date.zone
+    }).toUTC().toISO();
+}
+
 /**
  * Creates and registers the filter for date ranges.
  */
@@ -15,36 +29,27 @@ export function registerDateRangeFilter()
             endDate
         ] = val ?? [];
 
-        if (!startDate) {
-            return field(fieldName).between(
-                value(null, "Timestamp"),
-                value(null, "Timestamp")
+        if (startDate == null && endDate == null) {
+            return;
+        }
+
+        if (endDate == null) {
+            const sqlStartDate = convertDate(startDate);
+            return field(fieldName).ge(
+                value(sqlStartDate, "Timestamp")
             );
         }
 
-        const sqlStartDate = DateTime.fromObject({
-            year: startDate.year,
-            month: startDate.month,
-            day: startDate.day,
-            hour: 0,
-            minute: 0,
-            second: 0,
-            millisecond: 0
-        }, {
-            zone: endDate.zone
-        }).toUTC().toISO();
+        if (startDate == null) {
+            const sqlEndDate = convertDate(endDate);
+            return field(fieldName).le(
+                value(sqlEndDate, "Timestamp")
+            );
+        }
 
-        const sqlEndDate = endDate == null ? sqlStartDate : DateTime.fromObject({
-            year: endDate.year,
-            month: endDate.month,
-            day: endDate.day,
-            hour: 23,
-            minute: 59,
-            second: 59,
-            millisecond: 999
-        }, {
-            zone: endDate.zone
-        }).toUTC().toISO();
+        
+        const sqlStartDate = convertDate(startDate);
+        const sqlEndDate = convertDate(endDate);
 
         return field(fieldName).between(
             value(sqlStartDate, "Timestamp"),
@@ -52,22 +57,15 @@ export function registerDateRangeFilter()
         );
     }, (column, columnCondition) => {
         const valueNodes = extractValueNodes(columnCondition);
-        if (valueNodes[0].value == null) {
-            return [
-                {
-                    type: "Timestamp",
-                    label: i18n("Filter:" + column.name),
-                    value: [null, null]
-                }
-            ];
-        }
+        const startValue = valueNodes?.[0]?.value;
+        const endValue = valueNodes?.[1]?.value;
         return [
             {
                 type: "Timestamp",
                 label: i18n("Filter:" + column.name),
                 value: [
-                    DateTime.fromISO(valueNodes[0].value),
-                    DateTime.fromISO(valueNodes[1].value)
+                    startValue != null ? DateTime.fromISO(startValue) : null,
+                    endValue != null ? DateTime.fromISO(endValue) : null
                 ]
             }
         ];

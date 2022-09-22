@@ -394,7 +394,9 @@ const GridStateForm = props => {
                             ];
 
                         }
-                        conditions.push(cond);
+                        if (cond != null) {
+                            conditions.push(cond);
+                        }
                     }
                 }
 
