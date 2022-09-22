@@ -332,6 +332,7 @@ const DataGrid = fnObserver(props => {
         
                 return newWorkingSetObjects.filter( obj => {
                     if (obj._type === type) {
+                        fieldResolver.current = obj;
                         return filterFn();
                     }
                     return true;
