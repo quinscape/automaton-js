@@ -348,7 +348,10 @@ const DataGrid = fnObserver(props => {
         
                 const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
         
-                return newWorkingSetObjects.map(context => [context, null]);
+                return newWorkingSetObjects.filter( obj => {
+                    fieldResolver.current = obj;
+                    return filterFn();
+                }).map(context => [context, null]);
             })() || []),
             ...sortedRows
         ];
