@@ -338,6 +338,9 @@ const DataGrid = fnObserver(props => {
     }, [workingSet?.newObjects()]);
 
     const queryCondition = useMemo(() => {
+        if (queryConfig.condition == null) {
+            return null;
+        }
         return filterIDListFromCondition(queryConfig.condition);
     }, [queryConfig.condition]);
 
