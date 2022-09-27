@@ -59,8 +59,13 @@ export function resolveFieldDependenciesValue(workingSet, context, name) {
         for (const dependency of dependencies) {
             const [dependencyType, dependencyName] = dependency.split(".");
             const entry = workingSet.lookup(dependencyType, context.id);
-            if (entry && entry.changes.has(dependencyName)) {
-                return entry.changes.get(dependencyName).value;
+            if (entry != null) {
+                if (entry.status === "NEW") {
+                    return entry.domainObject[dependencyName];
+                }
+                if (entry.changes.has(dependencyName)) {
+                    return entry.changes.get(dependencyName).value;
+                }
             }
         }
     }
