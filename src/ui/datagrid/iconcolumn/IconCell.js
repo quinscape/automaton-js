@@ -1,4 +1,5 @@
 import React from "react";
+import { Icon } from "domainql-form";
 import i18n from "../../../i18n";
 
 const IconCell = (props) => {
@@ -23,12 +24,17 @@ const IconCell = (props) => {
         <React.Fragment>
             {
                 renderDataArray.map(
-                    renderData =>
-                        <span title={i18n(renderData.text)} key={key++}>
-                            {
-                                renderData.text
-                            }
-                        </span>
+                    renderData => {
+                        const icon = renderData.icon ? (
+                            <span title={i18n(renderData.text)} key={key++}>
+                                <Icon
+                                    className={renderData.icon}
+                                />
+                            </span>
+                        ) : (<span key={key++} />);
+
+                        return icon;
+                    }
                 )
             }
         </React.Fragment>

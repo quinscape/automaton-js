@@ -10,7 +10,7 @@ export function registerIconColumnFilterAndRenderer(name, flagDataMap) {
             return and(null);
         }
 
-        const filterFlags = filterValue.split.map(flag => flag.trim());
+        const filterFlags = filterValue.map(flag => flag.trim());
 
         const filterFunctions = filterFlags.map(flag => {
             const config = flagDataMap.get(flag);
