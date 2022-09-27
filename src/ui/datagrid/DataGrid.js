@@ -26,6 +26,28 @@ import useEffectNoInitial from "../../util/useEffectNoInitial"
 import { resolveFieldDependencies, resolveTableDependencies } from "../../util/dependencyUtilities"
 import { createDomainObject } from "domainql-form/lib/util/clone"
 
+function filterIDListFromCondition(condition) {
+    const {type, name, operands} = condition;
+    if (type === "Condition" && name === "in") {
+        const {type: fieldType, name: fieldName} = operands[0];
+        if (fieldType === "Field" && fieldName === "id") {
+            return {
+                type: "Condition",
+                name: "isNotNull",
+                operands: [
+                    {
+                        type: "Field",
+                        name: "id"
+                    }
+                ]
+            }
+        }
+    }
+    if (condition.operands != null) {
+        condition.operands = condition.operands.map(filterIDListFromCondition);
+    }
+    return condition;
+}
 
 function findColumn(columnStates, name)
 {
@@ -40,7 +62,6 @@ function findColumn(columnStates, name)
     return null;
 }
 
-
 const COLUMN_CONFIG_INPUT_OPTS = {
     name: "React to column changes"
 };
@@ -53,7 +74,6 @@ function sortByField(array, field) {
     }
     return array;
 }
-
 
 /**
  * Data grid what works based on degenerified InteractiveQuery types.
@@ -317,6 +337,13 @@ const DataGrid = fnObserver(props => {
         ] : []
     }, [workingSet?.newObjects()]);
 
+    const queryCondition = useMemo(() => {
+        if (queryConfig.condition == null) {
+            return null;
+        }
+        return filterIDListFromCondition(queryConfig.condition);
+    }, [queryConfig.condition]);
+
     useEffect(() => {
         const sortedRows = sortByField(rows, moveRowColumn).map(
             (context) => {
@@ -346,9 +373,12 @@ const DataGrid = fnObserver(props => {
         const result = [
             ...(workingSet && queryConfig.offset === 0 && (function () {
         
-                const filterFn = filterTransformer(queryConfig.condition, fieldResolver.resolve);
+                const filterFn = filterTransformer(queryCondition, fieldResolver.resolve);
         
-                return newWorkingSetObjects.map(context => [context, null]);
+                return newWorkingSetObjects.filter( obj => {
+                    fieldResolver.current = obj;
+                    return filterFn();
+                }).map(context => [context, null]);
             })() || []),
             ...sortedRows
         ];
@@ -357,6 +387,7 @@ const DataGrid = fnObserver(props => {
     }, [
         rows,
         newWorkingSetObjects,
+        queryCondition,
         workingSet?.changes
     ]);
 
