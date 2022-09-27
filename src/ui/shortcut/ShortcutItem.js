@@ -1,8 +1,9 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useMemo } from "react"
 import { useFormConfig, Icon } from "domainql-form";
 import { observer as fnObserver } from "mobx-react-lite"
 import cx from "classnames";
 import i18n from "../../i18n";
+import { action, comparer, observable, reaction, toJS } from "mobx";
 import { WorkingSetStatus } from "../../WorkingSet";
 
 function isElementInSection(fieldEl, reference) {
@@ -60,6 +61,34 @@ const ShortcutItem = fnObserver(({
         setErrorCount(count);
     }, [depError]);
 
+    const [newRegistrations, setNewRegistrations] = React.useState([]);
+
+    useEffect(() => {
+        if (workingSet != null) {
+            const result = [];
+            const registrations = workingSet.registrations;
+            for (const registration of registrations) {
+                if (registration.status === WorkingSetStatus.NEW) {
+                    for (const name in registration.domainObject) {
+                        const fieldEl = document.querySelector(`form[data-form-id] [name="${name}"]`);
+                        if (isElementInSection(fieldEl, reference)) {
+                            result.push([name, registration])
+                        }
+                    }
+                }
+            }
+            setNewRegistrations(result);
+        }
+    }, [
+        workingSet?.newObjects()
+    ]);
+
+    const resValues = [];
+    for (const [name, registration] of newRegistrations) {
+        const value = registration.domainObject[name];
+        resValues.push(value);
+    }
+
     useEffect(() => {
         if (workingSet != null) {
             const registrations = workingSet.registrations;
@@ -70,6 +99,17 @@ const ShortcutItem = fnObserver(({
                     const gridEl = document.querySelector(`form[data-form-id] table[name="${registration.typeName}"]`);
                     if (isElementInSection(gridEl, reference)) {
                         count++;
+                    } else if (registration.status === WorkingSetStatus.NEW) {
+                        for (const name in registration.domainObject) {
+                            const value = registration.domainObject[name];
+                            if (value == null || (Array.isArray(value) && value.length <= 0)) {
+                                continue;
+                            }
+                            const fieldEl = document.querySelector(`form[data-form-id] [name="${name}"]`);
+                            if (isElementInSection(fieldEl, reference)) {
+                                count++;
+                            }
+                        }
                     } else {
                         for (const [name] of registration.changes) {
                             const fieldEl = document.querySelector(`form[data-form-id] [name="${name}"]`);
@@ -82,7 +122,10 @@ const ShortcutItem = fnObserver(({
             }
             setChangesCount(count);
         }
-    }, [workingSet?.changes]);
+    }, [
+        workingSet?.changes,
+        resValues
+    ]);
 
     const hasChanges = changesCount ? ", has changes" : "";
     const title = errorCount === 0 ?
