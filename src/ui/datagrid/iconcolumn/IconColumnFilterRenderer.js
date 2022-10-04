@@ -26,7 +26,7 @@ const IconColumnFilterRenderer = (props) => {
     return (
         <Field
             {... fieldProps}
-            type={type ?? "String"}
+            type={"StringSet"}
             addons={ Addon.filterAddons(children)}
         >
             {
