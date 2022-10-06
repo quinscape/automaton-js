@@ -39,11 +39,15 @@ const TokenList = (props) => {
     }
 
     return (
-        <div className={cx("token-list-container", isCompact && "compact")}>
+        <div
+            className={cx("token-list-container", isCompact && "compact")}
+        >
             <ul
-                className="token-list list-group"
+                className={cx("token-list list-group", isCompact && "border rounded-left")}
             >
                 {
+                    isCompact && tokenList.length > 1 ?
+                    i18n("{0} Elements", tokenList.length) : 
                     tokenList.map((value,idx) => {
 
                         return (
@@ -69,10 +73,12 @@ const TokenList = (props) => {
                     })
                 }
             </ul>
-            <ButtonToolbar className="mt-2">
+            <ButtonToolbar
+                className={cx(!isCompact && "mt-2")}
+            >
                 <button
                     type="Button"
-                    className="btn btn-light"
+                    className="btn btn-light btn-token-edit"
                     onClick={ onEdit }
                     disabled={disabled}
                 >

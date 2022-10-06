@@ -53,6 +53,7 @@ const ColumnSelect = (props) => {
                 }}
             />
             <SelectionTreeModal
+                className="column-select-modal"
                 modalHeader={i18n("Select Columns")}
                 toggle={() => setColumnSelectionModalOpen(!columnSelectionModalOpen)}
                 isOpen={columnSelectionModalOpen}

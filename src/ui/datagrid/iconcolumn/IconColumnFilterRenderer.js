@@ -103,6 +103,7 @@ const IconColumnFilterRenderer = (props) => {
                                 fieldElement
                             }
                             <SelectionTreeModal
+                                className="icon-filter-modal"
                                 modalHeader={i18n("Select Filter Items")}
                                 toggle={toggleSelectionModalOpen}
                                 isOpen={isSelectionModalOpen}

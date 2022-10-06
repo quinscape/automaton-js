@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {ButtonToolbar, Modal, ModalBody, ModalHeader} from "reactstrap";
+import cx from "classnames";
 import {Icon} from "../../../../domainql-form";
 import i18n from "../../i18n";
 import SelectionTree from "./SelectionTree";
@@ -16,7 +17,8 @@ const SelectionTreeModal = (props) => {
         onExpandDirectory,
         onCollapseDirectory,
         valueRenderer,
-        singleSelect
+        singleSelect,
+        className
     } = props;
 
     const [selectedElements, setSelectedElements] = useState(selected);
@@ -40,7 +42,7 @@ const SelectionTreeModal = (props) => {
     }
 
     return (
-        <Modal className="user-config-modal" isOpen={ isOpen } toggle={ toggle }>
+        <Modal className={cx("selection-tree-modal", className)} isOpen={ isOpen } toggle={ toggle }>
             <ModalHeader toggle={ toggle }>
                 {
                     modalHeader
@@ -58,10 +60,10 @@ const SelectionTreeModal = (props) => {
                     onCollapseDirectory={onCollapseDirectory}
                     singleSelect={singleSelect}
                 />
-                <ButtonToolbar>
+                <ButtonToolbar className="mt-3">
                     <button
                         type="button"
-                        className="btn btn-outline-primary ml-auto"
+                        className="btn btn-outline-primary"
                         onClick={ reset }
                     >
                         <Icon className="fa-undo"/>
@@ -81,7 +83,7 @@ const SelectionTreeModal = (props) => {
                     </button>
                     <button
                         type="button"
-                        className="btn btn-primary ml-auto"
+                        className="btn btn-primary ml-2"
                         onClick={ doSubmit }
                     >
                         <Icon className="fa-submit"/>
