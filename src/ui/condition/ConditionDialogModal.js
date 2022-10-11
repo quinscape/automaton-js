@@ -96,7 +96,7 @@ const ConditionDialogModal = observer(({onSelect, conditionDialog, toggleConditi
                 toggle={ toggleConditionDialog }
             >
                 {
-                    conditionDialog === 1 ? i18n("Add Condition") : i18n("Change Condition")
+                    conditionDialog === 1 ? i18n("ConditionEditor:Add Condition") : i18n("ConditionEditor:Change Condition")
                 }
             </ModalHeader>
             <ModalBody>
@@ -147,7 +147,7 @@ const ConditionDialogModal = observer(({onSelect, conditionDialog, toggleConditi
                                             onClick={ () => selectName(name)}
                                         >
                                             {
-                                                i18n("ConditionEditor:Ok")
+                                                i18n("Ok")
                                             }
                                         </button>
                                         <button
@@ -156,7 +156,7 @@ const ConditionDialogModal = observer(({onSelect, conditionDialog, toggleConditi
                                             onClick={ toggleConditionDialog }
                                         >
                                             {
-                                                i18n("ConditionEditor:Cancel")
+                                                i18n("Cancel")
                                             }
                                         </button>
 
