@@ -113,14 +113,14 @@ const SortColumnList = (props) => {
                 >
                     <Icon className="fa-plus mr-1"/>
                     {
-                        i18n("Add Sort Column")
+                        i18n("QueryEditor:Add Sort Column")
                     }
                 </button>
             </ButtonToolbar>
             
             <SelectionTreeModal
                 className="sort-column-modal"
-                modalHeader={i18n("Select Sort Column")}
+                modalHeader={i18n("QueryEditor:Select Sort Column")}
                 toggle={() => setModalOpen(!isModalOpen)}
                 isOpen={isModalOpen}
                 valueRenderer={valueRenderer}

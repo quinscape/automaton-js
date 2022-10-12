@@ -107,7 +107,7 @@ const ImportExportDialog = fnObserver(function ImportExportDialog({editorState})
                 toggle={ toggle }
             >
                 {
-                    i18n("JSON Import/Export")
+                    i18n("ConditionEditor:JSON Import/Export")
                 }
             </ModalHeader>
             <ModalBody>
@@ -130,7 +130,7 @@ const ImportExportDialog = fnObserver(function ImportExportDialog({editorState})
                                         const data = parseJSON(value);
                                         if (data === undefined)
                                         {
-                                            return i18n("Invalid JSON");
+                                            return i18n("ConditionEditor:Invalid JSON");
                                         }
                                         return validate(editorState, data);
                                     })}
@@ -170,7 +170,7 @@ const ImportExportDialog = fnObserver(function ImportExportDialog({editorState})
                                     } }
                                 >
                                     {
-                                        i18n("Download JSON file")
+                                        i18n("ConditionEditor:Download JSON file")
                                     }
                                 </button>
                             </ButtonToolbar>

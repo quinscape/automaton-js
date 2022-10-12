@@ -112,7 +112,7 @@ const SelectionList = (props) => {
                                 onClick={ () => {
                                     onMoveElementClick(-1);
                                 } }
-                                title={i18n("move element up")}
+                                title={i18n("Move Element Up")}
                             >
                                 <Icon className="fa-chevron-up m-0"/>
                             </button>
@@ -122,7 +122,7 @@ const SelectionList = (props) => {
                                 onClick={ () => {
                                     onMoveElementClick(1);
                                 } }
-                                title={i18n("move element down")}
+                                title={i18n("Move Element Down")}
                             >
                                 <Icon className="fa-chevron-down m-0"/>
                             </button>

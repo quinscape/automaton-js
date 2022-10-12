@@ -5,6 +5,7 @@ import i18n from "../../i18n";
 import PropTypes from "prop-types";
 import { createTreeRepresentationForInputSchema, createTreeRepresentationForInputSchemaByPath } from "../../util/inputSchemaUtilities";
 import { setInObjectAtPathImmutable } from "../../util/mutateObject";
+import { Icon } from "domainql-form";
 
 const ColumnSelect = (props) => {
 
@@ -47,6 +48,14 @@ const ColumnSelect = (props) => {
             <TokenList
                 tokens={selectedColumns}
                 renderer={valueRenderer}
+                buttonRenderer={() => (
+                    <>
+                        <Icon className="fa-edit mr-1"/>
+                        {
+                            i18n("QueryEditor:Edit Column Selection")
+                        }
+                    </>
+                )}
                 onChange={onChange}
                 onEdit={() => {
                     setColumnSelectionModalOpen(true);
@@ -54,7 +63,7 @@ const ColumnSelect = (props) => {
             />
             <SelectionTreeModal
                 className="column-select-modal"
-                modalHeader={i18n("Select Columns")}
+                modalHeader={i18n("QueryEditor:Select Columns")}
                 toggle={() => setColumnSelectionModalOpen(!columnSelectionModalOpen)}
                 isOpen={columnSelectionModalOpen}
                 selected={selectedColumns}

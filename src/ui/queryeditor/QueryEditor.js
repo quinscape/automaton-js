@@ -125,7 +125,7 @@ const QueryEditor = (props) => {
                     />
                 </div>
                 <div className="card-footer">
-                    <ButtonToolbar className="d-flex justify-content-end">
+                    <ButtonToolbar className="d-flex justify-content-start">
                         <button
                             type="Button"
                             className="btn btn-primary"
@@ -146,7 +146,7 @@ const QueryEditor = (props) => {
                                     <>
                                         <Icon className="fa-save mr-1"/>
                                         {
-                                            i18n("Save")
+                                            i18n("QueryEditor:Confirm")
                                         }
                                     </>
                                 )
