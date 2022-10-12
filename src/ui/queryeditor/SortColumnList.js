@@ -119,6 +119,7 @@ const SortColumnList = (props) => {
             </ButtonToolbar>
             
             <SelectionTreeModal
+                className="sort-column-modal"
                 modalHeader={i18n("Select Sort Column")}
                 toggle={() => setModalOpen(!isModalOpen)}
                 isOpen={isModalOpen}
