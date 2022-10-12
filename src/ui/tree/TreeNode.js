@@ -83,7 +83,6 @@ const TreeNode = React.forwardRef((props, ref) => {
                                 className="mr-2"
                                 checked={ctx.selectionList.includes(selectionId)}
                                 onChange={(event) => {
-                                    console.log("tree checkbox clicked, value: " + event.target.checked);
                                     if (event.target.checked) {
                                         ctx.checkItem(selectionId, singleSelect);
                                     } else {
