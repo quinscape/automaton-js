@@ -4,13 +4,16 @@ import {ButtonToolbar} from "reactstrap";
 import i18n from "../../i18n";
 import TokenListElement from "./TokenListElement";
 import PropTypes from "prop-types";
+import cx from "classnames";
 
 const TokenList = (props) => {
 
     const {
         tokens,
         renderer,
+        buttonRenderer,
         disabled,
+        isCompact,
         onChange,
         onEdit
     } = props;
@@ -21,12 +24,30 @@ const TokenList = (props) => {
         setTokenList(tokens);
     }, [tokens]);
 
+    let button;
+    if (typeof buttonRenderer === "function") {
+        button = buttonRenderer();
+    } else {
+        button = (
+            <>
+                <Icon className="fa-edit mr-1"/>
+                {
+                    i18n("Edit")
+                }
+            </>
+        );
+    }
+
     return (
-        <>
+        <div
+            className={cx("token-list-container", isCompact && "compact")}
+        >
             <ul
-                className="token-list list-group"
+                className={cx("token-list list-group", isCompact && "border rounded-left")}
             >
                 {
+                    isCompact && tokenList.length > 1 ?
+                    i18n("{0} Elements", tokenList.length) : 
                     tokenList.map((value,idx) => {
 
                         return (
@@ -52,21 +73,22 @@ const TokenList = (props) => {
                     })
                 }
             </ul>
-            <ButtonToolbar className="mt-2">
+            <ButtonToolbar
+                className={cx(!isCompact && "mt-2")}
+            >
                 <button
                     type="Button"
-                    className="btn btn-light"
+                    className="btn btn-light btn-token-edit"
                     onClick={ onEdit }
                     disabled={disabled}
                 >
-                    <Icon className="fa-edit mr-1"/>
                     {
-                        i18n("Edit")
+                        button
                     }
                 </button>
             </ButtonToolbar>
-        </>
-    )
+        </div>
+    );
 }
 
 TokenList.propTypes = {

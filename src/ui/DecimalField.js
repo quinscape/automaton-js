@@ -21,7 +21,7 @@ function getSelectionInDigits(selectionStart, value)
 }
 
 
-const DecimalField = ({precision, scale, children, ...restProps}) => {
+const DecimalField = ({precision, scale, padToScale, children, ...restProps}) => {
 
     const ref = useRef(null);
 
@@ -64,14 +64,15 @@ const DecimalField = ({precision, scale, children, ...restProps}) => {
         <Field
             ref={ref}
             fieldContext={ ctx => {
-                if (precision !== undefined)
+                if (precision != null)
                 {
                     ctx.precision = precision;
                 }
-                if (scale !== undefined)
+                if (scale != null)
                 {
                     ctx.scale = scale;
                 }
+                ctx.padToScale = padToScale;
             }}
             onChange={(/*newFieldContext, value*/) => {
 
@@ -180,7 +181,12 @@ DecimalField.propTypes = {
     /**
      * Numerical scale / number of fractional digits for big decimal fields
      */
-    scale: PropTypes.number
+    scale: PropTypes.number,
+
+    /**
+     * Fill fractional digits until scale / number of fractional digits is reached
+     */
+    padToScale: PropTypes.bool
 }
 
 export default DecimalField;
