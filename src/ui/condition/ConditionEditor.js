@@ -19,6 +19,7 @@ import PropTypes from "prop-types";
 import { runInAction } from "mobx";
 import ExpressionDialog from "./ExpressionDialog";
 import ExpressionDropdown from "./ExpressionDropdown";
+import { getFieldByPath } from "../../util/inputSchemaUtilities";
 
 
 function minXOfChildren(layoutNode)
@@ -91,12 +92,24 @@ const ConditionEditor = observer(function ConditionEditor(props) {
         className,
         options,
         formContext = FormContext.getDefault(),
-        valueRenderer,
+        valueRenderer: valueRendererFromProps,
         schemaResolveFilterCallback,
         onChange,
         hideImportExport: enableImportExport,
         queryCondition: queryConditionFromProps
     } = props;
+
+    const valueRenderer = useMemo(() => {
+        if (typeof valueRendererFromProps === "function") {
+            return (pathName, nodeData = {}) => {
+                return valueRendererFromProps(pathName, {
+                    ...nodeData,
+                    rootType,
+                    fieldData: getFieldByPath(rootType, pathName)
+                });
+            }
+        }
+    }, [valueRendererFromProps]);
 
     const onConditionChange = () => {
         const queryCondition = get(container, containerPath);

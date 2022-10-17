@@ -70,6 +70,11 @@ export function createTreeRepresentationForInputSchemaByPath(rootType, schemaPat
     return {};
 }
 
+export function getFieldByPath(rootType, pathName) {
+    const inputSchema = config.inputSchema;
+    return findFieldByPath(inputSchema, rootType, pathName);
+}
+
 function recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, fieldPath, filterCallback, recursive) {
     const splitPath = schemaPath.split(".");
     const tableName = splitPath.at(-1);
@@ -89,7 +94,8 @@ function recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, fie
             fieldPath: newFieldPath,
             schemaPath: newSchemaPath,
             currentName: fieldName,
-            currentType: unwrappedName
+            currentType: unwrappedName,
+            tableName: table.name
         };
         if (typeof filterCallback === "function" && !filterCallback(filterCallbackData)) {
             continue;
@@ -137,6 +143,22 @@ function findSchemaObjectByName(inputSchema, name) {
     return inputSchema.schema.types.find(current => {
         return current.name === name;
     });
+}
+
+function findFieldByPath(inputSchema, rootType, pathName) {
+    const path = pathName.split(".");
+    const name = path.shift();
+    if (name) {
+        const table = findSchemaObjectByName(inputSchema, rootType);
+        const field = findFieldObjectByName(table, name);
+        if (path.length === 0) {
+            return field;
+        }
+        const {kind: unwrappedKind, name: unwrappedName} = unwrapAll(field.type);
+        if (unwrappedKind === "OBJECT") {
+            return findFieldByPath(inputSchema, unwrappedName, path.join("."));
+        }
+    }
 }
 
 function findFieldObjectByName(table, name) {

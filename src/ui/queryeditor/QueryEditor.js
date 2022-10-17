@@ -2,14 +2,13 @@ import React, {useEffect, useMemo, useState} from "react";
 import i18n from "../../i18n";
 import ConditionEditor from "../condition/ConditionEditor";
 import cx from "classnames";
-import flattenObject from "../../util/flattenObject";
 import SortColumnList from "./SortColumnList";
 import ConditionEditorScope from "./ConditionEditorScope";
 import {FormContext, Icon} from "domainql-form";
 import {ButtonToolbar} from "reactstrap";
 import ColumnSelect from "./ColumnSelect";
 import PropTypes from "prop-types";
-import { createTreeRepresentationForInputSchema } from "../../util/inputSchemaUtilities";
+import { getFieldByPath } from "../../util/inputSchemaUtilities";
 
 const ORIGINS = {
     CONDITION_EDITOR_FIELD_SELECTION: "ConditionEditorFieldSelection",
@@ -30,28 +29,21 @@ const QueryEditor = (props) => {
         className
     } = props;
 
-    // scope
-    const [
-        conditionEditorScope,
-        availableColumnTreeObject,
-        availableColumnList
-    ] = useMemo(() => {
-        const availableColumnTreeObject = createTreeRepresentationForInputSchema(rootType, {
-            filterCallback: schemaResolveFilterCallback
-        });
-        const availableColumnList = Object.keys(flattenObject(availableColumnTreeObject)).map((element) => {
-            return {
-                name: element,
-                label: columnNameRenderer ? columnNameRenderer(element, {
-                    origin: ORIGINS.CONDITION_EDITOR_FIELD_SELECTION
-                }) : element
+    const valueRenderer = useMemo(() => {
+        if (typeof columnNameRenderer === "function") {
+            return (pathName, nodeData = {}) => {
+                return columnNameRenderer(pathName, {
+                    ...nodeData,
+                    rootType,
+                    fieldData: getFieldByPath(rootType, pathName)
+                });
             }
-        });
-        return [
-            new ConditionEditorScope(rootType),
-            availableColumnTreeObject,
-            availableColumnList
-        ];
+        }
+    }, [columnNameRenderer]);
+
+    // scope
+    const conditionEditorScope = useMemo(() => {
+        return new ConditionEditorScope(rootType);
     }, [rootType]);
 
     // data states
@@ -92,7 +84,7 @@ const QueryEditor = (props) => {
                     <ColumnSelect
                         rootType={rootType}
                         selectedColumns={selectedColumns}
-                        valueRenderer={columnNameRenderer}
+                        valueRenderer={valueRenderer}
                         onChange={(tokenList) => {
                             setSelectedColumns(tokenList);
                         }}
@@ -116,7 +108,7 @@ const QueryEditor = (props) => {
                 <div className="card-body border-top">
                     <SortColumnList
                         rootType={rootType}
-                        valueRenderer={columnNameRenderer}
+                        valueRenderer={valueRenderer}
                         sortColumns={sortColumns}
                         onChange={(sortColumnList) => {
                             setSortColumns(sortColumnList);
