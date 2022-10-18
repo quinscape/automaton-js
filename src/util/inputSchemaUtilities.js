@@ -70,7 +70,32 @@ export function createTreeRepresentationForInputSchemaByPath(rootType, schemaPat
     return {};
 }
 
-export function getFieldByPath(rootType, pathName) {
+/**
+ * Get the table/schema name of a specified path starting at a specified root table/schema.
+ * @param {string} rootType the root type
+ * @param {string} pathName the path to the required table name starting from the rootType
+ * @returns {string | undefined} the requested table name if a table was found
+ */
+export function getTableNameByPath(rootType, pathName) {
+    if (pathName === "") {
+        return rootType;
+    }
+    const field = getFieldDataByPath(rootType, pathName);
+    if (field != null) {
+        const {kind: unwrappedKind, name: unwrappedName} = unwrapAll(field.type);
+        if (unwrappedKind === "OBJECT") {
+            return unwrappedName;
+        }
+    }
+}
+
+/**
+ * Get the field data of a specified path starting at a specified root table/schema.
+ * @param {string} rootType the root type
+ * @param {string} pathName the path to the required field starting from the rootType
+ * @returns {Object | undefined} the requested field if it was found
+ */
+export function getFieldDataByPath(rootType, pathName) {
     const inputSchema = config.inputSchema;
     return findFieldByPath(inputSchema, rootType, pathName);
 }

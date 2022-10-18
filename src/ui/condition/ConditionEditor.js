@@ -19,7 +19,7 @@ import PropTypes from "prop-types";
 import { runInAction } from "mobx";
 import ExpressionDialog from "./ExpressionDialog";
 import ExpressionDropdown from "./ExpressionDropdown";
-import { getFieldByPath } from "../../util/inputSchemaUtilities";
+import { getFieldDataByPath, getTableNameByPath } from "../../util/inputSchemaUtilities";
 
 
 function minXOfChildren(layoutNode)
@@ -102,10 +102,12 @@ const ConditionEditor = observer(function ConditionEditor(props) {
     const valueRenderer = useMemo(() => {
         if (typeof valueRendererFromProps === "function") {
             return (pathName, nodeData = {}) => {
+                const tablePathName = pathName.split(".").slice(0, -1).join(".");
                 return valueRendererFromProps(pathName, {
                     ...nodeData,
                     rootType,
-                    fieldData: getFieldByPath(rootType, pathName)
+                    tableName: getTableNameByPath(rootType, tablePathName),
+                    fieldData: getFieldDataByPath(rootType, pathName)
                 });
             }
         }
