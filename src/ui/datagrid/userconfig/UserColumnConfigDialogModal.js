@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {ButtonToolbar, Modal, ModalBody, ModalHeader} from "reactstrap";
 import i18n from "../../../i18n";
 import DualListSelector from "../../listselector/DualListSelector";
@@ -16,6 +16,14 @@ const UserColumnConfigDialogModal = (props) => {
 
     const [currentInactiveElements, setCurrentInactiveElements] = useState(inactiveElements);
     const [currentActiveElements, setCurrentActiveElements] = useState(activeElements);
+
+    useEffect(() => {
+        setCurrentInactiveElements(inactiveElements);
+    }, [inactiveElements]);
+
+    useEffect(() => {
+        setCurrentActiveElements(activeElements);
+    }, [activeElements]);
 
     function doSubmit() {
         onSubmit(currentActiveElements);
