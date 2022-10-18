@@ -8,7 +8,7 @@ import {FormContext, Icon} from "domainql-form";
 import {ButtonToolbar} from "reactstrap";
 import ColumnSelect from "./ColumnSelect";
 import PropTypes from "prop-types";
-import { getFieldByPath, getTableNameByPath } from "../../util/inputSchemaUtilities";
+import { getFieldDataByPath, getTableNameByPath } from "../../util/inputSchemaUtilities";
 
 const ORIGINS = {
     CONDITION_EDITOR_FIELD_SELECTION: "ConditionEditorFieldSelection",
@@ -37,7 +37,7 @@ const QueryEditor = (props) => {
                     ...nodeData,
                     rootType,
                     tableName: getTableNameByPath(rootType, tablePathName),
-                    fieldData: getFieldByPath(rootType, pathName)
+                    fieldData: getFieldDataByPath(rootType, pathName)
                 });
             }
         }

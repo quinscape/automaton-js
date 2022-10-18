@@ -19,7 +19,7 @@ import PropTypes from "prop-types";
 import { runInAction } from "mobx";
 import ExpressionDialog from "./ExpressionDialog";
 import ExpressionDropdown from "./ExpressionDropdown";
-import { getFieldByPath, getTableNameByPath } from "../../util/inputSchemaUtilities";
+import { getFieldDataByPath, getTableNameByPath } from "../../util/inputSchemaUtilities";
 
 
 function minXOfChildren(layoutNode)
@@ -107,7 +107,7 @@ const ConditionEditor = observer(function ConditionEditor(props) {
                     ...nodeData,
                     rootType,
                     tableName: getTableNameByPath(rootType, tablePathName),
-                    fieldData: getFieldByPath(rootType, pathName)
+                    fieldData: getFieldDataByPath(rootType, pathName)
                 });
             }
         }
