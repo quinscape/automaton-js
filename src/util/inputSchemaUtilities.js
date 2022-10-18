@@ -75,6 +75,19 @@ export function getFieldByPath(rootType, pathName) {
     return findFieldByPath(inputSchema, rootType, pathName);
 }
 
+export function getTableNameByPath(rootType, pathName) {
+    if (pathName === "") {
+        return rootType;
+    }
+    const field = getFieldByPath(rootType, pathName);
+    if (field != null) {
+        const {kind: unwrappedKind, name: unwrappedName} = unwrapAll(field.type);
+        if (unwrappedKind === "OBJECT") {
+            return unwrappedName;
+        }
+    }
+}
+
 function recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, fieldPath, filterCallback, recursive) {
     const splitPath = schemaPath.split(".");
     const tableName = splitPath.at(-1);

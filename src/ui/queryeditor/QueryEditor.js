@@ -8,7 +8,7 @@ import {FormContext, Icon} from "domainql-form";
 import {ButtonToolbar} from "reactstrap";
 import ColumnSelect from "./ColumnSelect";
 import PropTypes from "prop-types";
-import { getFieldByPath } from "../../util/inputSchemaUtilities";
+import { getFieldByPath, getTableNameByPath } from "../../util/inputSchemaUtilities";
 
 const ORIGINS = {
     CONDITION_EDITOR_FIELD_SELECTION: "ConditionEditorFieldSelection",
@@ -32,9 +32,11 @@ const QueryEditor = (props) => {
     const valueRenderer = useMemo(() => {
         if (typeof columnNameRenderer === "function") {
             return (pathName, nodeData = {}) => {
+                const tablePathName = pathName.split(".").slice(0, -1).join(".");
                 return columnNameRenderer(pathName, {
                     ...nodeData,
                     rootType,
+                    tableName: getTableNameByPath(rootType, tablePathName),
                     fieldData: getFieldByPath(rootType, pathName)
                 });
             }
