@@ -193,9 +193,9 @@ const DataGrid = fnObserver(props => {
                     return;
                 }
 
-                const {name, width, minWidth, filter, heading, sort, renderFilter, children : columnChildren } = columnElem.props;
+                const {name, width, minWidth, filter, heading, sort, renderFilter, getFilterValue, children : columnChildren } = columnElem.props;
                 const transformedFilter = getCustomFilter(filter) ?? filter;
-                const getValueFn = getCustomGetValue(filter);
+                const getValueFn = getCustomGetValue(filter) ?? getFilterValue;
 
                 let typeRef = null, sortable = false, enabled = false;
                 if (name && typeof columnChildren !== "function")
