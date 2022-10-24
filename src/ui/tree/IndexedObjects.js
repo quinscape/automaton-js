@@ -1,18 +1,19 @@
-import React, {useContext, useMemo, useReducer, useState} from "react"
+import React, {useCallback, useContext, useEffect, useMemo, useReducer, useState} from "react"
 import PropTypes from "prop-types"
-import { observer as fnObserver } from "mobx-react-lite"
+import {observer as fnObserver} from "mobx-react-lite"
 import get from "lodash.get";
-import InteractiveQuery, { getFirstValue } from "../../model/InteractiveQuery";
+import InteractiveQuery, {getFirstValue} from "../../model/InteractiveQuery";
 import i18n from "../../i18n";
 import unicodeSubstring from "unicode-substring";
 
-import { field, value } from "../../FilterDSL"
-import { appendRows, TreeContext } from "./Tree";
+import {field, value} from "../../FilterDSL"
+import {appendRows, TreeContext} from "./Tree";
 import ObjectItem from "./ObjectItem";
 import updateComponentCondition from "../../util/updateComponentCondition";
 import config from "../../config";
 import MoreItem from "./MoreItem";
 import IndexItem from "./IndexItem";
+import {appendCounter} from "./treeUtils";
 
 
 function firstLetter(name)
@@ -397,7 +398,51 @@ const IndexedObjects = fnObserver(({
     };
 
 
-    const { rows } = values;
+    const { rows } = values
+
+    const [letterCounterMap, setLetterCounterMap] = useState({});
+
+    useEffect(() => {
+        loadCounts().then(map => {
+            setLetterCounterMap(map);
+        })
+    }, [values])
+
+    const loadCounts = useCallback(() => {
+        const { _query : query } = values;
+
+        if(query) {
+            const letters = index;
+            const conditions = letters.map(letter => updateComponentCondition(
+                query.vars.config.condition,
+                field(nameField).startsWith(
+                    value(
+                        letter,
+                        "String"
+                    )
+                ),
+                ctx.id,
+                false
+            ));
+
+            const countQueries = conditions.map(condition => {
+                return query.execute({
+                    config: {
+                        condition,
+                        counting: true
+                    }
+                })
+            })
+
+            return Promise.all(countQueries).then((counterResults) => {
+                const rowCounts = counterResults.map(result => getFirstValue(result).rowCount);
+                return letters.reduce((acc, cur, i) => {
+                    acc[cur] = rowCounts[i];
+                    return acc;
+                }, {})
+            })
+        }
+    }, [values]);
 
     let count = 0;
     return (
@@ -428,7 +473,7 @@ const IndexedObjects = fnObserver(({
                                 setOpen={ open => toggleGroup(open, letter) }
                                 render={ renderIndex }
                                 altText={ altText }
-                                heading={ heading }
+                                heading={ letterCounterMap ? appendCounter(heading, letterCounterMap[letter]) : heading}
                                 headingActions={headingActions}
                             >
 

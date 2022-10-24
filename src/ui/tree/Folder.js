@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react"
+import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from "react"
 import cx from "classnames"
 import PropTypes from "prop-types"
 import { getFirstValue } from "../../model/InteractiveQuery";
@@ -10,6 +10,7 @@ import TreeItem from "./TreeItem";
 import MetaItem from "./MetaItem";
 import CaretButton from "./CaretButton";
 import ItemMenuWrapper from "./ItemMenuWrapper";
+import {useCounter} from "./useCounter";
 
 
 const LOADING = "LOADING";
@@ -77,7 +78,20 @@ const Folder = ({row, render, query, variables, onLoad, actions, children}) => {
 
     const isLoading = typeof objects === "string";
 
-    const renderResult = typeof render === "function" && render();
+    const [counter] = useCounter(onLoad);
+    const getRenderResult = useCallback((renderFn, count) => {
+        let result = typeof renderFn === "function" && renderFn(count);
+        if(result?.props) {
+            result = {...result, props: {...result.props, counter: count}}
+        }
+        return result;
+    }, [])
+
+    const [renderResult, setRenderResult] = useState(getRenderResult(render, counter));
+
+    useEffect(() => {
+        setRenderResult(getRenderResult(render, counter));
+    }, [render, counter])
 
     if (!renderResult)
     {
