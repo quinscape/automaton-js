@@ -30,6 +30,7 @@ import registerBigDecimalConverter from "./registerBigDecimalConverter";
 import WorkingSet from "./WorkingSet";
 import {registerDateRangeFilter} from "./util/filter/registerDateRangeFilter";
 import {registerNumberFilter} from "./util/filter/registerNumberFilter";
+import registerStringSetConverter from "./util/converter/registerStringSetConverter";
 
 
 const SCOPES_MODULE_NAME = "./scopes.js";
@@ -185,6 +186,8 @@ function defaultInit(ctx, initial)
 
     registerDateRangeFilter();
     registerNumberFilter();
+
+    registerStringSetConverter();
 
     return Promise.all(promises);
 }

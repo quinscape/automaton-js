@@ -80,6 +80,7 @@ import decompileFilter from "./util/decompileFilter"
 import { registerCustomFilter } from "./util/filter/CustomFilter"
 import { registerCustomFilterRenderer } from "./util/filter/CustomFilterRenderer"
 import { registerFKSelectorFilterAndRenderer } from "./util/filter/registerFKSelectorFilter"
+import { registerIconColumnFilterAndRenderer } from "./util/filter/registerIconColumnFilterAndRenderer"
 import CollapsiblePanel from "./ui/CollapsiblePanel"
 
 import UserColumnConfigDialogModal from "./ui/datagrid/userconfig/UserColumnConfigDialogModal"
@@ -89,6 +90,8 @@ import QueryEditor from "./ui/queryeditor/QueryEditor";
 import ColumnSelect from "./ui/queryeditor/ColumnSelect";
 
 import { createTreeRepresentationForInputSchema } from "./util/inputSchemaUtilities"
+
+import IconCell from "./ui/datagrid/iconcolumn/IconCell"
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -210,6 +213,7 @@ export {
     registerCustomFilter,
     registerCustomFilterRenderer,
     registerFKSelectorFilterAndRenderer,
+    registerIconColumnFilterAndRenderer,
     CollapsiblePanel,
 
     UserColumnConfigDialogModal,
@@ -218,6 +222,8 @@ export {
     QueryEditor,
     ColumnSelect,
 
-    createTreeRepresentationForInputSchema
+    createTreeRepresentationForInputSchema,
+
+    IconCell
 }
 

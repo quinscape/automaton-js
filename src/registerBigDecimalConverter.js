@@ -7,7 +7,6 @@ import config from "./config";
 import { getWireFormat } from "./domain";
 import { getOutputTypeName, getParentObjectType, unwrapNonNull } from "./util/type-utils";
 import { NO_DEFAULT } from "./registerDateTimeConverters";
-import { INPUT_OBJECT, OBJECT } from "domainql-form/lib/kind";
 
 
 const DEFAULT_OPTIONS = {
@@ -75,16 +74,12 @@ function getPrecision(ctx, opts)
 
     const {path, rootType, precision, scale} = ctx;
 
-    // are both precision and scale specified on the field
-    if (precision !== undefined && scale !== undefined)
-    {
-        p = {
-            precision,
-            scale
-        };
-    }
+    p = {
+        precision: opts.defaultPrecision,
+        scale: opts.defaultScale,
+    };
 
-    if (!p)
+    if (precision == null || scale == null)
     {
         const { inputSchema } = config;
 
@@ -105,15 +100,22 @@ function getPrecision(ctx, opts)
         {
             p = metaPrecision
         }
+    }
 
-        if (p == null) /* check for null AND undefined */
-        {
-            throw new Error(
-                "Could not find precision/scale for " + type + "." + path + ", " +
-                "information is missing from config.decimalPrecision. " +
-                "Either include the values for that field or define precision and scale as <DecimalField/> prop"
-            );
-        }
+    if (ctx.precision != null) {
+        p.precision = ctx.precision;
+    }
+    if (ctx.scale != null) {
+        p.scale = ctx.scale;
+    }
+    
+    if (p.precision == null || p.scale == null) /* check for null AND undefined */
+    {
+        throw new Error(
+            "Could not find precision/scale for " + type + "." + path + ", " +
+            "information is missing from config.decimalPrecision. " +
+            "Either include the values for that field or define precision and scale as <DecimalField/> prop"
+        );
     }
 
     precisions.set(ctx, p);
@@ -184,7 +186,11 @@ export default function registerBigDecimalConverter(opts) {
             }
 
             const p = getPrecision(ctx, opts);
-            return scalar.toFormat(p.scale).replace(DECIMAL_TRIM_REGEX, DECIMAL_TRIM_REPLACER);
+            if (ctx.padToScale) {
+                return scalar.toFormat(p.scale);
+            } else {
+                return scalar.toFormat(p.scale).replace(DECIMAL_TRIM_REGEX, DECIMAL_TRIM_REPLACER);
+            }
         },
         value => {
 

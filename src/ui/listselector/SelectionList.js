@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useMemo, useRef, useState} from "react";
 import cx from "classnames";
 import i18n from "../../i18n";
 import {Icon} from "domainql-form";
@@ -14,7 +14,7 @@ function elementComparator(element0, element1) {
 const SelectionList = (props) => {
     const {
         header,
-        elements,
+        elements: elementsFromProps,
         selected,
         autoSort,
         onChange,
@@ -35,16 +35,21 @@ const SelectionList = (props) => {
         onChange(element);
     }
 
-    const filteredElements = searchValue !== ""
-        ? elements.filter((element) => {
-            const elementValue = element.label ?? element.name;
-            return elementValue?.toLowerCase().includes(searchValue) ?? false;
-        })
-        : elements;
-
-    const sortedElements = autoSort
-        ? filteredElements.sort(elementComparator)
-        : filteredElements;
+    const elements = useMemo(() => {
+        if (searchValue !== "") {
+            const filteredElements = elementsFromProps.filter((element) => {
+                const elementValue = element.label ?? element.name;
+                return elementValue?.toLowerCase().includes(searchValue) ?? false;
+            });
+            if (autoSort) {
+                return filteredElements.sort(elementComparator);
+            }
+            return filteredElements;
+        } else if (autoSort) {
+            return elementsFromProps.sort(elementComparator)
+        }
+        return elementsFromProps;
+    }, [elementsFromProps, searchValue, autoSort]);
 
     return (
         <div className="d-flex flex-column flex-fill m-4 selection-list-container">
@@ -86,9 +91,9 @@ const SelectionList = (props) => {
             <div className="d-flex flex-row flex-fill">
                 <ul className="flex-fill selection-list list-group border rounded">
                     {
-                        sortedElements.length < 1
+                        elements.length < 1
                             ? (<span className="m-2 font-italic">{i18n("No Elements")}</span>)
-                            : sortedElements.map((element, index) => {
+                            : elements.map((element, index) => {
                                 return (
                                     <li
                                         key={index}
@@ -112,7 +117,7 @@ const SelectionList = (props) => {
                                 onClick={ () => {
                                     onMoveElementClick(-1);
                                 } }
-                                title={i18n("move element up")}
+                                title={i18n("Move Element Up")}
                             >
                                 <Icon className="fa-chevron-up m-0"/>
                             </button>
@@ -122,7 +127,7 @@ const SelectionList = (props) => {
                                 onClick={ () => {
                                     onMoveElementClick(1);
                                 } }
-                                title={i18n("move element down")}
+                                title={i18n("Move Element Down")}
                             >
                                 <Icon className="fa-chevron-down m-0"/>
                             </button>

@@ -412,6 +412,7 @@ const FKSelector = fnObserver(props => {
                                     const { root, formContext } = formConfig;
 
                                     formContext.updateErrors(root, ctx.qualifiedName, [ val, formConfig.formContext.getRequiredErrorMessage(ctx) ]);
+                                    setUserIsTyping(false);
                                     return;
                                 }
 

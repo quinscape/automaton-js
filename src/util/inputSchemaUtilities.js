@@ -70,6 +70,36 @@ export function createTreeRepresentationForInputSchemaByPath(rootType, schemaPat
     return {};
 }
 
+/**
+ * Get the table/schema name of a specified path starting at a specified root table/schema.
+ * @param {string} rootType the root type
+ * @param {string} pathName the path to the required table name starting from the rootType
+ * @returns {string | undefined} the requested table name if a table was found
+ */
+export function getTableNameByPath(rootType, pathName) {
+    if (pathName === "") {
+        return rootType;
+    }
+    const field = getFieldDataByPath(rootType, pathName);
+    if (field != null) {
+        const {kind: unwrappedKind, name: unwrappedName} = unwrapAll(field.type);
+        if (unwrappedKind === "OBJECT") {
+            return unwrappedName;
+        }
+    }
+}
+
+/**
+ * Get the field data of a specified path starting at a specified root table/schema.
+ * @param {string} rootType the root type
+ * @param {string} pathName the path to the required field starting from the rootType
+ * @returns {Object | undefined} the requested field if it was found
+ */
+export function getFieldDataByPath(rootType, pathName) {
+    const inputSchema = config.inputSchema;
+    return findFieldByPath(inputSchema, rootType, pathName);
+}
+
 function recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, fieldPath, filterCallback, recursive) {
     const splitPath = schemaPath.split(".");
     const tableName = splitPath.at(-1);
@@ -89,7 +119,8 @@ function recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, fie
             fieldPath: newFieldPath,
             schemaPath: newSchemaPath,
             currentName: fieldName,
-            currentType: unwrappedName
+            currentType: unwrappedName,
+            tableName: table.name
         };
         if (typeof filterCallback === "function" && !filterCallback(filterCallbackData)) {
             continue;
@@ -137,6 +168,22 @@ function findSchemaObjectByName(inputSchema, name) {
     return inputSchema.schema.types.find(current => {
         return current.name === name;
     });
+}
+
+function findFieldByPath(inputSchema, rootType, pathName) {
+    const path = pathName.split(".");
+    const name = path.shift();
+    if (name) {
+        const table = findSchemaObjectByName(inputSchema, rootType);
+        const field = findFieldObjectByName(table, name);
+        if (path.length === 0) {
+            return field;
+        }
+        const {kind: unwrappedKind, name: unwrappedName} = unwrapAll(field.type);
+        if (unwrappedKind === "OBJECT") {
+            return findFieldByPath(inputSchema, unwrappedName, path.join("."));
+        }
+    }
 }
 
 function findFieldObjectByName(table, name) {

@@ -26,7 +26,7 @@ const SortColumnListElement = (props) => {
                 type="Button"
                 className="btn btn-link m-0 p-0"
                 title={
-                    i18n(order === "A" ? "Toggle Order; Current: Ascending" : "Toggle Order; Current: Descending")
+                    i18n(`QueryEditor:Toggle Order; Current: ${order === "A" ? "Ascending" : "Descending"}`)
                 }
                 onClick={
                     () => toggleElementOrder(sortColumnElement)
@@ -46,7 +46,7 @@ const SortColumnListElement = (props) => {
                 type="Button"
                 className="btn btn-link m-0 p-0"
                 title={
-                    i18n("Remove")
+                    i18n("QueryEditor:Remove")
                 }
                 onClick={
                     () => removeElement(sortColumnElement)

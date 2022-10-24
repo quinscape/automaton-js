@@ -284,7 +284,8 @@ const FieldSelect = observer((props) => {
                                 }
             
                                 <SelectionTreeModal
-                                    modalHeader={i18n("Select Field")}
+                                    className="field-select-modal"
+                                    modalHeader={i18n("ConditionEditor:Select Field")}
                                     toggle={() => setModalOpen(!isModalOpen)}
                                     isOpen={isModalOpen}
                                     valueRenderer={valueRenderer}
