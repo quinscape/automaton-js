@@ -212,7 +212,12 @@ export const renderStateScript = (state) => {
 
     if(filterFunctions){
         filterFunctions.forEach(filterFn => {
-            const {name: nameOfFilterFunctions, filterParams} = filterFn
+            const {name: nameOfFilterFunctions, filterParams, mapName} = filterFn
+            if(mapName) {
+                const getterName = `get${mapName[0].toUpperCase()}${mapName.slice(1).toLowerCase()}()`
+                stateScript += `const ${mapName} = ${getterName};
+                `;
+            }
             filterParams.map((filterParam) => {
                 const {name, query, rootType, sourceName, modalTitle, valueFieldName} = filterParam
                 stateScript += `
