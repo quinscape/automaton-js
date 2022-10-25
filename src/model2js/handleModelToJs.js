@@ -214,7 +214,7 @@ export const renderStateScript = (state) => {
         filterFunctions.forEach(filterFn => {
             const {name: nameOfFilterFunctions, filterParams, mapName} = filterFn
             if(mapName) {
-                const getterName = `get${mapName[0].toUpperCase()}${mapName.slice(1).toLowerCase()}()`
+                const getterName = `get${mapName[0].toUpperCase()}${mapName.slice(1)}()`
                 stateScript += `const ${mapName} = ${getterName};
                 `;
             }
