@@ -834,7 +834,7 @@ class EntityRegistration
         const { domainObject, status } = this;
         //console.log("_updateFieldChanges", this.key, toJS(domainObject))
 
-        if ((status !== WorkingSetStatus.MODIFIED) || !domainObject)
+        if ((status !== WorkingSetStatus.MODIFIED || status !== WorkingSetStatus.NEW) || !domainObject)
         {
             // no changes
             return [];
