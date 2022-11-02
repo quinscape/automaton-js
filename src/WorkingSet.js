@@ -853,7 +853,7 @@ class EntityRegistration
 
     collectFieldUpdates(updates)
     {
-        const { changes, domainObject, base, workingSet, typeName } = this;
+        const { changes, domainObject, base, workingSet, typeName, status } = this;
         const { mergePlan } = workingSet[secret];
 
         const isNew = status === WorkingSetStatus.NEW;
@@ -930,7 +930,7 @@ class EntityRegistration
                 }
                 else
                 {
-                    const baseValue = base[name];
+                    const baseValue = base && base[name];
                     if (equalsScalar(type, baseValue, currValue))
                     {
                         if (changes.has(name))
@@ -976,11 +976,9 @@ class EntityRegistration
 
                 const otherRelation = leftSideRelation.targetType !== typeName ? leftSideRelation : rightSideRelation
 
-                //console.log("otherRelation", otherRelation)
+                const linkArrayBase = base && base[linkFieldName];
 
-                const linkArrayBase = base[linkFieldName];
-
-                if (linkArrayBase === undefined)
+                if (linkArrayBase === undefined || !linkArrayBase)
                 {
                     // if we have a undefined base array, we just keep ignoring that property
                     continue
