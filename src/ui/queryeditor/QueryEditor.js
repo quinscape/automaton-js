@@ -41,7 +41,7 @@ const QueryEditor = (props) => {
                 });
             }
         }
-    }, [columnNameRenderer]);
+    }, [columnNameRenderer, rootType]);
 
     // scope
     const conditionEditorScope = useMemo(() => {
