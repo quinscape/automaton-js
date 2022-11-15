@@ -75,9 +75,9 @@ const AssociationSelectorModal = fnObserver(props => {
                 () => {
 
                     const { filter } = formObject;
-                    if (filter && showSearchFilter)
+                    if (iQueryType && filter && showSearchFilter)
                     {
-                        return createSearchFilter(iQueryType, searchFilter, formObject.filter);
+                        return createSearchFilter(iQueryType, searchFilter, filter);
                     }
                     else
                     {

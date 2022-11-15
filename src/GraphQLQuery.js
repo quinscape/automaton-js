@@ -36,6 +36,9 @@ export default class GraphQLQuery {
      */
     getQueryDefinition()
     {
+        if (!this.query) {
+            return null;
+        }
         if (!this.queryDef)
         {
             this.queryDef = parseQuery(config.inputSchema, this.query)

@@ -1,6 +1,6 @@
 import assert from "power-assert"
 import sinon from "sinon"
-import { act, cleanup, fireEvent, getAllByText, getByText, prettyDOM, render } from "@testing-library/react"
+import { act, cleanup, fireEvent, getByText, render } from "@testing-library/react"
 
 import React from "react"
 
@@ -8,15 +8,10 @@ import config from "../../../src/config"
 import InteractiveQuery from "../../../src/model/InteractiveQuery"
 import { FormConfigProvider, FormContext, InputSchema, registerDomainObjectFactory, WireFormat } from "domainql-form"
 import Tree from "../../../src/ui/tree/Tree";
-import { createMockedQuery } from "../../../src/util/createMockedQuery";
-import matchCondition, { matchPlaceholder } from "../../matchCondition";
-import { and, component, field } from "../../../src/FilterDSL";
 import getTreeSummary from "./getTreeSummary";
 import { findContextMenuButton } from "./tree-objects";
 import { __setWireFormatForTest } from "../../../src/domain";
-import { isObservable, observable } from "mobx";
 import { automatonDomainObjectFactory } from "../../../src/startup";
-
 
 const rawSchema = require("./tree-test-schema.json");
 const nodeIndex = require("./node-index");
@@ -43,6 +38,9 @@ describe("Tree", function () {
         inputSchema = new InputSchema(rawSchema);
 
         config.inputSchema = inputSchema;
+        
+        // XXX: tree cloning does not work as expected
+        config.skipIndexTreeCloning = true;
         
         format = new WireFormat(inputSchema, {
             InteractiveQueryFoo: InteractiveQuery,
@@ -109,9 +107,9 @@ describe("Tree", function () {
         )
 
         act(() => {
-            const aItems = getByText(container, "A:");
+            const aItems = getByText(container, "A:").closest("li[role='treeitem']").querySelector("button.caret");
             aItems.click();
-            const bItems = getByText(container, "B:");
+            const bItems = getByText(container, "B:").closest("li[role='treeitem']").querySelector("button.caret");
             bItems.click();
         });
 

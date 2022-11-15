@@ -388,6 +388,7 @@ const Tree = (props) => {
                         parentItem.focus();
                     }
                 }
+                ev.preventDefault();
                 break;
             }
             case 39: // cursor right
@@ -405,6 +406,7 @@ const Tree = (props) => {
                         firstChild.focus();
                     }
                 }
+                ev.preventDefault();
                 break;
             }
 

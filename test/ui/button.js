@@ -299,7 +299,7 @@ describe("Button", function () {
 
                     assert(renderSpy.called);
                     const formConfig = renderSpy.lastCall.args[0];
-                    assert.deepEqual(formConfig.getErrors("name"), ["", "Garply.name:Field Required"]);
+                    assert.deepEqual(formConfig.getErrors("name"), ["", "[Field Required]"]);
 
                     const nonDiscardButton = getByText(container, "Do");
                     const nonDiscardButton2 = getByText(container, "Do2");

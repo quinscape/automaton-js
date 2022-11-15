@@ -42,6 +42,7 @@ const SortLink = props => {
         sortFields: [
             // we only want the inverse column sorting if the current column was the only column sorted by. If we come
             // from a multi-field sorting, we sort by the current column in ascending direction first
+            sortFields != null &&
             sortFields.length === 1 &&
             findSort(sortFields, sort) === 1 ?
                 descending(sort) :
@@ -50,7 +51,7 @@ const SortLink = props => {
         offset: 0
     });
 
-    const sortIcon = sortable ?  SORT_ICONS[ findSort(sortFields, sort) ] : 0;
+    const sortIcon = sortable && sortFields != null ?  SORT_ICONS[ findSort(sortFields, sort) ] : 0;
     
     return (
         React.createElement(

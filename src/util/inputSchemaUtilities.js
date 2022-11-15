@@ -102,7 +102,7 @@ export function getFieldDataByPath(rootType, pathName) {
 
 function recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, fieldPath, filterCallback, recursive) {
     const splitPath = schemaPath.split(".");
-    const tableName = splitPath.at(-1);
+    const tableName = splitPath[splitPath.length - 1];
     const table = findSchemaObjectByName(inputSchema, tableName);
     if (table == null) {
         return {};
