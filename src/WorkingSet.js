@@ -978,7 +978,7 @@ class EntityRegistration
 
                 const linkArrayBase = base && base[linkFieldName];
 
-                if (linkArrayBase === undefined || !linkArrayBase)
+                if (!linkArrayBase)
                 {
                     // if we have a undefined base array, we just keep ignoring that property
                     continue

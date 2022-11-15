@@ -211,13 +211,20 @@ export const renderStateScript = (state) => {
     `
 
     if(filterFunctions){
-        const {name: nameOfFilterFunctions, filterParams} = filterFunctions
-        filterParams.map((filterParam)=> {
-            const {name, query, rootType, sourceName, modalTitle, valueFieldName} = filterParam
-            stateScript += `
+        filterFunctions.forEach(filterFn => {
+            const {name: nameOfFilterFunctions, filterParams, mapName} = filterFn
+            if(mapName) {
+                const getterName = `get${mapName[0].toUpperCase()}${mapName.slice(1)}()`
+                stateScript += `const ${mapName} = ${getterName};
+                `;
+            }
+            filterParams.map((filterParam) => {
+                const {name, query, rootType, sourceName, modalTitle, valueFieldName} = filterParam
+                stateScript += `
             ${nameOfFilterFunctions} (${name}, ${query}, ${rootType}, ${sourceName}, ${modalTitle}, ${valueFieldName});
     `
-        })
+            })
+        });
     }
 
     if (transitionMap) {
