@@ -160,7 +160,7 @@ describe("DataGrid", function () {
                 });
 
                 // yield to render
-                return sleep(0);
+                return sleep(10);
             })
             .then(() => {
                 // console.log(prettyDOM(container));
@@ -185,7 +185,7 @@ describe("DataGrid", function () {
                 });
 
                 // yield to render
-                return sleep(0);
+                return sleep(10);
             })
             .then(() => {
                 // console.log(prettyDOM(container));
