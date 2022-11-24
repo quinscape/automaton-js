@@ -31,8 +31,6 @@ const FilterRow = fnObserver(props => {
 
     const filterColumnElements = [];
 
-    let internalFilterIndex = 0;
-
     columns.forEach(
         (column, columnIdx) => {
 
@@ -48,7 +46,7 @@ const FilterRow = fnObserver(props => {
                 }
                 else
                 {
-                    const { values } = filterState.filters[internalFilterIndex];
+                    const { values } = filterState.filters[filterIndex];
 
                     const filterElems = [];
                     for (let i = 0; i < values.length; i++)
@@ -120,8 +118,6 @@ const FilterRow = fnObserver(props => {
                             }
                         </th>
                     );
-
-                    internalFilterIndex++;
 
                 }
             }

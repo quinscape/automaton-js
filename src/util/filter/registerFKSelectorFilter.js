@@ -30,7 +30,10 @@ function getScalarType(fieldSchema) {
 export function registerFKSelectorFilterAndRenderer(name, query, rootType, sourceName, modalTitle, valueFieldName) {
     registerCustomFilter(name, (fieldName, row) => {
         const fieldValue = typeof row === "string" ? row : row?.[valueFieldName];
-        return field(fieldName).eq(value(fieldValue, "String"));
+        if (!!fieldValue) {
+            return field(fieldName).eq(value(fieldValue, "String"));
+        }
+        return null;
     });
 
     registerCustomFilterRenderer(name, (fieldName, fieldType, label) => {

@@ -75,6 +75,10 @@ function sortByField(array, field) {
     return array;
 }
 
+function isStringNotEmpty(value) {
+    return typeof value === "string" && value !== "";
+}
+
 /**
  * Data grid what works based on degenerified InteractiveQuery types.
  */
@@ -107,7 +111,7 @@ const DataGrid = fnObserver(props => {
         sortColumn
     } = tableConfig;
 
-    const visibleColumnsNotSet = visibleColumns == null || visibleColumns.length < 1;
+    const visibleColumnsNotSet = visibleColumns == null || visibleColumns.length < 1 || visibleColumns.every((value) => !isStringNotEmpty(value));
 
     const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
     const toggleColumnModalOpen = () => setIsColumnModalOpen(!isColumnModalOpen);
@@ -263,7 +267,7 @@ const DataGrid = fnObserver(props => {
 
                 if (moveRowColumn != null && moveRowColumn === name) {
                     columns.unshift(column);
-                } else if (visibleColumnsNotSet || !name) {
+                } else  if (visibleColumnsNotSet || !name) {
                     columns.push(column);
                     if(name) {
                         nonVisibleColumns.push({name, label: heading});
