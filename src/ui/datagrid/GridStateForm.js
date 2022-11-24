@@ -277,7 +277,7 @@ function resolveFilters(columns, componentId, currentCondition)
     for (let i = 0; i < columns.length; i++)
     {
         const column = columns[i];
-        const { name, filter, getValue } = column;
+        const { name, filter, filterIndex, getValue } = column;
         if (filter)
         {
             if (typeof filter === "function")
@@ -301,13 +301,11 @@ function resolveFilters(columns, componentId, currentCondition)
                         columnCondition || template
                     );
 
-                filters.push(
-                    {
-                        filter,
-                        values,
-                        columnIndex: i
-                    }
-                )
+                filters[filterIndex] = {
+                    filter,
+                    values,
+                    columnIndex: i
+                };
 
             }
             else
@@ -324,13 +322,11 @@ function resolveFilters(columns, componentId, currentCondition)
                     columnCondition
                 );
                 
-                filters.push(
-                    {
-                        filter,
-                        values,
-                        columnIndex: i
-                    }
-                )
+                filters[filterIndex] = {
+                    filter,
+                    values,
+                    columnIndex: i
+                };
             }
 
 
@@ -375,6 +371,9 @@ const GridStateForm = props => {
                 const conditions = [];
                 for (let i = 0; i < length; i++)
                 {
+                    if (filters[i] == null) {
+                        continue;
+                    }
                     const { filter, values, columnIndex } = filters[i];
 
                     if (allValuesSet(values))

@@ -26,7 +26,7 @@ const SortColumnListElement = (props) => {
                 type="Button"
                 className="btn btn-link m-0 p-0"
                 title={
-                    i18n(`QueryEditor:Toggle Order; Current: ${order === "A" ? "Ascending" : "Descending"}`)
+                    i18n("QueryEditor:Toggle Order; Current: " + (order === "A" ? "Ascending" : "Descending"))
                 }
                 onClick={
                     () => toggleElementOrder(sortColumnElement)
