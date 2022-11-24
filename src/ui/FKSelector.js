@@ -256,16 +256,16 @@ const FKSelector = fnObserver(props => {
 
     const iQueryDoc = useMemo(
         () => {
-            if (queryFromProps instanceof InteractiveQuery)
+            if (queryFromProps instanceof CachedQuery || queryFromProps instanceof OfflineQuery)
+            {
+                return queryFromProps;
+            }
+            else if (queryFromProps instanceof InteractiveQuery)
             {
                 return new CachedQuery(
                     queryFromProps, {
                         pageSize: cachedPageSize
                     });
-            }
-            else if (queryFromProps instanceof OfflineQuery)
-            {
-                return queryFromProps;
             }
             else
             {

@@ -35,6 +35,9 @@ describe("Tree.Folder", function () {
         inputSchema = new InputSchema(rawSchema);
 
         config.inputSchema = inputSchema;
+        
+        // XXX: tree cloning does not work as expected
+        config.skipIndexTreeCloning = true;
 
         format = new WireFormat(inputSchema, {
             InteractiveQueryFoo: InteractiveQuery,

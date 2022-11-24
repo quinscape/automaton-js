@@ -1,4 +1,4 @@
-import { makeObservable, observable, toJS } from "mobx";
+import { makeObservable, observable, action } from "mobx";
 import InteractiveQuery, { NO_COMPONENT } from "./InteractiveQuery";
 import { getWireFormat } from "../domain";
 import { evaluateMemoryQuery } from "../util/evaluateMemoryQuery";
@@ -62,6 +62,18 @@ export default class CachedQuery
         //console.log("Created CachedQuery", toJS(this), "source = ", source,  "queryConfig = ", queryConfig);
     }
 
+    /**
+     * Set the new queryConfig without mobx printing warnings.
+     * 
+     * This is supposed to be only called from the inside.
+     * 
+     * @param {Object} config the new query configuration
+     */
+    @action
+    setQueryConfig(config) {
+        this.queryConfig = config;
+    }
+
     update(
         queryConfig
     )
@@ -110,9 +122,6 @@ export default class CachedQuery
         };
 
         query.execute = vars => {
-
-            //console.log("CachedQuery execute", vars);
-
             const queryDef = query.getQueryDefinition();
             const aliases = queryDef.aliases;
             const name = queryDef.methodCalls[0];
@@ -129,7 +138,7 @@ export default class CachedQuery
 
             // XXX: needed in tests
             result._query = query;
-
+            
             if (typeof fn === "function")
             {
                 fn(result);
@@ -162,8 +171,7 @@ export default class CachedQuery
      */
     static loadMemoryQuery(type, raw, query, queryConfig, fn)
     {
-        //console.log("CachedQuery.loadMemoryQuery", raw, query, queryConfig)
-        const source = this.convertIQuery(type, raw, query);
+        const source = this.convertIQuery(type, raw, query);        
         return this.createMemoryQuery(source, queryConfig, fn);
     }
 

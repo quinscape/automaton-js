@@ -29,6 +29,9 @@ import { field, value, or } from "../../../src/FilterDSL";
 
 import sleep from "../sleep";
 import { runInAction, toJS } from "mobx";
+import ColumnState from "./typeDefinitions/ColumnState";
+import QueryConfig from "./typeDefinitions/QueryConfig";
+import QuxData from "./typeDefinitions/QuxData";
 
 
 const rawSchema = require("./fk-selector-schema.json");
@@ -40,7 +43,11 @@ const searchTimeout = 4
 
 function getModal()
 {
-    return document.querySelector(".modal");
+    const modal = document.querySelector(".modal");
+    if (modal != null) {
+        return modal;
+    }
+    throw new Error("modal not found");
 }
 
 function openFKSelectorModal(fkSelector)
@@ -280,7 +287,14 @@ describe("FKSelector", function () {
             InteractiveQueryQuxB: InteractiveQuery,
             InteractiveQueryQuxC: InteractiveQuery,
             InteractiveQueryQuxD: InteractiveQuery,
-            InteractiveQueryQuxE: InteractiveQuery
+            InteractiveQueryQuxE: InteractiveQuery,
+            ColumnState: ColumnState,
+            QueryConfig: QueryConfig,
+            QuxA: QuxData,
+            QuxB: QuxData,
+            QuxC: QuxData,
+            QuxD: QuxData,
+            QuxE: QuxData
         }, {
             wrapAsObservable: true
         });
@@ -289,7 +303,7 @@ describe("FKSelector", function () {
     });
 
     beforeEach(() => {
-
+        
         executeSpy = sinon.spy();
 
         GraphQLQuery.prototype.execute = executeSpy;
@@ -404,7 +418,9 @@ describe("FKSelector", function () {
                 assert.deepEqual(ctx.oldRow, {
                     "_type": "QuxA",
                     "name": "Qux A #1",
-                    "value": 1
+                    "value": 1,
+                    "description": undefined,
+                    "id": undefined,
                 })
                 assert.deepEqual(ctx.row, {
                     "_type": "QuxA",
@@ -972,7 +988,7 @@ describe("FKSelector", function () {
             .then(
                 () => {
                     const formConfig = renderSpy.lastCall.args[0];
-                    assert.deepEqual(formConfig.getErrors("quxAId"), ["","QuxMain.quxAId:Field Required"])
+                    assert.deepEqual(formConfig.getErrors("quxAId"), ["","[Field Required]"])
                 }
             )
             .then(

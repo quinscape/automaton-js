@@ -144,7 +144,6 @@ describe("DataGrid", function () {
             container = result.container;
         });
 
-
         const tableHeaders = container.querySelectorAll("th");
 
         // table is sorted by name ascending
@@ -153,11 +152,16 @@ describe("DataGrid", function () {
         const sortLink = tableHeaders[1].querySelector("a");
         assert(sortLink);
 
-        act(() => {
-            sortLink.click();
-        });
-
         return Promise.resolve()
+            .then(() => {
+        
+                act(() => {
+                    sortLink.click();
+                });
+
+                // yield to render
+                return sleep(10);
+            })
             .then(() => {
                 // console.log(prettyDOM(container));
                 const tableHeaders = container.querySelectorAll("th");
@@ -179,6 +183,9 @@ describe("DataGrid", function () {
                 act(() => {
                     sortLink.click();
                 });
+
+                // yield to render
+                return sleep(10);
             })
             .then(() => {
                 // console.log(prettyDOM(container));
@@ -226,6 +233,11 @@ describe("DataGrid", function () {
         return currentList
             .update({
                 sortFields: ["!name", "owner.login"]
+            })
+            .then(() => {
+
+                // yield to render
+                return sleep(0);
             })
             .then(() => {
                 // console.log(prettyDOM(container));

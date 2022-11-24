@@ -17,9 +17,22 @@ import { getGenericType, INTERACTIVE_QUERY } from "../domain";
 
 import AssociationSelectorModal from "./AssociationSelectorModal";
 import autoSubmitHack from "../util/autoSubmitHack";
-import { and, Condition, field, values } from "../FilterDSL";
+import { and, Condition, field, value, values } from "../FilterDSL";
 import { getGraphQLMethodType, lookupType, unwrapAll, unwrapNonNull } from "../util/type-utils";
 
+
+function getQueryCondition(defaultQueryCondition, queryCondition) {
+    if (defaultQueryCondition && queryCondition) {
+        return and(defaultQueryCondition, queryCondition);
+    }
+    if (defaultQueryCondition) {
+        return defaultQueryCondition;
+    }
+    if (queryCondition) {
+        return queryCondition;
+    }
+    return null;
+}
 
 export const NO_SEARCH_FILTER = "NO_SEARCH_FILTER";
 /**
@@ -223,7 +236,6 @@ function updateLinks(root, name, modalState, selected, generateId, onNew)
                     .in(
                         values(type.name, ... linkIdsToFetch)
                     ),
-                condition : queryCondition ? and(composite, queryCondition) : composite,
                 pageSize: 0
             }
         })
@@ -342,12 +354,17 @@ const AssociationSelector = fnObserver(props => {
     } = props;
 
     const queryDef = query.getQueryDefinition();
-    const aliases = queryDef.aliases;
-    const queryName = queryDef.methodCalls[0];
-    const gqlMethodName = aliases ? aliases[queryName] || queryName : queryName;
     const iQueryType = useMemo(
-        () => getGraphQLMethodType(gqlMethodName).name,
-        [ gqlMethodName ]
+        () => {
+            if (queryDef != null) {
+                const aliases = queryDef.aliases;
+                const queryName = queryDef.methodCalls[0];
+                const gqlMethodName = aliases ? aliases[queryName] || queryName : queryName;
+                return getGraphQLMethodType(gqlMethodName).name
+            }
+            return null;
+        },
+        [ queryDef ]
     );
 
     const [elementId] = useState("assoc-selector-" + (++associationSelectorCount));
@@ -364,7 +381,9 @@ const AssociationSelector = fnObserver(props => {
         queryConditionFromProps() :
         queryConditionFromProps;
 
-    const defaultQueryCondition = query.defaultVars.config.condition;
+    const defaultQueryCondition = query.defaultVars.config?.condition;
+
+    const executeQueryCondition = getQueryCondition(defaultQueryCondition, queryCondition);
 
     const openModal = () => {
         query.execute(
@@ -372,7 +391,7 @@ const AssociationSelector = fnObserver(props => {
                 ...query.defaultVars,
                 config: {
                     ...query.defaultVars.config,
-                    condition : queryCondition ? and(defaultQueryCondition, queryCondition) : defaultQueryCondition
+                    condition : executeQueryCondition
                 }
             }
         ).then(
@@ -648,20 +667,6 @@ AssociationSelector.propTypes = {
      * set the available page sizes for the datagrid pagination
      */
     paginationPageSizes: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
-
-    /**
-     * Field name or function returning a filter expression used to allow and
-     * validate text-input changes of the selected value.
-     *
-     * The field or filter must match exactly one element from the current `query`.
-     *
-     * (Function must be of the form `value => ...` and must return a Filter DSL condition.)
-     *
-     */
-     searchFilter: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.func
-    ]),
 
     /**
      * Filter mode for the selector modal. Controls display of column and repeated search filter in interaction with the searchFilter prop,

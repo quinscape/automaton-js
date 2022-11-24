@@ -186,7 +186,7 @@ export default function registerBigDecimalConverter(opts) {
             }
 
             const p = getPrecision(ctx, opts);
-            if (ctx.padToScale) {
+            if (ctx != null && ctx.padToScale) {
                 return scalar.toFormat(p.scale);
             } else {
                 return scalar.toFormat(p.scale).replace(DECIMAL_TRIM_REGEX, DECIMAL_TRIM_REPLACER);

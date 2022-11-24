@@ -2,63 +2,65 @@
   "state": {
     "type": "stateType",
     "name": "stateName",
-    "filterFunctions": {
+    "filterFunctions": [
+      {
 
-      "name": "registerFKSelectorFilterAndRenderer",
+        "name": "registerFKSelectorFilterAndRenderer",
 
-      "filterParams": [
+        "filterParams": [
 
-        {
+          {
 
-          "name": "\"FKSelectorAKZI\"",
+            "name": "\"FKSelectorAKZI\"",
 
-          "query": "Q_AnlagenAppUser",
+            "query": "Q_AnlagenAppUser",
 
-          "rootType": "\"AAnlage\"",
+            "rootType": "\"AAnlage\"",
 
-          "sourceName": "\"anBenutzerId\"",
+            "sourceName": "\"anBenutzerId\"",
 
-          "modalTitle": "\"Auswahldialog: AKZI Nutzer *\"",
+            "modalTitle": "\"Auswahldialog: AKZI Nutzer *\"",
 
-          "valueFieldName":  "\"akzi\""
+            "valueFieldName":  "\"akzi\""
 
-        },
+          },
 
-        {
+          {
 
-          "name": "\"FKSelectorFOO\"",
+            "name": "\"FKSelectorFOO\"",
 
-          "query": "Q_FooAppUser",
+            "query": "Q_FooAppUser",
 
-          "rootType": "\"AFoo\"",
+            "rootType": "\"AFoo\"",
 
-          "sourceName": "\"anBenutzerId\"",
+            "sourceName": "\"anBenutzerId\"",
 
-          "modalTitle": "\"Auswahldialog: FOO Nutzer *\"",
+            "modalTitle": "\"Auswahldialog: FOO Nutzer *\"",
 
-          "valueFieldName": "\"foo\""
+            "valueFieldName": "\"foo\""
 
-        },
+          },
 
-        {
+          {
 
-          "name": "\"FKSelectorBAR\"",
+            "name": "\"FKSelectorBAR\"",
 
-          "query": "Q_Bar",
+            "query": "Q_Bar",
 
-          "rootType": "\"ABar\"",
+            "rootType": "\"ABar\"",
 
-          "sourceName": "\"anBenutzerId\"",
+            "sourceName": "\"anBenutzerId\"",
 
-          "modalTitle": "\"Auswahldialog: BAR Nutzer *\"",
+            "modalTitle": "\"Auswahldialog: BAR Nutzer *\"",
 
-          "valueFieldName": "\"bar\""
+            "valueFieldName": "\"bar\""
 
-        }
+          }
 
-      ]
+        ]
 
-    },
+      }
+    ],
     "transitionMap": {
       "TransitionName": {
           "discard": true,

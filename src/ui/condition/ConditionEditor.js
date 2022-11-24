@@ -113,10 +113,16 @@ const ConditionEditor = observer(function ConditionEditor(props) {
         }
     }, [valueRendererFromProps]);
 
-    const onConditionChange = () => {
-        const queryCondition = get(container, containerPath);
-        onChange(queryCondition);
-    };
+    const onConditionChange = useMemo(() => {
+        if (typeof onChange === "function") {
+            return () => {
+                const queryCondition = get(container, containerPath);
+                onChange(queryCondition);
+            };
+        } else {
+            return () => {}
+        }
+    });
 
     const opts = useMemo(
         () => {

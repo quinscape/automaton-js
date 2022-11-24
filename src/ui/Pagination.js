@@ -177,7 +177,8 @@ const Pagination = fnObserver(props => {
 
     const justifyContentClass = getJustifyContentClass(align);
 
-    const { queryConfig : { offset, pageSize }, rowCount } = iQuery;
+    const { queryConfig, rowCount } = iQuery;
+    const { offset = 0, pageSize = 5 } = queryConfig ?? {};
 
     if (typeof offset !== "number")
     {
@@ -189,9 +190,6 @@ const Pagination = fnObserver(props => {
     const navigate = ev => {
         ev.preventDefault();
         const offset = +ev.target.dataset.offset;
-
-        //console.log("Pagination.navigate", offset);
-
         return iQuery.update({
             offset
         });

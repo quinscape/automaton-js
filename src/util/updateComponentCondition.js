@@ -91,7 +91,7 @@ export default function updateComponentCondition(
     newComponentNode.condition = componentCondition;
 
     let newCondition;
-    if (compositeCondition === null)
+    if (compositeCondition == null)
     {
         newCondition = componentId ? newComponentNode : componentCondition;
     }

@@ -113,7 +113,7 @@ function reducer(state, action)
 }
 
 
-function createInitialState(index)
+function createInitialState(index, values, nameField)
 {
     const state = {};
 
@@ -124,6 +124,39 @@ function createInitialState(index)
             loadState: LoadState.INITIAL,
             open: false
         };
+    }
+    
+    // injected or requested database rows, must be sorted by name field
+    const { rows } = values;
+    for (let i = 0; i < rows.length; i++)
+    {
+        const row = rows[i];
+
+        const name = get(row, nameField);
+
+        if (!name)
+        {
+            throw new Error("No name in field '" + nameField + "' for row: " + JSON.stringify(row));
+        }
+
+        const letter = firstLetter(name);
+
+        const idx = index.indexOf(letter);
+        if (idx < 0)
+        {
+            throw new Error("Letter '" + letter + "' is not included in the index array.");
+        }
+        // if we reach a new index, that means we've already found all entries with the previous letter and
+        // can mark that group as being fully loaded if it isn't already
+        if (idx > 0 && state[index[idx - 1]].loadState !== LoadState.DONE)
+        {
+            state[index[idx - 1]].loadState = LoadState.DONE;
+        }
+
+        if (state[letter].loadState === LoadState.INITIAL)
+        {
+            state[letter].loadState = LoadState.FETCHED;
+        }
     }
 
     return state;
@@ -184,7 +217,7 @@ const IndexedObjects = fnObserver(({
 
     const [dropDown, setDropDown] = useState(-1);
 
-    const [state, dispatch] = useReducer(reducer, null, () => createInitialState(index));
+    const [state, dispatch] = useReducer(reducer, null, () => createInitialState(index, values, nameField));
 
     const loadMore = (letter, wasSelected) => {
         const { queryConfig, _query: query } = values;

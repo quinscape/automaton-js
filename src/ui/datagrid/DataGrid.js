@@ -1,7 +1,6 @@
 import React, {useEffect, useMemo, useState} from "react"
 import PropTypes from "prop-types"
 import { DndProvider } from "react-dnd"
-import { HTML5Backend } from "react-dnd-html5-backend"
 import cx from "classnames"
 import { observer as fnObserver } from "mobx-react-lite"
 import i18n from "../../i18n";
@@ -25,6 +24,7 @@ import DataGridButtonToolbar from "./DataGridButtonToolbar";
 import useEffectNoInitial from "../../util/useEffectNoInitial"
 import { resolveFieldDependencies, resolveTableDependencies } from "../../util/dependencyUtilities"
 import { createDomainObject } from "domainql-form/lib/util/clone"
+import { DndManager } from "../../util/DnDUtils"
 
 function filterIDListFromCondition(condition) {
     const {type, name, operands} = condition;
@@ -483,7 +483,7 @@ const DataGrid = fnObserver(props => {
     };
 
     return (
-        <DndProvider backend={HTML5Backend}>
+        <DndProvider manager={DndManager}>
             <GridStateForm
                 iQuery={ internalQuery }
                 columns={ columns }
