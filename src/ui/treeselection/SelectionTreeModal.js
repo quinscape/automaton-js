@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {ButtonToolbar, Modal, ModalBody, ModalHeader} from "reactstrap";
 import cx from "classnames";
-import {Icon} from "../../../../domainql-form";
+import { Icon } from "domainql-form"
 import i18n from "../../i18n";
 import SelectionTree from "./SelectionTree";
 import PropTypes from "prop-types";

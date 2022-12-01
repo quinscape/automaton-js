@@ -1,6 +1,6 @@
 import React from "react";
 import i18n from "../../i18n";
-import {Icon} from "../../../../domainql-form";
+import { Icon } from "domainql-form"
 import cx from "classnames";
 import PropTypes from "prop-types";
 

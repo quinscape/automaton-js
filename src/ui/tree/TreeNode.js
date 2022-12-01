@@ -2,7 +2,7 @@ import React, {useContext, useMemo, useState} from "react"
 import cx from "classnames"
 import { TreeContext } from "./Tree";
 import i18n from "../../i18n";
-import {Icon} from "../../../../domainql-form";
+import { Icon } from "domainql-form"
 import PropTypes from "prop-types";
 
 

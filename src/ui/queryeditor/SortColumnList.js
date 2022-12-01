@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import SortColumnListElement from "./SortColumnListElement";
 import {ButtonToolbar} from "reactstrap";
-import {Icon} from "../../../../domainql-form";
+import { Icon } from "domainql-form"
 import i18n from "../../i18n";
 import PropTypes from "prop-types";
 import { removeFromObjectAtPath, setInObjectAtPathImmutable } from "../../util/mutateObject";
