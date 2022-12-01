@@ -24,7 +24,7 @@ import DataGridButtonToolbar from "./DataGridButtonToolbar";
 import useEffectNoInitial from "../../util/useEffectNoInitial"
 import { resolveFieldDependencies, resolveTableDependencies } from "../../util/dependencyUtilities"
 import { createDomainObject } from "domainql-form/lib/util/clone"
-import { DndManager } from "../../util/DnDUtils"
+import { DndManager } from "../../util/DndUtils"
 
 function filterIDListFromCondition(condition) {
     if (condition == null) {
