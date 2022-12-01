@@ -174,7 +174,6 @@ const theConfig = new Proxy(
     }
 );
 
-window.appConfig = theConfig;
 applyDefaults(theConfig);
 export default theConfig;
 
