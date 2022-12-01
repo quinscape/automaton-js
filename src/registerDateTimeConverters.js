@@ -208,7 +208,7 @@ export default function registerDateTimeConverters()
             dt => (
                 <span className="static-date">
                     {
-                        dt.toFormat(config.dateFormat)
+                        typeof dt === "string" ? dt : dt.toFormat(config.dateFormat)
                     }
                 </span>
             ))
