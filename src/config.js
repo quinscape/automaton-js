@@ -8,6 +8,7 @@ import {
     COMMON_SCOPE
 } from "./scopeNames"
 import i18n from "./i18n";
+import { observable } from "mobx";
 
 export const DEFAULT_OPTS = {
 
@@ -19,7 +20,7 @@ export const DEFAULT_OPTS = {
     auth: null,
 
     locale: null,
-    translations: {},
+    translations: observable({}),
     markUntranslated: true,
 
     mergeOptions: {
@@ -120,7 +121,7 @@ function applyDefaults(theConfig)
 
 
 const VALID_KEYS = Object.keys(DEFAULT_OPTS);
-
+const OBSERVABLE_PROPERTIES = ["translations"];
 
 /**
  * Adds a new config name and value to the global config object and also adds that name to the list of valid option
@@ -158,7 +159,11 @@ const theConfig = new Proxy(
 
             ensureValid(property);
 
-            config[property] = value;
+            if (OBSERVABLE_PROPERTIES.includes(property)) {
+                config[property] = observable(value);
+            } else {
+                config[property] = value;
+            }
 
             return true;
         },

@@ -7,6 +7,7 @@ import config from "./config";
 import { Process, getCurrentProcess, confirmDestructiveTransition } from "./process/Process"
 import runProcess, { runProcessURI } from "./process/runProcess";
 
+import I18nTranslation from "./ui/I18nTranslation";
 import DataGrid from "./ui/datagrid/DataGrid"
 import Button from "./ui/Button"
 import Link from "./ui/Link"
@@ -110,6 +111,7 @@ export {
     Process,
     getCurrentProcess,
     // UI components
+    I18nTranslation,
     DataGrid,
     Pagination,
     Button,

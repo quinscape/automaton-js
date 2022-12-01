@@ -1,7 +1,7 @@
 import React from "react"
 import cx from "classnames"
 import { observer as fnObserver } from "mobx-react-lite"
-import i18n from "../i18n";
+import I18nTranslation from "./I18nTranslation";
 
 
 export const DEFAULT_PAGE_SIZES = [
@@ -9,13 +9,13 @@ export const DEFAULT_PAGE_SIZES = [
     10,
     20,
     50,
-    i18n("All Rows")
+    "All Rows"
 ];
 
-const BUTTON_FIRST = i18n("Pagination:First");
-const BUTTON_PREV = i18n("Pagination:Prev");
-const BUTTON_NEXT = i18n("Pagination:Next");
-const BUTTON_LAST = i18n("Pagination:Last");
+const BUTTON_FIRST = <I18nTranslation value="Pagination:First" />;
+const BUTTON_PREV = <I18nTranslation value="Pagination:Prev" />;
+const BUTTON_NEXT = <I18nTranslation value="Pagination:Next" />;
+const BUTTON_LAST = <I18nTranslation value="Pagination:Last" />;
 
 function getJustifyContentClass(align) {
     switch (align) {
@@ -115,9 +115,7 @@ const PageSizeSelect = props =>
         <label className="form-group input-group">
             <div className="input-group-prepend">
                 <span className="input-group-text">
-                    {
-                        i18n("Available Page Sizes")
-                    }
+                    <I18nTranslation value="Available Page Sizes" />
                 </span>
             </div>
             <select className="form-control page-size-select" value={pageSize} onChange={changePageSize}>
@@ -126,7 +124,21 @@ const PageSizeSelect = props =>
 
                         const pageSize = getPageSize(value);
 
-                        return (
+                        return typeof value === "string" ? (
+                            <I18nTranslation
+                                key={idx}
+                                value={value}
+                                renderer={(translation) => (
+                                    <option
+                                        value={pageSize}
+                                    >
+                                        {
+                                            translation
+                                        }
+                                    </option>
+                                )}
+                            />
+                        ) : (
                             <option
                                 key={idx}
                                 value={pageSize}
@@ -152,9 +164,7 @@ const RowCountDisplay = props =>
         <div className="ml-2 form-group input-group">
             <div className="input-group-prepend">
                 <span className="input-group-text">
-                    {
-                        i18n("Row Count")
-                    }
+                    <I18nTranslation value="Row Count" />
                 </span>
             </div>
             <div className="input-group-append">
