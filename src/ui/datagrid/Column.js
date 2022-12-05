@@ -171,6 +171,10 @@ Column.propTypes = {
     ]),
 
     /**
+     * Defines if sorting by the column should be suppressed
+     */
+     suppressSort: PropTypes.bool,
+    /**
      * Field expression string or field expression FilterDSL map
      */
     sort:
