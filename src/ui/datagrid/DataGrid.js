@@ -292,7 +292,7 @@ const DataGrid = fnObserver(props => {
             const sortedColumns = [];
             const currentVisibleColumns = [];
 
-            if (visibleColumns != null) {
+            if (isArrayNotEmpty(visibleColumns)) {
                 for (const name of visibleColumns) {
                     if (columnMap.has(name)) {
                         const element = columnMap.get(name);
