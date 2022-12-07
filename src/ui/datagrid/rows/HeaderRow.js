@@ -28,9 +28,11 @@ const HeaderRow = ({
                                             }
                                         }
                                     >
-                                        {
-                                            isMoveRowColumn ? "" : column.heading
-                                        }
+                                        <span className="d-block text-center text-dark">
+                                            {
+                                                isMoveRowColumn ? "" : column.heading
+                                            }
+                                        </span>
                                     </th>
                                 );
                             } else {

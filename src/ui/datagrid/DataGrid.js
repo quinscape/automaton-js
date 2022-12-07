@@ -79,6 +79,10 @@ function isStringNotEmpty(value) {
     return typeof value === "string" && value !== "";
 }
 
+function isArrayNotEmpty(value) {
+    return Array.isArray(value) && value.length > 0;
+}
+
 /**
  * Data grid what works based on degenerified InteractiveQuery types.
  */
@@ -111,7 +115,7 @@ const DataGrid = fnObserver(props => {
         sortColumn
     } = tableConfig;
 
-    const visibleColumnsNotSet = visibleColumns == null || visibleColumns.length < 1 || visibleColumns.every((value) => !isStringNotEmpty(value));
+    const visibleColumnsNotSet = !isArrayNotEmpty(visibleColumns) || visibleColumns.every((value) => !isStringNotEmpty(value));
 
     const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
     const toggleColumnModalOpen = () => setIsColumnModalOpen(!isColumnModalOpen);
@@ -197,7 +201,7 @@ const DataGrid = fnObserver(props => {
                     return;
                 }
 
-                const {name, width, minWidth, filter, heading, sort, renderFilter, children : columnChildren } = columnElem.props;
+                const {name, width, minWidth, filter, heading, suppressSort, sort, renderFilter, children : columnChildren } = columnElem.props;
                 const transformedFilter = getCustomFilter(filter) ?? filter;
                 const getValueFn = getCustomGetValue(filter);
 
@@ -211,7 +215,7 @@ const DataGrid = fnObserver(props => {
                         const columnState = findColumn(columnStates, name);
 
                         if (columnState && columnState.enabled) {
-                            sortable = columnState.sortable;
+                            sortable = columnState.sortable && !suppressSort;
 
                             if (type) {
                                 const typeContext = lookupTypeContext(type, name);
@@ -288,7 +292,7 @@ const DataGrid = fnObserver(props => {
             const sortedColumns = [];
             const currentVisibleColumns = [];
 
-            if (visibleColumns != null) {
+            if (isArrayNotEmpty(visibleColumns)) {
                 for (const name of visibleColumns) {
                     if (columnMap.has(name)) {
                         const element = columnMap.get(name);
