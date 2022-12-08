@@ -27,6 +27,9 @@ import { createDomainObject } from "domainql-form/lib/util/clone"
 import { DndManager } from "../../util/DnDUtils"
 
 function filterIDListFromCondition(condition) {
+    if (condition == null) {
+        return null;
+    }
     const {type, name, operands} = condition;
     if (type === "Condition" && name === "in") {
         const {type: fieldType, name: fieldName} = operands[0];
@@ -44,9 +47,12 @@ function filterIDListFromCondition(condition) {
         }
     }
     if (condition.operands != null) {
-        condition.operands = condition.operands.map(filterIDListFromCondition);
+        return {
+            ...condition,
+            operands: condition.operands.map(filterIDListFromCondition)
+        }
     }
-    return condition;
+    return {...condition};
 }
 
 function findColumn(columnStates, name)
@@ -320,7 +326,7 @@ const DataGrid = fnObserver(props => {
     );
     const [records, setRecords] = React.useState([]);
 
-    const viewDependencies = resolveTableDependencies(type);
+    const viewDependencies = type != null ? resolveTableDependencies(type) ?? [] : [];
     function mapWorkingSetDependencies(dependency) {
         return workingSet.newObjects(dependency).map((entry) => {
             const newEntry = createDomainObject(type);
@@ -341,14 +347,11 @@ const DataGrid = fnObserver(props => {
     const newWorkingSetObjects = useMemo(() => {
         return workingSet ? [
             ...workingSet.newObjects(type),
-            ...viewDependencies?.map(mapWorkingSetDependencies).flat() ?? []
+            ...viewDependencies.map(mapWorkingSetDependencies).flat()
         ] : []
     }, [workingSet?.newObjects()]);
 
-    const queryCondition = useMemo(() => {
-        if (queryConfig.condition == null) {
-            return null;
-        }
+    const newObjectsQueryCondition = useMemo(() => {
         return filterIDListFromCondition(queryConfig.condition);
     }, [queryConfig.condition]);
 
@@ -381,7 +384,7 @@ const DataGrid = fnObserver(props => {
         const result = [
             ...(workingSet && queryConfig.offset === 0 && (function () {
         
-                const filterFn = filterTransformer(queryCondition, fieldResolver.resolve);
+                const filterFn = filterTransformer(newObjectsQueryCondition, fieldResolver.resolve);
         
                 return newWorkingSetObjects.filter( obj => {
                     fieldResolver.current = obj;
@@ -395,7 +398,7 @@ const DataGrid = fnObserver(props => {
     }, [
         rows,
         newWorkingSetObjects,
-        queryCondition,
+        newObjectsQueryCondition,
         workingSet?.changes
     ]);
 
