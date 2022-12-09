@@ -120,7 +120,8 @@ function recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, fie
             schemaPath: newSchemaPath,
             currentName: fieldName,
             currentType: unwrappedName,
-            tableName: table.name
+            tableName: table.name,
+            hasChildNodes: unwrappedKind === "OBJECT"
         };
         if (typeof filterCallback === "function" && !filterCallback(filterCallbackData)) {
             continue;

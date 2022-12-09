@@ -75,7 +75,7 @@ import promiseUI, {configurePromiseUI} from "./util/promiseUI"
 import { promiseThrobber } from "./ui/throbber/Throbber";
 
 import ConditionEditor from "./ui/condition/ConditionEditor"
-import {unwrapNonNull} from "./util/type-utils";
+import {unwrapNonNull, unwrapAll} from "./util/type-utils";
 import decompileFilter from "./util/decompileFilter"
 
 import { registerCustomFilter } from "./util/filter/CustomFilter"
@@ -210,6 +210,7 @@ export {
     ConditionEditor,
     confirmDestructiveTransition,
     unwrapNonNull,
+    unwrapAll,
     decompileFilter,
 
     registerCustomFilter,
