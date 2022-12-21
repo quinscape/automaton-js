@@ -241,21 +241,6 @@ export class TreeState {
 
 }
 
-
-function trap(obj, name)
-{
-    Object.defineProperty(obj, name, {
-        get: function () {
-            throw new Error("Getter for trapped '" + name + "' called")
-        },
-        set: function (value) {
-            throw new Error("Setter for trapped '" + name + "' called with " + JSON.stringify(value))
-        }
-    })
-
-}
-
-
 /**
  * @enum {string}
  */
@@ -422,16 +407,6 @@ export default class ConditionEditorState {
 
         this.conditionTree = new TreeState(this, TreeType.MAIN, opts)
         this.expressionTree = new TreeState(this, TreeType.EXPR, opts)
-
-        trap(this, "expressionAabb")
-        trap(this, "leafWidth")
-        trap(this, "aabb")
-        trap(this, "dimensions")
-        trap(this, "layoutCounter")
-        trap(this, "layoutExpressionCounter")
-        trap(this, "component")   // ???
-        trap(this, "layout")
-
     }
 
     get conditionRoot()

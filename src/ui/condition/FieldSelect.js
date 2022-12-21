@@ -33,6 +33,8 @@ const FieldSelect = observer((props) => {
         schemaResolveFilterCallback
     } = props;
 
+    //console.log("RENDER FIELD SELECT", rootType, path)
+
     const formConfig = useFormConfig();
 
     /**
