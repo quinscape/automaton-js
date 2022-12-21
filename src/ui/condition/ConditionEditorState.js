@@ -399,6 +399,14 @@ export default class ConditionEditorState {
     @observable
     updateCounter = 0;
 
+    /**
+     * Increased to force form recreation
+     *
+     * @type {number}
+     */
+    @observable
+    formCounter = 0;
+
 
     constructor(rootType, container, containerPath, opts)
     {
@@ -519,6 +527,7 @@ export default class ConditionEditorState {
         this.expressionDialogOpen = false;
         this.expression = null;
 
+        this.formCounter++
         this.conditionTree.relayout()
     }
 

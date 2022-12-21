@@ -244,7 +244,7 @@ const ConditionEditor = observer(function ConditionEditor(props) {
                 className={ cx("condition-editor", className) }
             >
                 <Form
-                    key={ FormContext.getUniqueId(condition) }
+                    key={ FormContext.getUniqueId(condition) + "-" + editorState.formCounter }
                     value={ condition }
                     formContext={ formContext }
                     options={ {
