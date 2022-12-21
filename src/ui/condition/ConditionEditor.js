@@ -16,7 +16,7 @@ import { ButtonToolbar } from "reactstrap";
 import ConditionEditorState, { TreeType } from "./ConditionEditorState";
 import ImportExportDialog from "./ImportExportDialog";
 import PropTypes from "prop-types";
-import { runInAction } from "mobx";
+import { runInAction, toJS } from "mobx"
 import ExpressionDialog from "./ExpressionDialog";
 import ExpressionDropdown from "./ExpressionDropdown";
 import { getFieldDataByPath, getTableNameByPath } from "../../util/inputSchemaUtilities";
@@ -230,10 +230,12 @@ const ConditionEditor = observer(function ConditionEditor(props) {
         [ layoutCounter ]
     );
 
+    //console.log("Render ConditionEditor", toJS(editorState))
+
     const nodes = [];
     const decorations = [];
 
-    renderLayoutNodes(rootType, layoutRoot, nodes, decorations, editorState, condition, editorState.conditionTree, valueRenderer, schemaResolveFilterCallback);
+    renderLayoutNodes(layoutRoot, nodes, decorations, editorState, condition, editorState.conditionTree, valueRenderer, schemaResolveFilterCallback);
 
     return (
         <>
@@ -321,6 +323,8 @@ const ConditionEditor = observer(function ConditionEditor(props) {
                 conditionRoot={ condition }
                 editorState={ editorState }
                 formContext={ formContext }
+                valueRenderer={ valueRenderer }
+                schemaResolveFilterCallback={ schemaResolveFilterCallback }
             />
         </>
     );
@@ -355,12 +359,14 @@ function StructuralAddButton({condition, path, editorState})
  * Creates flat React elements for the hierarchical component tree and adds them either to "nodes" which are normal
  * relative-absolute positioned HTML content and decorations which are SVG elements
  */
-export function renderLayoutNodes(rootType, layoutNode, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback)
+export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback)
 {
     if (!layoutNode)
     {
         return;
     }
+
+    const { rootType } = editorState;
 
     const { aabb } = tree;
 
@@ -427,11 +433,11 @@ export function renderLayoutNodes(rootType, layoutNode, nodes, decorations, edit
 
         if (isConditionTree)
         {
-            renderCondition(rootType, elements, layoutNode, layoutNode.data, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
+            renderCondition(elements, layoutNode, layoutNode.data, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
         }
         else
         {
-            renderExpression(rootType, elements, layoutNode, layoutNode.data, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
+            renderExpression(elements, layoutNode, layoutNode.data, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
         }
 
         nodes.push(
@@ -464,13 +470,16 @@ function flattenStructuralKids(rootType, node, nodes, decorations, editorState, 
         for (let i = 0; i < children.length; i++)
         {
             const kid = children[i];
-            renderLayoutNodes(rootType, kid, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback)
+            renderLayoutNodes(kid, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback)
         }
     }
 }
 
-function renderCondition(rootType, elements, layoutNode, condition, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback) {
-    const {type} = condition;
+function renderCondition(elements, layoutNode, condition, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback) {
+
+    const { rootType } = editorState;
+
+    const { type } = condition;
 
     const nodeId = ConditionEditorState.getNodeId(condition);
 
@@ -482,7 +491,7 @@ function renderCondition(rootType, elements, layoutNode, condition, path, editor
         const unary = operands.length === 1;
         if (!unary)
         {
-            renderCondition(rootType, kids, layoutNode, operands[0], join(path, "operands.0"), editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
+            renderCondition(kids, layoutNode, operands[0], join(path, "operands.0"), editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
         }
 
         kids.push(
@@ -501,7 +510,7 @@ function renderCondition(rootType, elements, layoutNode, condition, path, editor
 
         for (let i = unary ? 0 : 1; i < operands.length; i++)
         {
-            renderCondition(rootType, kids, layoutNode, operands[i], join(path, "operands." + i), editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
+            renderCondition(kids, layoutNode, operands[i], join(path, "operands." + i), editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
         }
 
         if (isCondition)
@@ -637,9 +646,11 @@ function renderCondition(rootType, elements, layoutNode, condition, path, editor
     }
 }
 
-function renderExpression(rootType, elements, layoutNode, condition, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
+function renderExpression(elements, layoutNode, condition, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
 {
-    const {type} = condition;
+    const { rootType } = editorState;
+
+    const { type } = condition;
 
     const nodeId = ConditionEditorState.getNodeId(condition);
 

@@ -10,7 +10,7 @@ import ConditionEditorState from "./ConditionEditorState";
 import OperationDialog from "./OperationDialog";
 
 
-const ExpressionDialogBody = observer(function ExpressionDialogBody({ editorState, conditionRoot, formContext, formOptions  })
+const ExpressionDialogBody = observer(function ExpressionDialogBody({ editorState, conditionRoot, formContext, formOptions, valueRenderer, schemaResolveFilterCallback  })
 {
     const nodes = [];
     const decorations = [];
@@ -65,7 +65,7 @@ const ExpressionDialogBody = observer(function ExpressionDialogBody({ editorStat
 
     const { layoutRoot, aabb } = expressionTree
 
-    renderLayoutNodes( layoutRoot, nodes, decorations, editorState, expression, expressionTree)
+    renderLayoutNodes(layoutRoot, nodes, decorations, editorState, expression, expressionTree, valueRenderer, schemaResolveFilterCallback)
 
     return ((
         <div
@@ -120,7 +120,7 @@ const ExpressionDialogBody = observer(function ExpressionDialogBody({ editorStat
 })
 
 
-const ExpressionDialog = fnObserver(function ExpressionDialog({ editorState, conditionRoot, formContext }){
+const ExpressionDialog = fnObserver(function ExpressionDialog({ editorState, conditionRoot, formContext, valueRenderer, schemaResolveFilterCallback }){
 
     const { closeExpressionDialog } = editorState;
 
@@ -146,6 +146,8 @@ const ExpressionDialog = fnObserver(function ExpressionDialog({ editorState, con
                             editorState={ editorState }
                             conditionRoot={ conditionRoot }
                             formContext={ formContext }
+                            valueRenderer={ valueRenderer }
+                            schemaResolveFilterCallback={ schemaResolveFilterCallback }
                         />
                     )
                 }
@@ -154,13 +156,4 @@ const ExpressionDialog = fnObserver(function ExpressionDialog({ editorState, con
     );
 });
 
-/*
-                                    <Form
-                                        value={ editorState }
-                                        formContext={ editorState.formContext }
-                                        spellCheck="false"
-                                    >
-                                    </Form>
-
- */
 export default ExpressionDialog;
