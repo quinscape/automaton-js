@@ -112,6 +112,7 @@ const DataGrid = fnObserver(props => {
         onTableConfigChange,
         moveRowColumn,
         moveRowHandler,
+        markRow,
         children
     } = props;
 
@@ -585,7 +586,8 @@ const DataGrid = fnObserver(props => {
                                                             targetRow == idx && "target-row",
                                                             targetRow == idx && targetRow < sourceRow && "target-row-top",
                                                             targetRow == idx && targetRow > sourceRow && "target-row-bottom",
-                                                            sourceRow == idx && "source-row"
+                                                            sourceRow == idx && "source-row",
+                                                            typeof markRow === "function" && markRow(context) && "table-primary"
                                                         )
                                                     }
                                                 />

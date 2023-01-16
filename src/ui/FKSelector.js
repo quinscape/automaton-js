@@ -695,6 +695,9 @@ const FKSelector = fnObserver(props => {
                                 selectButtonContentRenderer={ selectButtonContentRenderer }
                                 alignPagination={ alignPagination }
                                 paginationPageSizes={ paginationPageSizes }
+                                markGridRow={ (row) => {
+                                    return row.id === fieldValue;
+                                } }
                             />
                         </FormGroup>
                     );
