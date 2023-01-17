@@ -44,7 +44,8 @@ const FkSelectorModal = fnObserver(
             fkSelectorId,
             selectButtonContentRenderer,
             alignPagination,
-            paginationPageSizes
+            paginationPageSizes,
+            markGridRow
         } = props;
 
         const formObject = useLocalObservable(() => observable({filter}));
@@ -204,6 +205,7 @@ const FkSelectorModal = fnObserver(
                                     alignPagination={ alignPagination }
                                     paginationPageSizes={paginationPageSizes}
                                     isCompact
+                                    markRow={markGridRow}
                                 >
                                     <DataGrid.Column
                                         heading={ "Action" }
