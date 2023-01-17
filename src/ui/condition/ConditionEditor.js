@@ -95,7 +95,7 @@ const ConditionEditor = observer(function ConditionEditor(props) {
         valueRenderer: valueRendererFromProps,
         schemaResolveFilterCallback,
         onChange,
-        hideImportExport: enableImportExport,
+        enableImportExport,
         queryCondition: queryConditionFromProps
     } = props;
 
@@ -229,8 +229,6 @@ const ConditionEditor = observer(function ConditionEditor(props) {
         },
         [ layoutCounter ]
     );
-
-    //console.log("Render ConditionEditor", toJS(editorState))
 
     const nodes = [];
     const decorations = [];
