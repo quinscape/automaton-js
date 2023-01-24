@@ -26,20 +26,18 @@ const QueryEditor = (props) => {
         header,
         columnNameRenderer,
         formContext = FormContext.getDefault(),
-        path : containerPath = "",
         rootType,
-        container,
         saveButtonText,
         saveButtonOnClick,
         onChange,
-        queryConfiguration,
+        queryConfiguration = {},
         schemaResolveFilterCallback,
         className
     } = props;
 
-    const selectedColumnsPath = toPath(containerPath).concat(toPath("columns"));
-    const queryConditionPath = toPath(containerPath).concat(toPath("condition"));
-    const sortColumnsPath = toPath(containerPath).concat(toPath("sort"));
+    const selectedColumnsPath = toPath("select");
+    const queryConditionPath = toPath("where");
+    const sortColumnsPath = toPath("sort");
 
     const valueRenderer = useMemo(() => {
         if (typeof columnNameRenderer === "function") {
@@ -56,7 +54,7 @@ const QueryEditor = (props) => {
     }, [columnNameRenderer, rootType]);
 
     const editorState = useLocalObservable(() => {
-        return new QueryEditorState(rootType, container, containerPath);
+        return new QueryEditorState(rootType, queryConfiguration, "");
     });
 
     useEffect(() => {
@@ -81,7 +79,7 @@ const QueryEditor = (props) => {
                 kind: "LIST"
             }
         });
-    }, [editorState.container, containerPath]);
+    }, [editorState.container]);
 
     const [selectedColumns, setSelectedColumns] = useState([]);
     const [sortColumns, setSortColumns] = useState([]);
@@ -99,12 +97,9 @@ const QueryEditor = (props) => {
                     const queryCondition = get(container, queryConditionPath);
                     const querySort = get(container, sortColumnsPath);
                     onChange({
-                        columns: queryColumns ?? [],
-                        condition: queryCondition,
-                        sort: querySort?.map((sortColumnElement) => {
-                            const {name, order} = sortColumnElement;
-                            return `${order === "D" ? "!" : ""}${name}`;
-                        }) ?? []
+                        select: queryColumns ?? [],
+                        where: queryCondition,
+                        sort: querySort ?? []
                     });
                 }
             };
@@ -113,7 +108,7 @@ const QueryEditor = (props) => {
     });
 
     useEffect(() => {
-        const queryColumns = queryConfiguration?.columns ?? [];
+        const queryColumns = queryConfiguration?.select ?? [];
         const querySort = queryConfiguration?.sort?.map((element) => {
             const isDescending = element.startsWith("!");
             if (isDescending) {
@@ -127,9 +122,6 @@ const QueryEditor = (props) => {
 
         setSelectedColumns(queryColumns);
         setSortColumns(querySort);
-
-        editorState.setColumns(queryColumns);
-        editorState.setSort(querySort);
     }, [queryConfiguration]);
 
     const columnErrorMessages = formContext.findError(editorState.container, selectedColumnsPath.join("."));
@@ -155,7 +147,7 @@ const QueryEditor = (props) => {
                         selectedColumns={selectedColumns ?? []}
                         valueRenderer={valueRenderer}
                         onChange={(selectedColumns) => {
-                            editorState.setColumns(selectedColumns);
+                            editorState.setSelected(selectedColumns);
                             setSelectedColumns(selectedColumns);
                             onQueryChange();
                         }}
@@ -176,7 +168,7 @@ const QueryEditor = (props) => {
                         path={queryConditionPath.join(".")}
                         valueRenderer={columnNameRenderer}
                         formContext={formContext}
-                        queryCondition={queryConfiguration?.condition}
+                        queryCondition={queryConfiguration?.where}
                         onChange={() => {
                             onQueryChange();
                         }}
@@ -190,7 +182,10 @@ const QueryEditor = (props) => {
                         valueRenderer={valueRenderer}
                         sortColumns={sortColumns ?? []}
                         onChange={(sortColumns) => {
-                            editorState.setSort(sortColumns);
+                            editorState.setSort(sortColumns.map((sortColumnElement) => {
+                                const {name, order} = sortColumnElement;
+                                return `${order === "D" ? "!" : ""}${name}`;
+                            }) ?? []);
                             setSortColumns(sortColumns);
                             onQueryChange();
                         }}
@@ -205,6 +200,7 @@ const QueryEditor = (props) => {
                                     type="Button"
                                     className="btn btn-primary"
                                     onClick={() => {
+                                        const queryCondition = get(editorState.container, queryConditionPath);
                                         const queryConfiguration = {
                                             select: selectedColumns,
                                             where: queryCondition,
@@ -261,16 +257,6 @@ QueryEditor.propTypes = {
      * defaults to the default FormContext
      */
     formContext: PropTypes.instanceOf(FormContext),
-    
-    /**
-     * container object to save the data into
-     */
-    container: PropTypes.object.isRequired,
-
-    /**
-     * path used by the editor
-     */
-    path : PropTypes.string.isRequired,
 
     /**
      * root type used by the editor

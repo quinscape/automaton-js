@@ -47,10 +47,10 @@ export default class QueryEditorState {
     }
 
     @action
-    setColumns(columns) {
+    setSelected(columns) {
         const {container, containerPath} = this;
 
-        const p = toPath(containerPath).concat(toPath("columns"));
+        const p = toPath(containerPath).concat(toPath("select"));
         if (Array.isArray(columns) && columns.length > 0) {
             set(container, p, columns);
         } else {
