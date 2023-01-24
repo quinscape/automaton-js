@@ -99,10 +99,7 @@ const QueryEditor = (props) => {
                     onChange({
                         select: queryColumns ?? [],
                         where: queryCondition,
-                        sort: querySort?.map((sortColumnElement) => {
-                            const {name, order} = sortColumnElement;
-                            return `${order === "D" ? "!" : ""}${name}`;
-                        }) ?? []
+                        sort: querySort ?? []
                     });
                 }
             };
@@ -111,7 +108,7 @@ const QueryEditor = (props) => {
     });
 
     useEffect(() => {
-        const queryColumns = queryConfiguration?.columns ?? [];
+        const queryColumns = queryConfiguration?.select ?? [];
         const querySort = queryConfiguration?.sort?.map((element) => {
             const isDescending = element.startsWith("!");
             if (isDescending) {
@@ -125,9 +122,6 @@ const QueryEditor = (props) => {
 
         setSelectedColumns(queryColumns);
         setSortColumns(querySort);
-
-        editorState.setSelected(queryColumns);
-        editorState.setSort(querySort);
     }, [queryConfiguration]);
 
     const columnErrorMessages = formContext.findError(editorState.container, selectedColumnsPath.join("."));
@@ -174,7 +168,7 @@ const QueryEditor = (props) => {
                         path={queryConditionPath.join(".")}
                         valueRenderer={columnNameRenderer}
                         formContext={formContext}
-                        queryCondition={queryConfiguration?.condition}
+                        queryCondition={queryConfiguration?.where}
                         onChange={() => {
                             onQueryChange();
                         }}
@@ -188,7 +182,10 @@ const QueryEditor = (props) => {
                         valueRenderer={valueRenderer}
                         sortColumns={sortColumns ?? []}
                         onChange={(sortColumns) => {
-                            editorState.setSort(sortColumns);
+                            editorState.setSort(sortColumns.map((sortColumnElement) => {
+                                const {name, order} = sortColumnElement;
+                                return `${order === "D" ? "!" : ""}${name}`;
+                            }) ?? []);
                             setSortColumns(sortColumns);
                             onQueryChange();
                         }}
