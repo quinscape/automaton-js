@@ -126,7 +126,7 @@ const QueryEditor = (props) => {
         setSelectedColumns(queryColumns);
         setSortColumns(querySort);
 
-        editorState.setColumns(queryColumns);
+        editorState.setSelected(queryColumns);
         editorState.setSort(querySort);
     }, [queryConfiguration]);
 
@@ -153,7 +153,7 @@ const QueryEditor = (props) => {
                         selectedColumns={selectedColumns ?? []}
                         valueRenderer={valueRenderer}
                         onChange={(selectedColumns) => {
-                            editorState.setColumns(selectedColumns);
+                            editorState.setSelected(selectedColumns);
                             setSelectedColumns(selectedColumns);
                             onQueryChange();
                         }}
