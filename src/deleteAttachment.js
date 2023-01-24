@@ -3,6 +3,7 @@ import uri from "./uri";
 import { formatGraphQLErrors } from "./graphql"
 import createUnifiedErrors from "./util/createUnifiedErrors"
 import triggerToastsForErrors from "./util/triggerToastsForErrors"
+import { registerRequestForSession } from "./util/latestRequestInSession"
 
 
 /**
@@ -57,6 +58,8 @@ export default function deleteAttachment(attachmentId)
                     )
                 );
             }
+
+            registerRequestForSession()
         })
 
 }

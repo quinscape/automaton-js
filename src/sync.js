@@ -7,6 +7,7 @@ import {
 import { formatGraphQLErrors } from "./graphql"
 import createUnifiedErrors from "./util/createUnifiedErrors"
 import triggerToastsForErrors from "./util/triggerToastsForErrors"
+import { registerRequestForSession } from "./util/latestRequestInSession"
 
 
 const wasCalled = {};
@@ -64,6 +65,9 @@ export function serverSync(name, scope, uri)
                 )
                 .then(
                     ({errors}) => {
+
+                        registerRequestForSession()
+
                         if (errors)
                         {
                             return Promise.reject(

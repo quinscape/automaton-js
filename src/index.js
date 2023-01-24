@@ -93,6 +93,7 @@ import ColumnSelect from "./ui/queryeditor/ColumnSelect";
 import { createTreeRepresentationForInputSchema } from "./util/inputSchemaUtilities"
 
 import IconCell from "./ui/datagrid/iconcolumn/IconCell"
+import latestRequestInSession, { registerRequestForSession } from "./util/latestRequestInSession"
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -229,6 +230,10 @@ export {
 
     createTreeRepresentationForInputSchema,
 
-    IconCell
+    IconCell,
+    
+    latestRequestInSession,
+    registerRequestForSession
 }
+
 

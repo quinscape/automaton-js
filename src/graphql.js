@@ -5,6 +5,7 @@ import GraphQLQuery from "./GraphQLQuery";
 import { getGraphQLMethodType } from "./util/type-utils"
 import triggerToastsForErrors from "./util/triggerToastsForErrors"
 import createUnifiedErrors from "./util/createUnifiedErrors"
+import { registerRequestForSession } from "./util/latestRequestInSession"
 
 
 /**
@@ -216,6 +217,9 @@ export default function graphql(params) {
         )
         .then(
             ({data, errors}) => {
+
+                registerRequestForSession()
+
                 if (errors)
                 {
                     triggerToastsForErrors(errors)

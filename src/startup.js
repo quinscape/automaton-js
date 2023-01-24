@@ -31,6 +31,7 @@ import WorkingSet from "./WorkingSet";
 import {registerDateRangeFilter} from "./util/filter/registerDateRangeFilter";
 import {registerNumberFilter} from "./util/filter/registerNumberFilter";
 import registerStringSetConverter from "./util/converter/registerStringSetConverter";
+import { registerRequestForSession } from "./util/latestRequestInSession"
 
 
 const SCOPES_MODULE_NAME = "./scopes.js";
@@ -80,6 +81,8 @@ export function shutdown()
  */
 function defaultInit(ctx, initial)
 {
+    registerRequestForSession()
+    
     const {
         appName,
         locale,

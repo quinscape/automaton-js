@@ -21,6 +21,7 @@ import { getGraphQLMethodType } from "../util/type-utils"
 import Throbber from "../ui/throbber/Throbber";
 import { formatGraphQLErrors } from "../graphql"
 import triggerToastsForErrors from "../util/triggerToastsForErrors"
+import { registerRequestForSession } from "../util/latestRequestInSession"
 
 let processImporter;
 
@@ -969,6 +970,9 @@ export function fetchProcessInjections(appName, processName, input = {})
         )
         .then(
             ({data,errors = []}) => {
+
+                registerRequestForSession()
+
                 if (errors.length)
                 {
                     return Promise.reject(errors)
