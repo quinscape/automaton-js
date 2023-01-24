@@ -3,7 +3,7 @@ import { startup, reinitializeLocalScope, reinitializeSessionScope, shutdown, St
 import injection from "./injection";
 import i18n from "./i18n";
 import uri from "./uri";
-import config from "./config";
+import config, { addConfig } from "./config";
 import { Process, getCurrentProcess, confirmDestructiveTransition } from "./process/Process"
 import runProcess, { runProcessURI } from "./process/runProcess";
 
@@ -97,6 +97,8 @@ import IconCell from "./ui/datagrid/iconcolumn/IconCell"
 // noinspection JSUnusedGlobalSymbols
 export {
     config,
+    addConfig,
+
     startup,
     shutdown,
     injection,
