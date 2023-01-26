@@ -116,7 +116,6 @@ const DateRangeField = props => {
                                         type="button"
                                         title={ buttonTitle }
                                         disabled={ mode !== FieldMode.NORMAL }
-                                        aria-roledescription={ buttonTitle }
                                         onClick={ () => setOpen(true) }
                                     >
                                         <Icon className="fa-calendar-check"/>

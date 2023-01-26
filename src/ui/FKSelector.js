@@ -632,7 +632,6 @@ const FKSelector = fnObserver(props => {
                                 type="button"
                                 title={ modalTitle }
                                 disabled={mode !== FieldMode.NORMAL }
-                                aria-roledescription={ modalTitle }
                                 onClick={ selectFromModal }
                             >
                                 &hellip;

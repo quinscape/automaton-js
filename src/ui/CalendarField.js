@@ -110,7 +110,6 @@ const CalendarField = props => {
                                         type="button"
                                         title={ buttonTitle }
                                         disabled={ mode !== FieldMode.NORMAL }
-                                        aria-roledescription={ buttonTitle }
                                         onClick={ () => setOpen(true) }
                                     >
                                         <Icon className="fa-calendar-check"/>

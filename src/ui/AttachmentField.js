@@ -214,7 +214,6 @@ const AttachmentField = React.forwardRef(
                                                 type="button"
                                                 className="btn btn-light border"
                                                 disabled={ mode !== FieldMode.NORMAL || !attachment || isNew }
-                                                aria-label={ i18n("Remove attachment") }
                                                 title={ i18n("Remove attachment") }
                                                 onClick={ removeCurrent }
                                             >
@@ -231,7 +230,6 @@ const AttachmentField = React.forwardRef(
                                                         type="button"
                                                         className="btn btn-light border"
                                                         disabled={ mode !== FieldMode.NORMAL }
-                                                        aria-label={ i18n("Reset Attachment Field") }
                                                         title={ i18n("Reset Attachment Field") }
                                                         onClick={ resetField }
                                                     >

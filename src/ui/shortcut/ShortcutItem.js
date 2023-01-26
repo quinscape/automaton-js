@@ -95,7 +95,6 @@ const ShortcutItem = fnObserver(({
             className={ cx("shortcut-link btn", errorCount ? "btn-danger" : "btn-outline-primary", !!changesCount && "has-changes") }
             href={ href } // a11y-friendly
             title={ title }
-            aria-label={ title }
             aria-invalid={ !!errorCount || null }
             onClick={(event) => {
                 const el = document.getElementById(reference);
