@@ -3,6 +3,7 @@ import cx from "classnames"
 import { Icon } from "domainql-form"
 import { operation } from "../../FilterDSL";
 import findSort from "./findSort";
+import i18n from "../../i18n"
 
 
 /**
@@ -30,6 +31,22 @@ function descending(sort)
     }
 }
 
+function getLabelForState(sortState)
+{
+    if (sortState)
+    {
+        if (sortState === 1)
+        {
+            return i18n("SortLink:Sorted Ascending")
+        }
+        else
+        {
+            return i18n("SortLink:Sorted Descending")
+        }
+    }
+    return null
+}
+
 
 const SortLink = props => {
 
@@ -51,20 +68,36 @@ const SortLink = props => {
         offset: 0
     });
 
-    const sortIcon = sortable && sortFields != null ?  SORT_ICONS[ findSort(sortFields, sort) ] : 0;
-    
+    let sortIcon = null
+    let sortState = 0
+    if (sortable && sortFields != null)
+    {
+        sortState = findSort(sortFields, sort)
+        sortIcon = SORT_ICONS[sortState]
+    }
+
     return (
         React.createElement(
             sortable ? "a" : "span",
             sortable ? {
                 className: "d-block text-center text-dark",
                 href: "#",
+                role: "button",
+                "aria-label":
+                    // we only do the inverse column sorting if the current column was the only column sorted by.
+                    // If we come from a multi-field sorting, we sort by the current column in ascending order first
+                    sortFields != null &&
+                    sortFields.length === 1 &&
+                    sortState === 1 ?
+                        i18n("SortLink:Sort by {0} descending", heading) :
+                        i18n("SortLink:Sort by {0} ascending", heading),
                 onClick: ev => { ev.preventDefault() ; changeSorting() }
             } : {
                 className: "d-block text-center text-dark",
             },
             heading,
             sortable && <Icon
+                aria-label={ getLabelForState(sortState) }
                 className={
                     cx(
                         "sort-icon p-1 text-primary",
