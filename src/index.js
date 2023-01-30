@@ -78,6 +78,8 @@ import ConditionEditor from "./ui/condition/ConditionEditor"
 import {unwrapNonNull, unwrapAll} from "./util/type-utils";
 import decompileFilter from "./util/decompileFilter"
 
+import { registerCustomDependencyResolver } from "./util/dependencyUtilities";
+
 import { registerCustomFilter } from "./util/filter/CustomFilter"
 import { registerCustomFilterRenderer } from "./util/filter/CustomFilterRenderer"
 import { registerFKSelectorFilterAndRenderer } from "./util/filter/registerFKSelectorFilter"
@@ -215,6 +217,8 @@ export {
     unwrapNonNull,
     unwrapAll,
     decompileFilter,
+
+    registerCustomDependencyResolver,
 
     registerCustomFilter,
     registerCustomFilterRenderer,

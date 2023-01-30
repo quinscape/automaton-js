@@ -1,6 +1,18 @@
 import get from "lodash.get";
 import config from "../config";
 
+const customDependencyResolvers = new Map();
+
+function getCustomDependencyResolverList(type) {
+    const resolverList = customDependencyResolvers.get(type);
+    if (resolverList == null) {
+        const newResolverList = new Map();
+        customDependencyResolvers.set(type, newResolverList);
+        return newResolverList;
+    }
+    return resolverList;
+}
+
 /**
  * Recursively resolve the view dependencies for a table definition
  * 
@@ -54,6 +66,10 @@ export function resolveFieldDependencies(type, name) {
  *          the context
  */
 export function resolveFieldDependenciesValue(workingSet, context, name) {
+    const resolver = getCustomDependencyResolver(context._type, name);
+    if (typeof resolver === "function") {
+        return resolver(context.id, workingSet, get(context, name));
+    }
     const dependencies = resolveFieldDependencies(context._type, name);
     if (dependencies != null && workingSet) {
         for (const dependency of dependencies) {
@@ -70,4 +86,33 @@ export function resolveFieldDependenciesValue(workingSet, context, name) {
         }
     }
     return get(context, name);
+}
+
+/**
+ * Register a custom dependency resolver for a specified column
+ * 
+ * @param {string} type the table where the field is defined in
+ * @param {string} name the name of the field in the table
+ * @param {function(rowId, workingSet, currentValue)} resolver the custom resolver function
+ */
+export function registerCustomDependencyResolver(type, name, resolver) {
+    if (typeof resolver !== "function") {
+        throw new TypeError("can only register a function as resolver");
+    }
+    const resolverList = getCustomDependencyResolverList(type);
+    resolverList.set(name, resolver);
+}
+
+/**
+ * Get the custom dependency resolver for a specified column
+ * 
+ * @param {string} type the table where the field is defined in
+ * @param {string} name the name of the field in the table
+ * @returns {function(rowId, workingSet, currentValue)} the custom resolver function
+ */
+export function getCustomDependencyResolver(type, name) {
+    const resolverList = customDependencyResolvers.get(type);
+    if (resolverList != null) {
+        return resolverList.get(name);
+    }
 }
