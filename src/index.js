@@ -92,7 +92,7 @@ import SelectionTreeModal from "./ui/treeselection/SelectionTreeModal"
 import QueryEditor from "./ui/queryeditor/QueryEditor";
 import ColumnSelect from "./ui/queryeditor/ColumnSelect";
 
-import { createTreeRepresentationForInputSchema } from "./util/inputSchemaUtilities"
+import { createTreeRepresentationForInputSchema,getTableNameByPath, getFieldDataByPath } from "./util/inputSchemaUtilities"
 
 import IconCell from "./ui/datagrid/iconcolumn/IconCell"
 import latestRequestInSession, { registerRequestForSession } from "./util/latestRequestInSession"
@@ -233,11 +233,14 @@ export {
     ColumnSelect,
 
     createTreeRepresentationForInputSchema,
+    getFieldDataByPath,
+    getTableNameByPath,
 
     IconCell,
     
     latestRequestInSession,
     registerRequestForSession
+
 }
 
 
