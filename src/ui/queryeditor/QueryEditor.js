@@ -39,6 +39,18 @@ const QueryEditor = (props) => {
     const queryConditionPath = toPath("where");
     const sortColumnsPath = toPath("sort");
 
+    const editorState = useLocalObservable(() => {
+        return new QueryEditorState(rootType, queryConfiguration, "");
+    });
+
+    useEffect(() => {
+        editorState.setRootType(rootType);
+    }, [rootType]);
+    
+    useEffect(() => {
+        editorState.setContainer(queryConfiguration);
+    }, [queryConfiguration]);
+
     const valueRenderer = useMemo(() => {
         if (typeof columnNameRenderer === "function") {
             return (pathName, nodeData = {}) => {
@@ -52,34 +64,6 @@ const QueryEditor = (props) => {
             }
         }
     }, [columnNameRenderer, rootType]);
-
-    const editorState = useLocalObservable(() => {
-        return new QueryEditorState(rootType, queryConfiguration, "");
-    });
-
-    useEffect(() => {
-        formContext.registerFieldContext({
-            root: editorState.container,
-            fieldId: selectedColumnsPath.join("."),
-            path: selectedColumnsPath,
-            name: selectedColumnsPath.join("."),
-            qualifiedName: selectedColumnsPath.join("."),
-            fieldType: {
-                kind: "NON_NULL",
-                ofType: "LIST"
-            }
-        });
-        formContext.registerFieldContext({
-            root: editorState.container,
-            fieldId: sortColumnsPath.join("."),
-            path: sortColumnsPath,
-            name: sortColumnsPath.join("."),
-            qualifiedName: sortColumnsPath.join("."),
-            fieldType: {
-                kind: "LIST"
-            }
-        });
-    }, [editorState.container]);
 
     const [selectedColumns, setSelectedColumns] = useState([]);
     const [sortColumns, setSortColumns] = useState([]);

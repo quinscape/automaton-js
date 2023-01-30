@@ -47,6 +47,16 @@ export default class QueryEditorState {
     }
 
     @action
+    setRootType(rootType) {
+        this.rootType = rootType;
+    }
+
+    @action
+    setContainer(container) {
+        this.container = container;
+    }
+
+    @action
     setSelected(columns) {
         const {container, containerPath} = this;
 
