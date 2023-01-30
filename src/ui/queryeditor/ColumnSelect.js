@@ -24,7 +24,7 @@ const ColumnSelect = (props) => {
         setColumnTreeObject(createTreeRepresentationForInputSchema(rootType, {
             filterCallback: schemaResolveFilterCallback
         }));
-    }, [rootType]);
+    }, [rootType, valueRenderer]);
 
     function expandDirectory(path) {
         const directoryContents = createTreeRepresentationForInputSchemaByPath(rootType, path, {
