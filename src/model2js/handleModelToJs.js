@@ -204,7 +204,7 @@ export default query(
 
 export const renderStateScript = (state) => {
     let stateScript = ''
-    const {name, composite, transitionMap, filterFunctions} = state
+    const {name, composite, transitionMap, filterFunctions, customFunctions} = state
 
     stateScript += `
     const ${name} = new ViewState("${name}", (process, scope) => {
@@ -224,6 +224,15 @@ export const renderStateScript = (state) => {
             ${nameOfFilterFunctions} (${name}, ${query}, ${rootType}, ${sourceName}, ${modalTitle}, ${valueFieldName});
     `
             })
+        });
+    }
+
+    if (customFunctions) {
+        customFunctions.forEach(customFn => {
+            const {name, params} = customFn
+                stateScript += `
+            ${name} (${params.join(", ")});
+    `
         });
     }
 
