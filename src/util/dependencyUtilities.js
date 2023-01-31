@@ -68,7 +68,7 @@ export function resolveFieldDependencies(type, name) {
 export function resolveFieldDependenciesValue(workingSet, context, name) {
     const resolver = getCustomDependencyResolver(context._type, name);
     if (typeof resolver === "function") {
-        return resolver(context.id, workingSet, get(context, name));
+        return resolver(context, workingSet, get(context, name));
     }
     const dependencies = resolveFieldDependencies(context._type, name);
     if (dependencies != null && workingSet) {
