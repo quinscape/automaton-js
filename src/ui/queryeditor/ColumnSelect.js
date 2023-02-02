@@ -72,6 +72,7 @@ const ColumnSelect = (props) => {
                 treeContent={columnTreeObject}
                 onExpandDirectory={expandDirectory}
                 onCollapseDirectory={collapseDirectory}
+                sorted
             />
         </div>
     )

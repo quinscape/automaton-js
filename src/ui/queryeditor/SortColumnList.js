@@ -141,6 +141,7 @@ const SortColumnList = (props) => {
                 treeContent={selectableColumns}
                 onExpandDirectory={expandDirectory}
                 onCollapseDirectory={collapseDirectory}
+                sorted
             />
         </>
     )

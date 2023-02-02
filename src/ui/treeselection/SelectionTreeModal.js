@@ -18,6 +18,7 @@ const SelectionTreeModal = (props) => {
         onCollapseDirectory,
         valueRenderer,
         singleSelect,
+        sorted,
         className
     } = props;
 
@@ -59,6 +60,7 @@ const SelectionTreeModal = (props) => {
                     onExpandDirectory={onExpandDirectory}
                     onCollapseDirectory={onCollapseDirectory}
                     singleSelect={singleSelect}
+                    sorted={sorted}
                 />
                 <ButtonToolbar className="mt-3">
                     <button
@@ -146,7 +148,13 @@ SelectionTreeModal.propTypes = {
     /**
      * if the tree is in single select mode
      */
-    singleSelect: PropTypes.bool
+    singleSelect: PropTypes.bool,
+
+    /**
+     * if the tree will be sorted
+     * sorting first by type, to enforce directories to the bottom, then by inner text
+     */
+    sorted: PropTypes.bool
 }
 
 export default SelectionTreeModal;
