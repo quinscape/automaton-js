@@ -74,7 +74,6 @@ import ViewState from "./process/ViewState";
 import promiseUI, {configurePromiseUI} from "./util/promiseUI"
 import { promiseThrobber } from "./ui/throbber/Throbber";
 
-import ConditionEditor from "./ui/condition/ConditionEditor"
 import {unwrapNonNull, unwrapAll} from "./util/type-utils";
 import decompileFilter from "./util/decompileFilter"
 
@@ -88,8 +87,11 @@ import CollapsiblePanel from "./ui/CollapsiblePanel"
 
 import UserColumnConfigDialogModal from "./ui/datagrid/userconfig/UserColumnConfigDialogModal"
 
-import SelectionTreeModal from "./ui/treeselection/SelectionTreeModal"
+import ConditionEditor from "./ui/condition/ConditionEditor";
 import QueryEditor from "./ui/queryeditor/QueryEditor";
+import ConditionEditorState from "./ui/condition/ConditionEditorState";
+import QueryEditorState from "./ui/queryeditor/QueryEditorState";
+import SelectionTreeModal from "./ui/treeselection/SelectionTreeModal";
 import ColumnSelect from "./ui/queryeditor/ColumnSelect";
 
 import { createTreeRepresentationForInputSchema,getTableNameByPath, getFieldDataByPath } from "./util/inputSchemaUtilities"
@@ -212,7 +214,6 @@ export {
     configurePromiseUI,
     promiseThrobber,
 
-    ConditionEditor,
     confirmDestructiveTransition,
     unwrapNonNull,
     unwrapAll,
@@ -228,8 +229,11 @@ export {
 
     UserColumnConfigDialogModal,
 
-    SelectionTreeModal,
+    ConditionEditor,
     QueryEditor,
+    ConditionEditorState,
+    QueryEditorState,
+    SelectionTreeModal,
     ColumnSelect,
 
     createTreeRepresentationForInputSchema,
