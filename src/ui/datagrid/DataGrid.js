@@ -89,6 +89,13 @@ function isArrayNotEmpty(value) {
     return Array.isArray(value) && value.length > 0;
 }
 
+function checkArraysEqual(array0, array1) {
+    if (!Array.isArray(array0) || !Array.isArray(array1) || array0.length !== array1.length) {
+        return false;
+    }
+    return array0.every((value, index) => array1[index] === value);
+}
+
 /**
  * Data grid what works based on degenerified InteractiveQuery types.
  */
@@ -140,10 +147,12 @@ const DataGrid = fnObserver(props => {
     useEffect(() => {
         const newQueryConfig = {};
         if (typeof sortColumn === "string") {
-            newQueryConfig.sortFields = [sortColumn]
+            newQueryConfig.sortFields = [sortColumn];
+        } else if (Array.isArray(sortColumn)) {
+            newQueryConfig.sortFields = sortColumn;
         }
         if (typeof paginationSize === "number") {
-            newQueryConfig.pageSize = paginationSize
+            newQueryConfig.pageSize = paginationSize;
         }
         if (Object.keys(newQueryConfig).length > 0) {
             internalQuery.update(newQueryConfig);
@@ -156,11 +165,11 @@ const DataGrid = fnObserver(props => {
     useEffectNoInitial(() => {
         if (typeof onTableConfigChange === "function") {
             const newPaginationSize = queryConfig?.pageSize;
-            const newSortColumn = queryConfig?.sortFields?.[0];
-            if (paginationSize !== newPaginationSize || sortColumn !== newSortColumn) {
+            const newSortColumn = queryConfig?.sortFields ?? [];
+            if (paginationSize !== newPaginationSize || !checkArraysEqual(sortColumn, newSortColumn)) {
                 onTableConfigChange({
                     paginationSize: queryConfig?.pageSize,
-                    sortColumn: queryConfig?.sortFields?.[0],
+                    sortColumn: newSortColumn,
                     visibleColumns
                 });
             }
@@ -189,15 +198,14 @@ const DataGrid = fnObserver(props => {
     /**
      * A memoized copy of the columnStates structure with resolved column types and filters
      */
-    const [columns, nonVisibleColumns, currentVisibleColumns] = useMemo(
+    const [columns, namedColumns, currentVisibleColumns] = useMemo(
         () => {
 
             let enabledCount = 0;
 
             const columns = [];
             const columnMap = new Map();
-
-            const nonVisibleColumns = [];
+            const namedColumns = [];
 
             let filterIndex = 0;
 
@@ -276,18 +284,16 @@ const DataGrid = fnObserver(props => {
                     filterIndex++;
                 }
 
-                if (moveRowColumn != null && moveRowColumn === name) {
+                if (moveRowColumn && moveRowColumn === name) {
                     columns.unshift(column);
-                } else  if (visibleColumnsNotSet || !name) {
-                    columns.push(column);
-                    if(name) {
-                        nonVisibleColumns.push({name, label: heading});
+                } else if (name) {
+                    namedColumns.push({name, label: heading});
+                    columnMap.set(name, column);
+                    if (visibleColumnsNotSet) {
+                        columns.push(column);
                     }
                 } else {
-                    columnMap.set(name, column);
-                    if (!visibleColumns.includes(name)) {
-                        nonVisibleColumns.push({name, label: heading});
-                    }
+                    columns.push(column);
                 }
             });
 
@@ -299,7 +305,17 @@ const DataGrid = fnObserver(props => {
             const sortedColumns = [];
             const currentVisibleColumns = [];
 
-            if (isArrayNotEmpty(visibleColumns)) {
+            if (visibleColumnsNotSet) {
+                for (const {name, label} of namedColumns) {
+                    if (columnMap.has(name)) {
+                        const element = columnMap.get(name);
+                        if (element != null) {
+                            sortedColumns.push(element);
+                            currentVisibleColumns.push({name, label});
+                        }
+                    }
+                }
+            } else {
                 for (const name of visibleColumns) {
                     if (columnMap.has(name)) {
                         const element = columnMap.get(name);
@@ -315,7 +331,7 @@ const DataGrid = fnObserver(props => {
 
             resultColumns[0].enabledCount = enabledCount;
 
-            return [resultColumns, nonVisibleColumns, currentVisibleColumns];
+            return [resultColumns, namedColumns, currentVisibleColumns];
 
         },
         [ type, columnStatesInput, visibleColumns ]
@@ -514,8 +530,8 @@ const DataGrid = fnObserver(props => {
                                 <UserColumnConfigDialogModal
                                     isOpen={isColumnModalOpen}
                                     toggle={toggleColumnModalOpen}
+                                    allElements={namedColumns}
                                     activeElements={currentVisibleColumns}
-                                    inactiveElements={nonVisibleColumns}
                                     onSubmit={(newVisibleColumns) => {
                                         if (typeof onTableConfigChange === "function") {
                                             onTableConfigChange({

@@ -5,23 +5,29 @@ import DualListSelector from "../../listselector/DualListSelector";
 import {Icon} from "domainql-form";
 import PropTypes from "prop-types";
 
+function calculateInactiveElements(allElements, activeElements) {
+    return allElements.filter((element) => {
+        return !activeElements.some((activeElement) => {
+            return activeElement.name === element.name;
+        });
+    })
+}
+
 const UserColumnConfigDialogModal = (props) => {
     const {
         isOpen,
         toggle,
-        inactiveElements,
-        activeElements,
+        allElements = [],
+        defaultActiveElements = allElements,
+        activeElements = defaultActiveElements,
         onSubmit
     } = props;
 
-    const [currentInactiveElements, setCurrentInactiveElements] = useState(inactiveElements);
+    const [currentInactiveElements, setCurrentInactiveElements] = useState(calculateInactiveElements(allElements, activeElements));
     const [currentActiveElements, setCurrentActiveElements] = useState(activeElements);
 
     useEffect(() => {
-        setCurrentInactiveElements(inactiveElements);
-    }, [inactiveElements]);
-
-    useEffect(() => {
+        setCurrentInactiveElements(calculateInactiveElements(allElements, activeElements));
         setCurrentActiveElements(activeElements);
     }, [activeElements]);
 
@@ -31,13 +37,14 @@ const UserColumnConfigDialogModal = (props) => {
     }
 
     function doCancel() {
-        reset();
+        setCurrentInactiveElements(calculateInactiveElements(allElements, activeElements));
+        setCurrentActiveElements(activeElements);
         toggle();
     }
 
     function reset() {
-        setCurrentInactiveElements(inactiveElements);
-        setCurrentActiveElements(activeElements);
+        setCurrentInactiveElements(calculateInactiveElements(allElements, defaultActiveElements));
+        setCurrentActiveElements(defaultActiveElements);
     }
 
     return (
@@ -109,12 +116,17 @@ UserColumnConfigDialogModal.propTypes = {
     toggle: PropTypes.func,
 
     /**
-     * list of inactive (not displayed) columns
+     * list of all columns; defaults to empty array
      */
-    inactiveElements: PropTypes.array,
+    allElements: PropTypes.array,
 
     /**
-     * list of active (displayed) columns
+     * list of active (displayed) by default columns; defaults to allElements
+     */
+    defaultActiveElements: PropTypes.array,
+
+    /**
+     * list of active (displayed) columns; defaults to defaultActiveElements
      */
     activeElements: PropTypes.array,
 
