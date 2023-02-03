@@ -289,9 +289,6 @@ const DataGrid = fnObserver(props => {
                 } else if (name) {
                     namedColumns.push({name, label: heading});
                     columnMap.set(name, column);
-                    if (visibleColumnsNotSet) {
-                        columns.push(column);
-                    }
                 } else {
                     columns.push(column);
                 }
