@@ -60,27 +60,34 @@ const ShortcutItem = fnObserver(({
         setErrorCount(count);
     }, [depError]);
 
-    useEffect(() => {
-        if (workingSet != null) {
-            const registrations = workingSet.registrations;
-            let count = 0;
-            for (const registration of registrations) {
-                if (registration.status !== WorkingSetStatus.REGISTERED
-                && (registration.status !== WorkingSetStatus.MODIFIED || registration.changes.size > 0)) {
-                    const gridEl = document.querySelector(`form[data-form-id] table[name="${registration.typeName}"]`);
-                    if (isElementInSection(gridEl, reference)) {
-                        count++;
-                    } else {
-                        for (const [name] of registration.changes) {
-                            const fieldEl = document.querySelector(`form[data-form-id] [name="${name}"]`);
-                            if (isElementInSection(fieldEl, reference)) {
-                                count++;
-                            }
+    function updateChanges() {
+        const registrations = workingSet.registrations;
+        let count = 0;
+        for (const registration of registrations) {
+            if (registration.status !== WorkingSetStatus.REGISTERED
+            && (registration.status !== WorkingSetStatus.MODIFIED || registration.changes.size > 0)) {
+                const gridEl = document.querySelector(`form[data-form-id] table[name="${registration.typeName}"]`);
+                if (isElementInSection(gridEl, reference)) {
+                    count++;
+                } else {
+                    for (const [name] of registration.changes) {
+                        const fieldEl = document.querySelector(`form[data-form-id] [name="${name}"]`);
+                        if (isElementInSection(fieldEl, reference)) {
+                            count++;
                         }
                     }
                 }
             }
-            setChangesCount(count);
+        }
+        setChangesCount(count);
+    }
+
+    useEffect(() => {
+        if (workingSet != null) {
+            workingSet.onChange(updateChanges);
+        }
+        return () => {
+            workingSet.unChange(updateChanges);
         }
     }, [workingSet?.changes]);
 
