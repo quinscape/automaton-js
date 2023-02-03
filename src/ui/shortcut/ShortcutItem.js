@@ -66,7 +66,7 @@ const ShortcutItem = fnObserver(({
         for (const registration of registrations) {
             if (registration.status !== WorkingSetStatus.REGISTERED
             && (registration.status !== WorkingSetStatus.MODIFIED || registration.changes.size > 0)) {
-                const gridEl = document.querySelector(`form[data-domain-id="${registration.id}"] table[name="${registration.typeName}"]`);
+                const gridEl = document.querySelector(`form[data-form-id] table[name="${registration.typeName}"]`);
                 if (isElementInSection(gridEl, reference)) {
                     count++;
                 } else {

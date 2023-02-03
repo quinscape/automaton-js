@@ -1425,6 +1425,11 @@ export default class WorkingSet {
 
         entityRegistration.registerReaction()
 
+        const { onChangeCallbacks } = this[secret];
+        for (const fn of onChangeCallbacks) {
+            fn();
+        }
+
         //this.addRelationChanges(domainObject);
     }
 
