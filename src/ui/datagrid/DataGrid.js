@@ -115,13 +115,20 @@ const DataGrid = fnObserver(props => {
         displayControlButtons,
         resetFilterButtonDisabled,
         customizeColumnsButtonDisabled,
-        tableConfig = {},
         onTableConfigChange,
         moveRowColumn,
         moveRowHandler,
         markRow,
         children
     } = props;
+
+    let {
+        tableConfig = {}
+    } = props;
+
+    if(tableConfig === null) {
+        tableConfig = {}
+    }
 
     const {
         visibleColumns,
