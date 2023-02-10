@@ -4,15 +4,15 @@ import { DateTime } from "luxon";
 import { extractValueNodes } from "../../ui/datagrid/GridStateForm";
 import i18n from "../../i18n";
 
-function convertDate(date) {
+function convertDate(date, endDate) {
     return DateTime.fromObject({
         year: date.year,
         month: date.month,
         day: date.day,
-        hour: 23,
-        minute: 59,
-        second: 59,
-        millisecond: 999
+        hour: endDate ? 23 : 0,
+        minute: endDate ? 59 : 0,
+        second: endDate ? 59 : 0,
+        millisecond: endDate ? 999 : 0
     }, {
         zone: date.zone
     }).toUTC().toISO();
@@ -34,22 +34,22 @@ export function registerDateRangeFilter()
         }
 
         if (endDate == null) {
-            const sqlStartDate = convertDate(startDate);
+            const sqlStartDate = convertDate(startDate, false);
             return field(fieldName).ge(
                 value(sqlStartDate, "Timestamp")
             );
         }
 
         if (startDate == null) {
-            const sqlEndDate = convertDate(endDate);
+            const sqlEndDate = convertDate(endDate, true);
             return field(fieldName).le(
                 value(sqlEndDate, "Timestamp")
             );
         }
 
         
-        const sqlStartDate = convertDate(startDate);
-        const sqlEndDate = convertDate(endDate);
+        const sqlStartDate = convertDate(startDate, false);
+        const sqlEndDate = convertDate(endDate, true);
 
         return field(fieldName).between(
             value(sqlStartDate, "Timestamp"),
