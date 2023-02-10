@@ -6,7 +6,7 @@ import i18n from "../../i18n";
 import { WorkingSetStatus } from "../../WorkingSet";
 
 function isElementInSection(fieldEl, reference) {
-    if (fieldEl != null) {
+    if (fieldEl != null && !fieldEl.disabled) {
         if (fieldEl.dataset.section) {
             return fieldEl.dataset.section === reference;
         } else {
@@ -71,7 +71,7 @@ const ShortcutItem = fnObserver(({
                     count++;
                 } else {
                     for (const [name] of registration.changes) {
-                        const fieldEl = document.querySelector(`form[data-form-id] [name="${name}"]`);
+                        const fieldEl = document.querySelector(`form[data-domain-id="${registration.id}"] [name="${name}"]`);
                         if (isElementInSection(fieldEl, reference)) {
                             count++;
                         }
