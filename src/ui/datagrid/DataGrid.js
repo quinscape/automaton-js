@@ -115,7 +115,7 @@ const DataGrid = fnObserver(props => {
         displayControlButtons,
         resetFilterButtonDisabled,
         customizeColumnsButtonDisabled,
-        tableConfig = {},
+        tableConfig,
         onTableConfigChange,
         moveRowColumn,
         moveRowHandler,
@@ -127,7 +127,7 @@ const DataGrid = fnObserver(props => {
         visibleColumns,
         paginationSize,
         sortColumn
-    } = tableConfig;
+    } = tableConfig ?? {};
 
     const visibleColumnsNotSet = !isArrayNotEmpty(visibleColumns) || visibleColumns.every((value) => !isStringNotEmpty(value));
 
