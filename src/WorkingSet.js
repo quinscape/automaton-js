@@ -860,6 +860,8 @@ class EntityRegistration
         const { changes, domainObject, base, workingSet, typeName, status } = this;
         const { mergePlan } = workingSet[secret];
 
+        const isNew = status === WorkingSetStatus.NEW;
+
         const {scalarFields, groupFields} = mergePlan.getInfo(typeName);
         let addGroup = false;
         for (let i = 0; i < groupFields.length; i++)
@@ -880,7 +882,7 @@ class EntityRegistration
                     currValue
                 );
 
-                if (!equalsScalar(type, baseValue, currValue))
+                if (isNew || !equalsScalar(type, baseValue, currValue))
                 {
                     addGroup = true;
                 }
@@ -922,25 +924,36 @@ class EntityRegistration
 
             if (currValue !== undefined)
             {
-                const baseValue = base && base[name];
-                if (equalsScalar(type, baseValue, currValue))
-                {
-                    if (changes.has(name))
-                    {
-                        updates.push(
-                            name,
-                            null,
-                            DELETE_CHANGE
-                        )
-                    }
-                }
-                else
+                if (isNew)
                 {
                     updates.push(
                         name,
                         type,
                         currValue
                     )
+                }
+                else
+                {
+                    const baseValue = base && base[name];
+                    if (equalsScalar(type, baseValue, currValue))
+                    {
+                        if (changes.has(name))
+                        {
+                            updates.push(
+                                name,
+                                null,
+                                DELETE_CHANGE
+                            )
+                        }
+                    }
+                    else
+                    {
+                        updates.push(
+                            name,
+                            type,
+                            currValue
+                        )
+                    }
                 }
             }
         }
@@ -1417,7 +1430,7 @@ export default class WorkingSet {
             )
         }
 
-        const entityRegistration = new EntityRegistration(this, domainObject, toJS(domainObject), WorkingSetStatus.NEW);
+        const entityRegistration = new EntityRegistration(this, domainObject, null, WorkingSetStatus.NEW);
         registrations.set(
             key,
             entityRegistration
