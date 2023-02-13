@@ -22,6 +22,7 @@ import Throbber from "../ui/throbber/Throbber";
 import { formatGraphQLErrors } from "../graphql"
 import triggerToastsForErrors from "../util/triggerToastsForErrors"
 import { registerRequestForSession } from "../util/latestRequestInSession"
+import changePageTitle from "../util/changePageTitle";
 
 let processImporter;
 
@@ -121,6 +122,8 @@ function renderCurrentView()
     let dialogStack = false;
 
     let process = currentProcess;
+
+    changePageTitle(rootState.pageTitle);
 
     while (process !== rootProcess)
     {
