@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import { Icon } from "domainql-form";
 import { Card, CardBody, CardHeader } from "reactstrap";
+import i18n from "../i18n";
 
 
 const CollapsiblePanel = ({
@@ -23,6 +24,7 @@ const CollapsiblePanel = ({
                     onClick={() => {
                         setExpanded(!expanded);
                     }}
+                    title={expanded ? i18n("Collapse Panel") : i18n("Expand Panel")}
                     aria-expanded={expanded}
                 >
                     <Icon className={expanded ? "fa-chevron-up" : "fa-chevron-down"} />

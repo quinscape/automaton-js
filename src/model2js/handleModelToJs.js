@@ -204,7 +204,7 @@ export default query(
 
 export const renderStateScript = (state) => {
     let stateScript = ''
-    const {name, composite, transitionMap, filterFunctions, customFunctions} = state
+    const {name, pageTitle, composite, transitionMap, filterFunctions, customFunctions} = state
 
     stateScript += `
     const ${name} = new ViewState("${name}", (process, scope) => {
@@ -567,6 +567,10 @@ export const renderStateScript = (state) => {
                     )
                 }`
         stateScript += `${htmlBeautify(compositeScript)}`;
+    }
+
+    if (pageTitle) {
+        stateScript += `, "${pageTitle}"`;
     }
 
     stateScript += `);

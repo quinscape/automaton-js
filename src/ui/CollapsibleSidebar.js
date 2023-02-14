@@ -5,7 +5,7 @@ import {
 } from "domainql-form"
 import cx from "classnames";
 import PropTypes from "prop-types";
-
+import i18n from "../i18n";
 import StickyResizingSidebar from "./sticky/StickyResizingSidebar";
 import useWindowSize from "../util/useWindowSize";
 
@@ -39,6 +39,7 @@ const CollapsibleSidebar = ({
                     onClick={() => {
                         setExpanded(!expanded);
                     }}
+                    title={expanded ? i18n("Collapse Sidebar") : i18n("Expand Sidebar")}
                     aria-expanded={expanded}
                 >
                     <Icon className="fa-chevron-down" />
