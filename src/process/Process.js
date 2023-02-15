@@ -1377,7 +1377,7 @@ function pushProcessState(replace = false)
 
     config.history[op](
         uri(
-            "/{appName}/{processName}/{stateName}/{info}",
+            `${config.contextPath}/{appName}/{processName}/{stateName}/{info}`,
             {
                 appName: config.appName,
                 processName: currentProcess.name,
