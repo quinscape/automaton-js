@@ -15,7 +15,7 @@ export class ViewStateInstance
  */
 export default class ViewState
 {
-    constructor(name, transitionFn, renderFn)
+    constructor(name, transitionFn, renderFn, pageTitle)
     {
         if (!name)
         {
@@ -35,7 +35,8 @@ export default class ViewState
         const storage = {
             name,
             Component: observer(renderFn),
-            transitionFn
+            transitionFn,
+            pageTitle
         };
 
         storage.Component.displayName = "ViewState." + name;
@@ -52,6 +53,10 @@ export default class ViewState
     get name()
     {
         return this[secret].name;
+    }
+
+    get pageTitle() {
+        return this[secret].pageTitle;
     }
 
     getViewStateComponent()

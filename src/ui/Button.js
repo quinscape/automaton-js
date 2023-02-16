@@ -141,7 +141,7 @@ const Button = props => {
     if (__DEV)
     {
         const textFromKids = getTextFromChildren(children);
-        if (!hasText(text) && !hasText(textFromKids))
+        if (!hasText(text) && !hasText(textFromKids) && !tooltip)
         {
             // hard error might seem a little harsh, but it gives the best error description
             // in terms of locating the offending button component

@@ -22,6 +22,7 @@ import Throbber from "../ui/throbber/Throbber";
 import { formatGraphQLErrors } from "../graphql"
 import triggerToastsForErrors from "../util/triggerToastsForErrors"
 import { registerRequestForSession } from "../util/latestRequestInSession"
+import changePageTitle from "../util/changePageTitle";
 
 let processImporter;
 
@@ -121,6 +122,8 @@ function renderCurrentView()
     let dialogStack = false;
 
     let process = currentProcess;
+
+    changePageTitle(rootState.pageTitle);
 
     while (process !== rootProcess)
     {
@@ -1374,7 +1377,7 @@ function pushProcessState(replace = false)
 
     config.history[op](
         uri(
-            "/{appName}/{processName}/{stateName}/{info}",
+            `${config.contextPath}/{appName}/{processName}/{stateName}/{info}`,
             {
                 appName: config.appName,
                 processName: currentProcess.name,

@@ -776,11 +776,15 @@ class EntityRegistration
             }
         }
 
-        const { onNextChangeCallbacks } = workingSet[secret];
+        const { onNextChangeCallbacks, onChangeCallbacks } = workingSet[secret];
 
         workingSet[secret].onNextChangeCallbacks = []
         
         onNextChangeCallbacks.forEach( fn => fn())
+
+        for (const fn of onChangeCallbacks) {
+            fn();
+        }
     })
 
     get registered()
@@ -1077,7 +1081,8 @@ export default class WorkingSet {
              * Callback queue to be flushed on next update
              * @type Array<Function>
              */
-            onNextChangeCallbacks: []
+            onNextChangeCallbacks: [],
+            onChangeCallbacks: new Set()
         }
 
         // Store query and openDialog internally for easy hijacking in test
@@ -1181,6 +1186,33 @@ export default class WorkingSet {
         }
 
         return ws;
+    }
+
+
+    /**
+     * Register the given callback for execution after an update has been processed
+     * @param {Function} cb
+     */
+    onChange(cb)
+    {
+        if (typeof cb !== "function")
+        {
+            throw new Error("Callback must be a function");
+        }
+        this[secret].onChangeCallbacks.add(cb);
+    }
+
+    /**
+     * Unregister the given callback from execution after an update has been processed
+     * @param {Function} cb
+     */
+    unChange(cb)
+    {
+        if (typeof cb !== "function")
+        {
+            throw new Error("Callback must be a function");
+        }
+        this[secret].onChangeCallbacks.delete(cb);
     }
 
 
@@ -1398,10 +1430,18 @@ export default class WorkingSet {
             )
         }
 
+        const entityRegistration = new EntityRegistration(this, domainObject, null, WorkingSetStatus.NEW);
         registrations.set(
             key,
-            new EntityRegistration(this, domainObject, null, WorkingSetStatus.NEW)
+            entityRegistration
         );
+
+        entityRegistration.registerReaction()
+
+        const { onChangeCallbacks } = this[secret];
+        for (const fn of onChangeCallbacks) {
+            fn();
+        }
 
         //this.addRelationChanges(domainObject);
     }

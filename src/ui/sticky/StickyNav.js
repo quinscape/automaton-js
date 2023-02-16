@@ -24,9 +24,9 @@ const StickyNav = ({
     }, [navbarRef.current, navbarHeight]);
 
     return (
-        <div
-            ref={ navbarRef }
+        <nav
             className="sticky-navbar-container"
+            ref={ navbarRef }
         >
             <Navbar
                 id={ id }
@@ -35,7 +35,7 @@ const StickyNav = ({
             >
                 { children }
             </Navbar>
-        </div>
+        </nav>
     )
 };
 

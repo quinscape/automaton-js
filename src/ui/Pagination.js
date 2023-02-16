@@ -258,7 +258,7 @@ const Pagination = fnObserver(props => {
                         // we hide unnamed offset buttons when they're disabled
                         if (isDisabled && !name && !isCurrent)
                         {
-                            return <span key={idx}/>
+                            return <li key={idx} className="disabled"/>
                         }
 
                         return (
