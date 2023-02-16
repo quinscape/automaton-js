@@ -2,6 +2,7 @@ import React from "react"
 import cx from "classnames"
 import PropTypes from "prop-types"
 import { Field, FieldMode, GlobalConfig, FormGroup, Addon, Icon } from "domainql-form";
+import i18n from "../i18n";
 
 const LINK_RE = /\/\//
 
@@ -40,6 +41,7 @@ const URLField = (props) => {
                                             <a
                                                 href={ value }
                                                 target="_blank" rel="noopener noreferrer"
+                                                title={i18n("Open the entered url \"{0}\"", value)}
                                             >
                                                 { value }
                                             </a>
@@ -67,6 +69,7 @@ const URLField = (props) => {
                                         haveLink ? "a" : "span",
                                         {
                                             className: cx("btn btn-light border", !haveLink && "disabled"),
+                                            title: i18n("Open the entered url \"{0}\"", value),
                                             href: value,
                                             target: "_blank",
                                             rel: "noopener noreferrer"

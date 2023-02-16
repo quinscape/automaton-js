@@ -39,23 +39,12 @@ const DropdownMenu = ({ text, title, inline, buttonClassName, children}) => {
     return (
         <Dropdown isOpen={dropdownOpen} toggle={toggle} className={ !inline ? "float-right" : "inline" } size="lg">
             {
-                title ? (
-                    <label className="btn-tooltip" title={ title }>
-                        <DropdownToggle className={ cx("btn mr-2", buttonClassName)}>
-                            {
-                                // default className defined in DropdownToggle is btn-secondary
-                                dropdownText
-                            }
-                        </DropdownToggle>
-                    </label>
-                ) : (
-                    <DropdownToggle className={ cx("btn mr-2", buttonClassName)}>
-                        {
-                            // default className defined in DropdownToggle is btn-secondary
-                            dropdownText
-                        }
-                    </DropdownToggle>
-                )
+                <DropdownToggle className={ cx("btn mr-2", buttonClassName)} title={ title }>
+                    {
+                        // default className defined in DropdownToggle is btn-secondary
+                        dropdownText
+                    }
+                </DropdownToggle>
             }
             <ReactStrapDropdownMenu end>
                 {

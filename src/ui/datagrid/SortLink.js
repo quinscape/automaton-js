@@ -97,7 +97,7 @@ const SortLink = props => {
             },
             heading,
             sortable && <Icon
-                aria-label={ getLabelForState(sortState) }
+                title={ getLabelForState(sortState) }
                 className={
                     cx(
                         "sort-icon p-1 text-primary",

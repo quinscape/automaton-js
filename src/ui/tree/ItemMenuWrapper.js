@@ -22,6 +22,7 @@ const ItemMenuWrapper = ({
             aria-haspopup={ true }
             aria-expanded={ isMenuOpen }
             onClick={() => ctx.updateMenu(selectionId)}
+            title={i18n("Tree:Open Contextmenu")}
         >
             <Icon className="fa-angle-right p-1"/>
         </button>
