@@ -74,7 +74,7 @@ import ViewState from "./process/ViewState";
 import promiseUI, {configurePromiseUI} from "./util/promiseUI"
 import { promiseThrobber } from "./ui/throbber/Throbber";
 
-import {unwrapNonNull, unwrapAll} from "./util/type-utils";
+import {unwrapNonNull, unwrapAll,lookupTypeContext} from "./util/type-utils";
 import decompileFilter from "./util/decompileFilter"
 
 import { registerCustomDependencyResolver } from "./util/dependencyUtilities";
@@ -217,6 +217,7 @@ export {
     confirmDestructiveTransition,
     unwrapNonNull,
     unwrapAll,
+    lookupTypeContext,
     decompileFilter,
 
     registerCustomDependencyResolver,
@@ -244,6 +245,8 @@ export {
     
     latestRequestInSession,
     registerRequestForSession
+
+
 
 }
 
