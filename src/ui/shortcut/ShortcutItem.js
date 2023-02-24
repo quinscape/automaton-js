@@ -32,11 +32,12 @@ const ShortcutItem = fnObserver(({
     icon = "",
     reference = "",
     heading = "",
-    workingSet
+    workingSet: workingSetFromProps
 }) => {
 
     const formConfig = useFormConfig();
     const formContext = formConfig.formContext;
+    const [workingSet, setWorkingSet] = React.useState(null);
     const [errorCount, setErrorCount] = React.useState(0);
     const [changesCount, setChangesCount] = React.useState(0);
 
@@ -44,15 +45,16 @@ const ShortcutItem = fnObserver(({
     const depError = errors.map(e => `${e.rootId}:${e.path}`).join(",");
 
     useEffect(() => {
-        const fieldContexts = formContext.fieldContexts;
         let count = 0;
-        for (let i = 0; i < fieldContexts.length; i++) {
-            const ctx = fieldContexts[i];
-            const fieldEl = document.getElementById(ctx.fieldId);
+        for (let i = 0; i < errors.length; i++) {
+            const error = errors[i];
+            const {rootId, path} = error;
+            const fieldEl = document.querySelector(`form[data-domain-id="${rootId}"] [name="${path}"]`);
             if (isElementInSection(fieldEl, reference)) {
-                const fieldName = fieldEl.name;
-                const foundError = errors.find(e => e.path === fieldName);
-                if (foundError) {
+                count++;
+            } else {
+                const cellEl = document.querySelector(`tr[data-domain-id="${rootId}"] td[data-name="${path}"]`);
+                if (isElementInSection(cellEl, reference)) {
                     count++;
                 }
             }
@@ -61,17 +63,19 @@ const ShortcutItem = fnObserver(({
     }, [depError]);
 
     function updateChanges() {
-        const registrations = workingSet.registrations;
+        const registrations = workingSetFromProps.registrations;
         let count = 0;
         for (const registration of registrations) {
             if (registration.status !== WorkingSetStatus.REGISTERED
             && (registration.status !== WorkingSetStatus.MODIFIED || registration.changes.size > 0)) {
-                const gridEl = document.querySelector(`form[data-form-id] table[name="${registration.typeName}"]`);
-                if (isElementInSection(gridEl, reference)) {
+                const typeName = registration.typeName;
+                const rootId = registration.id;
+                const rowEl = document.querySelector(`tr[data-domain-id="${typeName}"] tr[data-domain-id="${rootId}"]`);
+                if (isElementInSection(rowEl, reference)) {
                     count++;
                 } else {
-                    for (const [name] of registration.changes) {
-                        const fieldEl = document.querySelector(`form[data-domain-id="${registration.id}"] [name="${name}"]`);
+                    for (const [path] of registration.changes) {
+                        const fieldEl = document.querySelector(`form[data-domain-id="${rootId}"] [name="${path}"]`);
                         if (isElementInSection(fieldEl, reference)) {
                             count++;
                         }
@@ -83,13 +87,21 @@ const ShortcutItem = fnObserver(({
     }
 
     useEffect(() => {
-        if (workingSet != null) {
-            workingSet.onChange(updateChanges);
+        if (workingSet !== workingSetFromProps) {
+            if (workingSet != null) {
+                workingSet.unChange(updateChanges);
+            }
+            if (workingSetFromProps != null) {
+                workingSetFromProps.onChange(updateChanges);
+            }
+            setWorkingSet(workingSetFromProps);
         }
         return () => {
-            workingSet.unChange(updateChanges);
+            if (workingSetFromProps != null) {
+                workingSetFromProps.unChange(updateChanges);
+            }
         }
-    }, [workingSet?.changes]);
+    }, [workingSetFromProps]);
 
     const hasChanges = changesCount ? ", has changes" : "";
     const title = errorCount === 0 ?

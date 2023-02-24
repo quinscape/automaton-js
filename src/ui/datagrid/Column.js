@@ -1,11 +1,10 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react"
-import get from "lodash.get"
 import cx from "classnames"
 import { GlobalConfig, useFormConfig } from "domainql-form"
 import { observer as fnObserver } from "mobx-react-lite"
 import { lookupType, unwrapNonNull } from "../../util/type-utils";
-import { resolveFieldDependencies, resolveFieldDependenciesValue } from "../../util/dependencyUtilities";
+import { resolveFieldDependenciesValue } from "../../util/dependencyUtilities";
 
 /**
  * DataGrid column component
@@ -14,6 +13,7 @@ const Column = fnObserver(props => {
 
     const {
         name,
+        errorFieldName = name,
         context,
         workingSet,
         width,
@@ -25,8 +25,10 @@ const Column = fnObserver(props => {
     } = props;
 
     const formConfig = useFormConfig();
-    const rowErrors = formConfig.formContext.getErrorsForRoot(context);
-    const fieldError = formConfig.formContext.findError(context, name);
+    const formContext = formConfig.formContext;
+    
+    const rowErrors = formContext.getErrorsForRoot(context);
+    const fieldError = formContext.findError(context, errorFieldName);
     const isInvalid = fieldError?.length > 0 ?? false;
 
     const scalarType = useMemo(
@@ -61,6 +63,7 @@ const Column = fnObserver(props => {
                     isInvalid && "is-invalid"
                 )}
                 style={ { width, minWidth, maxWidth } }
+                data-name={name}
             >
                 {
                     React.isValidElement(result) ?
@@ -100,6 +103,7 @@ const Column = fnObserver(props => {
                 isInvalid && "is-invalid"
             )}
             style={ { width, minWidth, maxWidth } }
+            data-name={name}
         >
             <p
                 className={cx(
@@ -119,6 +123,13 @@ Column.propTypes = {
      * Column name / path expression. (e.g. "name", but also "foo.owner.name")
      */
     name: PropTypes.string,
+
+    /**
+     * Column name / path expression of the field, the possible invalidity is associated with. (e.g. "recordId")
+     * This is commonly used for e.g. foreign key records where the error is written to the id but the rendered
+     * value is taken from the foreign data.
+     */
+    errorFieldName: PropTypes.string,
 
     /**
      * Column width. Can be a css size string (e.g. "20vw", "50%" or "10xm") or a number for pixels.
