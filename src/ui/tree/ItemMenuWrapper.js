@@ -4,6 +4,7 @@ import { Icon } from "domainql-form";
 import { Popper } from "react-popper";
 import ItemMenu from "./ItemMenu";
 import { findParentLink } from "./Tree";
+import i18n from "../../i18n";
 
 
 const ItemMenuWrapper = ({
