@@ -346,7 +346,7 @@ function resolveFilters(columns, componentId, currentCondition)
 const GridStateForm = props => {
 
     const { iQuery, columns, componentId, filterTimeout, children } = props;
-
+    
     const filterState = useMemo(
         () =>
             observable({
@@ -410,6 +410,13 @@ const GridStateForm = props => {
                 return cond;
             },
             cond => {
+                const filters = resolveFilters(
+                    columns,
+                    componentId,
+                    cond
+                );
+                filterState.filters.replace(filters);
+
                 return iQuery.updateCondition(
                     cond,
                     componentId,
@@ -422,33 +429,42 @@ const GridStateForm = props => {
                 equals: comparer.structural
             }
         ),
-        [filterTimeout]
+        [iQuery, filterTimeout]
     );
 
     //
     // Synchronize external iQuery updates to inputs
     //
     useEffect(
-        () => reaction(
-            () => {
+        () => {
+            const filters = resolveFilters(
+                columns,
+                componentId,
+                iQuery.queryConfig.condition
+            );
+            filterState.filters.replace(filters);
 
-                const filters = resolveFilters(
-                    columns,
-                    componentId,
-                    iQuery.queryConfig.condition
-                );
-                
-                return filters;
-            },
-            filters => {
-                filterState.filters.replace(filters);
-            }
-            ,{
-                name: "Sync filter",
-                equals: comparer.structural
-            }
-        ),
-        []
+            return reaction(
+                () => {
+
+                    const filters = resolveFilters(
+                        columns,
+                        componentId,
+                        iQuery.queryConfig.condition
+                    );
+                    
+                    return filters;
+                },
+                filters => {
+                    filterState.filters.replace(filters);
+                }
+                ,{
+                    name: "Sync filter",
+                    equals: comparer.structural
+                }
+            )
+        },
+        [iQuery]
     );
 
     return (
