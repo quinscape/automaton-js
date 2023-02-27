@@ -15,7 +15,9 @@ const DataRow = ({
 }) => {
 
     const formConfig = useFormConfig();
-    const rowErrors = formConfig.formContext.getErrorsForRoot(context);
+    const formContext = formConfig.formContext;
+
+    const rowErrors = formContext.getErrorsForRoot(context);
     const isInvalid = rowErrors?.length > 0 ?? false;
 
     const dropRef = React.useRef(null)
@@ -64,6 +66,7 @@ const DataRow = ({
             ) }
             ref={!!moveRow && dropRef}
             data-idx={ idx }
+            data-domain-id={context.id}
         >
             {
                 columns.map(
