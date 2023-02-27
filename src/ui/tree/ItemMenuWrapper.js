@@ -4,6 +4,7 @@ import { Icon } from "domainql-form";
 import { Popper } from "react-popper";
 import ItemMenu from "./ItemMenu";
 import { findParentLink } from "./Tree";
+import i18n from "../../i18n";
 
 
 const ItemMenuWrapper = ({
@@ -22,6 +23,7 @@ const ItemMenuWrapper = ({
             aria-haspopup={ true }
             aria-expanded={ isMenuOpen }
             onClick={() => ctx.updateMenu(selectionId)}
+            title={i18n("Tree:Open Contextmenu")}
         >
             <Icon className="fa-angle-right p-1"/>
         </button>
