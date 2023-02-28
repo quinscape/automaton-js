@@ -28,7 +28,7 @@ const FilterRow = fnObserver(props => {
     {
         return false;
     }
-
+    
     const filterColumnElements = [];
 
     columns.forEach(
@@ -65,8 +65,7 @@ const FilterRow = fnObserver(props => {
                                 React.cloneElement(
                                     customElem,
                                     {
-                                        key,
-                                        suspendAutoUpdate: true
+                                        key
                                     }
                                 )
                             );
@@ -105,7 +104,6 @@ const FilterRow = fnObserver(props => {
                                     label={ label }
                                     name={fieldName}
                                     type={ fieldType }
-                                    suspendAutoUpdate
                                 />
                             );
                         }
