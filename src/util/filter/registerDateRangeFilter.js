@@ -69,5 +69,5 @@ export function registerDateRangeFilter()
                 ]
             }
         ];
-    });
+    }, (fieldName) => field(fieldName).between(value(null, "Timestamp"), value(null, "Timestamp")));
 }
