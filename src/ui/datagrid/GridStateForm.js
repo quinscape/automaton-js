@@ -277,12 +277,12 @@ function resolveFilters(columns, componentId, currentCondition)
     for (let i = 0; i < columns.length; i++)
     {
         const column = columns[i];
-        const { name, filter, filterIndex, getValue } = column;
+        const { name, filter, filterIndex, getValue, getTemplate } = column;
         if (filter)
         {
             if (typeof filter === "function")
             {
-                const template = invokeForTemplate(name, filter);
+                const template = typeof getTemplate === "function" ? getTemplate(name) : invokeForTemplate(name, filter);
 
                 const columnCondition = findConditionByTemplate(
                     componentId,

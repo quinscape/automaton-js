@@ -34,7 +34,7 @@ export function registerFKSelectorFilterAndRenderer(name, query, rootType, sourc
             return field(fieldName).eq(value(fieldValue, "String"));
         }
         return null;
-    });
+    }, null, (fieldName) => field(fieldName).eq(value(null, "String")));
 
     registerCustomFilterRenderer(name, (fieldName, fieldType, label) => {
         const formConfig = useFormConfig();
