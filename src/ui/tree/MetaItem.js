@@ -12,7 +12,7 @@ const MetaItem = ({ children }) => {
     const ctx = useContext( TreeContext );
 
     return (
-        <li className="meta-item">
+        <li className="meta-item" role="treeitem">
             <div className="wrapper">
                 <div className={ cx("header text-muted", ctx.options.small && "small")}>
                     {
