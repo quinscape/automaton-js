@@ -74,11 +74,16 @@ const CalendarField = props => {
                     }
                     else
                     {
+                        const disablePlaceholder = mode === FieldMode.READ_ONLY || mode === FieldMode.DISABLED;
                         let placeholderAttribute;
-                        if (!(mode === FieldMode.READ_ONLY || mode === FieldMode.DISABLED)) {
-                            placeholderAttribute = placeholder || scalarType === "Date" ?
-                                i18n("Date Format {0}", dateFormat) :
-                                i18n("Timestamp Format {0}", timestampFormat);
+                        if (!disablePlaceholder) {
+                            if (placeholder === true) {
+                                placeholderAttribute = scalarType === "Date" ?
+                                    i18n("Date Format {0}", dateFormat) :
+                                    i18n("Timestamp Format {0}", timestampFormat);
+                            } else {
+                                placeholderAttribute = placeholder;
+                            }
                         }
 
                         fieldElement = Addon.renderWithAddons(
@@ -188,9 +193,10 @@ CalendarField.propTypes = {
     label: PropTypes.string,
 
     /**
-     * Placeholder text to render for text inputs.
+     * Placeholder text to render for text inputs or true for a default placeholder.
+     * By default no placeholder is rendered.
      */
-    placeholder: PropTypes.string,
+    placeholder: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
 
     /**
      * Additional HTML classes for the input element.
