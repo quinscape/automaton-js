@@ -229,12 +229,12 @@ const AttachmentField = React.forwardRef(
                                                         type="button"
                                                         className="btn btn-light border"
                                                         disabled={ mode !== FieldMode.NORMAL }
-                                                        title={ i18n("Reset Attachment Field") }
+                                                        title={ i18n("Cancel changes to the attachment field") }
                                                         onClick={ resetField }
                                                     >
                                                         <Icon className="fa-times mr-1"/>
                                                         {
-                                                            i18n("Reset")
+                                                            i18n("Cancel")
                                                         }
                                                     </button>
                                                 ) : false
