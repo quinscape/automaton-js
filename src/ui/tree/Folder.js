@@ -93,7 +93,7 @@ const Folder = ({row, render, query, variables, onLoad, actions, children}) => {
             <React.Fragment>
                 {
                     isLoading && (
-                        <li>
+                        <li role="treeitem">
                             <div className="text-muted small">
                                 {
                                     i18n("Loading")

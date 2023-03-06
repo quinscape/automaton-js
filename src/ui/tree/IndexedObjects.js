@@ -437,7 +437,7 @@ const IndexedObjects = fnObserver(({
         <React.Fragment>
             {
                 (index.length === 0 || rows.length === 0) && (
-                    <li className="tree-item">
+                    <li className="tree-item" role="treeitem">
                         <div className="text-muted small no-gutter">
                             {
                                 i18n("No Results")
