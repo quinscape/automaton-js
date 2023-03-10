@@ -101,35 +101,43 @@ const AttachmentField = React.forwardRef(
 
                         const attachment = get(formConfig.root, attachmentPath);
 
+                        const chooseFile = (ev) => {
+                            const inputEl = (ref || fileInputRef).current;
+                            if (inputEl != null) {
+                                inputEl.click();
+                            }
+                        }
+
                         const handleFileChange = ev => {
 
                             if (original === false)
                             {
-                                setOriginal(attachment);
-                            }
+                                        setOriginal(attachment);
+                                    }
 
                             const { files } = ( ref || fileInputRef).current;
 
                             if (files.length)
                             {
-                                // if we already had uploaded a new file
+                                    // if we already had uploaded a new file
                                 if (isNew)
                                 {
-                                    // cancel that
-                                    Attachments.clearActionsFor(formConfig.root, attachmentId);
-                                }
+                                        // cancel that
+                                        Attachments.clearActionsFor(formConfig.root, attachmentId);
+                                    }
 
                                 const file = files[0];
-                                const newAttachment = {
-                                    id: v4(),
-                                    type: file.type,
-                                    description: file.name,
-                                    url: null
-                                };
-                                setAttachment(formConfig.root, path, attachmentPath,newAttachment);
-                                Attachments.markAttachmentAsNew(formConfig.root, newAttachment, file);
-                                setIsNew(true);
-                            }
+                                    const newAttachment = {
+                                        id: v4(),
+                                        type: file.type,
+                                        description: file.name,
+                                        url: null
+                                    };
+                                    setAttachment(formConfig.root, path, attachmentPath,newAttachment);
+                                    Attachments.markAttachmentAsNew(formConfig.root, newAttachment, file);
+                                    setIsNew(true);
+                                    formConfig.handleChange(fieldContext, newAttachment?.id ?? "");
+                                }
                         };
 
                         const removeCurrent = () => {
@@ -144,6 +152,7 @@ const AttachmentField = React.forwardRef(
                             {
                                 Attachments.markAttachmentDeleted(formConfig.root, attachmentId);
                             }
+                            formConfig.handleChange(fieldContext, "");
                         };
 
                         const resetField = () => {
@@ -164,6 +173,7 @@ const AttachmentField = React.forwardRef(
 
                             setIsNew(false);
                             setOriginal(false);
+                            formConfig.handleChange(fieldContext, original?.id ?? "");
                         };
 
 
@@ -177,6 +187,7 @@ const AttachmentField = React.forwardRef(
                                     className="form-control-plaintext"
                                 >
                                     <AttachmentLink
+                                        className="text-left form-control text-truncate"
                                         attachment={ attachment }
                                     />
                                 </span>
@@ -186,42 +197,30 @@ const AttachmentField = React.forwardRef(
                         {
                             fieldElem =(
                                 Addon.renderWithAddons(
-                                    <input
-                                        id={ fieldId }
-                                        ref={ ref || fileInputRef }
-                                        type="file"
-                                        className={
-                                            cx(
-                                                "form-control",
-                                                errorMessages.length > 0 && "is-invalid"
-                                            )
-                                        }
-                                        name={ qualifiedName }
-                                        title={ tooltip }
-                                        onChange={ handleFileChange }
-                                        disabled={ mode === FieldMode.DISABLED }
-                                        readOnly={ mode === FieldMode.READ_ONLY }
+                                    <AttachmentLink
+                                        className="border text-left form-control text-truncate"
+                                        attachment={ attachment }
+                                        disabled={ isNew }
                                     />,
                                     [
                                         ... fieldContext.addons,
-                                        <Addon placement={ Addon.LEFT }>
-                                            <AttachmentLink
-                                                className="border"
-                                                attachment={ attachment }
-                                                disabled={ isNew }
-                                            />
-                                            <button
-                                                type="button"
-                                                className="btn btn-light border"
-                                                disabled={ mode !== FieldMode.NORMAL || !attachment || isNew }
-                                                title={ i18n("Remove attachment") }
-                                                onClick={ removeCurrent }
-                                            >
-                                                <Icon className="fa-eraser text-danger mr-1"/>
-                                                {
-                                                    i18n("Remove")
-                                                }
-                                            </button>
+                                        <Addon placement={ Addon.RIGHT }>
+                                            {
+                                                attachment && !isNew ? (
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-light border"
+                                                        disabled={ mode !== FieldMode.NORMAL }
+                                                        title={ i18n("Remove attachment") }
+                                                        onClick={ removeCurrent }
+                                                    >
+                                                        <Icon className="fa-eraser text-danger mr-1"/>
+                                                        {
+                                                            i18n("Remove")
+                                                        }
+                                                    </button>
+                                                ) : false
+                                            }
                                         </Addon>,
                                         <Addon placement={ Addon.RIGHT }>
                                             {
@@ -230,17 +229,33 @@ const AttachmentField = React.forwardRef(
                                                         type="button"
                                                         className="btn btn-light border"
                                                         disabled={ mode !== FieldMode.NORMAL }
-                                                        title={ i18n("Reset Attachment Field") }
+                                                        title={ i18n("Cancel changes to the attachment field") }
                                                         onClick={ resetField }
                                                     >
                                                         <Icon className="fa-times mr-1"/>
                                                         {
-                                                            i18n("Reset")
+                                                            i18n("Cancel")
                                                         }
                                                     </button>
                                                 ) : false
                                             }
-                                        </Addon>
+                                        </Addon>,
+                                        <Addon placement={ Addon.RIGHT }>
+                                            <button
+                                                id={ fieldId }
+                                                name={ qualifiedName }
+                                                type="button"
+                                                className="btn btn-light border"
+                                                disabled={ mode !== FieldMode.NORMAL }
+                                                title={ i18n("Upload attachment") }
+                                                onClick={ chooseFile }
+                                            >
+                                                <Icon className="fa-file-import mr-1"/>
+                                                {
+                                                    i18n("Choose file")
+                                                }
+                                            </button>
+                                    </Addon>
                                     ]
                                 )
                             );
@@ -254,6 +269,12 @@ const AttachmentField = React.forwardRef(
                                 {
                                     fieldElem
                                 }
+                                <input
+                                    ref={ ref || fileInputRef }
+                                    type="file"
+                                    onChange={ handleFileChange }
+                                    style={{display: 'none'}}
+                                />
                             </FormGroup>
                         )
                     }
