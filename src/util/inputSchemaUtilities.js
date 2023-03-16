@@ -1,6 +1,7 @@
 import config from "../config";
 import {unwrapAll} from "./type-utils";
 
+
 /**
  * Generates a tree representation of the table structure based on the given Type
  * @param {string} rootType the root type
@@ -191,4 +192,25 @@ function findFieldObjectByName(table, name) {
     return table.fields.find(current => {
         return current.name === name;
     });
+}
+
+
+export function findRelationByTargetTypeAndName(sourceType, type, name)
+{
+    const relations = config.inputSchema.getRelations().filter(
+        r => {
+            return (r.sourceType === sourceType && r.targetType === type && r.leftSideObjectName === name) || (r.sourceType === type  && r.targetType === sourceType  && r.rightSideObjectName === name)
+        }
+    );
+    if (!relations.length)
+    {
+        console.debug("Could not find relation with target type '" + type + "' and source type '" + sourceType + "'")
+        return null;
+    }
+    if (relations.length > 1)
+    {
+        console.debug("There's more than one relatio rarget type '" + type + "': " + JSON.stringify(relations))
+        return null;
+    }
+    return relations[0];
 }
