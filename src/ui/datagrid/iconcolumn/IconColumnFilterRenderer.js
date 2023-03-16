@@ -111,6 +111,7 @@ const IconColumnFilterRenderer = (props) => {
                                 onSubmit={setNewSelectedObjects}
                                 treeContent={selectionModalObject}
                                 valueRenderer={(value) => renderFlags (value, true)}
+                                sorted
                             />
                         </FormGroup>
                     )

@@ -302,6 +302,7 @@ const FieldSelect = observer((props) => {
                                     treeContent={columnTreeObject}
                                     onExpandDirectory={expandDirectory}
                                     onCollapseDirectory={collapseDirectory}
+                                    sorted
                                 />
                             </FormGroup>
                         );
