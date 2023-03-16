@@ -1,6 +1,6 @@
 import config from "../config";
 import {unwrapAll} from "./type-utils";
-import {toJS} from "mobx";
+
 
 /**
  * Generates a tree representation of the table structure based on the given Type
