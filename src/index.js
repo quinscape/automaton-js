@@ -99,6 +99,8 @@ import { createTreeRepresentationForInputSchema,getTableNameByPath, getFieldData
 import IconCell from "./ui/datagrid/iconcolumn/IconCell"
 import latestRequestInSession, { registerRequestForSession } from "./util/latestRequestInSession"
 
+import TextOutputModal from "./ui/modal/TextOutputModal";
+
 // noinspection JSUnusedGlobalSymbols
 export {
     config,
@@ -245,9 +247,9 @@ export {
     IconCell,
     
     latestRequestInSession,
-    registerRequestForSession
+    registerRequestForSession,
 
-
+    TextOutputModal
 
 }
 
