@@ -14,7 +14,7 @@ export default function TextOutputModal(props){
     return (
         <Modal isOpen={ isOpen } toggle={ toggleOpen } size="lg" fade={ config.processDialog.props.fade }>
             <ModalHeader
-                toggle={ toggle }
+                toggle={ toggleOpen }
             >
                 {
                     typeof headerRenderer === "function" ? headerRenderer() : headerRenderer
