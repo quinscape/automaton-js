@@ -12,7 +12,7 @@ export default function TextOutputModal(props){
     } = props;
 
     return (
-        <Modal isOpen={ isOpen } toggle={ toggleOpen } size="lg" fade={ config.processDialog.props.fade }>
+        <Modal isOpen={ isOpen } toggle={ toggleOpen } size="lg" fade={ config.processDialog.props.fade } className="text-output-modal">
             <ModalHeader
                 toggle={ toggleOpen }
             >
@@ -25,9 +25,9 @@ export default function TextOutputModal(props){
                     <div className="row">
                         <div className="col">
                             <textarea
-                                inputClass="text-monospace"
-                                cols={ 80}
+                                className="text-monospace w-100"
                                 rows={ 16 }
+                                readOnly
                             >
                                 {
                                     typeof textContentRenderer === "function" ? textContentRenderer() : textContentRenderer
