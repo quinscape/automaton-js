@@ -160,7 +160,8 @@ describe("ConditionEditor", function () {
                                         {
                                             "type": "Value",
                                             "scalarType": "String",
-                                            "value": "aaa"
+                                            "value": "aaa",
+                                            "name": null
                                         }
                                     ]
                                 },
@@ -175,7 +176,8 @@ describe("ConditionEditor", function () {
                                         {
                                             "type": "Value",
                                             "scalarType": "String",
-                                            "value": ""
+                                            "value": "",
+                                            "name": null
                                         }
                                     ]
                                 }
@@ -231,7 +233,8 @@ describe("ConditionEditor", function () {
                                 {
                                     "scalarType": "String",
                                     "type": "Value",
-                                    "value": "bbb"
+                                    "value": "bbb",
+                                    "name": null
                                 }
                             ],
                             "type": "Condition"
