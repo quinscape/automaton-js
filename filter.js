@@ -1,4 +1,10 @@
 const FilterDSL = require("./lib/FilterDSL");
+
+const compileFilter = require("./lib/util/compileFilter").default;
+const decompileFilter = require("./lib/util/decompileFilter").default;
+const getFilterExpressionAST = require("./lib/util/getFilterExpressionAST").default;
+
+
 const {
 
     and,
@@ -63,3 +69,8 @@ exports.FIELD_OPERATIONS = FIELD_OPERATIONS;
 // Filter Functions
 exports.now = now;
 exports.today = today;
+
+// compiling / decompiling expressions
+exports.compileFilter = compileFilter;
+exports.decompileFilter = decompileFilter
+exports.getFilterExpressionAST = getFilterExpressionAST

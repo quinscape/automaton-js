@@ -1,66 +1,110 @@
 import React from "react"
 import assert from "power-assert"
-import filterTransformer, { FieldResolver } from "../../src/util/filterTransformer"
 
-import { field, value, values, and, or, not, condition, operation, toJSON } from "../../src/FilterDSL"
-import { now, today } from "../../filter"
+import { field, or, toJSON, value } from "../../src/FilterDSL"
+import { getFilterExpressionAST, now, today } from "../../filter"
 import { DateTime } from "luxon"
-import sleep from "../ui/sleep"
-import decompileFilter from "../../src/util/decompileFilter"
 import compileFilter from "../../src/util/compileFilter"
-
-
-/**
- * Expects a string starting with a return and a number of spaces. Removes the initial return and that many spaces
- * from each line start.
- * @param s
- * @return {string|*}   String unindented so that the second row starts at column 1
- */
-function trimIndent(s)
-{
-    const m = /^\n[ ]+/.exec(s)
-
-    if (!m)
-    {
-        return s
-    }
-    return s.substr(1).replace(new RegExp("^" + m[0].substr(1), "mg"), "")
-}
 
 
 describe("compileFilter", function () {
 
     it("converts FilterDSL js-like expressions to FilterDSL JSON graphs", () => {
 
-        const global = (0,eval)("this")
-
-        global.DateTime = 12
         assert.deepEqual(
-            compileFilter("field(\"name\").eq(value(\"abc\"))"),
-            toJSON(field("name").eq(value("abc")))
+            compileFilter("or(field(\"name\").eq(value(\"abc\")), field(\"num\").eq(value(5)))"),
+            toJSON(or(field("name").eq(value("abc")), field("num").eq(value(5))))
         )
-
-        // ensure env vars were restored to original values
-        assert(global.DateTime === 12)
-
     })
 
     it("supports DateTime expressions", () => {
 
-        const global = (0,eval)("this")
-
-        global.DateTime = 12
+        const ts = "2023-10-31T00:00:00.000+01:00"
         assert.deepEqual(
-            compileFilter("field(\"name\").eq(value(\"abc\"))"),
-            toJSON(field("name").eq(value("abc")))
+            compileFilter("value(DateTime.fromISO(\"" + ts + "\"))"),
+            toJSON(value(DateTime.fromISO(ts)))
+        )
+    })
+
+    it("supports Computed Values (simple object literals)", () => {
+
+        const ts = "2023-10-31T00:00:00.000+01:00"
+        assert.deepEqual(
+            compileFilter("value({\"name\": \"now\"}, \"FilterFunction\" )"),
+            toJSON(value({"name": "now"}, "FilterFunction" ))
+        )
+    })
+
+    it("supports now() and today()", () => {
+
+        assert.deepEqual(
+            compileFilter("now()"),
+            toJSON(now())
         )
 
-        assert(global.DateTime === 12)
-
         assert.deepEqual(
-            compileFilter("value(DateTime.fromISO(\"2023-10-31T00:00:00.000+01:00\"))"),
-            toJSON(value(DateTime.fromISO("2023-10-31T00:00:00.000+01:00")))
+            compileFilter("today()"),
+            toJSON(today())
+        )
+    })
+
+    it("locks down expression usage", () => {
+
+        // only white listed method on field
+        assert.throws(
+            () => compileFilter("field(\"name\").fake(value(5))"),
+            /Invalid field method: fake/
         )
 
+        // only known root identifiers
+        assert.throws(
+            () => compileFilter("funk(\"name\")"),
+            /Unknown identifier: funk/
+        )
+        assert.throws(
+            () => compileFilter("window"),
+            /Unknown identifier: window/
+        )
+        assert.throws(
+            () => compileFilter("window.location"),
+            /Invalid AST node: type = MemberExpression/
+        )
+
+        // assignments don't work
+        assert.throws(
+            () => compileFilter("window.location = \"xxx\""),
+            /Unexpected "="/
+        )
+
+        // we don't even allow operands. Everything has to go through the FilterDSL API.
+        assert.throws(
+            () => compileFilter("1 + 1"),
+            /Unexpected "\+"/
+        )
+
+        // If you absolutely want, you can do
+        assert.deepEqual(
+            compileFilter("value(5).add(value(7))"),
+            toJSON(value(5).add(value(7)))
+        )
+
+    })
+
+    it("limits DateTime usage", () => {
+
+        assert.throws(
+            () => compileFilter("DateTime.foo()"),
+            /Invalid DateTime expression. Only DateTime.fromISO/
+        )
+
+
+    })
+
+    it("allows an AST as input", () => {
+
+        assert.deepEqual(
+            compileFilter(getFilterExpressionAST("or(field(\"name\").eq(value(\"abc\")), field(\"num\").eq(value(5)))")),
+            toJSON(or(field("name").eq(value("abc")), field("num").eq(value(5))))
+        )
     })
 })
