@@ -1,4 +1,4 @@
-import { Type } from "../FilterDSL";
+import { COMPUTED_VALUE_TYPE, Type } from "../FilterDSL"
 import config from "../config";
 
 function convert(value, scalarType)
@@ -43,6 +43,18 @@ export default function decompileFilter(condition, level = 0, invert = true)
     if (!condition)
     {
         return indent(level) + "null";
+    }
+
+    if (condition.type === Type.VALUE && condition.scalarType === COMPUTED_VALUE_TYPE)
+    {
+        if (condition.value.name === "now")
+        {
+            return indent(level) + "now()"
+        }
+        else if (condition.value.name === "today")
+        {
+            return indent(level) + "today()"
+        }
     }
 
     const { type, name } = condition;

@@ -164,4 +164,20 @@ describe("decompileFilter", function () {
         )
 
     })
+
+    it("uses now() and today() shorthands", () => {
+
+        assert(
+            decompileFilter(now()) === trimIndent(`
+                now()`
+            )
+        )
+
+        assert(
+            decompileFilter(today()) === trimIndent(`
+                today()`
+            )
+        )
+
+    })
 })
