@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import i18n from "./i18n"
 
 /**
  * Node type constants.
@@ -13,6 +14,51 @@ export const Type = {
     OPERATION : "Operation",
     COMPONENT : "Component"
 };
+
+export const COMPUTED_VALUE_TYPE = "FilterFunction"
+
+/**
+ * Filter function argument
+ *
+ * @typedef ComputedValueDef
+ * @type {object}
+ * @property {String} name                      Name of the ComputedValue function
+ * @property {String} description               Description of the function prefixed by its name
+ * @property {String} type                      Scalar type of the return value
+ * @property {Array<ComputedValueArg>} args     Arguments for the computed value function
+ */
+
+/**
+ * Filter function argument
+ *
+ * @typedef ComputedValueArg
+ * @type {object}
+ * @property {String} name          Name of the argument
+ * @property {*} default            default value
+ * @property {boolean} nonNull      if true, arg can't be null. If no default is defined, an error occurs
+ */
+
+/**
+ * Array of currently available filter functions
+ *
+ * @type {Array<ComputedValueDef>}
+ */
+export const COMPUTED_VALUES = [
+    {
+        name: "now",
+        type: "Timestamp",
+        description: "now - " + i18n("FilterFunction:Now Description"),
+
+        // array of scalar type names
+        args: []
+    },
+    {
+        name: "today",
+        type: "Date",
+        description: "today - " + i18n("FilterFunction:Today Description"),
+        args: []
+    }
+]
 
 const validTypeValues = Object.values(Type);
 
@@ -690,8 +736,31 @@ const FilterDSL = {
      */
     Type,
 
-    toJSON
+    toJSON,
+
+    COMPUTED_VALUES
 }
 
 export default FilterDSL;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
