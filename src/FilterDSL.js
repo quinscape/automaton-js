@@ -528,12 +528,13 @@ export function toJSON(condition)
     }
     else if (type === Type.VALUE)
     {
-        const { scalarType, value } = condition;
+        const { scalarType, name, value } = condition;
 
         return {
             type,
             scalarType,
-            value
+            value,
+            name
         }
     }
     else if (type === Type.VALUES)
