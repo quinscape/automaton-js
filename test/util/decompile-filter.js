@@ -73,62 +73,64 @@ describe("decompileFilter", function () {
           )
         )
 
-        assert(
-            decompileFilter(
-                or(
+        const filterSrc = decompileFilter(
+            or(
 
-                    and(
-                        or(
-                            field("num")
-                                .eq(
-                                    value(
-                                        100
-                                    )
-                                ),
-                            field("num")
-                                .eq(
-                                    value(
-                                        110
-                                    )
-                                )
-                        ),
-                        or(
-                            field("num")
-                                .eq(
-                                    value(
-                                        200
-                                    )
-                                ),
-                            field("num")
-                                .eq(
-                                    value(
-                                        210
-                                    )
-                                )
-
-                        ),
+                and(
+                    or(
                         field("num")
                             .eq(
                                 value(
-                                    300
+                                    100
                                 )
                             ),
                         field("num")
                             .eq(
                                 value(
-                                    310
+                                    110
+                                )
+                            )
+                    ),
+                    or(
+                        field("num")
+                            .eq(
+                                value(
+                                    200
+                                )
+                            ),
+                        field("num")
+                            .eq(
+                                value(
+                                    210
                                 )
                             )
 
                     ),
-                    field("description")
-                        .containsIgnoreCase(
+                    field("num")
+                        .eq(
                             value(
-                                ""
+                                300
+                            )
+                        ),
+                    field("num")
+                        .eq(
+                            value(
+                                310
                             )
                         )
-                )
-            ) === trimIndent(`
+
+                ),
+                field("description")
+                    .containsIgnoreCase(
+                        value(
+                            ""
+                        )
+                    )
+            )
+        )
+
+        assert(
+            filterSrc === trimIndent(`
                 or(
                     and(
                         or(

@@ -1,5 +1,15 @@
 import { Type } from "../FilterDSL";
+import config from "../config";
 
+function convert(value, scalarType)
+{
+    if (scalarType === "Timestamp" || scalarType === "Date")
+    {
+        return "DateTime.fromISO(" + JSON.stringify(value)+ ")"
+    }
+
+    return JSON.stringify(value)
+}
 
 function indent(level)
 {
@@ -55,9 +65,9 @@ export default function decompileFilter(condition, level = 0, invert = true)
     else if (type === Type.VALUE)
     {
         const { value, scalarType } = condition;
-        if (simplifiedValues[scalarType])
+        if (value !== null && simplifiedValues[scalarType])
         {
-            return indent(level) + "value(" + JSON.stringify(value) + ")";
+            return indent(level) + "value(" + convert(value, scalarType) + ")";
         }
         return indent(level) + "value(" + JSON.stringify(value) + ", " + JSON.stringify(scalarType) +")";
 
