@@ -1,3 +1,5 @@
+import { DateTime } from "luxon"
+import getFilterExpressionAST from "./getFilterExpressionAST"
 import {
     and,
     or,
@@ -11,8 +13,17 @@ import {
     FIELD_CONDITIONS,
     FIELD_OPERATIONS
 } from "../FilterDSL"
-import { DateTime } from "luxon"
-import getFilterExpressionAST from "./getFilterExpressionAST"
+
+// Estree AST compatible type identifiers relevant for us
+const LITERAL = "Literal"
+const CALL_EXPRESSION = "CallExpression"
+const IDENTIFIER = "Identifier"
+const MEMBER_EXPRESSION = "MemberExpression"
+const OBJECT_EXPRESSION = "ObjectExpression"
+
+// Constants for our very limited DateTime expression support
+const DATE_TIME_IDENTIFIER = "DateTime"
+const FROM_ISO = "fromISO"
 
 const PROP_POSITIVE_LIST = [
     ... Object.keys(FIELD_CONDITIONS),
@@ -53,11 +64,11 @@ function convertAST(expr)
         throw new Error("Invalid expression node")
     }
 
-    if (expr.type === "CallExpression" )
+    if (expr.type === CALL_EXPRESSION )
     {
         const { type: calleeType } = expr.callee
 
-        if (calleeType === "Identifier")
+        if (calleeType === IDENTIFIER)
         {
             const { name } = expr.callee
             const fn = env[name]
@@ -67,19 +78,19 @@ function convertAST(expr)
             }
             return fn.apply(null, convertASTOperands(expr.arguments))
         }
-        else if (calleeType === "MemberExpression")
+        else if (calleeType === MEMBER_EXPRESSION)
         {
             const { object, property } = expr.callee
 
-            if (property.type !== "Identifier")
+            if (property.type !== IDENTIFIER)
             {
                 throw new Error("Only identifier properties are allowed")
             }
 
             const propName = property.name
-            if (object.type === "Identifier" && object.name === "DateTime")
+            if (object.type === IDENTIFIER && object.name === DATE_TIME_IDENTIFIER)
             {
-                if (propName !== "fromISO" || expr.arguments.length !== 1 )
+                if (propName !== FROM_ISO || expr.arguments.length !== 1 )
                 {
                     throw new Error("Invalid DateTime expression. Only DateTime.fromISO(\"\") is allowed");
                 }
@@ -98,11 +109,11 @@ function convertAST(expr)
             }
         }
     }
-    else if (expr.type === "Literal")
+    else if (expr.type === LITERAL)
     {
         return expr.value
     }
-    else if (expr.type === "Identifier")
+    else if (expr.type === IDENTIFIER)
     {
         const v = env[expr.name]
         if (!v)
@@ -111,12 +122,12 @@ function convertAST(expr)
         }
         return v
     }
-    else if (expr.type === "ObjectExpression")
+    else if (expr.type === OBJECT_EXPRESSION)
     {
         const out = {}
 
         expr.properties.forEach(prop => {
-            const key = prop.key.type === "Identifier" ? prop.key.name : prop.key.value
+            const key = prop.key.type === IDENTIFIER ? prop.key.name : prop.key.value
             const value = prop.value.value
 
             out[key] = value;
