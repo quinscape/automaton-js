@@ -59,9 +59,9 @@ function convertASTOperands(exprNodes)
  */
 function convertAST(expr)
 {
-    if (!expr)
+    if (!expr || typeof expr !== "object" || typeof expr.type !== "string")
     {
-        throw new Error("Invalid expression node")
+        throw new Error("Invalid expression node: " + JSON.stringify(expr))
     }
 
     if (expr.type === CALL_EXPRESSION )
