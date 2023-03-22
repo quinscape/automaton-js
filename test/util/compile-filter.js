@@ -1,7 +1,7 @@
 import React from "react"
 import assert from "power-assert"
 
-import { field, or, toJSON, value } from "../../src/FilterDSL"
+import { field, or, value } from "../../src/FilterDSL"
 import { getFilterExpressionAST, now, today } from "../../filter"
 import { DateTime } from "luxon"
 import compileFilter from "../../src/util/compileFilter"
@@ -13,7 +13,7 @@ describe("compileFilter", function () {
 
         assert.deepEqual(
             compileFilter("or(field(\"name\").eq(value(\"abc\")), field(\"num\").eq(value(5)))"),
-            toJSON(or(field("name").eq(value("abc")), field("num").eq(value(5))))
+            or(field("name").eq(value("abc")), field("num").eq(value(5)))
         )
     })
 
@@ -22,7 +22,7 @@ describe("compileFilter", function () {
         const ts = "2023-10-31T00:00:00.000+01:00"
         assert.deepEqual(
             compileFilter("value(DateTime.fromISO(\"" + ts + "\"))"),
-            toJSON(value(DateTime.fromISO(ts)))
+            value(DateTime.fromISO(ts))
         )
     })
 
@@ -31,7 +31,7 @@ describe("compileFilter", function () {
         const ts = "2023-10-31T00:00:00.000+01:00"
         assert.deepEqual(
             compileFilter("value({\"name\": \"now\"}, \"FilterFunction\" )"),
-            toJSON(value({"name": "now"}, "FilterFunction" ))
+            value({"name": "now"}, "FilterFunction" )
         )
     })
 
@@ -39,12 +39,12 @@ describe("compileFilter", function () {
 
         assert.deepEqual(
             compileFilter("now()"),
-            toJSON(now())
+            now()
         )
 
         assert.deepEqual(
             compileFilter("today()"),
-            toJSON(today())
+            today()
         )
     })
 
@@ -85,7 +85,7 @@ describe("compileFilter", function () {
         // If you absolutely want, you can do
         assert.deepEqual(
             compileFilter("value(5).add(value(7))"),
-            toJSON(value(5).add(value(7)))
+            value(5).add(value(7))
         )
 
     })
@@ -96,15 +96,13 @@ describe("compileFilter", function () {
             () => compileFilter("DateTime.foo()"),
             /Invalid DateTime expression. Only DateTime.fromISO/
         )
-
-
     })
 
     it("allows an AST as input", () => {
 
         assert.deepEqual(
             compileFilter(getFilterExpressionAST("or(field(\"name\").eq(value(\"abc\")), field(\"num\").eq(value(5)))")),
-            toJSON(or(field("name").eq(value("abc")), field("num").eq(value(5))))
+            or(field("name").eq(value("abc")), field("num").eq(value(5)))
         )
     })
 })
