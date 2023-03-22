@@ -12,6 +12,7 @@ import { getFieldDataByPath, getTableNameByPath } from "../../util/inputSchemaUt
 import { useLocalObservable } from "mobx-react-lite";
 import get from "lodash.get";
 import toPath from "lodash.topath";
+import ConditionPointer from "../condition/ConditionPointer"
 
 const ORIGINS = {
     CONDITION_EDITOR_FIELD_SELECTION: "ConditionEditorFieldSelection",
@@ -148,8 +149,7 @@ const QueryEditor = (props) => {
                 <div className="card-body border-top">
                     <ConditionEditor
                         rootType={editorState.rootType}
-                        container={editorState.container}
-                        path={queryConditionPath.join(".")}
+                        pointer={ ConditionPointer.createBasePointer(editorState.container, queryConditionPath)}
                         valueRenderer={columnNameRenderer}
                         formContext={formContext}
                         queryCondition={queryConfiguration?.where}

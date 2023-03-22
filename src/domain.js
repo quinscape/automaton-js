@@ -1,4 +1,4 @@
-import { registerCustomConverter, WireFormat } from "domainql-form"
+import { InputSchema, registerCustomConverter, WireFormat } from "domainql-form"
 import config from "./config"
 import matchPath from "./matchPath";
 import { INPUT_OBJECT, OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";

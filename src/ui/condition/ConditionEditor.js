@@ -1,25 +1,28 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import cx from "classnames"
-import { observer, useLocalObservable } from "mobx-react-lite";
-import get from "lodash.get";
-import set from "lodash.set";
+import { observer, useLocalObservable } from "mobx-react-lite"
+import get from "lodash.get"
 
-import { field, toJSON, Type, value as dslValue } from "../../FilterDSL";
-import { AABB, isStructuralCondition, join } from "./condition-layout";
-import ConditionDropdown from "./ConditionDropdown";
-import FieldSelect from "./FieldSelect";
-import { Addon, Field, Form, FormContext, FormLayout, Icon } from "domainql-form";
-import ConditionSelect from "./ConditionSelect";
-import Leaf from "./Leaf";
-import i18n from "../../i18n";
-import { ButtonToolbar } from "reactstrap";
-import ConditionEditorState, { TreeType } from "./ConditionEditorState";
-import ImportExportDialog from "./ImportExportDialog";
-import PropTypes from "prop-types";
-import { runInAction, toJS } from "mobx"
-import ExpressionDialog from "./ExpressionDialog";
-import ExpressionDropdown from "./ExpressionDropdown";
-import { getFieldDataByPath, getTableNameByPath } from "../../util/inputSchemaUtilities";
+import { COMPUTED_VALUE_TYPE, field, toJSON, Type, value as dslValue } from "../../FilterDSL"
+import { AABB, isStructuralCondition, join } from "./condition-layout"
+import ConditionDropdown from "./ConditionDropdown"
+import FieldSelect from "./FieldSelect"
+import { Addon, Field, Form, FormContext, FormLayout, GlobalConfig, Icon } from "domainql-form"
+import ConditionSelect from "./ConditionSelect"
+import Leaf from "./Leaf"
+import i18n from "../../i18n"
+import { ButtonToolbar } from "reactstrap"
+import ConditionEditorState, { TreeType } from "./ConditionEditorState"
+import ImportExportDialog from "./ImportExportDialog"
+import PropTypes from "prop-types"
+import { action, runInAction, toJS } from "mobx"
+import ExpressionDialog from "./ExpressionDialog"
+import ExpressionDropdown from "./ExpressionDropdown"
+import { getFieldDataByPath, getTableNameByPath } from "../../util/inputSchemaUtilities"
+import renderFieldHelpers from "../../util/renderFieldHelpers"
+import { unwrapAll } from "../../util/type-utils"
+import ComputedValueDialog from "./ComputedValueDialog"
+import ConditionPointer from "./ConditionPointer"
 
 
 function minXOfChildren(layoutNode)
@@ -87,8 +90,7 @@ const DEFAULT_OPTIONS = {
 const ConditionEditor = observer(function ConditionEditor(props) {
     const {
         rootType,
-        container,
-        path : containerPath = "",
+        pointer,
         className,
         options,
         formContext = FormContext.getDefault(),
@@ -116,7 +118,7 @@ const ConditionEditor = observer(function ConditionEditor(props) {
     const onConditionChange = useMemo(() => {
         if (typeof onChange === "function") {
             return () => {
-                const queryCondition = get(container, containerPath);
+                const queryCondition = pointer.getValue();
                 onChange(queryCondition);
             };
         } else {
@@ -142,10 +144,10 @@ const ConditionEditor = observer(function ConditionEditor(props) {
     const containerRef = useRef(null);
 
 
-    const condition = get(container, containerPath);
+    const condition = pointer.getValue();
 
     const editorState = useLocalObservable(
-        () => new ConditionEditorState(rootType, container, containerPath, opts)
+        () => new ConditionEditorState(rootType, pointer, opts)
     );
 
     useEffect(() => {
@@ -156,6 +158,7 @@ const ConditionEditor = observer(function ConditionEditor(props) {
         () => {
             if (editorState.revalidateCount)
             {
+                console.log("REVALIDATE")
                 formContext.removeAllErrors();
                 formContext.revalidate();
             }
@@ -233,11 +236,12 @@ const ConditionEditor = observer(function ConditionEditor(props) {
     const nodes = [];
     const decorations = [];
 
-    renderLayoutNodes(layoutRoot, nodes, decorations, editorState, condition, editorState.conditionTree, valueRenderer, schemaResolveFilterCallback);
+    renderLayoutNodes(layoutRoot, nodes, decorations, condition, { editorState, tree: editorState.conditionTree, valueRenderer, schemaResolveFilterCallback });
 
     return (
         <>
             <div
+                key={ editorState.updateCounter }
                 ref={ containerRef }
                 className={ cx("condition-editor", className) }
             >
@@ -324,13 +328,20 @@ const ConditionEditor = observer(function ConditionEditor(props) {
                 valueRenderer={ valueRenderer }
                 schemaResolveFilterCallback={ schemaResolveFilterCallback }
             />
+
+            <ComputedValueDialog
+                editorState={ editorState }
+                formContext={ formContext }
+                valueRenderer={ valueRenderer }
+                schemaResolveFilterCallback={ schemaResolveFilterCallback }
+            />
         </>
     );
 });
 
 ///   NODE RENDERING ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-function StructuralAddButton({condition, path, editorState})
+function StructuralAddButton({condition, pointer, editorState})
 {
 
     return (
@@ -342,7 +353,7 @@ function StructuralAddButton({condition, path, editorState})
                     ... condition,
                     operands: [ ... condition.operands, editorState.opts.defaultCondition()]
                 }
-                editorState.replaceCondition(newCondition, path)
+                editorState.replaceCondition(newCondition, pointer)
             }}
         >
             <Icon className="fa-plus"/>
@@ -357,8 +368,10 @@ function StructuralAddButton({condition, path, editorState})
  * Creates flat React elements for the hierarchical component tree and adds them either to "nodes" which are normal
  * relative-absolute positioned HTML content and decorations which are SVG elements
  */
-export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback)
+export function renderLayoutNodes(layoutNode, nodes, decorations, conditionRoot, ctx)
 {
+    const { editorState, tree } = ctx
+
     if (!layoutNode)
     {
         return;
@@ -378,6 +391,8 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
 
     const nodeId = ConditionEditorState.getNodeId(condition);
     const path = editorState.pathLookup.get(nodeId);
+
+    const pointer = editorState.pointer.createChild(path)
 
     if (isStructural)
     {
@@ -405,7 +420,7 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
                         condition.operands.every(o => isStructuralCondition(o)) && condition.name !== "not" && (
                             <StructuralAddButton
                                 condition={ condition }
-                                path={ path }
+                                pointer={ pointer }
                                 editorState={ editorState }
                             />
                         )
@@ -415,10 +430,11 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
                     !isConditionTree && (
                         <ExpressionDropdown
                             key={ nodeId + "-dd" }
-                            path={ path }
+                            pointer={ pointer }
                             condition={ condition }
                             editorState={ editorState }
-                        />                        )
+                        />
+                     )
                 }
             </Leaf>
         )
@@ -431,11 +447,11 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
 
         if (isConditionTree)
         {
-            renderCondition(elements, layoutNode, layoutNode.data, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
+            renderCondition(elements, layoutNode, layoutNode.data, pointer, ctx)
         }
         else
         {
-            renderExpression(elements, layoutNode, layoutNode.data, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
+            renderExpression(elements, layoutNode, layoutNode.data, pointer, ctx)
         }
 
         nodes.push(
@@ -454,12 +470,12 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, editorState, c
 
     if (isStructural)
     {
-        flattenStructuralKids(rootType, layoutNode, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback);
+        flattenStructuralKids(rootType, layoutNode, nodes, decorations, editorState, conditionRoot, ctx);
     }
 }
 
 
-function flattenStructuralKids(rootType, node, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback)
+function flattenStructuralKids(rootType, node, nodes, decorations, editorState, conditionRoot, ctx)
 {
     const { children } = node;
 
@@ -468,12 +484,17 @@ function flattenStructuralKids(rootType, node, nodes, decorations, editorState, 
         for (let i = 0; i < children.length; i++)
         {
             const kid = children[i];
-            renderLayoutNodes(kid, nodes, decorations, editorState, conditionRoot, tree, valueRenderer, schemaResolveFilterCallback)
+            renderLayoutNodes(kid, nodes, decorations, conditionRoot, ctx)
         }
     }
 }
 
-function renderCondition(elements, layoutNode, condition, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback) {
+
+
+
+function renderCondition(elements, layoutNode, condition, pointer, ctx) {
+
+    const { editorState, valueRenderer, schemaResolveFilterCallback } = ctx
 
     const { rootType } = editorState;
 
@@ -489,7 +510,7 @@ function renderCondition(elements, layoutNode, condition, path, editorState, tre
         const unary = operands.length === 1;
         if (!unary)
         {
-            renderCondition(kids, layoutNode, operands[0], join(path, "operands.0"), editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
+            renderCondition(kids, layoutNode, operands[0], pointer.getOperand(0), ctx)
         }
 
         kids.push(
@@ -499,7 +520,7 @@ function renderCondition(elements, layoutNode, condition, path, editorState, tre
             >
                 <ConditionSelect
                     condition={ condition }
-                    path={ path }
+                    pointer={ pointer }
                     editorState={ editorState }
                     isCondition={ condition.type === Type.CONDITION }
                 />
@@ -508,7 +529,7 @@ function renderCondition(elements, layoutNode, condition, path, editorState, tre
 
         for (let i = unary ? 0 : 1; i < operands.length; i++)
         {
-            renderCondition(kids, layoutNode, operands[i], join(path, "operands." + i), editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
+            renderCondition(kids, layoutNode, operands[i], pointer.getOperand(i), ctx)
         }
 
         if (isCondition)
@@ -516,8 +537,7 @@ function renderCondition(elements, layoutNode, condition, path, editorState, tre
             kids.push(
                 <ConditionDropdown
                     key={ nodeId + "-dd"}
-                    path={ path }
-                    conditionRoot={ conditionRoot }
+                    pointer={ pointer }
                     condition={ condition }
                     editorState={ editorState }
                 />
@@ -544,8 +564,7 @@ function renderCondition(elements, layoutNode, condition, path, editorState, tre
                 key={ nodeId }
                 layoutId={ nodeId }
                 rootType={ rootType }
-                conditionRoot={conditionRoot}
-                path={ path }
+                pointer={ pointer }
                 editorState={ editorState }
                 valueRenderer={ valueRenderer }
                 schemaResolveFilterCallback={schemaResolveFilterCallback}
@@ -556,22 +575,81 @@ function renderCondition(elements, layoutNode, condition, path, editorState, tre
     {
         const { scalarType } = condition;
 
-        elements.push(
-            <span
-                key={ path }
-                data-layout={nodeId}
-                className="value mr-1"
-            >
-                <Field
-                    key={ path + ":" + scalarType }
-                    name={ join(path, "value") }
-                    type={ scalarType + "!" }
-                    labelClass="sr-only"
-                    label={i18n("ConditionEditor:Filter value")}
-                    required={ true }
-                />
-            </span>
-        )
+        const valuePath =  editorState.toRelativeFormPath(pointer, "value")
+        if (scalarType === COMPUTED_VALUE_TYPE)
+        {
+            elements.push(
+                <span
+                    key={ pointer.path }
+                    data-layout={ nodeId }
+                    className="value mr-1"
+                >
+                    <Field
+                        key={ pointer.path + ":" + scalarType }
+                        name={ valuePath }
+                        type={ COMPUTED_VALUE_TYPE + "!" }
+                        labelClass="sr-only"
+                        label={ i18n("ConditionEditor:Computed Value") }
+                    >
+                        <Addon placement={ Addon.RIGHT }>
+                            <button
+                                className="btn btn-light border"
+                                title={ i18n("ConditionEditor:Computed Value") + "…" }
+                                onClick={
+                                    () => editorState.openComputedValueDialog(pointer)
+                                }
+                            >
+                              <Icon className="fa-cog text-muted"/>
+                            </button>
+                        </Addon>
+                    </Field>
+                </span>
+            )
+        }
+        else
+        {
+            elements.push(
+                <span
+                    key={ pointer.path }
+                    data-layout={ nodeId }
+                    className="value mr-1"
+                >
+                    <Field
+                        key={ pointer.path + ":" + scalarType }
+                        name={ valuePath }
+                        type={ scalarType + "!" }
+                        labelClass="sr-only"
+                        label={ i18n("ConditionEditor:Filter value") }
+                        required={ true }
+                    >
+                        {
+                            renderFieldHelpers([
+                                ({value, fieldContext}) => {
+
+                                    if (unwrapAll(fieldContext.fieldType).name === "Timestamp" && value === "now")
+                                    {
+                                        return <button className="btn btn-light btn-sm" title="Convert String value now to computed value" onClick={ () => editorState.convertToComputed("now",condition) }>
+                                            <Icon className="fa-info-circle text-info"/>
+                                        </button>;
+                                    }
+                                    return false
+                                },
+                                ({value, fieldContext}) => {
+
+                                    if (unwrapAll(fieldContext.fieldType).name === "Date" && value === "today")
+                                    {
+                                        return <button className="btn btn-light btn-sm" title="Convert String value today to computed value" onClick={ () => editorState.convertToComputed("today", condition) }>
+                                            <Icon className="fa-info-circle text-info"/>
+                                        </button>;
+                                    }
+                                    return false
+                                }
+                            ])
+                        }
+                    </Field>
+                </span>
+            )
+        }
     }
     else if (type === Type.VALUES)
     {
@@ -580,7 +658,7 @@ function renderCondition(elements, layoutNode, condition, path, editorState, tre
 
         elements.push(
             <span
-                key={ path }
+                key={ pointer.path }
                 data-layout={nodeId}
                 className="values mr-1"
             >
@@ -603,14 +681,14 @@ function renderCondition(elements, layoutNode, condition, path, editorState, tre
                                 labelClass="sr-only"
                                 label={ "Value #" + idx }
                                 required={ true }
-                                name={ join(path, "values." + idx) }
+                                name={ editorState.toRelativeFormPath(pointer, "values." + idx) }
                                 addons={[
                                     <Addon placement={ Addon.RIGHT }>
                                         <button
                                             type="button"
                                             className="btn btn-light border"
                                             aria-label={i18n("ConditionEditor:Remove")}
-                                            onClick={ () => editorState.removeInValue(path, idx)}
+                                            onClick={ () => editorState.removeInValue(pointer, idx)}
                                             >
                                             <Icon className="fa-minus text-danger"/>
                                         </button>
@@ -626,7 +704,7 @@ function renderCondition(elements, layoutNode, condition, path, editorState, tre
                         type="button"
                         className="btn btn-light border"
                         aria-label={i18n("ConditionEditor:Add")}
-                        onClick={ () => runInAction(() => editorState.addInValue(path) ) }
+                        onClick={ () => runInAction(() => editorState.addInValue(pointer) ) }
                     >
                         <Icon className="fa-plus mr-1"/>
                         {
@@ -644,8 +722,10 @@ function renderCondition(elements, layoutNode, condition, path, editorState, tre
     }
 }
 
-function renderExpression(elements, layoutNode, condition, path, editorState, tree, conditionRoot, valueRenderer, schemaResolveFilterCallback)
+function renderExpression(elements, layoutNode, condition, pointer, ctx)
 {
+    const { editorState, valueRenderer, schemaResolveFilterCallback } = ctx
+
     const { rootType } = editorState;
 
     const { type } = condition;
@@ -659,8 +739,7 @@ function renderExpression(elements, layoutNode, condition, path, editorState, tr
                 key={ nodeId }
                 layoutId={ nodeId }
                 rootType={ rootType }
-                conditionRoot={conditionRoot}
-                path={ path }
+                pointer={ pointer }
                 editorState={ editorState }
                 valueRenderer={ valueRenderer }
                 schemaResolveFilterCallback={schemaResolveFilterCallback}
@@ -673,13 +752,13 @@ function renderExpression(elements, layoutNode, condition, path, editorState, tr
 
         elements.push(
             <span
-                key={ path }
+                key={ pointer.path }
                 data-layout={nodeId}
                 className="value mr-1"
             >
                 <Field
-                    key={ path + ":" + scalarType }
-                    name={ join(path, "value") }
+                    key={ pointer.path + ":" + scalarType }
+                    name={ editorState.toRelativeFormPath(pointer,"value") }
                     type={ scalarType + "!" }
                     labelClass="sr-only"
                     label="Filter value"
@@ -695,7 +774,7 @@ function renderExpression(elements, layoutNode, condition, path, editorState, tr
 
         elements.push(
             <span
-                key={ path }
+                key={ pointer.path }
                 data-layout={nodeId}
                 className="values mr-1"
             >
@@ -718,14 +797,14 @@ function renderExpression(elements, layoutNode, condition, path, editorState, tr
                                 labelClass="sr-only"
                                 label={ "Value #" + idx }
                                 required={ true }
-                                name={ join(path, "values." + idx) }
+                                name={ editorState.toRelativeFormPath(pointer, "values" + idx) }
                                 addons={[
                                     <Addon placement={ Addon.RIGHT }>
                                         <button
                                             type="button"
                                             className="btn btn-light border"
                                             aria-label={i18n("ConditionEditor:Remove")}
-                                            onClick={ () => editorState.removeInValue(path, idx)}
+                                            onClick={ () => editorState.removeInValue(pointer, idx)}
                                         >
                                             <Icon className="fa-minus text-danger"/>
                                         </button>
@@ -741,7 +820,7 @@ function renderExpression(elements, layoutNode, condition, path, editorState, tr
                         type="button"
                         className="btn btn-light border"
                         aria-label={i18n("ConditionEditor:Add")}
-                        onClick={ () => runInAction(() => editorState.addInValue(path) ) }
+                        onClick={ () => runInAction(() => editorState.addInValue(pointer) ) }
                     >
                         <Icon className="fa-plus mr-1"/>
                         {
@@ -761,7 +840,7 @@ function renderExpression(elements, layoutNode, condition, path, editorState, tr
     elements.push(
         <ExpressionDropdown
             key={ nodeId + "-dd" }
-            path={ path }
+            pointer={ pointer }
             condition={ condition }
             editorState={ editorState }
         />
@@ -847,8 +926,7 @@ export function drawStructuralDecorator(layoutNode, tree, offsetX, offsetY)
 
 ConditionEditor.propTypes = {
     rootType: PropTypes.string.isRequired,
-    container: PropTypes.object.isRequired,
-    path : PropTypes.string.isRequired,
+    pointer : PropTypes.instanceOf(ConditionPointer).isRequired,
     className : PropTypes.string,
     options : PropTypes.object,
     formContext: PropTypes.instanceOf(FormContext),

@@ -1,4 +1,4 @@
-import { CONDITION_METHODS, FIELD_CONDITIONS, FIELD_OPERATIONS, Type } from "../FilterDSL";
+import { CONDITION_METHODS, FIELD_CONDITIONS, FIELD_OPERATIONS, Type, COMPUTED_VALUE_TYPE } from "../FilterDSL";
 import { InputSchema } from "domainql-form";
 import get from "lodash.get"
 import toPath from "lodash.topath"
@@ -247,8 +247,6 @@ const computedValueFunctions = {
 
 const IGNORE_CASE_SUFFIX = "IgnoreCase";
 
-const FILTER_FUNCTION_TYPE = "FilterFunction"
-
 /**
  * Internal method to recursively transform JSON conditions into values/functions.
  *
@@ -271,7 +269,7 @@ function transform(condition, resolverFactory)
         case Type.VALUE:
             const { scalarType, value } = condition
 
-            if (scalarType === FILTER_FUNCTION_TYPE)
+            if (scalarType === COMPUTED_VALUE_TYPE)
             {
                 const { name, args } = value;
                 return () => computedValueFunctions[name](name, args)

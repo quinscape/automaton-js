@@ -404,9 +404,6 @@ function getDefaultType(value)
  */
 export function value(value, type = getDefaultType(value), name)
 {
-
-
-
     return new Value(type, value, name);
 }
 

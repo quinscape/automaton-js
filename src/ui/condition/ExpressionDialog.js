@@ -15,7 +15,7 @@ const ExpressionDialogBody = observer(function ExpressionDialogBody({ editorStat
     const nodes = [];
     const decorations = [];
 
-    const { expression, operation, opts, expressionTree } = editorState
+    const { expression, operationPointer, opts, expressionTree } = editorState
 
     const containerRef = useRef(null)
 
@@ -65,7 +65,7 @@ const ExpressionDialogBody = observer(function ExpressionDialogBody({ editorStat
 
     const { layoutRoot, aabb } = expressionTree
 
-    renderLayoutNodes(layoutRoot, nodes, decorations, editorState, expression, expressionTree, valueRenderer, schemaResolveFilterCallback)
+    renderLayoutNodes(layoutRoot, nodes, decorations, expression, { editorState, tree: expressionTree, valueRenderer, schemaResolveFilterCallback })
 
     return ((
         <div
@@ -105,9 +105,8 @@ const ExpressionDialogBody = observer(function ExpressionDialogBody({ editorStat
                 </div>
             </div>
             {
-                operation && (
+                operationPointer && (
                     <OperationDialog
-                        isWrap={ !!operation.name }
                         editorState={ editorState }
                         formContext={ formContext }
                         conditionRoot={ conditionRoot }

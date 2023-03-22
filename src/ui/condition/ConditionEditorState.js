@@ -1,18 +1,16 @@
-import { action, makeObservable, observable, toJS } from "mobx";
-import toPath from "lodash.topath";
-import set from "lodash.set";
-import get from "lodash.get";
-import { isStructuralCondition, join } from "./condition-layout";
+import { action, makeObservable, observable, toJS } from "mobx"
+import { isStructuralCondition, join } from "./condition-layout"
 
 import { flextree } from "d3-flextree"
-import { Type, values as dslValues } from "../../FilterDSL";
-import { FormContext } from "domainql-form";
+import { COMPUTED_VALUE_TYPE, COMPUTED_VALUES, Type } from "../../FilterDSL"
+import { FormContext } from "domainql-form"
 import config from "../../config"
-
 
 const nodeIdSym = Symbol("condition node id")
 
 const NULL_ID = "n-0";
+
+const FilterDSlTypeNames = Object.values(Type)
 
 let nodeCounter = 1;
 function prepareConditionGraph(condition, path, pathLookup)
@@ -91,7 +89,7 @@ export class TreeState {
 
     opts = null
 
-    containerPath = null
+    pointer = null
 
 
     /**
@@ -108,7 +106,7 @@ export class TreeState {
 
         makeObservable(this)
 
-        this.containerPath = editorState.containerPath
+        this.pointer = editorState.pointer
 
         this.layout = this.createFlexTreeLayout(type, opts);
 
@@ -187,10 +185,9 @@ export class TreeState {
     @action
     updateLayoutRoot()
     {
-        const { containerPath } = this
-        const { container } = this.editorState
+        const { pointer } = this
 
-        const condition = get(container, containerPath)
+        const condition = pointer.getValue()
 
         this.layoutRoot = condition ? this.layout.hierarchy(condition) : null
     }
@@ -293,19 +290,12 @@ export default class ConditionEditorState {
     expression = null;
 
     /**
-     * The operation node currently being edited in the operation editor
+     * Pointer to the operation under edit
      *
-     * @type {Object}
+     * @type {ConditionPointer}
      */
     @observable
-    operation = null;
-
-    /**
-     * 
-     * @type {string}
-     */
-    @observable
-    operationPath = ""
+    operationPointer = null
 
     /**
      * Extra field determining if the operation dialog was opened for a "change operation" or a "wrap ..."
@@ -328,17 +318,11 @@ export default class ConditionEditorState {
     opts = null;
 
     /**
-     * Container observable
-     * @type {Object}
+     * Pointer to the root condition
+     * @type {ConditionPointer}
      */
-    container = null;
-
-    /**
-     * Condition path within the container
-     * @type {String}
-     */
-    containerPath = null;
-
+    pointer = null;
+    
     /**
      * Map mapping structural node ids to the lodash-y path the nodes where encountered on during the last update
      * @type {Map}
@@ -377,6 +361,16 @@ export default class ConditionEditorState {
     expressionTree = null
 
     /**
+     * Toggle flag for the ComputedValueDialog
+     * @type {boolean}
+     */
+    @observable
+    computedValueDialogOpen = false
+
+    @observable
+    computedValuePointer = null
+
+    /**
      * Increased to signal condition updates.
      *
      * @type {number}
@@ -393,11 +387,10 @@ export default class ConditionEditorState {
     formCounter = 0;
 
 
-    constructor(rootType, container, containerPath, opts)
+    constructor(rootType, pointer, opts)
     {
         this.rootType = rootType;
-        this.container = container;
-        this.containerPath = containerPath;
+        this.pointer = pointer;
         this.opts = opts;
 
         makeObservable(this)
@@ -411,9 +404,9 @@ export default class ConditionEditorState {
 
     get conditionRoot()
     {
-        const { container, containerPath } = this
+        const { pointer } = this
 
-        return get(container, containerPath)
+        return pointer.getValue()
     }
 
 
@@ -460,9 +453,9 @@ export default class ConditionEditorState {
 
         if (newIsOpen)
         {
-            const {container, containerPath} = this;
+            const { pointer } = this;
             this.json = JSON.stringify(
-                get(container, containerPath),
+                pointer.getValue(),
                 null,
                 4
             );
@@ -472,29 +465,35 @@ export default class ConditionEditorState {
 
 
     @action
-    openExpressionDialog(condition, path)
+    openExpressionDialog(condition, pointer)
     {
         this.expressionDialogOpen = true;
         this.expression = condition;
 
-        const p = toPath(this.containerPath).concat(toPath(path));
-        this.expressionTree.containerPath = p
+        this.expressionTree.pointer = pointer
 
         this.expressionTree.updateLayoutRoot()
     }
 
 
     @action
-    openOperationDialog(operation, path, isWrap)
+    openOperationDialog(pointer, isWrap)
     {
-        //console.log("openOperationDialog", toJS(operation), path)
+        //console.log("openOperationDialog", pointer.toString())
 
         this.operationDialogOpen = true;
-        this.operation = operation;
-        this.operationPath = Array.isArray(path) ? path.join(".") : path;
+        this.operationPointer = pointer;
         this.isWrap = isWrap
     }
 
+    @action
+    openComputedValueDialog(pointer)
+    {
+        //console.log("openComputedValueDialog", pointer.toString())
+
+        this.computedValueDialogOpen = true;
+        this.computedValuePointer = pointer
+    }
 
     @action.bound
     closeExpressionDialog()
@@ -507,42 +506,58 @@ export default class ConditionEditorState {
     }
 
     @action.bound
+    closeComputedValueDialog()
+    {
+        this.computedValueDialogOpen = false;
+        this.formCounter++
+        this.conditionTree.relayout()
+    }
+
+    @action.bound
     closeOperationDialog()
     {
         this.operationDialogOpen = false;
         this.operation = null;
-        this.operationPath = "";
+        this.operationPointer = null;
     }
 
     /**
      * Central modification function for structural changes. Replaces parts of the condition with another condition graph.
      *
-     * @param {Object}  condition       condition graph
-     * @param path
+     * @param {Object}  condition               condition graph
+     * @param {ConditionPointer} [pointer]      pointer to change (defaults to the root pointer)
      */
     @action
-    replaceCondition(condition, path = "")
+    replaceCondition(condition, pointer = this.pointer)
     {
-        const {container, containerPath} = this;
+        const currentCondition = pointer.getValue();
 
-        const p = toPath(containerPath).concat(toPath(path));
-        set(container, p, condition);
+        if (currentCondition && (!currentCondition.type || FilterDSlTypeNames.indexOf(currentCondition.type) < 0))
+        {
+            console.warn("replaceCondition: Value being replaced does not look like a valid condition", JSON.stringify(condition))
+        }
 
-        this.updatePathLookup();
+        if (condition !== currentCondition)
+        {
+            //console.log("Replacing pointer value", pointer.toString(), "with", toJSON(condition))
 
-        this.conditionTree.update();
-        this.expressionTree.update();
+            pointer.setValue(condition)
 
-        this.updateCounter++;
+            this.updatePathLookup();
+
+            this.conditionTree.update();
+            this.expressionTree.update();
+
+            //this.updateCounter++;
+            this.formCounter++;
+        }
     }
 
 
     @action
-    addInValue(path)
+    addInValue(pointer)
     {
-        const {container, containerPath} = this;
-        const p = toPath(containerPath).concat(toPath(path))
-        const node = get(container, p);
+        const node = pointer.getValue();
 
         if (node.type !== Type.VALUES)
         {
@@ -556,11 +571,9 @@ export default class ConditionEditorState {
 
 
     @action
-    removeInValue(path, index)
+    removeInValue(pointer, index)
     {
-        const {container, containerPath} = this;
-        const p = toPath(containerPath).concat(toPath(path))
-        const node = get(container, p);
+        const node = pointer.getValue()
 
         if (node.type !== Type.VALUES)
         {
@@ -574,18 +587,20 @@ export default class ConditionEditorState {
 
 
     @action
-    updateOperands(path, operands, revalidate)
+    updateOperands(pointer, operands, updateForm)
     {
-        const rel = toPath(path);
-        const {container, containerPath} = this;
-        const p = toPath(containerPath).concat(rel.slice(0, -2));
+        const node = pointer.getValue();
 
-        const node = get(container, p);
+        if (node.type !== Type.OPERATION && node.type !== Type.CONDITION)
+        {
+            throw new Error("updateOperands: Expected node to be of type Operation or Condition.")
+        }
+
         node.operands = operands;
 
-        if (revalidate)
+        if (updateForm)
         {
-            this.revalidateCount++;
+            this.formCounter++
         }
     }
 
@@ -596,6 +611,54 @@ export default class ConditionEditorState {
         this.json = json;
     }
 
+
+    /**
+     * Converts the given Value node to a ComputedValue node
+     * @param name          nane of computed value function
+     * @param condition     condition node
+     */
+    @action
+    convertToComputed(name, condition)
+    {
+        if (condition.type !== Type.VALUE)
+        {
+            throw new Error("Invalid condition: " + toJS(condition))
+        }
+
+        condition.scalarType = COMPUTED_VALUE_TYPE
+        condition.value = {
+            name,
+            args: []
+        }
+        this.updateCounter++
+    }
+
+    @action
+    changeComputedValueName(name, valueNode)
+    {
+        valueNode.name = name;
+    }
+
+    toRelativeFormPath(pointer, rel = "")
+    {
+        const { path : rootPath } = this.pointer
+        const { path } = pointer
+
+        const p = path.slice(rootPath.length)
+        if (rel)
+        {
+            if (p.length)
+            {
+                return p.join(".") + "." + rel
+            }
+            else
+            {
+                return rel
+            }
+        }
+        return p
+
+    }
 
     updatePathLookup()
     {

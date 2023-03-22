@@ -151,6 +151,12 @@ function findTypeByPath(inputSchema, rootType, schemaPath) {
     if (name) {
         const table = findSchemaObjectByName(inputSchema, rootType);
         const field = findFieldObjectByName(table, name);
+
+        if (!field)
+        {
+            throw new Error("Could not find field " + name + " in " + table.name)
+        }
+
         const {kind: unwrappedKind, name: unwrappedName} = unwrapAll(field.type);
         if (unwrappedKind === "SCALAR") {
             if (path.length != 0) {
@@ -178,6 +184,10 @@ function findFieldByPath(inputSchema, rootType, pathName) {
     if (name) {
         const table = findSchemaObjectByName(inputSchema, rootType);
         const field = findFieldObjectByName(table, name);
+        if (!field)
+        {
+            throw new Error("Could not find field " + name + " in " + table.name)
+        }
         if (path.length === 0) {
             return field;
         }
