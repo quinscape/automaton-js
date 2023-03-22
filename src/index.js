@@ -98,6 +98,7 @@ import { createTreeRepresentationForInputSchema,getTableNameByPath, getFieldData
 
 import IconCell from "./ui/datagrid/iconcolumn/IconCell"
 import latestRequestInSession, { registerRequestForSession } from "./util/latestRequestInSession"
+import renderFieldHelpers from "./util/renderFieldHelpers"
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -245,10 +246,9 @@ export {
     IconCell,
     
     latestRequestInSession,
-    registerRequestForSession
+    registerRequestForSession,
 
-
-
+    renderFieldHelpers
 }
 
 
