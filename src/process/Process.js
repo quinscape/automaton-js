@@ -26,8 +26,6 @@ import changePageTitle from "../util/changePageTitle";
 
 let processImporter;
 
-export const SESSION_EXPIRED = "SESSION_EXPIRED";
-
 export function registerProcessImporter(factory)
 {
     processImporter = factory;
