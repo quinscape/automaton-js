@@ -5,6 +5,9 @@ import { INPUT_OBJECT, OBJECT, LIST, SCALAR } from "domainql-form/lib/kind";
 import registerDateTimeConverters from "./registerDateTimeConverters";
 import { getOutputTypeName, getParentObjectType, unwrapAll, unwrapNonNull } from "./util/type-utils";
 import {i18n} from "../lib";
+import { COMPUTED_VALUE_TYPE, COMPUTED_VALUES } from "./FilterDSL"
+import BigNumber from "bignumber.js"
+import { toJS } from "mobx"
 
 
 let domainClasses = {};
@@ -263,6 +266,118 @@ function registerFieldLengthValidator()
 }
 
 
+function parseArgs(def, argsStr)
+{
+    if (!def.args.length || argsStr === null)
+    {
+        return [[], null]
+    }
+
+    const parts = argsStr.split(",")
+
+    const { args } = def
+
+    const out = []
+    for (let i = 0; i < args.length; i++)
+    {
+        const argDef = args[i]
+        const part = i < parts.length ? parts[i] : null
+
+        if (argDef.nonNull && part == null && !argDef.default)
+        {
+            return [null, i18n("ComputedValue:Argument #{0} must be defined", i)]
+        }
+
+
+        let value
+        if (part === null)
+        {
+            value = argDef.default || null
+        }
+        else
+        {
+            const type = argDef.type
+            const argError = InputSchema.validate(type, part);
+            if (argError)
+            {
+                return [null, i18n("Argument #{0}: ", i) + argError]
+            }
+            else
+            {
+                value = InputSchema.valueToScalar(type, part)
+                out.push({type, value})
+            }
+        }
+    }
+    return [out, null]
+}
+
+
+function registerComputedValue()
+{
+    registerCustomConverter(
+        COMPUTED_VALUE_TYPE,
+
+        (value, ctx) => {
+
+            const pos = value.indexOf("(")
+            const name = pos < 0  ? value : value.substring(0,pos)
+
+            const def = COMPUTED_VALUES.find(f => f.name === name)
+            if (!def)
+            {
+                return i18n("Invalid computed value name");
+            }
+
+            const end = value.indexOf(")")
+            if (pos >= 0)
+            {
+                if (end < 0 || end !== value.length - 1)
+                {
+                    return i18n("Invalid closed bracket")
+                }
+
+                const [args, err] = parseArgs(def, value.substring(0, value.length - 1))
+                if (err)
+                {
+                    return err
+                }
+            }
+            return null;
+        },
+        (scalar, ctx) => {
+
+            const def = COMPUTED_VALUES.find(f => f.name === scalar.name)
+
+            let out = scalar.name
+
+            if (scalar.args.length)
+            {
+                out = out + "(" + def.args.map( (argDef,i) => {
+
+                    const value = scalar.args[i]?.value
+                    return value === null || value === undefined ? "" : InputSchema.scalarToValue(argDef.type, value)
+                }) + ")"
+            }
+            return out
+        },
+        (value, ctx) => {
+
+            const pos = value.indexOf("(")
+            const name = pos < 0  ? value : value.substring(0,pos)
+            const def = COMPUTED_VALUES.find(f => f.name === name)
+
+            const [args, err] = parseArgs(def, pos < 0 ? null : value.substring(pos + 1, value.length - 1))
+
+            return {
+                name,
+                args
+            }
+        }
+    )
+}
+
+
 /**
  * Registers the standard automaton converters
  */
@@ -283,6 +398,8 @@ export function registerAutomatonConverters()
     registerFieldLengthValidator();
 
     registerDateTimeConverters();
+
+    registerComputedValue();
 }
 
 

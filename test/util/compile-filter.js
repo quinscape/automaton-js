@@ -30,8 +30,8 @@ describe("compileFilter", function () {
 
         const ts = "2023-10-31T00:00:00.000+01:00"
         assert.deepEqual(
-            compileFilter("value({\"name\": \"now\"}, \"FilterFunction\" )"),
-            value({"name": "now"}, "FilterFunction" )
+            compileFilter("value({\"name\": \"now\"}, \"ComputedValue\" )"),
+            value({"name": "now"}, "ComputedValue" )
         )
     })
 

@@ -240,7 +240,7 @@ const operationImpl = {
     }
 };
 
-const filterFunctions = {
+const computedValueFunctions = {
     "now" : (name, args) => DateTime.now(),
     "today" : (name, args) => DateTime.now().startOf("day"),
 }
@@ -274,7 +274,7 @@ function transform(condition, resolverFactory)
             if (scalarType === FILTER_FUNCTION_TYPE)
             {
                 const { name, args } = value;
-                return () => filterFunctions[name](name, args)
+                return () => computedValueFunctions[name](name, args)
             }
 
             return InputSchema.valueToScalar(scalarType, value);

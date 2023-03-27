@@ -32,8 +32,10 @@ const {
     CONDITION_METHODS,
     FIELD_OPERATIONS,
 
+    computedValue,
     now,
-    today
+    today,
+
     
 } = FilterDSL;
 
@@ -69,6 +71,7 @@ exports.FIELD_OPERATIONS = FIELD_OPERATIONS;
 // Filter Functions
 exports.now = now;
 exports.today = today;
+exports.computedValue = computedValue
 
 // compiling / decompiling expressions
 exports.compileFilter = compileFilter;

@@ -15,7 +15,7 @@ export const Type = {
     COMPONENT : "Component"
 };
 
-export const COMPUTED_VALUE_TYPE = "FilterFunction"
+export const COMPUTED_VALUE_TYPE = "ComputedValue"
 
 /**
  * Filter function argument
@@ -47,7 +47,7 @@ export const COMPUTED_VALUES = [
     {
         name: "now",
         type: "Timestamp",
-        description: "now - " + i18n("FilterFunction:Now Description"),
+        description: "now - " + i18n("ComputedValue:Now Description"),
 
         // array of scalar type names
         args: []
@@ -55,7 +55,7 @@ export const COMPUTED_VALUES = [
     {
         name: "today",
         type: "Date",
-        description: "today - " + i18n("FilterFunction:Today Description"),
+        description: "today - " + i18n("ComputedValue:Today Description"),
         args: []
     }
 ]
@@ -600,26 +600,26 @@ export function toJSON(condition)
 }
 
 
-function filterFunction(name, args = [])
+export function computedValue(name, args = [])
 {
     return value(
         {
             name,
             args
         },
-        "FilterFunction"
+        "ComputedValue"
     )
 }
 
 
 export function now()
 {
-    return filterFunction("now")
+    return computedValue("now")
 }
 
 export function today()
 {
-    return filterFunction("today")
+    return computedValue("today")
 }
 
 /**
@@ -701,6 +701,11 @@ const FilterDSL = {
      * @return {Values} values node
      */
     values,
+
+    /**
+     * Creates a new ComputedValue typed value node.
+     */
+    computedValue,
 
     /**
      * Returns the number of expected arguments for the condition with the given name.
