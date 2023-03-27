@@ -56,24 +56,25 @@ export default function decompileFilter(condition, level = 0, match = null, inve
         return indent(level) + "null";
     }
 
+    const { type, name } = condition;
+    const markerL = match === condition ? "/*>>*/ " : "";
+    const markerR = match === condition ? " /*<<*/" : "";
+
     if (condition.type === Type.VALUE && condition.scalarType === COMPUTED_VALUE_TYPE)
     {
         if (condition.value.name === "now")
         {
-            return indent(level) + "now()"
+            return indent(level) + markerL + "now()" + markerR
         }
         else if (condition.value.name === "today")
         {
-            return indent(level) + "today()"
+            return indent(level) + markerL + "today()" + markerR
         }
     }
 
-    const { type, name } = condition;
 
     const nextLevel = level >= 0 ? level + 1 : level
 
-    const markerL = match === condition ? "/*>>*/ " : "";
-    const markerR = match === condition ? " /*<<*/" : "";
 
     if (type === Type.FIELD)
     {
