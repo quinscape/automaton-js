@@ -83,5 +83,4 @@ export default class QueryEditorState {
 
         this.updateCounter++;
     }
-
 }

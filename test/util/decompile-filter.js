@@ -39,16 +39,14 @@ describe("decompileFilter", function () {
         )
 
         assert(
-            decompileFilter(
-                and(
-                    field("name").containsIgnoreCase(
-                        value("aaa")
-                    ),
-                    field("num").eq(
-                        value(2, "Int")
-                    )
+            decompileFilter(and(
+                field("name").containsIgnoreCase(
+                    value("aaa")
+                ),
+                field("num").eq(
+                    value(2, "Int")
                 )
-            ) === trimIndent(`
+            )) === trimIndent(`
                 and(
                     field("name").containsIgnoreCase(
                         value("aaa")
@@ -61,73 +59,66 @@ describe("decompileFilter", function () {
         )
 
         assert(
-            decompileFilter(
-                field("name").toString()
-                    .containsIgnoreCase(
-                        value("xxx", "String")
-                    )
-            ) === trimIndent(`
+            decompileFilter(field("name").toString()
+                .containsIgnoreCase(
+                    value("xxx", "String")
+                )) === trimIndent(`
                 field("name").toString().containsIgnoreCase(
                     value("xxx")
                 )`
           )
         )
 
-        const filterSrc = decompileFilter(
-            or(
-
-                and(
-                    or(
-                        field("num")
-                            .eq(
-                                value(
-                                    100
-                                )
-                            ),
-                        field("num")
-                            .eq(
-                                value(
-                                    110
-                                )
-                            )
-                    ),
-                    or(
-                        field("num")
-                            .eq(
-                                value(
-                                    200
-                                )
-                            ),
-                        field("num")
-                            .eq(
-                                value(
-                                    210
-                                )
-                            )
-
-                    ),
+        const filterSrc = decompileFilter(or(
+            and(
+                or(
                     field("num")
                         .eq(
                             value(
-                                300
+                                100
                             )
                         ),
                     field("num")
                         .eq(
                             value(
-                                310
+                                110
                             )
                         )
-
                 ),
-                field("description")
-                    .containsIgnoreCase(
+                or(
+                    field("num")
+                        .eq(
+                            value(
+                                200
+                            )
+                        ),
+                    field("num")
+                        .eq(
+                            value(
+                                210
+                            )
+                        )
+                ),
+                field("num")
+                    .eq(
                         value(
-                            ""
+                            300
+                        )
+                    ),
+                field("num")
+                    .eq(
+                        value(
+                            310
                         )
                     )
-            )
-        )
+            ),
+            field("description")
+                .containsIgnoreCase(
+                    value(
+                        ""
+                    )
+                )
+        ))
 
         assert(
             filterSrc === trimIndent(`
@@ -177,6 +168,18 @@ describe("decompileFilter", function () {
             decompileFilter(today()) === trimIndent(`
                 today()`
             )
+        )
+
+    })
+
+    it("can mark a specific sub node", () => {
+
+        const valueNode = value(1)
+        const filter = field("num").eq(valueNode)
+        assert(decompileFilter(filter, 0, valueNode) === trimIndent(`
+            field("num").eq(
+                /*>>*/ value(1) /*<<*/
+            )`)
         )
 
     })

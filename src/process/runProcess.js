@@ -3,7 +3,7 @@ import {
     renderProcess,
     ErrorView,
     confirmDestructiveTransition,
-    findProcessScopeWithWorkingSet, getCurrentProcess, SESSION_EXPIRED
+    findProcessScopeWithWorkingSet, getCurrentProcess
 } from "./Process"
 import config from "../config";
 import render from "../render";

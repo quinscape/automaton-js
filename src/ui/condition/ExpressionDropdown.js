@@ -20,16 +20,19 @@ function findIndex(operands, condition)
     throw new Error("Element not found")
 }
 
-function remove(path, conditionRoot, editorState, parent, parentPath)
+function remove(pointer, editorState)
 {
-    const condition = path.length ? get(conditionRoot, path) : conditionRoot;
+    const condition = pointer.getValue();
 
-    if (parent.type === Type.OPERATION)
+    const parentPointer = pointer.getParent();
+    const patent = parentPointer && parentPointer.getValue()
+
+    //if (parent.type === Type.OPERATION)
     {
         if (parent.operands.length === 1)
         {
-            console.log("Remove op Parent", parentPath)
-            remove(parentPath, conditionRoot, editorState);
+            console.log("Remove op Parent", parentPointer)
+            remove(parentPointer, editorState);
         }
         else if (parent.operands.length === 2)
         {
@@ -37,36 +40,28 @@ function remove(path, conditionRoot, editorState, parent, parentPath)
             const b = parent.operands[1];
             const other = condition === a ? b : a;
 
-            editorState.replaceCondition(other, parentPath);
+            editorState.replaceCondition(other, parentPointer);
         }
         else
         {
             const newCondition = dslCondition(parent.name, parent.operands.filter( o => o !== condition));
-            editorState.replaceCondition(toJSON(newCondition), parentPath);
+            editorState.replaceCondition(toJSON(newCondition), parentPointer);
         }
     }
 }
 
 
-const ExpressionDropdown = observer(function ExpressionDropdown({path, condition, editorState }) {
+const ExpressionDropdown = observer(function ExpressionDropdown({pointer, condition, editorState }) {
 
     const [ isOpen, setOpen ] = useState()
 
     const toggle = () => setOpen(prevState => !prevState)
 
-    // our paths are relative to the *global* root
-    const { conditionRoot } = editorState
-
     const { opts } = editorState;
 
-    const arrayPath = toPath(path);
-    let parentPath = null;
-    let parent = null;
-    if (arrayPath.length >= 2)
-    {
-        parentPath = arrayPath.slice(0, -2);
-        parent = parentPath.length ? get(conditionRoot, parentPath) : conditionRoot;
-    }
+    const parentPointer = pointer.getParent()
+    const node = pointer.getValue();
+    const parent = parentPointer && parentPointer.getValue();
 
     return (
         <Dropdown className="ml-3" isOpen={ isOpen } toggle={ toggle }>
@@ -77,66 +72,49 @@ const ExpressionDropdown = observer(function ExpressionDropdown({path, condition
                 size="sm"
             >
                 {
-                    parent && parent.type === Type.OPERATION && (
+                    (node.type === Type.CONDITION || node.type === Type.OPERATION) && (
                         <DropdownItem
                             onClick={ () =>  {
-                                editorState.openOperationDialog(parent, parentPath, false)
+                                editorState.openOperationDialog(pointer, false)
                             }}
                         >
                             {
-                                i18n("ConditionEditor:Change Operation ...")
+                                node.type === Type.CONDITION ?
+                                    i18n("ConditionEditor:Change Condition ...") :
+                                    i18n("ConditionEditor:Change Operation ...")
                             }
                         </DropdownItem>
 
                     )
                 }
                 {
-                    condition.type === Type.FIELD && (
-                        <DropdownItem
-                            onClick={ () =>  {
-                                editorState.replaceCondition(
-                                    toJSON(dslValue("")),
-                                    path
-                                )
-                            }}
-                        >
-                            {
-                                i18n("ConditionEditor:Change To Value")
-                            }
-                        </DropdownItem>
-
+                    (node.type === Type.FIELD || node.type === Type.VALUE) && (
+                         <DropdownItem
+                             onClick={ () => editorState.openComputedValueDialog(pointer) }
+                         >
+                             {
+                                 i18n("ConditionEditor:Change Value Type")
+                             }…
+                         </DropdownItem>
                     )
                 }
                 {
-                    condition.type === Type.VALUE && (
-                        <DropdownItem
-                            onClick={ () =>  {
-                                editorState.replaceCondition(
-                                    toJSON(field("")),
-                                    path
-                                )
-                            }}
-                        >
-                            {
-                                i18n("ConditionEditor:Change To Field")
-                            }
-                        </DropdownItem>
-
-                    )
+                    node.type === Type.OPERATION && (
+                       <DropdownItem
+                           onClick={ () =>  {
+                               editorState.openOperationDialog(pointer, true)
+                           }}
+                       >
+                           {
+                               i18n("ConditionEditor:Wrap ...")
+                           }
+                       </DropdownItem>
+                   )
                 }
-                <DropdownItem
-                    onClick={ () =>  {
-                        editorState.openOperationDialog(condition, path, true)
-                    }}
-                >
-                    {
-                        i18n("ConditionEditor:Wrap ...")
-                    }
-                </DropdownItem>
                 <DropdownItem
                     onClick={ () =>  {
                         //console.log("remove(", path, ", ", toJS(conditionRoot), "//condition", toJS(condition));
-                        remove(path, editorState.conditionRoot, editorState, parent, parentPath)
+                        remove(pointer, editorState)
                     }}
                 >
                     {

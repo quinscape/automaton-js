@@ -8,28 +8,27 @@ import get from "lodash.get"
 import { toJS } from "mobx";
 
 
-function remove(path, conditionRoot, editorState)
+function remove(pointer, editorState)
 {
-    const condition = path.length ? get(conditionRoot, path) : conditionRoot;
+    const condition = pointer.getValue()
 
-    const arrayPath = toPath(path);
-    if (arrayPath.length >= 2)
+    const parentPointer = pointer.getParent()
+    if (parentPointer != null)
     {
-        const parentPath = arrayPath.slice(0, -2);
-        const parent = parentPath.length ? get(conditionRoot, parentPath) : conditionRoot;
+        const parent = parentPointer.getValue()
         if (parent.type === Type.CONDITION)
         {
             if (parent.name === "not")
             {
-                console.log("Remove NOT", parentPath)
-                remove(parentPath, conditionRoot, editorState);
+                console.log("Remove NOT", parentPointer.path)
+                remove(parentPointer, editorState);
             }
             else if (parent.name === "and" || parent.name === "or")
             {
                 if (parent.operands.length === 1)
                 {
-                    console.log("Remove Logical Parent", parentPath)
-                    remove(parentPath, conditionRoot, editorState);
+                    console.log("Remove Logical Parent", parentPointer.path)
+                    remove(parentPointer, editorState);
                 }
                 else if (parent.operands.length === 2)
                 {
@@ -37,12 +36,12 @@ function remove(path, conditionRoot, editorState)
                     const b = parent.operands[1];
                     const other = condition === a ? b : a;
 
-                    editorState.replaceCondition(other, parentPath);
+                    editorState.replaceCondition(other, parentPointer);
                 }
                 else
                 {
                     const newCondition = dslCondition(parent.name, parent.operands.filter( o => o !== condition));
-                    editorState.replaceCondition(toJSON(newCondition), parentPath);
+                    editorState.replaceCondition(toJSON(newCondition), parentPointer);
                 }
             }
         }
@@ -67,7 +66,7 @@ function findIndex(operands, condition)
 }
 
 
-const ConditionDropdown = observer(function ConditionDropdown({path, conditionRoot, condition, editorState }) {
+const ConditionDropdown = observer(function ConditionDropdown({pointer, condition, editorState }) {
 
     const [ isOpen, setOpen ] = useState()
 
@@ -75,14 +74,10 @@ const ConditionDropdown = observer(function ConditionDropdown({path, conditionRo
 
     const { opts } = editorState;
 
-    const arrayPath = toPath(path);
-    let parentPath = null;
-    let parent = null;
-    if (arrayPath.length >= 2)
-    {
-        parentPath = arrayPath.slice(0, -2);
-        parent = parentPath.length ? get(conditionRoot, parentPath) : conditionRoot;
-    }
+    const parentPointer = pointer.getParent()
+    const secondOperandPointer = pointer.getOperand(1)
+    const secondOperand = secondOperandPointer && secondOperandPointer.getValue()
+    const parent = parentPointer && parentPointer.getValue()
 
     return (
         <Dropdown className="ml-3 float-right" isOpen={ isOpen } toggle={ toggle }>
@@ -101,7 +96,7 @@ const ConditionDropdown = observer(function ConditionDropdown({path, conditionRo
                                 opts.defaultCondition()
                             )
                         );
-                        editorState.replaceCondition(newCondition, path);
+                        editorState.replaceCondition(newCondition, pointer);
                     }}
                 >
                     {
@@ -117,7 +112,7 @@ const ConditionDropdown = observer(function ConditionDropdown({path, conditionRo
                                 opts.defaultCondition()
                             )
                         );
-                        editorState.replaceCondition(newCondition, path);
+                        editorState.replaceCondition(newCondition, pointer);
                     }}
                 >
                     {
@@ -130,8 +125,8 @@ const ConditionDropdown = observer(function ConditionDropdown({path, conditionRo
 
                         if (parent && parent.type === Type.CONDITION && parent.name === "not")
                         {
-                            console.log("REMOVE NOT", parentPath)
-                            editorState.replaceCondition(condition, parentPath);
+                            console.log("REMOVE NOT", parentPointer)
+                            editorState.replaceCondition(condition, parentPointer);
                             return;
                         }
                         const newCondition = toJSON(
@@ -139,7 +134,7 @@ const ConditionDropdown = observer(function ConditionDropdown({path, conditionRo
                                 condition
                             )
                         );
-                        editorState.replaceCondition(newCondition, path);
+                        editorState.replaceCondition(newCondition, pointer);
                     }}
                 >
                     {
@@ -162,7 +157,7 @@ const ConditionDropdown = observer(function ConditionDropdown({path, conditionRo
 
                                         newCondition.operands.splice(index + 1, 0, opts.defaultCondition())
 
-                                        editorState.replaceCondition(toJSON(newCondition), parentPath);
+                                        editorState.replaceCondition(toJSON(newCondition), parentPointer);
                                     }
                                 }}
                             >
@@ -174,17 +169,28 @@ const ConditionDropdown = observer(function ConditionDropdown({path, conditionRo
                     )
                 }
                 <DropdownItem divider/>
+                {
+                    secondOperand && (secondOperand.type === Type.FIELD || secondOperand.type === Type.VALUE) && (
+                         <DropdownItem
+                             onClick={ () => editorState.openComputedValueDialog(secondOperandPointer)}
+                         >
+                             {
+                                 i18n("ConditionEditor:Change Value Type")
+                             }…
+                         </DropdownItem>
+                    )
+                }
                 <DropdownItem
-                    onClick={ () => editorState.openExpressionDialog(condition, path)}
+                    onClick={ () => editorState.openExpressionDialog(condition, pointer)}
                 >
                     {
                         i18n("ConditionEditor:Expressions")
-                    }
+                    }…
                 </DropdownItem>
                 <DropdownItem divider/>
                 <DropdownItem
                     onClick={ () =>  {
-                        remove(path, conditionRoot, editorState);
+                        remove(pointer, editorState);
                     }}
                 >
                     {

@@ -1,6 +1,6 @@
-import { SESSION_EXPIRED } from "../process/Process"
 import i18n from "../i18n"
 import { toast } from "react-toastify"
+import { SESSION_EXPIRED } from "../process/constants"
 
 /**
  * Triggers an error toast for every error contained in the GraphQL-ish errors array we use for unified error signaling

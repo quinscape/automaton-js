@@ -1,18 +1,19 @@
 import React from "react"
-import { observer } from "mobx-react-lite";
-import { Select } from "domainql-form";
+import { observer } from "mobx-react-lite"
+import { Select } from "domainql-form"
 import {
+    COMPUTED_VALUE_TYPE,
+    COMPUTED_VALUES,
     FIELD_CONDITIONS,
     FIELD_OPERATIONS,
     toJSON,
     Type,
     value as dslValue,
     values as dslValues
-} from "../../FilterDSL";
-import i18n from "../../i18n";
-import { join } from "./condition-layout";
-import { lookupType, unwrapNonNull } from "../../util/type-utils";
-import ConditionEditorState from "./ConditionEditorState";
+} from "../../FilterDSL"
+import i18n from "../../i18n"
+import { lookupType, unwrapNonNull } from "../../util/type-utils"
+import ConditionEditorState from "./ConditionEditorState"
 
 
 const CONDITION_NAMES = [ ... Object.keys(FIELD_CONDITIONS)];
@@ -50,6 +51,10 @@ function determineType(editorState, operands)
         }
         else if (type === Type.VALUE)
         {
+            if (scalarType === COMPUTED_VALUE_TYPE)
+            {
+                return COMPUTED_VALUES.find( d => d.name === operands[i].value.name).type
+            }
             return scalarType;
         }
     }
@@ -58,7 +63,7 @@ function determineType(editorState, operands)
 }
 
 
-const ConditionSelect = observer(function ConditionSelect({path, condition, editorState, isCondition})
+const ConditionSelect = observer(function ConditionSelect({pointer, condition, editorState, isCondition})
 {
 
     const { type } = condition;
@@ -90,7 +95,7 @@ const ConditionSelect = observer(function ConditionSelect({path, condition, edit
                         )
                     ]
                 },
-                path
+                pointer
             )
             return;
         }
@@ -99,72 +104,48 @@ const ConditionSelect = observer(function ConditionSelect({path, condition, edit
 
         if (condition.name === "in")
         {
-            operands = operands.filter(o => o.type !== Type.VALUES)
+            operands = operands.filter(o => o.type !== Type.VALUES);
         }
-        else
+
+        const expectedNumber = FIELD_CONDITIONS[newName] + 1;
+        const existingNumber = operands.length;
+
+        if (expectedNumber > existingNumber)
         {
-            const expectedNumber = FIELD_CONDITIONS[newName];
-            const existingNumber = operands.filter(o => o.type === Type.VALUE).length;
+            const scalarType = determineType(editorState, operands);
 
-            if (expectedNumber > existingNumber)
+            const newOperands = [ ... operands ];
+            const num = expectedNumber - existingNumber;
+
+            for (let i=0; i < num; i++)
             {
-                const scalarType = determineType(editorState, operands);
-
-                const newOperands = [ ... operands ];
-                const num = expectedNumber - existingNumber;
-
-                for (let i=0; i < num; i++)
-                {
-                    newOperands.push(
-                        toJSON(
-                            dslValue(null, scalarType)
-                        )
+                newOperands.push(
+                    toJSON(
+                        dslValue(null, scalarType)
                     )
-                }
-
-                editorState.replaceCondition(
-                    {
-                        type,
-                        name: newName,
-                        operands: newOperands
-                    },
-                    path
                 )
             }
-            else if (expectedNumber < existingNumber)
-            {
-                const newOperands = [];
 
-                let allowed = expectedNumber;
-                for (let i = 0; i < operands.length; i++)
+            editorState.replaceCondition(
                 {
-                    const operand = operands[i];
-
-                    if (operand.type === Type.FIELD)
-                    {
-                        newOperands.push(operand);
-                    }
-                    else
-                    if (operand.type === Type.VALUE && allowed > 0)
-                    {
-                        newOperands.push(operand);
-                        allowed--;
-                    }
-
-                }
-
-                editorState.replaceCondition(
-                    {
-                        type,
-                        name: newName,
-                        operands: newOperands
-                    },
-                    path
-                )
-
-            }
+                    type,
+                    name: newName,
+                    operands: newOperands
+                },
+                pointer
+            )
         }
-
+        else if (expectedNumber < existingNumber)
+        {
+            editorState.replaceCondition(
+                {
+                    type,
+                    name: newName,
+                    operands: operands.slice(0, expectedNumber)
+                },
+                pointer
+            )
+        }
     }
 
     const nodeId = ConditionEditorState.getNodeId(condition);
@@ -174,7 +155,7 @@ const ConditionSelect = observer(function ConditionSelect({path, condition, edit
             key={ nodeId }
             labelClass="sr-only"
             label={ isCondition ? i18n("ConditionSelect:condition") : i18n("ConditionSelect:operation") }
-            name={ join(path, "name") }
+            name={ editorState.toRelativeFormPath(pointer, "name") }
             required={ true }
             type="String"
             values={ isCondition ? CONDITION_NAMES : OPERATION_NAMES }

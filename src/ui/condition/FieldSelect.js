@@ -11,14 +11,7 @@ import cx from "classnames";
 import SelectionTreeModal from "../treeselection/SelectionTreeModal";
 import { createTreeRepresentationForInputSchema, createTreeRepresentationForInputSchemaByPath } from "../../util/inputSchemaUtilities";
 import { setInObjectAtPathImmutable } from "../../util/mutateObject";
-
-
-function getOperandsFromParent(conditionRoot, path)
-{
-    const p = toPath(path).slice(0,-2);
-    p.push("operands");
-    return get(conditionRoot, p);
-}
+import decompileFilter from "../../util/decompileFilter"
 
 
 const FieldSelect = observer((props) => {
@@ -26,14 +19,13 @@ const FieldSelect = observer((props) => {
     const {
         layoutId,
         rootType,
-        conditionRoot,
-        path,
+        pointer,
         editorState,
         valueRenderer,
         schemaResolveFilterCallback
     } = props;
 
-    //console.log("RENDER FIELD SELECT", rootType, path)
+    //console.log("RENDER FIELD SELECT", pointer)
 
     const formConfig = useFormConfig();
 
@@ -119,20 +111,19 @@ const FieldSelect = observer((props) => {
         {
             scalarTypeRef.current = typeDef.name
 
-            const pathArray = toPath(path);
-            const index = +pathArray[pathArray.length - 1];
+
+            const index = pointer.getOperandIndex()
 
             if (isNaN(index))
             {
                 throw new Error("Expected path to end in a operands.n with n being a number: " + path)
             }
 
-
-            const operands = getOperandsFromParent(conditionRoot, path);
+            const { operands } = pointer.getParent().getValue()
             if (operands)
             {
                 const newOperands = [];
-                let revalidate = false;
+                let mustUpdateForm = false;
                 for (let i = 0; i < operands.length; i++)
                 {
                     const operand = operands[i];
@@ -152,10 +143,10 @@ const FieldSelect = observer((props) => {
                             newOperands.push({
                                 type: Type.VALUE,
                                 scalarType: typeDef.name,
-                                value: operand.value
+                                value: null
                             });
 
-                            revalidate = true;
+                            mustUpdateForm = true;
                         }
                         else
                         {
@@ -169,22 +160,26 @@ const FieldSelect = observer((props) => {
                             newOperands.push({
                                 type: Type.VALUES,
                                 scalarType: typeDef.name,
-                                values: operand.values
+                                values: []
                             });
 
-                            revalidate = true;
+                            mustUpdateForm = true;
                         }
                         else
                         {
                             newOperands.push(operand);
                         }
                     }
+                    else if (operand.type === Type.OPERATION)
+                    {
+                        newOperands.push(operand);
+                    }
                 }
 
                 editorState.updateOperands(
-                    path,
+                    pointer.getParent(),
                     newOperands,
-                    revalidate
+                    mustUpdateForm
                 );
             }
         }
@@ -201,7 +196,7 @@ const FieldSelect = observer((props) => {
                 type="String"
                 labelClass="sr-only"
                 label="Field name"
-                name={ join(path, "name") }
+                name={ editorState.toRelativeFormPath(pointer,"name") }
                 validate={ validatePath }
                 onChange={ onInputChange }
                 addons={ [ <Addon placement={ Addon.RIGHT }>
@@ -268,6 +263,7 @@ const FieldSelect = observer((props) => {
                                             type="text"
                                             placeholder={ placeholder }
                                             title={ tooltip }
+                                            readOnly={ true /* XXX: typing does not work. Remove me when it does*/ }
                                             value={
                                                 typeof valueRenderer === "function" ?
                                                     valueRenderer(selectedElement) :
