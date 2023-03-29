@@ -184,9 +184,9 @@ function findFieldByPath(inputSchema, rootType, pathName) {
     if (name) {
         const table = findSchemaObjectByName(inputSchema, rootType);
         const field = findFieldObjectByName(table, name);
-        if (!field)
-        {
-            throw new Error("Could not find field " + name + " in " + table.name)
+        if (field == null) {
+            console.debug(`Could not find field '${name}' in '${table.name}'`);
+            return null;
         }
         if (path.length === 0) {
             return field;

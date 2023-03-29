@@ -113,7 +113,7 @@ const ConditionEditor = observer(function ConditionEditor(props) {
                 });
             }
         }
-    }, [valueRendererFromProps]);
+    }, [rootType, valueRendererFromProps]);
 
     const onConditionChange = useMemo(() => {
         if (typeof onChange === "function") {
