@@ -80,7 +80,7 @@ const SortLink = props => {
         React.createElement(
             sortable ? "a" : "span",
             sortable ? {
-                className: "d-block text-center text-dark",
+                className: "sort-link d-block text-center text-dark",
                 href: "#",
                 role: "button",
                 "aria-label":
@@ -93,14 +93,14 @@ const SortLink = props => {
                         i18n("SortLink:Sort by {0} ascending", heading),
                 onClick: ev => { ev.preventDefault() ; changeSorting() }
             } : {
-                className: "d-block text-center text-dark",
+                className: "header-label d-block text-center text-dark",
             },
             heading,
             sortable && <Icon
                 title={ getLabelForState(sortState) }
                 className={
                     cx(
-                        "sort-icon p-1 text-primary",
+                        "sort-icon text-primary",
                         sortIcon
                     )
                 }
