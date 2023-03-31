@@ -1,8 +1,17 @@
 import parseQuery from "./parseQuery"
 import config from "./config"
-import graphql from "./graphql"
+import graphql, { convertInput } from "./graphql"
 import cloneJSONObject from "./util/cloneJSONObject"
+import { DateTime } from "luxon"
+import downloadURI from "./util/downloadURI"
 
+
+/**
+ * Partial query config used to disable pagination on exports
+ * @type {{pageSize: number}}
+ */
+export const NO_PAGING = { pageSize : 0}
+const contentDispositionRE = /attachment; filename="(.*)"/
 
 /**
  * GraphQL query abstraction for both GraphQL queries and mutations.
@@ -18,7 +27,7 @@ export default class GraphQLQuery {
      * Create a new GraphQLQuery instance
      *
      * @param {String} query    query string
-     * @param {object} vars     default variables for the query
+     * @param {object} [vars]   default variables for the query
      */
     constructor(query, vars)
     {
@@ -79,5 +88,67 @@ export default class GraphQLQuery {
         const c = new GraphQLQuery(this.query, cloneJSONObject(this.defaultVars))
         c.queryDef = this.queryDef
         return c
+    }
+
+
+    /**
+     * Queries and exports this GraphQL query with the given exporter.
+     * @param {String} exporter     exporter name (must match a serverside bean definition)
+     * @param {Object} variables    variables for query
+     */
+    export(exporter, variables = this.defaultVars)
+    {
+        const { csrfToken, contextPath } = config
+
+        const convertedVariables = convertInput(this.getQueryDefinition().vars, variables)
+
+        const formData = new FormData()
+        formData.append("query", this.query)
+        formData.append("variables", JSON.stringify(convertedVariables))
+        formData.append("exporter", exporter)
+        formData.append(csrfToken.param, csrfToken.value)
+
+        return fetch(
+            window.location.origin + contextPath + "/graphql-export",
+            {
+                method: "POST",
+                body: formData
+            }
+        )
+            .then(response => {
+
+                let fileName
+
+                const m = contentDispositionRE.exec(response.headers.get("Content-Disposition") || "")
+                if (m)
+                {
+                    fileName = m[1]
+                }
+                else
+                {
+                    fileName = "export-" + DateTime.now().toISO() + ".bin"
+                }
+
+                return response.blob().then(
+                    blob => {
+                        return new Promise((resolve, reject) => {
+                            let reader = new FileReader()
+                            reader.onload = function () {
+                                resolve(this.result)
+                            }
+                            reader.onerror = function (e) {
+                                reject(e)
+                            }
+                            reader.readAsDataURL(blob)
+                        })
+                    }
+                )
+                .then(dataURI => downloadURI(dataURI, fileName))
+
+            })
+            .catch(
+                e => console.error("Error exporting data", e)
+            )
+
     }
 }

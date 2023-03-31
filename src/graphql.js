@@ -19,7 +19,7 @@ export function defaultErrorHandler(errors)
 }
 
 
-function convertInput(varTypes, variables)
+export function convertInput(varTypes, variables)
 {
     if (!variables)
     {

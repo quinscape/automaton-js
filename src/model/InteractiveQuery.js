@@ -1,11 +1,25 @@
 import { action, makeObservable, observable, toJS } from "mobx"
-import { isConditionObject } from "../FilterDSL";
-import updateComponentCondition from "../util/updateComponentCondition";
-import { getGraphQLMethodType } from "../util/type-utils"
-import GraphQLQuery from "../GraphQLQuery"
+import { isConditionObject } from "../FilterDSL"
+import updateComponentCondition from "../util/updateComponentCondition"
+import GraphQLQuery, { NO_PAGING } from "../GraphQLQuery"
+import config from "../config"
 
 
 export const NO_COMPONENT = null;
+
+/**
+ * Configuration object contained in InteractiveQuery* types.
+ *
+ * @typedef QueryConfig
+ * @type {object}
+ * @property {Object} [condition]                   FilterDSL condition graph for this query or null
+ * @property {String} [id]                          Optional unique query identifier. Useful for server-side query implementations.
+ * @property {Number} [offset]                      Current offset within the paginated results. The number of rows to skip in the results.
+ * @property {Number} [pageSize]                    Maximum number of paginated results. Set to zero to disable pagination.
+ * @property {Array.<string|Object>} [sortFields]   Fields to sort query by. Use "!field" shorthand to sort in reverse order.
+ *                                                  Instead of strings the fields can also be expressions ( e.g. field("a").add(field("b")))
+ */
+
 
 
 /**
@@ -88,6 +102,30 @@ let partialCount = 0;
 
 
 /**
+ *
+ * @param {QueryConfig} queryConfigA     Base query config
+ * @param {QueryConfig} queryConfigB     (partial) query config to merge into the current
+ *
+ * @return {QueryConfig} merged query config
+ */
+function getMergedConfig(queryConfigA, queryConfigB)
+{
+    const merged = {
+        ... queryConfigA,
+        ... queryConfigB
+    }
+
+    // safety-check for optional conditions without and() / or() or not()
+    // if we receive a condition that is not an object, we substitute null
+    if (!isConditionObject(merged.condition))
+    {
+        merged.condition = null
+    }
+    return merged
+}
+
+
+/**
  * Client-side implementation of the InteractiveQuery mechanism. Meant to be registered for all concrete types created
  * for de.quinscape.automaton.model.data.InteractiveQuery
  *
@@ -148,7 +186,7 @@ export default class InteractiveQuery {
      * })
      * ```
      *
-     * @param {Object} queryConfig      query config structure (see de.quinscape.automaton.model.data.QueryConfig)
+     * @param {QueryConfig} queryConfig      query config structure (see de.quinscape.automaton.model.data.QueryConfig)
      * @return {Promise<* | never>}
      */
     @action
@@ -156,31 +194,11 @@ export default class InteractiveQuery {
         queryConfig
     )
     {
-        let vars;
-        if (queryConfig)
-        {
-            vars = {
-                config: {
-                    ... this.queryConfig,
-                    ... queryConfig
-                }
-            };
+        const mergedConfig = getMergedConfig(this.queryConfig, queryConfig)
+        let vars = { config : mergedConfig }
 
-            // safety-check for optional conditions without and() / or() or not()
-            // if we receive a condition that is not an object, we substitute null
-            if (!isConditionObject(vars.config.condition))
-            {
-                vars.config.condition = null;
-            }
-
-            this.setQueryConfig(vars.config);
-        }
-        else
-        {
-            vars = {
-                config: this.queryConfig
-            };
-        }
+        // use the merge queryConfig as current one
+        this.setQueryConfig(mergedConfig)
 
         //console.log("InteractiveQuery.update", JSON.stringify(vars));
 
@@ -190,6 +208,23 @@ export default class InteractiveQuery {
             );
     }
 
+
+    /**
+     * Re-queries and exports the current Interactive query document with the given context type. The default behavior
+     * is to turn off pagination for the export. This can be overridden by providing an alternative queryConfig. Using
+     * null as queryConfig will export the current state as it was requested, but still making another roundtrip to the
+     * server.
+     *
+     * @param {String} exporter             exporter name (must match a serverside bean definition)
+     * @param {QueryConfig} [queryConfig]   query config. ( Default is to use the current query config with disabled
+     *                                      pagination. )
+     */
+    export(exporter,queryConfig = NO_PAGING)
+    {
+        const merged = getMergedConfig(this.queryConfig, queryConfig)
+        return this._query.export(exporter, { config: merged } )
+    }
+
     /**
      * Batch execute InteractiveQuery requests and write the results back into the respective InteractiveQuery.
      * If only a single InteractiveQuery is given, it will simply be executed like normal.
@@ -197,7 +232,7 @@ export default class InteractiveQuery {
      * 
      * @param {Object} queries all queries to be batch executed and the config override
      * @param {InteractiveQuery} queries[].query the query to be executed
-     * @param {QueryConfiguration} [queries[].config] the config override
+     * @param {QueryConfig} [queries[].config] the config override
      * @param {boolean} [queries[].forceOverwriteCondition] if the condition should be completely overwritten or merged
      * @returns {Promise<Object.<string, InteractiveQuery>>} the queries in an object with "iq"+index as key
      */
