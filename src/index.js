@@ -100,6 +100,7 @@ import IconCell from "./ui/datagrid/iconcolumn/IconCell"
 import latestRequestInSession, { registerRequestForSession } from "./util/latestRequestInSession"
 import renderFieldHelpers from "./util/renderFieldHelpers"
 import useCounter from "./util/useCounter"
+import downloadURI from "./util/downloadURI"
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -250,5 +251,6 @@ export {
     registerRequestForSession,
 
     renderFieldHelpers,
-    useCounter
+    useCounter,
+    downloadURI
 }
