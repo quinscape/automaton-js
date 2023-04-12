@@ -42,11 +42,7 @@ export function parseSearch(searchString) {
     if (searchString == null || searchString === "" || (!searchString.includes("&") && !searchString.includes("/") && !searchString.includes("*") && !searchString.includes("!"))) {
         return searchString;
     }
-    console.group("parseSearch")
-    console.log("String to parse:", searchString);
     const resultRegExp = parseOr(searchString);
-    console.log("resulting RegExp:", resultRegExp);
-    console.groupEnd("parseSearch")
     return resultRegExp;
 }
 
@@ -97,10 +93,6 @@ export function stringifySearch(regExpString) {
     if (regExpString == null || regExpString === "") {
         return regExpString;
     }
-    console.group("stringifySearch");
-    console.log("RegExp to stringify:", regExpString);
     const resultString = stringifyOr(regExpString);
-    console.log("resulting String:", resultString);
-    console.groupEnd("stringifySearch");
     return resultString;
 }
