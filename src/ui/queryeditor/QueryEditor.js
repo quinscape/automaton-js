@@ -84,7 +84,7 @@ const QueryEditor = (props) => {
                     select: queryColumns ?? [],
                     where: queryCondition,
                     sort: querySort ?? [],
-                    hasFormContextErrors: formContext.getErrors().length <= 0
+                    hasFormContextErrors: formContext.getErrors().length > 0
                 });
             };
         }
