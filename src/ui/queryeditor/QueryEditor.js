@@ -78,15 +78,14 @@ const QueryEditor = (props) => {
                 formContext.revalidate();
         
                 const queryColumns = get(container, selectedColumnsPath);
-                if (formContext.getErrors().length <= 0) {
-                    const queryCondition = get(container, queryConditionPath);
-                    const querySort = get(container, sortColumnsPath);
-                    onChange({
-                        select: queryColumns ?? [],
-                        where: queryCondition,
-                        sort: querySort ?? []
-                    });
-                }
+                const queryCondition = get(container, queryConditionPath);
+                const querySort = get(container, sortColumnsPath);
+                onChange({
+                    select: queryColumns ?? [],
+                    where: queryCondition,
+                    sort: querySort ?? [],
+                    hasFormContextErrors: formContext.getErrors().length > 0
+                });
             };
         }
         return () => {}
