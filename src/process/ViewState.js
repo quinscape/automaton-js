@@ -3,12 +3,6 @@ import { observer } from "mobx-react-lite"
 
 const secret = Symbol("ViewState Secret");
 
-
-export class ViewStateInstance
-{
-    
-}
-
 /**
  * Encapsulates the static view state in an automaton process. The process keeps the actual transition maps
  * bound to process and scope for each of its states.
