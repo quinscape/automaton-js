@@ -21,7 +21,7 @@ import ExpressionDropdown from "./ExpressionDropdown"
 import { getFieldDataByPath, getTableNameByPath } from "../../util/inputSchemaUtilities"
 import renderFieldHelpers from "../../util/renderFieldHelpers"
 import { unwrapAll } from "../../util/type-utils"
-import ComputedValueDialog from "./ComputedValueDialog"
+import ChangeValueTypeDialog from "./ChangeValueTypeDialog"
 import ConditionPointer from "./ConditionPointer"
 
 
@@ -329,7 +329,7 @@ const ConditionEditor = observer(function ConditionEditor(props) {
                 schemaResolveFilterCallback={ schemaResolveFilterCallback }
             />
 
-            <ComputedValueDialog
+            <ChangeValueTypeDialog
                 editorState={ editorState }
                 formContext={ formContext }
                 valueRenderer={ valueRenderer }
@@ -628,7 +628,7 @@ function renderCondition(elements, layoutNode, condition, pointer, ctx) {
 
                                     if (unwrapAll(fieldContext.fieldType).name === "Timestamp" && value === "now")
                                     {
-                                        return <button className="btn btn-light btn-sm" title="Convert String value now to computed value" onClick={ () => editorState.convertToComputed("now",condition) }>
+                                        return <button className="btn btn-light btn-sm" title={ i18n("ConditionHelper:Convert To Computed value") } onClick={ () => editorState.convertToComputed(condition, "now") }>
                                             <Icon className="fa-info-circle text-info"/>
                                         </button>;
                                     }
@@ -638,7 +638,7 @@ function renderCondition(elements, layoutNode, condition, pointer, ctx) {
 
                                     if (unwrapAll(fieldContext.fieldType).name === "Date" && value === "today")
                                     {
-                                        return <button className="btn btn-light btn-sm" title="Convert String value today to computed value" onClick={ () => editorState.convertToComputed("today", condition) }>
+                                        return <button className="btn btn-light btn-sm" title="Convert String value today to computed value" onClick={ () => editorState.convertToComputed(condition, "today") }>
                                             <Icon className="fa-info-circle text-info"/>
                                         </button>;
                                     }

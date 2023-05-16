@@ -5,6 +5,7 @@ import { flextree } from "d3-flextree"
 import { COMPUTED_VALUE_TYPE, COMPUTED_VALUES, Type } from "../../FilterDSL"
 import { FormContext } from "domainql-form"
 import config from "../../config"
+import i18n from "../../i18n"
 
 const nodeIdSym = Symbol("condition node id")
 
@@ -614,11 +615,13 @@ export default class ConditionEditorState {
 
     /**
      * Converts the given Value node to a ComputedValue node
-     * @param name          nane of computed value function
-     * @param condition     condition node
+     *
+     * @param {Object} condition        condition node
+     * @param {String} name             nane of computed value function
+     * @param {GenericScalar} [arg]     optional argument for the computed value
      */
     @action
-    convertToComputed(name, condition)
+    convertToComputed(condition, name, arg)
     {
         if (condition.type !== Type.VALUE)
         {
@@ -628,7 +631,7 @@ export default class ConditionEditorState {
         condition.scalarType = COMPUTED_VALUE_TYPE
         condition.value = {
             name,
-            args: []
+            args: arg ? [ arg ] : []
         }
         this.updateCounter++
     }
@@ -636,7 +639,22 @@ export default class ConditionEditorState {
     @action
     changeComputedValueName(name, valueNode)
     {
-        valueNode.name = name;
+        valueNode.value.name = name;
+
+        const def = COMPUTED_VALUES.find(f => f.name === name)
+        if (!def)
+        {
+            return i18n("Invalid computed value name");
+        }
+
+        //console.log("changeComputedValueName", { def })
+
+        valueNode.value.args = def.args.map(argDef => (
+            {
+                type: argDef.type,
+                value: null
+            }
+        ))
     }
 
     toRelativeFormPath(pointer, rel = "")

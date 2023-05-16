@@ -11,10 +11,12 @@ import {
     Type,
     value as dslValue
 } from "../../FilterDSL"
-import { Form, FormContext, Select } from "domainql-form"
+import { Form, FormContext, Field, Select } from "domainql-form"
 import { toJS } from "mobx"
 import { lookupType } from "../../util/type-utils"
 import useCounter from "../../util/useCounter"
+import DateRangeField from "../form/date/DateRangeField"
+import CalendarField from "../CalendarField"
 
 const MODE_COMPUTED = "computed";
 const MODE_LITERAL = "literal";
@@ -96,9 +98,10 @@ function getModeForCondition(valueNode, computedValuePointer)
     }
 }
 
-const ComputedValueOptions = COMPUTED_VALUES.map( d => ({ name: d.description, value: d.name}));
 
-const ComputedValueDialog = observer(function ComputedValueDialog({conditionRoot, editorState, formContext, valueRenderer, schemaResolveFilterCallback}) {
+const ChangeValueTypeDialog = observer(function ChangeValueTypeDialog({conditionRoot, editorState, formContext, valueRenderer, schemaResolveFilterCallback}) {
+
+    const ComputedValueOptions = COMPUTED_VALUES.map( d => ({ name: d.description, value: d.name}));
 
     const { computedValuePointer } = editorState
 
@@ -183,14 +186,14 @@ const ComputedValueDialog = observer(function ComputedValueDialog({conditionRoot
                                        {
                                            if (mode === MODE_COMPUTED)
                                            {
+                                               const firstEntry = COMPUTED_VALUES[0]
                                                newValueNode = toJSON(
                                                    dslValue({
-                                                       name: COMPUTED_VALUES[0].name,
+                                                       name: firstEntry.name,
                                                        args: []
 
                                                    }, COMPUTED_VALUE_TYPE)
                                                )
-
                                            }
                                            else if (mode === MODE_LITERAL)
                                            {
@@ -268,11 +271,42 @@ const ComputedValueDialog = observer(function ComputedValueDialog({conditionRoot
                                                        </Col>
                                                    </Row>
                                                        {
-                                                           def.args.length > 0 && (
+                                                           valueNode.value.args.length > 0 && (
                                                                <Row>
                                                                    <Col>
                                                                        {
-                                                                           def.args.map(renderComputedValueParameterField)
+                                                                           valueNode.value.args.map((arg, idx) => {
+
+                                                                               const argDef = def.args[idx]
+
+                                                                               const label = argDef.label || argDef.name
+                                                                               const fieldName = "value.args." + idx + ".value"
+                                                                               const scalarType = argDef.nonNull ?
+                                                                                   arg.type + "!" :
+                                                                                   arg.type
+
+                                                                               if (argDef.type === "Timestamp" || argDef.type === "Date")
+                                                                               {
+                                                                                   return (
+                                                                                       <CalendarField
+                                                                                           key={ idx }
+                                                                                           label={ label }
+                                                                                           name={ fieldName }
+                                                                                           type={ scalarType }
+                                                                                       />
+                                                                                   )
+                                                                               }
+
+                                                                               return (
+                                                                                   <Field
+                                                                                       key={ idx }
+                                                                                       name={ fieldName }
+                                                                                       label={ label }
+                                                                                       placeholder={ argDef.default || null }
+                                                                                       type={ scalarType }
+                                                                                   />
+                                                                               )
+                                                                           })
                                                                        }
                                                                    </Col>
                                                                </Row>
@@ -305,4 +339,4 @@ const ComputedValueDialog = observer(function ComputedValueDialog({conditionRoot
         </Modal>    )
 })
 
-export default ComputedValueDialog
+export default ChangeValueTypeDialog

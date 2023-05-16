@@ -268,15 +268,13 @@ function registerFieldLengthValidator()
 
 function parseArgs(def, argsStr)
 {
-    if (!def.args.length || argsStr === null)
+    const { args } = def
+    if (!args.length || argsStr === null)
     {
         return [[], null]
     }
 
     const parts = argsStr.split(",")
-
-    const { args } = def
-
     const out = []
     for (let i = 0; i < args.length; i++)
     {
@@ -285,9 +283,8 @@ function parseArgs(def, argsStr)
 
         if (argDef.nonNull && part == null && !argDef.default)
         {
-            return [null, i18n("ComputedValue:Argument #{0} must be defined", i)]
+            return [[], i18n("ComputedValue:Argument #{0} must be defined", i)]
         }
-
 
         let value
         if (part === null)
@@ -300,7 +297,9 @@ function parseArgs(def, argsStr)
             const argError = InputSchema.validate(type, part);
             if (argError)
             {
-                return [null, i18n("Argument #{0}: ", i) + argError]
+                console.log("Validation failed for", part, ", type =", type)
+
+                return [null, i18n("Argument #{0} - ", i) + argError]
             }
             else
             {
@@ -343,6 +342,18 @@ function registerComputedValue()
                     return err
                 }
             }
+            else {
+                const { args } = def
+                for (let i = 0; i < args.length; i++)
+                {
+                    const argDef = args[i]
+
+                    if (argDef.nonNull && !argDef.default)
+                    {
+                        return [null, i18n("ComputedValue:Argument #{0} must be defined", i)]
+                    }
+                }
+            }
             return null;
         },
         (scalar, ctx) => {
@@ -351,7 +362,7 @@ function registerComputedValue()
 
             let out = scalar.name
 
-            if (scalar.args.length)
+            if (scalar.args && scalar.args.length)
             {
                 out = out + "(" + def.args.map( (argDef,i) => {
 
