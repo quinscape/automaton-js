@@ -660,7 +660,7 @@ function renderCondition(elements, layoutNode, condition, pointer, ctx) {
                                                         "param",
                                                         {
                                                                 value: m[1],
-                                                                type: unwrapAll(fieldContext.fieldType).name
+                                                                type: "String"
                                                         }
                                                     ) }
                                             >
