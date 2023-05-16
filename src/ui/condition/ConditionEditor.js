@@ -489,8 +489,7 @@ function flattenStructuralKids(rootType, node, nodes, decorations, editorState, 
     }
 }
 
-
-
+const jasperParamRE = /\$P\{([a-zA-Z0-9_]*?)}/
 
 function renderCondition(elements, layoutNode, condition, pointer, ctx) {
 
@@ -641,6 +640,33 @@ function renderCondition(elements, layoutNode, condition, pointer, ctx) {
                                         return <button className="btn btn-light btn-sm" title="Convert String value today to computed value" onClick={ () => editorState.convertToComputed(condition, "today") }>
                                             <Icon className="fa-info-circle text-info"/>
                                         </button>;
+                                    }
+                                    return false
+                                },
+
+                                // helper for Jasper parameter format to computed value param
+                                ({value, fieldContext}) => {
+
+                                    const m = jasperParamRE.exec(value)
+                                    if (m)
+                                    {
+                                        return (
+                                            <button
+                                                className="btn btn-light btn-sm"
+                                                title={ i18n("ConditionHelper:Convert To Computed Param") }
+                                                onClick={
+                                                    () => editorState.convertToComputed(
+                                                        condition,
+                                                        "param",
+                                                        {
+                                                                value: m[1],
+                                                                type: unwrapAll(fieldContext.fieldType).name
+                                                        }
+                                                    ) }
+                                            >
+                                                <Icon className="fa-info-circle text-info"/>
+                                            </button>
+                                        );
                                     }
                                     return false
                                 }

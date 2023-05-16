@@ -57,6 +57,19 @@ export const COMPUTED_VALUES = [
         type: "Date",
         description: "today - " + i18n("ComputedValue:Today Description"),
         args: []
+    },
+    {
+        name: "param",
+        type: "GenericScalar",
+        description: "param - " + i18n("ComputedValue:Param Description"),
+        args: [
+            {
+                name: "name",
+                label: i18n("QueryParam:parameter name"),
+                type: "String",
+                nonNull: true
+            }
+        ]
     }
 ]
 
@@ -82,6 +95,16 @@ export function isCondition(value)
  * @property {Object} [scalarType]                  scalar type
  * @property {Array<ConditionNode>} [operands]      operands for OPERATION or CONDITION
  * @property {Object} [condition]                   singular condition child for COMPONENT
+ */
+
+/**
+ * Generic scalar
+ *
+ * @typedef GenericScalar
+ * @type {object}
+
+ * @property {String} type      scalar type name
+ * @property {*} value          scalar value
  */
 
 /**

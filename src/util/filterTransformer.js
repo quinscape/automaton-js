@@ -243,6 +243,7 @@ const operationImpl = {
 const computedValueFunctions = {
     "now" : (name, args) => DateTime.now(),
     "today" : (name, args) => DateTime.now().startOf("day"),
+    "param" : (name, args) => throw new Error("param() not supported in JS filters"),
 }
 
 const IGNORE_CASE_SUFFIX = "IgnoreCase";
