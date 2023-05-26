@@ -16,19 +16,23 @@ const DataGridButtonToolbar = (props) => {
 
     function clearFilterState() {
         const filters = [];
-        for(const filter of filterState.filters) {
-            const clearedFilter = {
-                ...filter,
-                values: filter.values.map((v) => {
-                    return {
-                        ...v,
-                        value: null
-                    };
-                })
+        for (const filter of filterState.filters) {
+            if (filter != null) {
+                const clearedFilter = {
+                    ...filter,
+                    values: filter.values.map((v) => {
+                        return {
+                            ...v,
+                            value: null
+                        };
+                    })
+                }
+                filters.push(clearedFilter);
+            } else {
+                filters.push(filter);
             }
-            filters.push(clearedFilter);
         }
-        filterState.filters.replace(filters);
+        filterState.setFilters(filters);
     }
 
     return (
