@@ -6,6 +6,7 @@ import { getGraphQLMethodType } from "./util/type-utils"
 import triggerToastsForErrors from "./util/triggerToastsForErrors"
 import createUnifiedErrors from "./util/createUnifiedErrors"
 import { registerRequestForSession } from "./util/latestRequestInSession"
+import decompileFilter from "./util/decompileFilter"
 
 
 /**
@@ -145,6 +146,20 @@ function postProcess(result, processors, queryDecl, params)
     );
 }
 
+function logConditions(queryDecl, variables)
+{
+    for (let name in variables)
+    {
+        if (variables.hasOwnProperty(name))
+        {
+            const v = variables[name]
+            if (v && v.condition !== undefined)
+            {
+                console.log("Condition " + name, decompileFilter(v.condition))
+            }
+        }
+    }
+}
 
 /**
  * GraphQL query service.
@@ -187,6 +202,8 @@ export default function graphql(params) {
     {
         variables = convertInput(queryDecl.getQueryDefinition().vars, variables);
     }
+
+    //logConditions(queryDecl, variables)
 
     return (
         fetch(
