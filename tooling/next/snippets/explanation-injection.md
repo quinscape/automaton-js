@@ -93,7 +93,7 @@ export default class MyScope
 }       
 ```
     
-He we use an InteractiveQuery based query to request an InterativeQuery document containing the first five "Foo" entities. 
+He we use an InteractiveQuery based query to request an InteractiveQuery document containing the first five "Foo" entities. 
 We can follow entity relations we have defined in our [GraphQLConfiguration.java](/graphql-config) and the server-side 
 iQuery mechanism will automatically use an optimized SQL statement using JOINs etc.
 
