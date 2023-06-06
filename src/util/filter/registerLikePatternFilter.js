@@ -11,7 +11,7 @@ import i18n from "../../i18n";
  * - a wilcard is written as "*"
  * - "and" is written as "&"
  * - "or" is written as "/"
- * - "not" is written as "!"
+ * - "not" is written as "!" (if allowed)
  * - no brackets
  * - "and" binds stronger than "or"
  * - if there is no expression, just match as contains
