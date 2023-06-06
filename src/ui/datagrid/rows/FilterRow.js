@@ -24,8 +24,9 @@ const FilterRow = fnObserver(props => {
 
     const filterState = useContext(FilterContext);
 
-    if (filterState.filters.length === 0)
-    {
+    const currentFilters = filterState.filters;
+
+    if (currentFilters.length === 0) {
         return false;
     }
     
@@ -46,76 +47,79 @@ const FilterRow = fnObserver(props => {
                 }
                 else
                 {
-                    const { values } = filterState.filters[filterIndex];
+                    const currentFilter = currentFilters[filterIndex];
+                    if (currentFilter != null) {
+                        const { values } = currentFilter;
 
-                    const filterElems = [];
-                    for (let i = 0; i < values.length; i++)
-                    {
-                        const fieldName = "filters." + filterIndex + ".values." + i + ".value";
-                        const fieldType = values[i].type;
-                        const label = i18n("Argument {0} for filter on {1}", i +1 , name);
+                        const filterElems = [];
+                        for (let i = 0; i < values.length; i++)
+                        {
+                            const fieldName = "filters." + filterIndex + ".values." + i + ".value";
+                            const fieldType = values[i].type;
+                            const label = i18n("Argument {0} for filter on {1}", i +1 , name);
 
-                        const key = columnIdx + "." + i;
+                            const key = filterIndex + "." + i;
 
-                        if (renderFilter)
-                        {
-                            const resolvedFilterRenderer = getCustomFilterRenderer(renderFilter) ?? renderFilter;
-                            const customElem = resolvedFilterRenderer(fieldName, fieldType, label, i);
-                            filterElems.push(
-                                React.cloneElement(
-                                    customElem,
-                                    {
-                                        key
-                                    }
-                                )
-                            );
-                        }
-                        else if (fieldType === "Boolean")
-                        {
-                            filterElems.push(
-                                <Select
-                                    key={ key }
-                                    labelClass="sr-only"
-                                    label={ label }
-                                    name={ fieldName }
-                                    values={ BOOLEAN_VALUES }
-                                    type={ fieldType }
-                                />
-                            );
-                        }
-                        else if(fieldType === "Timestamp")
-                        {
-                            filterElems.push(
-                                <DateRangeField
-                                    key={ key }
-                                    labelClass="sr-only"
-                                    label={ label }
-                                    name={ fieldName }
-                                    type="DateRange"
-                                />
-                            );
-                        }
-                        else
-                        {
-                            filterElems.push(
-                                <Field
-                                    key={ key }
-                                    labelClass="sr-only"
-                                    label={ label }
-                                    name={fieldName}
-                                    type={ fieldType }
-                                />
-                            );
-                        }
-
-                    }
-                    filterColumnElements.push(
-                        <th key={ columnIdx }>
+                            if (renderFilter)
                             {
-                                filterElems
+                                const resolvedFilterRenderer = getCustomFilterRenderer(renderFilter) ?? renderFilter;
+                                const customElem = resolvedFilterRenderer(fieldName, fieldType, label, i);
+                                filterElems.push(
+                                    React.cloneElement(
+                                        customElem,
+                                        {
+                                            key
+                                        }
+                                    )
+                                );
                             }
-                        </th>
-                    );
+                            else if (fieldType === "Boolean")
+                            {
+                                filterElems.push(
+                                    <Select
+                                        key={ key }
+                                        labelClass="sr-only"
+                                        label={ label }
+                                        name={ fieldName }
+                                        values={ BOOLEAN_VALUES }
+                                        type={ fieldType }
+                                    />
+                                );
+                            }
+                            else if(fieldType === "Timestamp")
+                            {
+                                filterElems.push(
+                                    <DateRangeField
+                                        key={ key }
+                                        labelClass="sr-only"
+                                        label={ label }
+                                        name={ fieldName }
+                                        type="DateRange"
+                                    />
+                                );
+                            }
+                            else
+                            {
+                                filterElems.push(
+                                    <Field
+                                        key={ key }
+                                        labelClass="sr-only"
+                                        label={ label }
+                                        name={fieldName}
+                                        type={ fieldType }
+                                    />
+                                );
+                            }
+
+                        }
+                        filterColumnElements.push(
+                        <th key={ columnIdx }>
+                                {
+                                    filterElems
+                                }
+                            </th>
+                        );
+                    }
 
                 }
             }

@@ -13,6 +13,7 @@ import {
 import i18n from "../../i18n";
 import { Form, FormLayout } from "domainql-form"
 import compareConditions from "../../util/compareConditions";
+import { GridStateFormContextState } from "./GridStateFormContext";
 
 
 /**
@@ -106,7 +107,7 @@ let stateCounter = 0;
 /**
  * IQueryGrid Internal Filter context
  */
-export const FilterContext = React.createContext(null);
+export const FilterContext = React.createContext(new GridStateFormContextState());
 
 function findFieldRef(state, condition, name)
 {
@@ -348,14 +349,13 @@ const GridStateForm = props => {
     const { iQuery, columns, componentId, filterTimeout, children } = props;
     
     const filterState = useMemo(
-        () =>
-            observable({
-                filters: resolveFilters(
-                    columns,
-                    componentId,
-                    iQuery.queryConfig.condition
-                )
-            }),
+        () => new GridStateFormContextState({
+            filters: resolveFilters(
+                columns,
+                componentId,
+                iQuery.queryConfig.condition
+            )
+        }),
         [columns, componentId]
     );
 
@@ -415,7 +415,7 @@ const GridStateForm = props => {
                     componentId,
                     cond
                 );
-                filterState.filters.replace(filters);
+                filterState.setFilters(filters);
 
                 return iQuery.updateCondition(
                     cond,
@@ -429,7 +429,7 @@ const GridStateForm = props => {
                 equals: comparer.structural
             }
         ),
-        [iQuery, filterTimeout]
+        [iQuery, filterTimeout, filterState]
     );
 
     //
@@ -442,7 +442,7 @@ const GridStateForm = props => {
                 componentId,
                 iQuery.queryConfig.condition
             );
-            filterState.filters.replace(filters);
+            filterState.setFilters(filters);
 
             return reaction(
                 () => {
@@ -456,7 +456,7 @@ const GridStateForm = props => {
                     return filters;
                 },
                 filters => {
-                    filterState.filters.replace(filters);
+                    filterState.setFilters(filters);
                 }
                 ,{
                     name: "Sync filter",
@@ -464,7 +464,7 @@ const GridStateForm = props => {
                 }
             )
         },
-        [iQuery]
+        [iQuery, filterState]
     );
 
     return (
