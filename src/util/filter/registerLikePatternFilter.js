@@ -19,8 +19,8 @@ import i18n from "../../i18n";
 export function registerLikePatternFilter()
 {
     registerCustomFilter("likePattern", (fieldName, val) => {
-        if (val == null) {
-            val = ""
+        if (val == null || val === "") {
+            return null
         }
         const stringValue = val.toString();
         const regExpString = parseSearch(stringValue);
@@ -35,5 +35,5 @@ export function registerLikePatternFilter()
                 value: stringifySearch(regExpString)
             }
         ];
-    });
+    }, (fieldName) => field(fieldName).toString().likeRegex(value(null, "String")));
 }
