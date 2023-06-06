@@ -1,3 +1,5 @@
+import config from "../../config"
+
 function parseWildcard(searchString) {
     if (!searchString.includes("*")) {
         return `^.*${searchString}.*$`;
@@ -7,7 +9,7 @@ function parseWildcard(searchString) {
 
 function parseNot(searchString) {
     searchString = searchString.trim();
-    if (searchString.startsWith("!")) {
+    if (config.searchStringPatternAllowNot && searchString.startsWith("!")) {
         return `(?:(?!${parseWildcard(searchString.slice(1))})^.*$)`;
     }
     return parseWildcard(searchString);
@@ -30,7 +32,7 @@ function parseOr(searchString) {
  * - a wilcard is written as "*"
  * - "and" is written as "&"
  * - "or" is written as "/"
- * - "not" is written as "!"
+ * - "not" is written as "!" (if allowed)
  * - no brackets
  * - "and" binds stronger than "or"
  * - if there is no expression, just match as contains
@@ -59,7 +61,7 @@ function stringifyWildcard(regExpString) {
 }
 
 function stringifyNot(regExpString) {
-    if (regExpString.startsWith("(?:(?!") && regExpString.endsWith(")^.*$)")) {
+    if (config.searchStringPatternAllowNot && regExpString.startsWith("(?:(?!") && regExpString.endsWith(")^.*$)")) {
         return `!${stringifyWildcard(regExpString.slice(6, -6))}`;
     }
     return stringifyWildcard(regExpString);
@@ -81,7 +83,7 @@ function stringifyOr(regExpString) {
  * - a wilcard is written as "*"
  * - "and" is written as "&"
  * - "or" is written as "/"
- * - "not" is written as "!"
+ * - "not" is written as "!" (if allowed)
  * - no brackets
  * - "and" binds stronger than "or"
  * - if there is no expression, just match as contains
