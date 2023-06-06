@@ -39,9 +39,11 @@ const AttachmentLink = ({attachment, className, disabled = false}) => {
                     }
                 >
                     <Icon className="fa-paperclip mr-1 text-dark"/>
-                    {
-                        attachment.description
-                    }
+                    <span className="attachment-description">
+                        {
+                            attachment.description
+                        }
+                    </span>
                 </a>
             ) : (
             <span
