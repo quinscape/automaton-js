@@ -101,6 +101,7 @@ import latestRequestInSession, { registerRequestForSession } from "./util/latest
 import renderFieldHelpers from "./util/renderFieldHelpers"
 import useCounter from "./util/useCounter"
 import downloadURI from "./util/downloadURI"
+import createQuery from "./util/createQuery"
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -252,5 +253,7 @@ export {
 
     renderFieldHelpers,
     useCounter,
-    downloadURI
+    downloadURI,
+
+    createQuery
 }
