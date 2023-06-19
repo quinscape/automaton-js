@@ -140,6 +140,72 @@ describe("createQuery", function () {
                     `)
             )
 
+            assert(
+                nestFields(
+                    ["a.b.c.d", "a.b.c.e", "a.f.g.h", "a.f.g.i", "a.j", "k"]) === trimIndent(`
+                    a {
+                        b {
+                            c {
+                                d
+                                e
+                            }
+                        }
+                        f {
+                            g {
+                                h
+                                i
+                            }
+                        }
+                        j
+                    }
+                    k
+                    `)
+            )
+            assert(
+                nestFields(
+                    ["a.b.c.d", "a.b.c.e", "a.f.g.h", "a.f.g.i", "a.j", "k"]) === trimIndent(`
+                    a {
+                        b {
+                            c {
+                                d
+                                e
+                            }
+                        }
+                        f {
+                            g {
+                                h
+                                i
+                            }
+                        }
+                        j
+                    }
+                    k
+                    `)
+            )
+
+            assert(
+                nestFields(
+                    ["a.b.c.d", "a.b.c.e", "f", "g.h.i.j", "g.h.i.k"]) === trimIndent(`
+                    a {
+                        b {
+                            c {
+                                d
+                                e
+                            }
+                        }
+                    }
+                    f
+                    g {
+                        h {
+                            i {
+                                j
+                                k
+                            }
+                        }
+                    }
+                    `)
+            )
+
         })
     })
 })
