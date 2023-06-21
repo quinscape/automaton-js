@@ -139,7 +139,7 @@ export default function registerDateTimeConverters()
                 return i18n("Too many elements in DateRange ({0}), DateRange must have at most 2 elements.", value.length);
             }
             const isValid = value.reduce((acc, dateTime) => {
-                if(!dateTime.isValid) {
+                if(dateTime != null && !dateTime.isValid) {
                     acc[0] = false;
                     acc.push(dateTime.invalidReason);
                 }
@@ -149,13 +149,17 @@ export default function registerDateTimeConverters()
             return isValid.shift() ? null : i18n("Invalid DateRange Object: Does not match {0}, {1}", dateFormat, isValid.join(", "));
         },
         (scalar, ctx) => {
-            if (scalar?.[0] == null) {
+            if (scalar == null || (scalar[0] == null && scalar[1] == null)) {
                 return "";
             }
 
             const dateFormat = ctx?.dateFormat ?? config.dateFormat;
 
-            if (scalar[0].equals(scalar[1])) {
+            if (scalar[0] == null) {
+                return scalar[1].toFormat(dateFormat);
+            }
+
+            if (scalar[1] == null || scalar[0].equals(scalar[1])) {
                 return scalar[0].toFormat(dateFormat);
             }
 
@@ -168,6 +172,18 @@ export default function registerDateTimeConverters()
                 return [];
             }
             if (Array.isArray(value)) {
+                if (value[0] == null) {
+                    return [
+                        value[1],
+                        value[1]
+                    ];
+                }
+                if (value[1] == null) {
+                    return [
+                        value[0],
+                        value[0]
+                    ];
+                }
                 return value;
             }
 
