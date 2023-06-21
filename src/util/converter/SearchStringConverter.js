@@ -1,10 +1,15 @@
-import config from "../../config"
+import config from "../../config";
+
+const REGEXP_ESCAPE = /[.+?^${}()|[\]\\]/g;
+const SUBSTI_ESCAPE = "\\$&";
+const REGEXP_UNESCAPE = /\\([.+?^${}()|[\]\\])/g;
+const SUBSTI_UNESCAPE = "$1";
 
 function parseWildcard(searchString) {
     if (!searchString.includes("*")) {
-        return `^.*${searchString}.*$`;
+        return `^.*${searchString.replace(REGEXP_ESCAPE, SUBSTI_ESCAPE)}.*$`;
     }
-    return `^${searchString.replace(/\*+/g, ".*")}$`;
+    return `^${searchString.replace(REGEXP_ESCAPE, SUBSTI_ESCAPE).replace(/\*+/g, ".*")}$`;
 }
 
 function parseNot(searchString) {
@@ -41,10 +46,11 @@ function parseOr(searchString) {
  * @returns {string} the resulting RegExp string
  */
 export function parseSearch(searchString) {
-    if (searchString == null || searchString === "" || (!searchString.includes("&") && !searchString.includes("/") && !searchString.includes("*") && !searchString.includes("!"))) {
+    if (searchString == null || searchString === "") {
         return searchString;
     }
-    const resultRegExp = parseOr(searchString);
+    const usedCombinators = searchString.includes("&") || searchString.includes("/");
+    const resultRegExp = usedCombinators ? parseOr(searchString) : parseNot(searchString);
     return resultRegExp;
 }
 
@@ -54,10 +60,10 @@ function stringifyWildcard(regExpString) {
     if (regExpString.startsWith(".*") && regExpString.endsWith(".*")) {
         const sliced = regExpString.slice(2, -2);
         if (!sliced.includes(".*")) {
-            return sliced;
+            return sliced.replace(REGEXP_UNESCAPE, SUBSTI_UNESCAPE);
         }
     }
-    return regExpString.replace(/\.\*/g, "*");
+    return regExpString.replace(/\.\*/g, "*").replace(REGEXP_UNESCAPE, SUBSTI_UNESCAPE);
 }
 
 function stringifyNot(regExpString) {
