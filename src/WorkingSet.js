@@ -873,7 +873,7 @@ class EntityRegistration
             {
                 const {name, type} = fieldsOfGroup[j];
 
-                const baseValue = base && base[name];
+                const baseValue = base?.base[name];
                 const currValue = domainObject[name];
 
                 changesForGroup.push(
@@ -922,7 +922,7 @@ class EntityRegistration
             // XXX: We ignore all undefined values so clearing a former existing value with undefined won't work.
             //      Use null in that case
 
-            if (currValue !== undefined)
+            if (currValue != null)
             {
                 if (isNew)
                 {
@@ -934,7 +934,7 @@ class EntityRegistration
                 }
                 else
                 {
-                    const baseValue = base && base[name];
+                    const baseValue = base?.[name];
                     if (equalsScalar(type, baseValue, currValue))
                     {
                         if (changes.has(name))
@@ -980,9 +980,9 @@ class EntityRegistration
 
                 const otherRelation = leftSideRelation.targetType !== typeName ? leftSideRelation : rightSideRelation
 
-                const linkArrayBase = base && base[linkFieldName];
+                const linkArrayBase = base?.[linkFieldName];
 
-                if (!linkArrayBase)
+                if (linkArrayBase == null)
                 {
                     // if we have a undefined base array, we just keep ignoring that property
                     continue
@@ -1535,7 +1535,7 @@ export default class WorkingSet {
     //
     //             const elements = domainObject[name];
     //
-    //             const baseElements = base && base[name];
+    //             const baseElements = base?.base[name];
     //             if (baseElements)
     //             {
     //                 for (let j = 0; j < baseElements.length; j++)
