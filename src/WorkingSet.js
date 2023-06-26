@@ -918,12 +918,10 @@ class EntityRegistration
             }
 
             const currValue = domainObject[name];
+            const baseValue = base?.[name];
 
-            // XXX: We ignore all undefined values so clearing a former existing value with undefined won't work.
-            //      Use null in that case
-
-            if (currValue != null)
-            {
+            if (currValue != null || baseValue != null) {
+                // if baseValue and currValue are null, there can not be any changes
                 if (isNew)
                 {
                     updates.push(
@@ -934,8 +932,8 @@ class EntityRegistration
                 }
                 else
                 {
-                    const baseValue = base?.[name];
-                    if (equalsScalar(type, baseValue, currValue))
+                    const resolvedBaseValue = type === "Boolean" ? !!baseValue : baseValue;
+                    if (equalsScalar(type, resolvedBaseValue, currValue))
                     {
                         if (changes.has(name))
                         {
@@ -955,6 +953,13 @@ class EntityRegistration
                         )
                     }
                 }
+            } else if (changes.has(name)) {
+                // if a change is registered, then remove it
+                updates.push(
+                    name,
+                    null,
+                    DELETE_CHANGE
+                )
             }
         }
     }
@@ -1670,6 +1675,11 @@ export default class WorkingSet {
     clear()
     {
         this[secret].registrations.clear();
+
+        const { onChangeCallbacks } = this[secret];
+        for (const fn of onChangeCallbacks) {
+            fn();
+        }
     }
 
 
