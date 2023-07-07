@@ -88,6 +88,7 @@ import CollapsiblePanel from "./ui/CollapsiblePanel"
 import UserColumnConfigDialogModal from "./ui/datagrid/userconfig/UserColumnConfigDialogModal"
 
 import ConditionEditor from "./ui/condition/ConditionEditor";
+import ConditionPointer from "./ui/condition/ConditionPointer";
 import QueryEditor from "./ui/queryeditor/QueryEditor";
 import ConditionEditorState from "./ui/condition/ConditionEditorState";
 import QueryEditorState from "./ui/queryeditor/QueryEditorState";
@@ -255,5 +256,6 @@ export {
     useCounter,
     downloadURI,
 
-    createQuery
+    createQuery,
+    ConditionPointer
 }
