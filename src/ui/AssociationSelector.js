@@ -350,6 +350,7 @@ const AssociationSelector = fnObserver(props => {
         paginationPageSizes,
         searchFilter,
         modalFilter,
+        onFieldConfigClick,
         disabled
     } = props;
 
@@ -473,6 +474,32 @@ const AssociationSelector = fnObserver(props => {
     const effectiveMode = modeFromProps || formConfig.options.mode;
     const isDisabled = typeof disabled === "function" ? disabled() : disabled;
 
+    const fieldConfigButton = useMemo(() => {
+        if (typeof onFieldConfigClick === "function") {
+            return (
+                <button
+                    type="button"
+                    className="btn btn-light btn-field-config" // very small; absolute; top right
+                    onClick={() => {
+                        onFieldConfigClick({
+                            isFieldContext: false,
+                            name,
+                            formId: formConfig.ctx.formId,
+                            fieldId: elementId,
+                            path: toPath(value),
+                            rootType: formConfig.type,
+                            root: formConfig.root,
+                        });
+                    }}
+                >
+                    {
+                        <Icon className="fa-cog" />
+                    }
+                </button>
+            );
+        }
+    }, [onFieldConfigClick]);
+
     return (
         <React.Fragment>
 
@@ -532,6 +559,7 @@ const AssociationSelector = fnObserver(props => {
                     </button>
                 </ButtonToolbar>
             </FormGroup>
+            {fieldConfigButton}
             <AssociationSelectorModal
                 { ... modalState }
                 iQueryType={ iQueryType }
