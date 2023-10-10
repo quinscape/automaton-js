@@ -1,8 +1,11 @@
+import React from "react";
 import {registerCustomFilter} from "./CustomFilter";
+import { registerCustomFilterRenderer } from "./CustomFilterRenderer";
 import {field, value} from "../../../filter";
-import { parseSearch, stringifySearch } from "../converter/SearchStringConverter";
+import { parseSearch, stringifySearch, validateSearch } from "../converter/SearchStringConverter";
 import { extractValueNodes } from "../../ui/datagrid/GridStateForm";
 import i18n from "../../i18n";
+import { Field } from "domainql-form";
 
 /**
  * Creates and registers the filter for pattern input.
@@ -18,7 +21,9 @@ import i18n from "../../i18n";
  */
 export function registerLikePatternFilter()
 {
-    registerCustomFilter("likePattern", (fieldName, val) => {
+    const NAME = "likePattern";
+
+    registerCustomFilter(NAME, (fieldName, val) => {
         if (val == null || val === "") {
             return null
         }
@@ -36,4 +41,20 @@ export function registerLikePatternFilter()
             }
         ];
     }, (fieldName) => field(fieldName).toString().likeRegex(value(null, "String")));
+
+    registerCustomFilterRenderer(NAME, (fieldName, fieldType, label) => {
+        if (!fieldType) {
+            const fieldSchemaType = config.inputSchema.resolveType(rootType, sourceName);
+            fieldType = getScalarType(fieldSchemaType);
+        }
+        return(
+            <Field
+                labelClass="sr-only"
+                label={ label }
+                name={fieldName}
+                type={ fieldType }
+                validate={ (ctx, value) => validateSearch(value) }
+            />
+        );
+    });
 }

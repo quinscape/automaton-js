@@ -1,5 +1,25 @@
 import config from "../../config";
 
+/**
+ * word  = (?:\!?(?:\*\s*)?[^*!&\/\s]+(?:\s*\*?\s*[^*!&\/\s]+)*(?:\s*\*)?)
+ * extra = (?:\s*[&\/]\s*${word})*
+ * regex = ^(?:${word}${extra})?$
+ */
+const VALID_FILTER_PATTERN = /^(?:(?:\!?(?:\*\s*)?[^*!&\/\s]+(?:\s*\*?\s*[^*!&\/\s]+)*(?:\s*\*)?)(?:\s*[&\/]\s*(?:\!?(?:\*\s*)?[^*!&\/\s]+(?:\s*\*?\s*[^*!&\/\s]+)*(?:\s*\*)?))*)?$/;
+
+/**
+ * Checks whether the entered String is a valid pattern
+ * 
+ * @param searchString {string} the search string to be validated
+ * @returns {null|string} null if is valid, "Not a valid pattern" otherwise
+ */
+export function validateSearch(searchString) {
+    if (!VALID_FILTER_PATTERN.test(searchString)) {
+        return "Not a valid pattern";
+    }
+    return null;
+}
+
 const REGEXP_ESCAPE = /[.+?^${}()|[\]\\]/g;
 const SUBSTI_ESCAPE = "\\$&";
 const REGEXP_UNESCAPE = /\\([.+?^${}()|[\]\\])/g;
