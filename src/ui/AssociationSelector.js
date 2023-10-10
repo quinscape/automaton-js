@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react"
 import PropTypes from "prop-types"
+import cx from "classnames"
 import { ButtonToolbar, ListGroup, ListGroupItem } from "reactstrap"
 import { FieldMode, FormGroup, useFormConfig, Icon } from "domainql-form"
 import { action } from "mobx";
@@ -472,7 +473,7 @@ const AssociationSelector = fnObserver(props => {
     }
 
     const effectiveMode = modeFromProps || formConfig.options.mode;
-    const isDisabled = typeof disabled === "function" ? disabled() : disabled;
+    const isDisabled = effectiveMode === FieldMode.DISABLED || effectiveMode === FieldMode.READ_ONLY || (typeof disabled === "function" ? disabled() : disabled);
 
     const fieldConfigButton = useMemo(() => {
         if (typeof onFieldConfigClick === "function") {
@@ -549,7 +550,7 @@ const AssociationSelector = fnObserver(props => {
                 <ButtonToolbar>
                     <button
                         type="Button"
-                        className="btn btn-light"
+                        className={cx("btn btn-light", effectiveMode === FieldMode.DISABLED && "disabled")}
                         onClick={ openModal }
                         disabled={isDisabled}
                         name={ name }
