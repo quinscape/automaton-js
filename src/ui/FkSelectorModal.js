@@ -104,7 +104,8 @@ const FkSelectorModal = fnObserver(
                             )
     
                             iQuery.updateCondition(
-                                composite
+                                composite,
+                                fkSelectorId
                             ).then(() => {
                                 if (cachedVars != null) {
                                     iQuery._query.vars = cachedVars;
@@ -206,6 +207,8 @@ const FkSelectorModal = fnObserver(
                                     paginationPageSizes={paginationPageSizes}
                                     isCompact
                                     markRow={markGridRow}
+                                    displayControlButtons={showColumnFilter}
+                                    customizeColumnsButtonDisabled={true}
                                 >
                                     <DataGrid.Column
                                         heading={ "Action" }
