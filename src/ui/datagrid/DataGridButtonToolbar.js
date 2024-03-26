@@ -38,32 +38,39 @@ const DataGridButtonToolbar = (props) => {
     return (
         <ButtonToolbar className="align-self-end mt-2">
             <ButtonGroup size="lg">
-                <Button
-                    id="startseitestammdaten_s7_filterzuruecksetzenzuletztbearbeiteteobjekte"
-                    name="filterZuruecksetzenZuletztBearbeiteteObjekte"
-                    className="btn btn-primary ml-2"
-                    text={i18n("resets filters")}
-                    tooltip={i18n("resets filters")}
-                    disabled={resetFilterButtonDisabled}
-                    type="reset"
-                    action={clearFilterState}
-                >
-                    {i18n("Reset Filters")}
-                </Button>
+                {
+                    !resetFilterButtonDisabled ? (
+                        <Button
+                            id="startseitestammdaten_s7_filterzuruecksetzenzuletztbearbeiteteobjekte"
+                            name="filterZuruecksetzenZuletztBearbeiteteObjekte"
+                            className="btn btn-primary ml-2"
+                            text={i18n("resets filters")}
+                            tooltip={i18n("resets filters")}
+                            type="reset"
+                            action={clearFilterState}
+                        >
+                            {i18n("Reset Filters")}
+                        </Button>
+                    ) : ""
+                }
 
-                <Button
-                    id="startseitestammdaten_s7_spaltenanpassenzuletztbearbeiteteobjekte"
-                    name="spaltenAnpassenZuletztBearbeiteteObjekte"
-                    className="btn btn-primary ml-2"
-                    text={i18n("customizes displayed columns")}
-                    tooltip={i18n("customizes displayed columns")}
-                    disabled={customizeColumnsButtonDisabled}
-                    action={(event) => {
-                        setIsColumnModalOpen(true);
-                    }}
-                >
-                    {i18n("Customize Columns")}
-                </Button>
+                {
+                    !customizeColumnsButtonDisabled ? (
+                        <Button
+                            id="startseitestammdaten_s7_spaltenanpassenzuletztbearbeiteteobjekte"
+                            name="spaltenAnpassenZuletztBearbeiteteObjekte"
+                            className="btn btn-primary ml-2"
+                            text={i18n("customizes displayed columns")}
+                            tooltip={i18n("customizes displayed columns")}
+                            action={(event) => {
+                                setIsColumnModalOpen(true);
+                            }}
+                        >
+                            {i18n("Customize Columns")}
+                        </Button>
+                    ) : ""
+                }
+                
             </ButtonGroup>
         </ButtonToolbar>
     )

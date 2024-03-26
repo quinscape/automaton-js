@@ -532,13 +532,14 @@ const FKSelector = fnObserver(props => {
                     const selectFromModal = () => {
 
                         // if we have an ambiguous match but are configured to show no search filter, we can still preselect the column filter if we have a simple search filter
-                        const shouldPreselectFilter = modalFilter !== NO_SEARCH_FILTER || typeof searchFilter === "string";
-                        let cond = isAmbiguousMatch && shouldPreselectFilter ? createSearchFilter(iQueryType, searchFilter, inputValue) : null
+                        const shouldPreselectColumnFilter = modalFilter && modalFilter !== NO_FILTER && searchFilter;
+                        const shouldPreselectSearchFilter = !shouldPreselectColumnFilter && modalFilter !== NO_SEARCH_FILTER && typeof searchFilter === "string";
+                        const columnFilterCond = shouldPreselectColumnFilter || shouldPreselectSearchFilter ? createSearchFilter(iQueryType, searchFilter, inputValue) : null
 
                         const composite = updateComponentCondition(
                             query.defaultVars && query.defaultVars.config && query.defaultVars.config.condition || component(fkSelectorId, null),
-                            cond,
-                            isAmbiguousMatch && modalFilter === NO_SEARCH_FILTER && shouldPreselectFilter ? "fk-selector-grid" : fkSelectorId
+                            columnFilterCond,
+                            shouldPreselectColumnFilter ? "fk-selector-grid" : shouldPreselectSearchFilter ? fkSelectorId : null
                         )
 
                         query.defaultVars.config = {
@@ -597,7 +598,7 @@ const FKSelector = fnObserver(props => {
                                             //      if we just had an ambiguous match, the modal can show us the matches
                                             //      for every other match outcome or other selection, we don't want a filter that is retricting the results
                                             //      to the current state
-                                            filter: isAmbiguousMatch && modalFilter !== NO_SEARCH_FILTER ? inputValue : "",
+                                            filter: shouldPreselectSearchFilter ? inputValue : "",
                                             isOpen: true
                                         });
 
