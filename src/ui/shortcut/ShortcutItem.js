@@ -6,7 +6,7 @@ import i18n from "../../i18n";
 import { WorkingSetStatus } from "../../WorkingSet";
 
 function isElementInSection(fieldEl, reference) {
-    if (fieldEl != null && !fieldEl.disabled) {
+    if (fieldEl != null) {
         if (fieldEl.dataset.section) {
             return fieldEl.dataset.section === reference;
         } else {
