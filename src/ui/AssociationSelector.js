@@ -556,7 +556,9 @@ const AssociationSelector = fnObserver(props => {
                         name={ name }
                     >
                         <Icon className="fa-clipboard-check mr-1"/>
-                        Select
+                        {
+                            i18n("Select")
+                        }
                     </button>
                 </ButtonToolbar>
             </FormGroup>
