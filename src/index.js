@@ -104,6 +104,8 @@ import useCounter from "./util/useCounter"
 import downloadURI from "./util/downloadURI"
 import createQuery from "./util/createQuery"
 
+import SearchQuery from "./util/SearchQuery"
+
 // noinspection JSUnusedGlobalSymbols
 export {
     config,
@@ -257,5 +259,7 @@ export {
     downloadURI,
 
     createQuery,
-    ConditionPointer
+    ConditionPointer,
+
+    SearchQuery
 }

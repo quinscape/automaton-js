@@ -70,6 +70,10 @@ export default function registerDateTimeConverters()
                 return "";
             }
 
+            if (scalar instanceof Date) {
+                scalar = DateTime.fromJSDate(scalar);
+            }
+
             const timestampFormat = (ctx && ctx.timestampFormat) || config.timestampFormat;
             return scalar.toFormat(timestampFormat);
         },
@@ -103,6 +107,10 @@ export default function registerDateTimeConverters()
             if (!scalar)
             {
                 return "";
+            }
+
+            if (scalar instanceof Date) {
+                scalar = DateTime.fromJSDate(scalar);
             }
 
             const dateFormat = (ctx && ctx.dateFormat) || config.dateFormat;
@@ -156,10 +164,18 @@ export default function registerDateTimeConverters()
             const dateFormat = ctx?.dateFormat ?? config.dateFormat;
 
             if (scalar[0] == null) {
+                if (scalar[1] instanceof Date) {
+                    scalar[1] = DateTime.fromJSDate(scalar[1]);
+                }
+
                 return scalar[1].toFormat(dateFormat);
             }
 
             if (scalar[1] == null || scalar[0].equals(scalar[1])) {
+                if (scalar[0] instanceof Date) {
+                    scalar[0] = DateTime.fromJSDate(scalar[0]);
+                }
+                
                 return scalar[0].toFormat(dateFormat);
             }
 
