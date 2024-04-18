@@ -5,23 +5,23 @@ const SearchQuery = Object.freeze({
         return JSON.stringify(value);
     },
     parse: (text) => {
-        return JSON.parse(text, (key, el) => {
-            if (el?.scalarType != null) {
-                switch (el.scalarType) {
+        return JSON.parse(text, (key, reviverValue) => {
+            if (reviverValue?.scalarType != null) {
+                switch (reviverValue.scalarType) {
                     case "Date":
                     case "Timestamp": return {
-                        scalarType: el.scalarType,
-                        type: el.type,
-                        value: DateTime.fromISO(value)
+                        scalarType: reviverValue.scalarType,
+                        type: reviverValue.type,
+                        value: DateTime.fromISO(reviverValue.value)
                     };
                     case "DateRange": return {
-                        scalarType: el.scalarType,
-                        type: el.type,
-                        value: value?.map(v => DateTime.fromISO(v)) ?? []
+                        scalarType: reviverValue.scalarType,
+                        type: reviverValue.type,
+                        value: reviverValue.value?.map(v => DateTime.fromISO(v)) ?? []
                     };
                 }
             }
-            return el;
+            return reviverValue;
         });
     }
 });
