@@ -5,7 +5,8 @@ import i18n from "../../../i18n";
 const IconCell = (props) => {
     const {
         flags,
-        valueToRenderDataMap
+        valueToRenderDataMap,
+        hideUnmappedFlags
     } = props;
 
     if (flags == null || flags.trim() === "") {
@@ -15,7 +16,15 @@ const IconCell = (props) => {
     const flagArray = flags.split(",").map(flag => flag.trim());
     const renderDataArray = [];
     for (const flag of flagArray) {
-        renderDataArray.push(valueToRenderDataMap.get(flag))
+        if (typeof flag === "string") {
+            const data = valueToRenderDataMap.get(flag);
+            if (data != null && typeof data.icon === "string" && data.icon !== "") {
+                const {icon, text = flag} = data;
+                renderDataArray.push({icon, text});
+            } else if (!hideUnmappedFlags) {
+                renderDataArray.push(flag);
+            }
+        }
     }
 
     let key = 0;
@@ -24,17 +33,17 @@ const IconCell = (props) => {
         <React.Fragment>
             {
                 renderDataArray.map(
-                    renderData => {
-                        const icon = renderData.icon ? (
-                            <span title={i18n(renderData.text)} key={key++}>
-                                <Icon
-                                    className={renderData.icon}
-                                />
-                            </span>
-                        ) : (<span key={key++} />);
-
-                        return icon;
-                    }
+                    renderData =>  renderData.icon ? (
+                        <span key={key++} title={i18n(renderData.text)}>
+                            <Icon
+                                className={renderData.icon}
+                            />
+                        </span>
+                    ) : (
+                        <span key={key++}>
+                            {renderData}
+                        </span>
+                    )
                 )
             }
         </React.Fragment>
