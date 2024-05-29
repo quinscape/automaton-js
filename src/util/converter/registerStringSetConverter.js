@@ -13,7 +13,7 @@ export default function registerStringSetConverter() {
             return i18n("Not an array of string");
         },
         (scalar) => {
-            return scalar.join(SEPARATOR);
+            return Array.isArray(scalar) ? scalar.join(SEPARATOR) : scalar;
         },
         (value) => {
             return typeof value === "string" ? value.split(SEPARATOR) : value;

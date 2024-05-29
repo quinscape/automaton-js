@@ -34,7 +34,7 @@ const IconCell = (props) => {
             {
                 renderDataArray.map(
                     renderData =>  renderData.icon ? (
-                        <span key={key++} title={i18n(renderData.text)}>
+                        <span key={key++} className="icon-cell" title={i18n(renderData.text)}>
                             <Icon
                                 className={renderData.icon}
                             />

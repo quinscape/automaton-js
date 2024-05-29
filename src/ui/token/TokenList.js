@@ -43,7 +43,7 @@ const TokenList = (props) => {
             className={cx("token-list-container", isCompact && "compact")}
         >
             <ul
-                className={cx("token-list list-group", isCompact && "border rounded-left")}
+                className={cx("token-list list-group", isCompact && "border")}
             >
                 {
                     isCompact && tokenList.length > 1 ?
