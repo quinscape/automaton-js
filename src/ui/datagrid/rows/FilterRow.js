@@ -63,15 +63,17 @@ const FilterRow = fnObserver(props => {
                             if (renderFilter)
                             {
                                 const resolvedFilterRenderer = getCustomFilterRenderer(renderFilter) ?? renderFilter;
-                                const customElem = resolvedFilterRenderer(fieldName, fieldType, label, i);
-                                filterElems.push(
-                                    React.cloneElement(
-                                        customElem,
-                                        {
-                                            key
-                                        }
-                                    )
-                                );
+                                if (typeof resolvedFilterRenderer === "function") {
+                                    const customElem = resolvedFilterRenderer(fieldName, fieldType, label, i);
+                                    filterElems.push(
+                                        React.cloneElement(
+                                            customElem,
+                                            {
+                                                key
+                                            }
+                                        )
+                                    );
+                                }
                             }
                             else if (fieldType === "Boolean")
                             {
