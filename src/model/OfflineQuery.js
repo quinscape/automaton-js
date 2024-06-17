@@ -131,10 +131,12 @@ export default class OfflineQuery
         if (value != null) {
             this.queryConfig = {...this.queryConfig, ...value};
         }
-        const {offset, pageSize, sortFields, condition} = this.queryConfig;
+        const {offset, pageSize, sortFields, condition, customSort} = this.queryConfig;
 
         const filteredRows = filterBy(this.data, condition);
-        const sortedRows = sortRowsByFields(filteredRows, sortFields);
+        const sortedRows = typeof customSort === "function"
+            ? customSort(filteredRows, sortFields)
+            : sortRowsByFields(filteredRows, sortFields);
         this.rowCount = sortedRows.length;
         this.rows = sortedRows.slice(offset, offset + pageSize);
     }
