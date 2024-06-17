@@ -70,7 +70,8 @@ export default class OfflineQuery
                 "condition": null,
                 "sortFields": [],
                 "id": null,
-                "offset": 0
+                "offset": 0,
+                "customSort": null
             };
             this.columnStates = [];
 
@@ -120,6 +121,13 @@ export default class OfflineQuery
      * iQuery.update({
      *     sortFields: [ "!name" ]
      * })
+     *
+     * // sort by custom sort function
+     * iQuery.update({
+     *      customSort: (rows, sortFields) => {
+     *          return rows.sort((row0, row1) => { <your implementation here> });
+     *      }
+     * })
      * ```
      *
      * @param {Object} queryConfig      query config structure (see de.quinscape.automaton.model.data.QueryConfig)
@@ -131,10 +139,12 @@ export default class OfflineQuery
         if (value != null) {
             this.queryConfig = {...this.queryConfig, ...value};
         }
-        const {offset, pageSize, sortFields, condition} = this.queryConfig;
+        const {offset, pageSize, sortFields, condition, customSort} = this.queryConfig;
 
         const filteredRows = filterBy(this.data, condition);
-        const sortedRows = sortRowsByFields(filteredRows, sortFields);
+        const sortedRows = typeof customSort === "function"
+            ? customSort(filteredRows, sortFields)
+            : sortRowsByFields(filteredRows, sortFields);
         this.rowCount = sortedRows.length;
         this.rows = sortedRows.slice(offset, offset + pageSize);
     }
