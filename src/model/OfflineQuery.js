@@ -70,7 +70,8 @@ export default class OfflineQuery
                 "condition": null,
                 "sortFields": [],
                 "id": null,
-                "offset": 0
+                "offset": 0,
+                "customSort": null
             };
             this.columnStates = [];
 
@@ -119,6 +120,13 @@ export default class OfflineQuery
      * // sorty by name descending
      * iQuery.update({
      *     sortFields: [ "!name" ]
+     * })
+     *
+     * // sort by custom sort function
+     * iQuery.update({
+     *      customSort: (rows, sortFields) => {
+     *          return rows.sort((row0, row1) => { <your implementation here> });
+     *      }
      * })
      * ```
      *
