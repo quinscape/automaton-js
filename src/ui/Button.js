@@ -113,16 +113,13 @@ const Button = props => {
 
     const isDisabled = () =>
     {
-
-        let isDisabled = false;
-
         if (typeof disabled === "function")
         {
-            isDisabled = disabled(formConfig);
+            return disabled(formConfig);
         }
 
         // if the `transition` prop is defined ..
-        if (!isDisabled && transition)
+        if (transition)
         {
             const entry = env.process.getTransition(transition);
             if (!entry)
@@ -131,10 +128,10 @@ const Button = props => {
             }
 
             // .. and we're not discarding and we have errors, then disable button
-            isDisabled = !entry.discard && (formConfig.hasErrors() || (formConfig.ctx && !formConfig.root));
+            return !entry.discard && (formConfig.hasErrors() || (formConfig.ctx && !formConfig.root));
         }
 
-        return isDisabled;
+        return false;
     };
 
 
