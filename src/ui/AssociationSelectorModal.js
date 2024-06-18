@@ -188,7 +188,7 @@ const AssociationSelectorModal = fnObserver(props => {
                                 isCompact
                             >
                                 <DataGrid.Column
-                                    heading={ "Selection" }
+                                    heading={ i18n("Selection") }
                                 >
                                     {
                                         entity => (

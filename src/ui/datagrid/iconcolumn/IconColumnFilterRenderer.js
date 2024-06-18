@@ -1,6 +1,6 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 
-import {Addon, Field, FieldMode, FormGroup, Icon, unwrapType} from "domainql-form";
+import {Addon, Field, FormGroup, Icon, unwrapType, InputSchema} from "domainql-form";
 import i18n from "../../../i18n";
 import TokenList from "../../token/TokenList";
 import SelectionTreeModal from "../../treeselection/SelectionTreeModal";
@@ -21,8 +21,6 @@ const IconColumnFilterRenderer = (props) => {
         setSelectionModalOpen(!isSelectionModalOpen);
     }
 
-    const [selectedObjects, setSelectedObjects] = useState([]);
-
     return (
         <Field
             {... fieldProps}
@@ -31,19 +29,52 @@ const IconColumnFilterRenderer = (props) => {
         >
             {
                 (formConfig, fieldContext) => {
-                    const { fieldType, mode, fieldId, inputClass, tooltip, path, qualifiedName, placeholder, addons } = fieldContext;
+                    const { qualifiedName } = fieldContext;
+
+                    const errorMessages = formConfig.getErrors(qualifiedName);
+                    const haveErrors = errorMessages.length > 0;
+
+                    const getSelectedObjects = () => {
+                        let currentFieldValue;
+                        const scalarType = unwrapType(fieldContext.fieldType).name;
+                
+                        currentFieldValue = Field.getValue(formConfig, fieldContext, errorMessages);
+                        currentFieldValue = currentFieldValue !== null ? InputSchema.scalarToValue(scalarType, currentFieldValue) : "";
+                
+                        if (typeof currentFieldValue !== "string" || currentFieldValue === "") {
+                            return [];
+                        }
+                        return currentFieldValue.split(" & ");
+                    };
+                
+                    const [selectedObjects, setSelectedObjects] = useState(getSelectedObjects());
+                
+                    const fieldValue = Field.getValue(formConfig, fieldContext, errorMessages);
+                    useEffect(
+                        () => {
+                            if (!haveErrors)
+                            {
+                                const currentFieldValue = getSelectedObjects();
+                                if (currentFieldValue.sort().toString() !== selectedObjects.sort().toString())
+                                {
+                                    setSelectedObjects(currentFieldValue);
+                                }
+                            }
+                        },
+                        [fieldValue]
+                    );
 
                     const setNewSelectedObjects = (newSelectedObjects) => {
                         setSelectedObjects(newSelectedObjects);
 
-                        formConfig.handleChange(fieldContext, newSelectedObjects);
+                        formConfig.handleChange(fieldContext, newSelectedObjects.join(" & "));
                         autoSubmitHack(formConfig);
                     }
 
                     const renderFlags = (value, showTextIfIconAvailable) => {
                         const flagData = flagDataMap.get(value);
                         if (value != null) {
-                            const icon = flagData.icon ? (
+                            const icon = flagData?.icon ? (
                                 <Icon
                                     className={flagData.icon}
                                 />
@@ -72,8 +103,6 @@ const IconColumnFilterRenderer = (props) => {
                             return value;
                         }
                     }
-
-                    const errorMessages = formConfig.getErrors(qualifiedName);
 
                     const fieldElement = Addon.renderWithAddons(
                         <TokenList
