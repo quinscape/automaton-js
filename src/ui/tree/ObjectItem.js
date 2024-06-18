@@ -41,14 +41,11 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
             ref={ ref }
             selectionId={ selectionId }
         >
-            {
-                hasKids && (
-                    <CaretButton
-                        open={open}
-                        onClick={ toggle }
-                    />
-                )
-            }
+            <CaretButton
+                open={open}
+                onClick={ toggle }
+                invisible={!hasKids}
+            />
             <div className="wrapper">
                 <div className={ cx("header", isSelected && "focus") }>
                     <button
