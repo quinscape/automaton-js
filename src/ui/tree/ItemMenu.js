@@ -95,7 +95,7 @@ const ItemMenu = React.forwardRef(({style,placement,actions,scheduleUpdate,row, 
             role="menu"
         >
             {
-                actions.map(({label, action, disabled},idx) => (
+                actions.map(({label, action, disabled, withSeparator, visible},idx) => (
                     <ItemMenuButton
                         key={ idx }
                         idx={ idx }
@@ -108,6 +108,8 @@ const ItemMenu = React.forwardRef(({style,placement,actions,scheduleUpdate,row, 
                                 action(row);
                             }
                         }
+                        withSeparator={ withSeparator }
+                        visible={ visible }
                     />
                 ))
             }
