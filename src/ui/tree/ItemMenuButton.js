@@ -18,6 +18,8 @@ const ItemMenuButton = ({idx, row, label, disabled, onClick,withSeparator,visibl
             } else {
                 setDisabled(result);
             }
+        }else if (typeof disabled === "boolean") {
+            setDisabled(disabled);
         }
 
         return () => {
@@ -27,7 +29,6 @@ const ItemMenuButton = ({idx, row, label, disabled, onClick,withSeparator,visibl
 
     useEffect(() => {
         let isRunning = true;
-
         if (typeof visible === "function") {
             const result = visible(row);
             if (result instanceof Promise) {
@@ -39,6 +40,9 @@ const ItemMenuButton = ({idx, row, label, disabled, onClick,withSeparator,visibl
             } else {
                 setVisible(result);
             }
+
+        }else if (typeof visible === "boolean") {
+            setVisible(visible);
         }else {
             setVisible(true);
         }
