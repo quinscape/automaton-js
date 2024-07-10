@@ -63,27 +63,29 @@ const ShortcutItem = fnObserver(({
     }, [depError]);
 
     function updateChanges() {
-        const registrations = workingSetFromProps.registrations;
-        let count = 0;
-        for (const registration of registrations) {
-            if (registration.status !== WorkingSetStatus.REGISTERED
-            && (registration.status !== WorkingSetStatus.MODIFIED || registration.changes.size > 0)) {
-                const typeName = registration.typeName;
-                const rootId = registration.id;
-                const rowEl = document.querySelector(`tr[data-domain-id="${typeName}"] tr[data-domain-id="${rootId}"]`);
-                if (isElementInSection(rowEl, reference)) {
-                    count++;
-                } else {
-                    for (const [path] of registration.changes) {
-                        const fieldEl = document.querySelector(`form[data-domain-id="${rootId}"] [name="${path}"]`);
-                        if (isElementInSection(fieldEl, reference)) {
-                            count++;
+        setTimeout(() => {
+            const registrations = workingSetFromProps.registrations;
+            let count = 0;
+            for (const registration of registrations) {
+                if (registration.status !== WorkingSetStatus.REGISTERED
+                && (registration.status !== WorkingSetStatus.MODIFIED || registration.changes.size > 0)) {
+                    const typeName = registration.typeName;
+                    const rootId = registration.id;
+                    const rowEl = document.querySelector(`table[name="${typeName}"] tr[data-domain-id="${rootId}"]`);
+                    if (isElementInSection(rowEl, reference)) {
+                        count++;
+                    } else {
+                        for (const [path] of registration.changes) {
+                            const fieldEl = document.querySelector(`form[data-domain-id="${rootId}"] [name="${path}"]`);
+                            if (isElementInSection(fieldEl, reference)) {
+                                count++;
+                            }
                         }
                     }
                 }
             }
-        }
-        setChangesCount(count);
+            setChangesCount(count);
+        }, 0);
     }
 
     useEffect(() => {
