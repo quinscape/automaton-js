@@ -15,12 +15,21 @@ import i18n from "../../i18n"
 import { lookupType, unwrapNonNull } from "../../util/type-utils"
 import ConditionEditorState from "./ConditionEditorState"
 
+const translate = value => ({value, name: i18n(value)});
 
-const CONDITION_NAMES = [ ... Object.keys(FIELD_CONDITIONS)];
-const OPERATION_NAMES = [ ... Object.keys(FIELD_OPERATIONS)];
+const sortByName = (a, b) => {
+    const nameA = a?.name?.toUpperCase();
+    const nameB = b?.name?.toUpperCase();
+    if (nameA < nameB) {
+        return -1;
+    }
+    if (nameA > nameB) {
+        return 1;
+    }
+    return 0;
+}
 
-CONDITION_NAMES.sort();
-OPERATION_NAMES.sort();
+
 
 
 function determineType(editorState, operands)
@@ -149,6 +158,14 @@ const ConditionSelect = observer(function ConditionSelect({pointer, condition, e
     }
 
     const nodeId = ConditionEditorState.getNodeId(condition);
+
+    const CONDITION_NAMES = [ ... Object.keys(FIELD_CONDITIONS)]
+        .map(translate)
+        .sort(sortByName);
+
+    const OPERATION_NAMES = [ ... Object.keys(FIELD_OPERATIONS)]
+        .map(translate)
+        .sort(sortByName);
 
     return (
         <Select
