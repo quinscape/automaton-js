@@ -414,7 +414,7 @@ export function renderLayoutNodes(layoutNode, nodes, decorations, conditionRoot,
             >
                  <span>
                     {
-                        ( condition.name || "component" )
+                        ( i18n(condition.name) || "component" )
                     }
                     {
                         condition.operands.every(o => isStructuralCondition(o)) && condition.name !== "not" && (

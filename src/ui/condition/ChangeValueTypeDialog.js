@@ -330,7 +330,7 @@ const ChangeValueTypeDialog = observer(function ChangeValueTypeDialog({condition
                                className="btn btn-secondary"
                                onClick={ closeComputedValueDialog }
                                >
-                               Close
+                               {i18n("Close")}
                            </button>
                        </ButtonToolbar>
                    </Col>
