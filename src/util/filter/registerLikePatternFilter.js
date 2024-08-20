@@ -28,8 +28,8 @@ export function registerLikePatternFilter()
             return null
         }
         const stringValue = val.toString();
-        const regExpString = parseSearch(stringValue);
-        return field(fieldName).toString().likeRegex(value(regExpString, "String"));
+        const regExpString = parseSearch(stringValue.toLowerCase());
+        return field(fieldName).toString().lower().likeRegex(value(regExpString, "String"));
     }, (column, columnCondition) => {
         const valueNodes = extractValueNodes(columnCondition);
         const regExpString = valueNodes?.[0]?.value;
