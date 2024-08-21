@@ -40,7 +40,7 @@ export function registerLikePatternFilter()
                 value: stringifySearch(regExpString)
             }
         ];
-    }, (fieldName) => field(fieldName).toString().likeRegex(value(null, "String")));
+    }, (fieldName) => field(fieldName).toString().lower().likeRegex(value(null, "String")));
 
     registerCustomFilterRenderer(NAME, (fieldName, fieldType, label) => {
         if (!fieldType) {
