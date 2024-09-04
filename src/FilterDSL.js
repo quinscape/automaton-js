@@ -511,12 +511,19 @@ export function isComposedComponentExpression(node)
  */
 export function findComponentNode(conditionNode, id)
 {
+    if (conditionNode == null)
+    {
+        return null;
+    }
     if (conditionNode.type === Type.COMPONENT)
     {
-        return conditionNode.id === id ? conditionNode : null;
+        if (conditionNode.id === id) {
+            return conditionNode;
+        }
+        return findComponentNode(conditionNode.condition, id);
     }
 
-    if (isComposedComponentExpression(conditionNode))
+    if (isLogicalCondition(conditionNode))
     {
         const { operands } = conditionNode;
 
@@ -525,9 +532,9 @@ export function findComponentNode(conditionNode, id)
             for (let i = 0; i < operands.length; i++)
             {
                 const operand = operands[i];
-                if (operand.type === Type.COMPONENT && operand.id === id)
-                {
-                    return operand;
+                const currentResult = findComponentNode(operand, id);
+                if (currentResult != null) {
+                    return currentResult;
                 }
             }
         }

@@ -1,4 +1,4 @@
-import { component, and, condition, isLogicalCondition, Type, isComposedComponentExpression } from "../FilterDSL";
+import { component, and, condition, findComponentNode, Type, isComposedComponentExpression } from "../FilterDSL";
 import compareConditions from "./compareConditions";
 
 
@@ -85,106 +85,112 @@ export default function updateComponentCondition(
     componentCondition,
     componentId = null,
     compareUpdate = true
-)
-{
-    const newComponentNode = component(componentId);
-    newComponentNode.condition = componentCondition;
+) {
+    const newComponentNode = wrapConditionIntoComponent(componentCondition, componentId);
 
-    let newCondition;
-    if (compositeCondition == null)
-    {
-        newCondition = componentId ? newComponentNode : componentCondition;
+    if (compositeCondition == null) {
+        return newComponentNode;
     }
-    else
-    {
-        if (compositeCondition.type === Type.COMPONENT)
-        {
-            const result = processComponentCondition(compositeCondition, compositeCondition, newComponentNode, compareUpdate);
+    
+    const targetNode = findComponentNode(compositeCondition, componentId);
 
-            if (result === UNCHANGED)
-            {
-                // we found the component with our id, but it's the exact same component expression, so we just
-                // return the original condition instance
-                return compositeCondition;
-            }
-            else if (result === CHANGED)
-            {
-                // the id matched and the condition actually changed
-                return newComponentNode;
-            }
-            else
-            {
-                // id did not match, we join both conditions to a new composite condition
-                newCondition = condition("and");
-                newCondition.operands = [ compositeCondition, newComponentNode ];
+    if (targetNode == null) {
+        const newCondition = condition("and");
+        newCondition.operands = [ compositeCondition, newComponentNode ];
+        return newCondition;
+    }
 
-                return newCondition;
-            }
+    const result = processComponentCondition(compositeCondition, targetNode, newComponentNode, compareUpdate);
+    if (result === UNCHANGED) {
+        // we found the component with our id, but it's the exact same component expression, so we just
+        // return the original condition instance
+        return compositeCondition;
+    }
 
+    return updateComponentConditionRecursive(
+        compositeCondition,
+        newComponentNode,
+        componentId,
+        compareUpdate
+    );
+}
+
+function updateComponentConditionRecursive(
+    compositeCondition,
+    componentCondition,
+    componentId = null,
+    compareUpdate = true
+) {
+    
+    if (
+        compositeCondition.type === Type.FIELD ||
+        compositeCondition.type === Type.VALUE ||
+        compositeCondition.type === Type.VALUES
+    ) {
+        return compositeCondition;
+    }
+
+    if (compositeCondition.type === Type.COMPONENT) {
+        if (compositeCondition.id === componentId) {
+            return componentCondition;
         }
-        else
-        {
-            const isComplexComponentLogical = isComposedComponentExpression(compositeCondition);
 
-            if (!isComplexComponentLogical)
-            {
-                if (!componentId)
-                {
-                    return componentCondition;
-                }
-                else
-                {
-                    return and(
-                        component(null, compositeCondition),
-                        newComponentNode
-                    );
-                }
-
-            }
-
+        if (compositeCondition.condition == null) {
+            return compositeCondition;
         }
-        const componentConditions = [];
 
-        const {operands} = compositeCondition;
+        const updatedCondition = updateComponentConditionRecursive(
+            compositeCondition.condition,
+            componentCondition,
+            componentId,
+            compareUpdate
+        );
+        return wrapConditionIntoComponent(updatedCondition, compositeCondition.id);
+    }
 
-        let found = false;
-        for (let i = 0; i < operands.length; i++)
-        {
-            const existingNode = operands[i];
+    const oldOperands = [...compositeCondition.operands];
+    const newOperands = [];
 
-            const result = processComponentCondition(compositeCondition, existingNode, newComponentNode, compareUpdate);
+    while (oldOperands.length) {
+        const existingNode = oldOperands.shift();
 
-            if (result === UNCHANGED)
-            {
-                // we found the component with our id, but it's the exact same component expression, so we just
-                // return the original condition instance
-                return compositeCondition;
-            }
-            else if (result === CHANGED)
-            {
-                componentConditions.push(
-                    newComponentNode
-                );
-                found = true;
-            }
-            else
-            {
-                componentConditions.push(
-                    existingNode
-                );
+        if (existingNode.type === Type.COMPONENT) {
+            if (existingNode.id === componentId) {
+                newOperands.push(componentCondition);
+                break;
             }
         }
 
-        if (!found)
-        {
-            componentConditions.push(
-                newComponentNode
-            );
-        }
+        const updatedCondition = updateComponentConditionRecursive(
+            existingNode,
+            componentCondition,
+            componentId,
+            compareUpdate
+        );
+        newOperands.push(updatedCondition);
         
-        newCondition = condition(compositeCondition.name);
-        newCondition.operands = componentConditions;
     }
+    
+    const newCondition = condition(compositeCondition.name);
+    newCondition.operands = [
+        ...newOperands,
+        ...oldOperands
+    ];
 
     return newCondition;
+}
+
+function wrapConditionIntoComponent(componentCondition, componentId) {
+    if (componentId == null ||
+        (
+            componentCondition != null &&
+            componentCondition.type === Type.COMPONENT &&
+            componentCondition.id === componentId
+        )
+    ) {
+        return componentCondition;
+    }
+    const newComponentNode = component(componentId);
+    newComponentNode.condition = componentCondition;
+    return newComponentNode;
 }
