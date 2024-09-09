@@ -2,6 +2,7 @@ import React, { useContext } from "react"
 import { observer as fnObserver } from "mobx-react-lite"
 import { Select, Field } from "domainql-form"
 import i18n from "../../../i18n"
+import I18nTranslation from "../../I18nTranslation";
 import { FilterContext } from "../GridStateForm";
 import DateRangeField from "../../form/date/DateRangeField";
 import {getCustomFilterRenderer} from "../../../util/filter/CustomFilterRenderer";
@@ -9,14 +10,30 @@ import PropTypes from "prop-types";
 
 const BOOLEAN_VALUES = [
     {
-        name : i18n("Boolean:False"),
+        name : "Boolean:False",
         value: false
     },
     {
-        name : i18n("Boolean:True"),
+        name : "Boolean:True",
         value: true
     }
-];
+].map(({name, value}) => {
+    return (
+        <I18nTranslation
+            value={name}
+            renderer={(translation) => (
+                <option
+                    key={value}
+                    value={value}
+                >
+                    {
+                        translation
+                    }
+                </option>
+            )
+        } />
+    );
+});
 
 const FilterRow = fnObserver(props => {
 
