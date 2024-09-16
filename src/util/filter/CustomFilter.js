@@ -10,7 +10,7 @@ let getTemplate = {};
  * @param {any} val the value to use in the config
  * @returns the resulting filter config or null
  */
-export function createCustomFilter(name, fieldName, val) {
+export function buildCustomFilter(name, fieldName, val) {
     const filter = getCustomFilter(name);
     if (filter != null) {
         return filter(fieldName, val);
