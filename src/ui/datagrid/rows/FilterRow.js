@@ -20,7 +20,9 @@ const BOOLEAN_VALUES = [
 ].map(({name, value}) => {
     return (
         <I18nTranslation
+            key={value}
             value={name}
+            selectValue={value}
             renderer={(translation) => (
                 <option
                     key={value}
@@ -100,6 +102,7 @@ const FilterRow = fnObserver(props => {
                                         labelClass="sr-only"
                                         label={ label }
                                         name={ fieldName }
+                                        valueProperty="selectValue"
                                         values={ BOOLEAN_VALUES }
                                         type={ fieldType }
                                     />
