@@ -79,7 +79,7 @@ import decompileFilter from "./util/decompileFilter"
 
 import { registerCustomDependencyResolver } from "./util/dependencyUtilities";
 
-import { registerCustomFilter } from "./util/filter/CustomFilter"
+import { registerCustomFilter, buildCustomFilter } from "./util/filter/CustomFilter"
 import { registerCustomFilterRenderer } from "./util/filter/CustomFilterRenderer"
 import { registerFKSelectorFilterAndRenderer } from "./util/filter/registerFKSelectorFilter"
 import { registerIconColumnFilterAndRenderer } from "./util/filter/registerIconColumnFilterAndRenderer"
@@ -233,6 +233,7 @@ export {
     registerCustomFilterRenderer,
     registerFKSelectorFilterAndRenderer,
     registerIconColumnFilterAndRenderer,
+    buildCustomFilter,
     CollapsiblePanel,
 
     UserColumnConfigDialogModal,

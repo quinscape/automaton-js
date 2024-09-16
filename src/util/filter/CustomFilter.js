@@ -3,6 +3,22 @@ let getValue = {};
 let getTemplate = {};
 
 /**
+ * Creates a filter based on the registered custom filter config
+ * 
+ * @param {String} name the name of the custom filter
+ * @param {String} fieldName the field name to use in the config
+ * @param {any} val the value to use in the config
+ * @returns the resulting filter config or null
+ */
+export function createCustomFilter(name, fieldName, val) {
+    const filter = getCustomFilter(name);
+    if (filter != null) {
+        return filter(fieldName, val);
+    }
+    return null;
+}
+
+/**
  * Returns a stored filter function by alias
  *
  * @param {String} name filter alias
