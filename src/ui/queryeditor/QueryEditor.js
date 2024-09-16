@@ -147,6 +147,7 @@ const QueryEditor = (props) => {
                 </div>
                 <div className="card-body border-top">
                     <ConditionEditor
+                        key={editorState.rootType}
                         rootType={editorState.rootType}
                         pointer={ ConditionPointer.createBasePointer(editorState.container, queryConditionPath)}
                         valueRenderer={columnNameRenderer}
