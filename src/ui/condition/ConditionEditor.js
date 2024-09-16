@@ -1,6 +1,6 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react"
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import cx from "classnames"
-import { observer, useLocalObservable } from "mobx-react-lite"
+import { observer } from "mobx-react-lite"
 import get from "lodash.get"
 
 import { COMPUTED_VALUE_TYPE, field, toJSON, Type, value as dslValue } from "../../FilterDSL"
@@ -146,9 +146,11 @@ const ConditionEditor = observer(function ConditionEditor(props) {
 
     const condition = pointer.getValue();
 
-    const editorState = useLocalObservable(
-        () => new ConditionEditorState(rootType, pointer, opts)
-    );
+    const [editorState, setEditorState] = useState(new ConditionEditorState(rootType, pointer, opts));
+
+    useEffect(() => {
+        setEditorState(new ConditionEditorState(rootType, pointer, opts));
+    }, [rootType, opts, pointer]);
 
     useEffect(() => {
         editorState.replaceCondition(queryConditionFromProps);
