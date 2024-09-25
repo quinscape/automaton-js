@@ -1,4 +1,4 @@
-import { component, and, condition, findComponentNode, Type, isComposedComponentExpression } from "../FilterDSL";
+import { component, and, condition, findComponentNode, Type, isComposedComponentExpression, operation } from "../FilterDSL";
 import compareConditions from "./compareConditions";
 
 
@@ -171,13 +171,22 @@ function updateComponentConditionRecursive(
         
     }
     
+    if (compositeCondition.type === Type.OPERATION) {
+        const newOperation = operation(compositeCondition.name);
+        newOperation.operands = [
+            ...newOperands,
+            ...oldOperands
+        ];
+        return newOperation;
+    }
+
     const newCondition = condition(compositeCondition.name);
     newCondition.operands = [
         ...newOperands,
         ...oldOperands
     ];
-
     return newCondition;
+
 }
 
 function wrapConditionIntoComponent(componentCondition, componentId) {
