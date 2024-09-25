@@ -70,7 +70,7 @@ const Objects = fnObserver(({render, values, actions, children}) => {
             {
                 rows.map((row,idx) => (
                     <ObjectItem
-                        key={ idx }
+                        key={ row.id ?? idx }
                         index={ idx }
                         render={ render }
                         actions={actions }

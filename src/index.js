@@ -105,6 +105,7 @@ import downloadURI from "./util/downloadURI"
 import createQuery from "./util/createQuery"
 
 import SearchQuery from "./util/SearchQuery"
+import TreeContentContext, { TreeContentContextState } from "./ui/tree/TreeContentContext";
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -262,5 +263,8 @@ export {
     createQuery,
     ConditionPointer,
 
-    SearchQuery
+    SearchQuery,
+
+    TreeContentContextState,
+    TreeContentContext
 }

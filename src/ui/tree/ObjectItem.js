@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useRef, useState } from "react"
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react"
 import { observer as fnObserver } from "mobx-react-lite"
 
 import { nextSelectionId, TreeContext } from "./Tree";
@@ -6,6 +6,7 @@ import TreeItem from "./TreeItem";
 import cx from "classnames";
 import CaretButton from "./CaretButton";
 import ItemMenuWrapper from "./ItemMenuWrapper";
+import TreeContentContext from "./TreeContentContext";
 
 
 /**
@@ -22,6 +23,15 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
     const selectionId = useMemo( nextSelectionId, []);
 
     const ctx = useContext( TreeContext );
+    const rowsContext = useContext( TreeContentContext );
+
+    const rowId = rowsContext.generateRowId(row);
+
+    useEffect(() => {
+        rowsContext.setRow(row, rowId);
+    }, [row]);
+
+    const rowData = rowsContext.rows[rowId] ?? row;
 
     const hasKids = typeof renderKid === "function";
 
@@ -46,7 +56,7 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
                 onClick={ toggle }
                 invisible={!hasKids}
             />
-            <div className="wrapper">
+            <div className="wrapper" data-id={ rowId }>
                 <div className={ cx("header", isSelected && "focus") }>
                     <button
                         type="button"
@@ -62,7 +72,7 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
                                 else
                                 {
                                     ctx.select(selectionId);
-                                    actions[0].action(row);
+                                    actions[0].action(rowData);
                                 }
                             }
                         }
@@ -74,7 +84,7 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
                         }
                     >
                         {
-                            render(row, isSelected)
+                            render(rowData, isSelected)
                         }
                     </button>
                 </div>
@@ -83,7 +93,7 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
                         <ItemMenuWrapper
                             ctx={ctx}
                             selectionId={selectionId}
-                            row={row}
+                            row={rowData}
                             actions={actions}
                         />
                     )
@@ -92,7 +102,7 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
                     hasKids && open && (
                         <ul role="group">
                             {
-                                renderKid(row)
+                                renderKid(rowData)
                             }
                         </ul>
                     )

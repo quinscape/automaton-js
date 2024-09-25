@@ -455,7 +455,7 @@ const IndexedObjects = fnObserver(({
 
                         return (
                             <IndexItem
-                                key={ idx }
+                                key={ letter }
                                 letter={ letter }
                                 open={ state[letter].open }
                                 setOpen={ open => toggleGroup(open, letter) }
@@ -468,7 +468,7 @@ const IndexedObjects = fnObserver(({
                                 {
                                     rowsForLetter.map((row, idx) => (
                                         <ObjectItem
-                                            key={ idx }
+                                            key={ row.id ?? idx }
                                             index={ count++ }
                                             render={ render }
                                             actions={ actions }

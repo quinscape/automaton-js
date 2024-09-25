@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useReducer, useRef, useState} from "react"
+import React, {useContext, useEffect, useMemo, useReducer, useRef, useState} from "react"
 import PropTypes from "prop-types"
 import { Manager } from "react-popper";
 import { action } from "mobx";
@@ -10,6 +10,7 @@ import MetaItem from "./MetaItem";
 import ObjectItem from "./ObjectItem";
 import TreeItem from "./TreeItem";
 import TreeNode from "./TreeNode";
+import TreeContentContext, { TreeContentContextState } from "./TreeContentContext";
 
 
 export const TreeContext = React.createContext({
@@ -193,6 +194,7 @@ const Tree = (props) => {
         options,
         selectedElements,
         onSelectedElementsChange,
+        rowsCtx,
         children
     } = props;
 
@@ -202,6 +204,13 @@ const Tree = (props) => {
     const [state, dispatch] = useReducer(reducer, DEFAULT_STATE);
 
     const [selectionList, setSelectionList] = useState(selectedElements);
+
+    const internalRowsCtx = useMemo(() => {
+        if (rowsCtx == null) {
+            return new TreeContentContextState();
+        }
+        return rowsCtx;
+    }, [rowsCtx]);
 
     /** Memoized Tree ctx */
     const ctx = useMemo(
@@ -303,7 +312,7 @@ const Tree = (props) => {
                         const firstId = firstItem.dataset.sel;
                         ctx.select(firstId);
                     }
-                }
+                },
 
 
             }),
@@ -458,7 +467,9 @@ const Tree = (props) => {
                 onKeyDownCapture={ onKeyDown }
             >
                 <TreeContext.Provider value={ ctx }>
-                    { children }
+                    <TreeContentContext.Provider value={internalRowsCtx}>
+                        { children }
+                    </TreeContentContext.Provider>
                 </TreeContext.Provider>
             </ul>
         </Manager>
@@ -498,12 +509,15 @@ Tree.propTypes = {
     /**
      * callback function called on selected element changes
      */
-    onSelectedElementsChange: PropTypes.func
+    onSelectedElementsChange: PropTypes.func,
+
+    rowsCtx: PropTypes.instanceOf(TreeContentContextState)
 };
 
 Tree.displayName = "Tree";
 
 Tree.Context = TreeContext;
+Tree.TreeRowsContext = TreeContentContext;
 Tree.Objects = Objects;
 Tree.Folder = Folder;
 Tree.IndexedObjects = IndexedObjects;
