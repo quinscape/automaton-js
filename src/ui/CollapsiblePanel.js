@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import { Icon } from "domainql-form";
@@ -11,6 +11,7 @@ const CollapsiblePanel = ({
     header,
     hideHeader,
     collapsed,
+    pinButton,
     children
 }) => {
     const [expanded, setExpanded] = useState(!collapsed);
@@ -40,6 +41,9 @@ const CollapsiblePanel = ({
                     children
                 }
             </CardBody>
+            {
+                pinButton ?? ""
+            }
         </Card>
     )
 }
@@ -55,7 +59,11 @@ CollapsiblePanel.propTypes = {
     /**
      * defines if the panel is initially collapsed or expanded
      */
-    collapsed: PropTypes.bool
+    collapsed: PropTypes.bool,
+    /**
+     * the pin button to render on the right side of the header
+     */
+    pinButton: PropTypes.element
 }
 
 export default CollapsiblePanel;
