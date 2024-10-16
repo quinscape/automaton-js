@@ -1,15 +1,15 @@
-import React, { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import cx from "classnames";
-import { FormContext } from "domainql-form";
+import { FormContext, Icon } from "domainql-form";
 import {Card, CardBody, CardHeader} from "reactstrap";
 import PropTypes from "prop-types";
 import { observer as fnObserver } from "mobx-react-lite"
-
+import i18n from "../../i18n";
 import useAutomatonEnv from "../../useAutomatonEnv";
-import config from "../../config";
 import ShortcutContext from "./ShortcutContext";
 import CollapsiblePanel from "../CollapsiblePanel";
 import StickySizesContext from "../sticky/StickySizesContext";
+import useEffectNoInitial from "../../util/useEffectNoInitial";
 
 /**
  * Create a form section
@@ -25,6 +25,9 @@ const Section = fnObserver(({
     hideHeader,
     collapsible,
     initiallyCollapsed,
+    pinnable,
+    initiallyPinned,
+    onPinnedStatusChange,
     children
 }) => {
 
@@ -40,18 +43,41 @@ const Section = fnObserver(({
         }
     }, [env.process.id]);
 
+    const [isPinned, setIsPinned] = useState(!!initiallyPinned);
+
     const headerContent = typeof headingRenderer == "function" ? headingRenderer(heading) : (
         typeof headingRenderer == "string" ? headingRenderer : (
             <h2>{ heading }</h2>
         )
     );
+
+    const pinButton = pinnable ? (
+        <button
+            type="button"
+            className={ cx("btn", "btn-outline-primary", "pin-button") }
+            onClick={() => {
+                setIsPinned(!isPinned);
+            }}
+            title={isPinned ? i18n("Unpin Panel") : i18n("Pin Panel")}
+        >
+            <Icon className={isPinned ? "fa-lock" : "fa-lock-open"} />
+        </button>
+    ) : null;
+
+    useEffectNoInitial(() => {
+        if (typeof onPinnedStatusChange === "function") {
+            onPinnedStatusChange(isPinned);
+        }
+    }, [
+        isPinned
+    ]);
     
     return (
-        <div style={ {position: "relative"} }>
+        <div className={cx("section-container", isPinned && "section-sticky")} style={ isPinned ? {top: stickySizes.headerHeight} : {} }>
             <div id={ id } style={ {position: "absolute", pointerEvents: "none", top: -stickySizes.headerHeight} } />
             {
                 collapsible ? (
-                    <CollapsiblePanel header={headerContent} hideHeader={hideHeader} collapsed={initiallyCollapsed}>
+                    <CollapsiblePanel header={headerContent} hideHeader={hideHeader} collapsed={initiallyCollapsed} pinButton={pinButton}>
                         {
                             children
                         }
@@ -72,6 +98,9 @@ const Section = fnObserver(({
                                 children
                             }
                         </CardBody>
+                        {
+                            pinButton
+                        }
                     </Card>
                 )
             }
@@ -110,6 +139,7 @@ Section.propTypes = {
     hideHeader: PropTypes.bool,
     /**
      * the used FormContext
+     * 
      * defaults to the default FormContext
      */
     formContext: PropTypes.instanceOf(FormContext),
@@ -119,9 +149,26 @@ Section.propTypes = {
     collapsible: PropTypes.bool,
     /**
      * if the section is collapsible, defines if it is initially collapsed or not
+     * 
      * has no effect if the section is not collapsible
      */
-    initiallyCollapsed: PropTypes.bool
+    initiallyCollapsed: PropTypes.bool,
+    /**
+     * defines if this section is pinnable or not
+     */
+    pinnable: PropTypes.bool,
+    /**
+     * if the section is pinnable, defines if it is initially pinned or not
+     * 
+     * has no effect if the section is not pinnable
+     */
+    initiallyPinned: PropTypes.bool,
+    /**
+     * if the section is pinnable, get called if the panel gets pinned or unpinned
+     * 
+     * first parameter is a boolean stating if the new status is pinned or not
+     */
+    onPinnedStatusChange: PropTypes.func,
 }
 
 export default Section
