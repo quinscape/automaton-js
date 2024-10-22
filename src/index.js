@@ -105,6 +105,7 @@ import downloadURI from "./util/downloadURI"
 import createQuery from "./util/createQuery"
 
 import SearchQuery from "./util/SearchQuery"
+import useEffectNoInitial from "./util/useEffectNoInitial"
 
 // noinspection JSUnusedGlobalSymbols
 export {
@@ -262,5 +263,6 @@ export {
     createQuery,
     ConditionPointer,
 
-    SearchQuery
+    SearchQuery,
+    useEffectNoInitial
 }
