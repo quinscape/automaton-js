@@ -10,7 +10,6 @@ import ShortcutContext from "./ShortcutContext";
 import CollapsiblePanel from "../CollapsiblePanel";
 import StickySizesContext from "../sticky/StickySizesContext";
 import useEffectNoInitial from "../../util/useEffectNoInitial";
-import {toJS} from "mobx";
 
 /**
  * Create a form section
