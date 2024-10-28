@@ -10,6 +10,7 @@ import ShortcutContext from "./ShortcutContext";
 import CollapsiblePanel from "../CollapsiblePanel";
 import StickySizesContext from "../sticky/StickySizesContext";
 import useEffectNoInitial from "../../util/useEffectNoInitial";
+import {toJS} from "mobx";
 
 /**
  * Create a form section
@@ -43,7 +44,7 @@ const Section = fnObserver(({
         }
     }, [env.process.id]);
 
-    const [isPinned, setIsPinned] = useState(!!initiallyPinned);
+    const [isPinned, setIsPinned] = useState(false);
 
     const headerContent = typeof headingRenderer == "function" ? headingRenderer(heading) : (
         typeof headingRenderer == "string" ? headingRenderer : (
@@ -63,6 +64,16 @@ const Section = fnObserver(({
             <Icon className={isPinned ? "fa-lock" : "fa-lock-open"} />
         </button>
     ) : null;
+
+    useEffect(()=>{
+        if (typeof initiallyPinned === "object") {
+            Promise.resolve(initiallyPinned).then(value => {
+                setIsPinned(value);
+            })
+        }else if (typeof initiallyPinned === "boolean") {
+            setIsPinned(initiallyPinned);
+        }
+    }, []);
 
     useEffectNoInitial(() => {
         if (typeof onPinnedStatusChange === "function") {
@@ -162,7 +173,10 @@ Section.propTypes = {
      * 
      * has no effect if the section is not pinnable
      */
-    initiallyPinned: PropTypes.bool,
+    initiallyPinned: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.func
+    ]),
     /**
      * if the section is pinnable, get called if the panel gets pinned or unpinned
      * 
