@@ -7,6 +7,8 @@ import PropTypes from "prop-types";
 
 const DataGridButtonToolbar = (props) => {
     const {
+        id,
+        name,
         resetFilterButtonDisabled,
         customizeColumnsButtonDisabled,
         setIsColumnModalOpen
@@ -41,8 +43,8 @@ const DataGridButtonToolbar = (props) => {
                 {
                     !resetFilterButtonDisabled ? (
                         <Button
-                            id="startseitestammdaten_s7_filterzuruecksetzenzuletztbearbeiteteobjekte"
-                            name="filterZuruecksetzenZuletztBearbeiteteObjekte"
+                            id={id + "_resetFilters"}
+                            name={name + "_resetFilters"}
                             className="btn btn-primary ml-2"
                             text={i18n("resets filters")}
                             tooltip={i18n("resets filters")}
@@ -57,8 +59,8 @@ const DataGridButtonToolbar = (props) => {
                 {
                     !customizeColumnsButtonDisabled ? (
                         <Button
-                            id="startseitestammdaten_s7_spaltenanpassenzuletztbearbeiteteobjekte"
-                            name="spaltenAnpassenZuletztBearbeiteteObjekte"
+                            id={id + "_customizeColumns"}
+                            name={name + "_customizeColumns"}
                             className="btn btn-primary ml-2"
                             text={i18n("customizes displayed columns")}
                             tooltip={i18n("customizes displayed columns")}

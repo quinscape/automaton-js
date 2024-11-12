@@ -523,6 +523,8 @@ const DataGrid = fnObserver(props => {
                         displayControlButtons && (
                             <>
                                 <DataGridButtonToolbar
+                                    id={id + "_buttonToolbar"}
+                                    name={name + "_buttonToolbar"}
                                     resetFilterButtonDisabled={resetFilterButtonDisabled}
                                     customizeColumnsButtonDisabled={customizeColumnsButtonDisabled}
                                     setIsColumnModalOpen={setIsColumnModalOpen}
@@ -574,6 +576,7 @@ const DataGrid = fnObserver(props => {
                                 {
                                     !suppressFilter && (
                                         <FilterRow
+                                            id={id + "_filters"}
                                             columns={ columns }
                                             moveRowColumn={ moveRowColumn }
                                         />

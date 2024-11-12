@@ -39,7 +39,7 @@ const BOOLEAN_VALUES = [
 
 const FilterRow = fnObserver(props => {
 
-    const { columns, moveRowColumn } = props;
+    const { id, columns, moveRowColumn } = props;
 
     const filterState = useContext(FilterContext);
 
@@ -55,6 +55,8 @@ const FilterRow = fnObserver(props => {
         (column, columnIdx) => {
 
             const { name, enabled, filter, filterIndex,  renderFilter } = column;
+
+            const fieldId = id + "_" + name;
 
             if (enabled)
             {
@@ -88,6 +90,7 @@ const FilterRow = fnObserver(props => {
                                         React.cloneElement(
                                             customElem,
                                             {
+                                                id: fieldId,
                                                 key
                                             }
                                         )
@@ -99,6 +102,7 @@ const FilterRow = fnObserver(props => {
                                 filterElems.push(
                                     <Select
                                         key={ key }
+                                        id={ fieldId }
                                         labelClass="sr-only"
                                         label={ label }
                                         name={ fieldName }
@@ -113,6 +117,7 @@ const FilterRow = fnObserver(props => {
                                 filterElems.push(
                                     <DateRangeField
                                         key={ key }
+                                        id={ fieldId }
                                         labelClass="sr-only"
                                         label={ label }
                                         name={ fieldName }
@@ -125,6 +130,7 @@ const FilterRow = fnObserver(props => {
                                 filterElems.push(
                                     <Field
                                         key={ key }
+                                        id={ fieldId }
                                         labelClass="sr-only"
                                         label={ label }
                                         name={fieldName}
