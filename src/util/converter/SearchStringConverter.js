@@ -1,11 +1,11 @@
 import config from "../../config";
 
 /**
- * word  = (?:\!?(?:\*\s*)?[^*!&\/\s]+(?:\s*\*?\s*[^*!&\/\s]+)*(?:\s*\*)?)
- * extra = (?:\s*[&\/]\s*${word})*
+ * word  = (?:\!?(?:\*\s*)?[^*!&|\s]+(?:\s*\*?\s*[^*!&|\s]+)*(?:\s*\*)?)
+ * extra = (?:\s*[&|]\s*${word})*
  * regex = ^(?:${word}${extra})?$
  */
-const VALID_FILTER_PATTERN = /^(?:(?:\!?(?:\*\s*)?[^*!&\/\s]+(?:\s*\*?\s*[^*!&\/\s]+)*(?:\s*\*)?)(?:\s*[&\/]\s*(?:\!?(?:\*\s*)?[^*!&\/\s]+(?:\s*\*?\s*[^*!&\/\s]+)*(?:\s*\*)?))*)?$/;
+const VALID_FILTER_PATTERN = /^(?:(?:\!?(?:\*\s*)?[^*!&|\s]+(?:\s*\*?\s*[^*!&|\s]+)*(?:\s*\*)?)(?:\s*[&|]\s*(?:\!?(?:\*\s*)?[^*!&|\s]+(?:\s*\*?\s*[^*!&|\s]+)*(?:\s*\*)?))*)?$/;
 
 /**
  * Checks whether the entered String is a valid pattern
@@ -49,14 +49,14 @@ function parseAnd(searchString) {
 }
 
 function parseOr(searchString) {
-    return searchString.split("/").map(parseAnd).join("|");
+    return searchString.split("|").map(parseAnd).join("|");
 }
 
 /**
  * Turns a search string into a RegExp string with the following rules:
  * - a wilcard is written as "*"
  * - "and" is written as "&"
- * - "or" is written as "/"
+ * - "or" is written as "|"
  * - "not" is written as "!" (if allowed)
  * - no brackets
  * - "and" binds stronger than "or"
@@ -69,7 +69,7 @@ export function parseSearch(searchString) {
     if (searchString == null || searchString === "") {
         return searchString;
     }
-    const usedCombinators = searchString.includes("&") || searchString.includes("/");
+    const usedCombinators = searchString.includes("&") || searchString.includes("|");
     const resultRegExp = usedCombinators ? parseOr(searchString) : parseNot(searchString);
     return resultRegExp;
 }
@@ -101,14 +101,14 @@ function stringifyAnd(regExpString) {
 }
 
 function stringifyOr(regExpString) {
-    return regExpString.split("|").map(stringifyAnd).join(" / ");
+    return regExpString.split("|").map(stringifyAnd).join(" | ");
 }
 
 /**
  * Turns a RegExp string into a search string with the following rules:
  * - a wilcard is written as "*"
  * - "and" is written as "&"
- * - "or" is written as "/"
+ * - "or" is written as "|"
  * - "not" is written as "!" (if allowed)
  * - no brackets
  * - "and" binds stronger than "or"
