@@ -224,11 +224,11 @@ const operationImpl = {
     desc: false,
 
     lower: (a) => {
-        return a.toLocaleLowerCase();
+        return a !== null && a !== undefined ? a.toLocaleLowerCase() : null;
     },
 
     upper: (a) => {
-        return a.toLocaleUpperCase();
+        return a !== null && a !== undefined ? a.toLocaleUpperCase() : null;
     },
 
     toString: (a) => {
