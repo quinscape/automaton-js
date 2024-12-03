@@ -44,6 +44,7 @@ import CachedQuery from "../model/CachedQuery";
 import updateComponentCondition from "../util/updateComponentCondition"
 import {and} from "../../filter";
 import OfflineQuery from "../model/OfflineQuery";
+import { buildCustomFilter } from "../util/filter/CustomFilter";
 
 
 export const NO_SEARCH_FILTER = "NO_SEARCH_FILTER";
@@ -78,30 +79,16 @@ export function createSearchFilter(type, searchFilter, searchTerm)
     }
     else
     {
-        const scalarType = unwrapNonNull(lookupType(type, "rows." + searchFilter)).name;
+        // const scalarType = unwrapNonNull(lookupType(type, "rows." + searchFilter)).name;
 
-        if (scalarType === "String")
-        {
-            condition = field(searchFilter)
-                .containsIgnoreCase(
-                    value(
-                        searchTerm,
-                        scalarType
-                    )
-                );
-        }
-        else
-        {
-            condition = field(searchFilter)
-                .toString()
-                .containsIgnoreCase(
-                    value(
-                        searchTerm,
-                        scalarType
-                    )
-                );
-
-        }
+        // if (scalarType === "String")
+        // {
+        //     condition = buildCustomFilter("likePattern", searchFilter, searchTerm);
+        // }
+        // else
+        // {
+        condition = buildCustomFilter("likePattern", searchFilter, searchTerm);
+        // }
     }
 
     return condition;
