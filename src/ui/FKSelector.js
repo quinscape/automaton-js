@@ -79,16 +79,7 @@ export function createSearchFilter(type, searchFilter, searchTerm)
     }
     else
     {
-        // const scalarType = unwrapNonNull(lookupType(type, "rows." + searchFilter)).name;
-
-        // if (scalarType === "String")
-        // {
-        //     condition = buildCustomFilter("likePattern", searchFilter, searchTerm);
-        // }
-        // else
-        // {
         condition = buildCustomFilter("likePattern", searchFilter, searchTerm);
-        // }
     }
 
     return condition;
