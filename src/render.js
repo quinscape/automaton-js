@@ -25,6 +25,7 @@ export default function render(elem, targetId = "root") {
                     document.getElementById(targetId),
                     resolve
                 );
+                scrollTo(0, 0);
             }
             catch (e)
             {
