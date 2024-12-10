@@ -14,7 +14,7 @@ import {
  *
  * Simply wrap Buttons or DropdownItems in this component.
  */
-const DropdownMenu = ({ text, title, inline, buttonClassName, children}) => {
+const DropdownMenu = ({ text, title, inline, buttonClassName, children, ...restProps}) => {
 
     const [dropdownOpen,setDropdownOpen] = useState(false)
     const toggle = () => setDropdownOpen(prevState => !prevState)
@@ -37,7 +37,7 @@ const DropdownMenu = ({ text, title, inline, buttonClassName, children}) => {
     }
 
     return (
-        <Dropdown isOpen={dropdownOpen} toggle={toggle} className={ !inline ? "float-right" : "inline" } size="lg">
+        <Dropdown isOpen={dropdownOpen} toggle={toggle} className={ !inline ? "float-right" : "inline" } size="lg" {...restProps}>
             {
                 <DropdownToggle className={ cx("btn mr-2", buttonClassName)} title={ title }>
                     {
