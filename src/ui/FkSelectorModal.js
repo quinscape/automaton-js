@@ -235,18 +235,8 @@ const FkSelectorModal = fnObserver(
                                                     key={ name }
                                                     name={ name }
                                                     heading={ heading }
-                                                    filter={
-                                                        showColumnFilter ? (
-                                                            columnTypes[idx] === "String" ?
-                                                                "containsIgnoreCase" :
-                                                                (fieldName, val) =>
-                                                                    field(name).toString()
-                                                                    .containsIgnoreCase(
-                                                                        value(val, "String")
-                                                                    )
-                                                            ) :
-                                                            null
-                                                    }
+                                                    filter="likePattern"
+                                                    renderFilter="likePattern"
                                                 />
                                             )
                                         )
