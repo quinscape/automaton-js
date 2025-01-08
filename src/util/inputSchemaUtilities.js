@@ -1,5 +1,6 @@
 import config from "../config";
 import {unwrapAll} from "./type-utils";
+import {toJS} from "mobx";
 
 
 /**
@@ -20,9 +21,9 @@ export function createTreeRepresentationForInputSchema(rootType, options = {}) {
     if (typeof rootType === "string" && rootType !== "") {
         const inputSchema = config.inputSchema;
         return recursiveCreateTreeRepresentationForObject(inputSchema, rootType, "", (filterCallbackData) => {
-            if (filterCallbackData.currentType === rootType) {
-                return false;
-            }
+            // if (filterCallbackData.currentType === rootType) {
+            //     return false;
+            // }
             if (typeof filterCallback === "function") {
                 return filterCallback(filterCallbackData);
             }
@@ -54,9 +55,6 @@ export function createTreeRepresentationForInputSchemaByPath(rootType, schemaPat
         const foundRootType = findTypeByPath(inputSchema, rootType, schemaPath);
         return createTreeRepresentationForInputSchema(foundRootType, {
             filterCallback: (filterCallbackData) => {
-                if (filterCallbackData.currentType === rootType) {
-                    return false;
-                }
                 if (path.includes(filterCallbackData.currentName)) {
                     return false;
                 }
@@ -108,7 +106,6 @@ function recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, fie
     if (table == null) {
         return {};
     }
-
     const result = {};
 
     for (const field of table.fields) {
@@ -130,12 +127,10 @@ function recursiveCreateTreeRepresentationForObject(inputSchema, schemaPath, fie
         if (unwrappedKind === "SCALAR") {
             result[fieldName] = true;
         } else if (unwrappedKind === "OBJECT") {
-            if (!splitPath.includes(unwrappedName)) {
-                if (recursive) {
-                    result[fieldName] = recursiveCreateTreeRepresentationForObject(inputSchema, newSchemaPath, newFieldPath, filterCallback, recursive);
-                } else {
-                    result[fieldName] = {};
-                }
+            if (recursive) {
+                result[fieldName] = recursiveCreateTreeRepresentationForObject(inputSchema, newSchemaPath, newFieldPath, filterCallback, recursive);
+            } else {
+                result[fieldName] = {};
             }
         } else {
             console.warn(`Unwrapped type "${unwrappedKind}" in input schema is not known`);
