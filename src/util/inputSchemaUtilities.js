@@ -21,9 +21,6 @@ export function createTreeRepresentationForInputSchema(rootType, options = {}) {
     if (typeof rootType === "string" && rootType !== "") {
         const inputSchema = config.inputSchema;
         return recursiveCreateTreeRepresentationForObject(inputSchema, rootType, "", (filterCallbackData) => {
-            // if (filterCallbackData.currentType === rootType) {
-            //     return false;
-            // }
             if (typeof filterCallback === "function") {
                 return filterCallback(filterCallbackData);
             }
