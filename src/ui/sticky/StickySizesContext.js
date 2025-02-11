@@ -10,6 +10,9 @@ export class StickySizesContextState {
     @observable
     _footerHeight = 0;
 
+    @observable
+    _pinnedHeight = 0;
+
     constructor(props)
     {
         makeObservable(this)
@@ -42,6 +45,21 @@ export class StickySizesContextState {
 
         const stickyBottomPadding = config.ui.stickyBottomPadding;
         return Math.max(this._footerHeight, stickyBottomPadding);
+    }
+
+    @action
+    setPinnedHeight(value) {
+        this._pinnedHeight = value;
+    }
+
+    @computed
+    get pinnedHeight() {
+        return this._pinnedHeight;
+    }
+
+    @computed
+    get calculatedTopOffset() {
+        return this.headerHeight + this.pinnedHeight;
     }
 
 }

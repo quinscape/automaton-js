@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import cx from "classnames";
 import { FormContext, Icon } from "domainql-form";
 import {Card, CardBody, CardHeader} from "reactstrap";
@@ -10,6 +10,7 @@ import ShortcutContext from "./ShortcutContext";
 import CollapsiblePanel from "../CollapsiblePanel";
 import StickySizesContext from "../sticky/StickySizesContext";
 import useEffectNoInitial from "../../util/useEffectNoInitial";
+import useResizeObserver from "../../util/useResizeObserver";
 
 /**
  * Create a form section
@@ -32,6 +33,9 @@ const Section = fnObserver(({
 }) => {
 
     const stickySizes = useContext(StickySizesContext);
+
+    const sectionRef = useRef();
+    const { height: sectionHeight } = useResizeObserver(sectionRef);
 
     const env = useAutomatonEnv();
     const shortcutState = useContext(ShortcutContext);
@@ -82,9 +86,20 @@ const Section = fnObserver(({
         isPinned
     ]);
     
+    useEffect(() => {
+        if (!sectionRef.current) {
+            return;
+        }
+        if (isPinned) {
+            stickySizes.setPinnedHeight(sectionHeight);
+        } else {
+            stickySizes.setPinnedHeight(0);
+        }
+    }, [sectionRef.current, sectionHeight, isPinned]);
+
     return (
-        <div className={cx("section-container", isPinned && "section-sticky")} style={ isPinned ? {top: stickySizes.headerHeight} : {} }>
-            <div id={ id } style={ {position: "absolute", pointerEvents: "none", top: -stickySizes.headerHeight} } />
+        <div ref={sectionRef} className={cx("section-container", isPinned && "section-sticky")} style={isPinned ? { top: stickySizes.headerHeight } : {}}>
+            <div id={id} className={cx("section-jump-anchor", isPinned && "jump-to-top")} style={{ position: "absolute", pointerEvents: "none", top: -stickySizes.calculatedTopOffset }} />
             {
                 collapsible ? (
                     <CollapsiblePanel header={headerContent} hideHeader={hideHeader} collapsed={initiallyCollapsed} pinButton={pinButton}>
