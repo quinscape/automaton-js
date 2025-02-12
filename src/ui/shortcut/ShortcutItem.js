@@ -119,7 +119,11 @@ const ShortcutItem = fnObserver(({
             aria-invalid={ !!errorCount || null }
             onClick={(event) => {
                 const el = document.getElementById(reference);
-                el.scrollIntoView();
+                if (el.classList.contains("jump-to-top")) {
+                    scrollTo(0, 0);
+                } else {
+                    el.scrollIntoView();
+                }
                 event.preventDefault();
             }}
         >
