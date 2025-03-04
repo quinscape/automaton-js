@@ -167,10 +167,6 @@ export default function runProcess(processName, input) {
         .then(
             elem => render(elem)
         )
-        .then(elem => {
-            scrollTo(0, 0);
-            return elem;
-        })
         .catch(
             err => {
                 console.error("ERROR RUNNING PROCESS", err)

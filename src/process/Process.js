@@ -684,15 +684,7 @@ export class Process {
 
                     return render(
                         renderCurrentView()
-                    ).then(elem => {
-                        const { isRecorded } = transition;
-                        if (isRecorded) {
-                            setTimeout(() => {
-                                scrollTo(0, 0);
-                            }, 0);
-                        }
-                        return elem;
-                    });
+                    )
                 },
                     err => console.error("ERROR IN TRANSITION '" + name + "'", err)
                 )
@@ -1175,12 +1167,7 @@ export function onHistoryAction({ action, location })
             {
                 render(
                     noViewState()
-                ).then(elem => {
-                    setTimeout(() => {
-                        scrollTo(0, 0);
-                    }, 0);
-                    return elem;
-                });
+                )
             }
             else
             {
@@ -1280,12 +1267,7 @@ const renderRestoredView = action(
 
         return render(
             renderCurrentView()
-        ).then(elem => {
-            setTimeout(() => {
-                scrollTo(0, 0);
-            }, 0);
-            return elem;
-        });
+        );
     }
 );
 
