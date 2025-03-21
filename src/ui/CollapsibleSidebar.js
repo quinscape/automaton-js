@@ -20,11 +20,14 @@ const CollapsibleSidebar = ({
     minWidth = "100px",
     maxWidth = "400px",
     collapsedLabelText = "",
+    collapsed,
+    onLockChange,
     className,
     children
 }) => {
 
-    const [expanded, setExpanded] = useState(false);
+    const [locked, setLocked] = useState(!collapsed);
+    const [expanded, setExpanded] = useState(!collapsed);
     const {width: windowWidth} = useWindowSize();
 
     return (
@@ -33,16 +36,32 @@ const CollapsibleSidebar = ({
             className={ cx(className, "collapsible-sidebar", expanded > 0 ? "expanded" : "collapsed") }
         >
             <div className="button-wrapper text-muted small">
+                {expanded && <button
+                    type="button"
+                    className={cx("btn", "btn-outline-primary", "collapse-button")}
+                    style={{marginRight: "2px"}}
+                    onClick={() => {
+                        setLocked(prevState => !prevState);
+                        if(typeof onLockChange === "function") {
+                            onLockChange(locked);
+                        }
+                    }}
+                    title={locked ? i18n("Unlock Sidebar") : i18n("Lock Sidebar")}
+                    aria-expanded={expanded}
+                >
+                    <Icon className={locked ? "fa-lock" : "fa-unlock"}/>
+                </button>
+                }
                 <button
                     type="button"
-                    className={ cx("btn", "btn-outline-primary", "collapse-button") }
+                    className={cx("btn", "btn-outline-primary", "collapse-button")}
                     onClick={() => {
                         setExpanded(!expanded);
                     }}
                     title={expanded ? i18n("Collapse Sidebar") : i18n("Expand Sidebar")}
                     aria-expanded={expanded}
                 >
-                    <Icon className="fa-chevron-down" />
+                    <Icon className="fa-chevron-down"/>
                 </button>
             </div>
             <div className="wrapper">
@@ -99,7 +118,15 @@ CollapsibleSidebar.propTypes = {
      * allowed units: px, vw, vh\
      * defaults to 200px
      */
-    width: PropTypes.string
+    width: PropTypes.string,
+    /**
+     * the initial sidebar state (default: true)
+     */
+    collapsed: PropTypes.bool,
+    /**
+     * optional function, that will be invoked if the sidebar's locked-state is toggled.
+     */
+    onLockChange: PropTypes.func
 }
 
 export default CollapsibleSidebar;
