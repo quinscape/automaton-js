@@ -64,7 +64,7 @@ const Section = fnObserver(({
             }}
             title={isPinned ? i18n("Unpin Panel") : i18n("Pin Panel")}
         >
-            <Icon className={isPinned ? "fa-lock" : "fa-lock-open"} />
+            <Icon className={isPinned?"fa-map-pin":"fa-map-pin fa-rotate-90"} />
         </button>
     ) : null;
 
