@@ -420,6 +420,12 @@ function getManyToManyChanges(registrations, mergePlan)
                     }
                 }
 
+                if (linkedB === undefined)
+                {
+                    // if we have a undefined base array, we just keep ignoring that property
+                    continue
+                }
+
                 // create all B that were not present in A
                 for (let j = 0; j < linkedB.length; j++)
                 {
