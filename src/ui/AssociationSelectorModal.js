@@ -87,24 +87,9 @@ const AssociationSelectorModal = fnObserver(props => {
                 },
                 // and the effect triggers the debounced condition update
                 newCondition => {
-
-                    const cachedVars = iQueryRef.current._query.vars;
-
-                    const currentCondition = iQueryRef.current._query.vars.config.condition;
-
-                    const composite = currentCondition != null ? updateComponentCondition(
-                        iQueryRef.current._query.vars.config.condition,
-                        newCondition,
-                        associationSelectorId
-                    ) : newCondition;
-
                     // We can't use `iQuery` directly because this closure traps the very first iQuery prop value
                     // which is always null. So we trap the iQueryRef ref instead and change its current prop
-                    iQueryRef.current.updateCondition(
-                        composite
-                    ).then(() => {
-                        iQueryRef.current._query.vars = cachedVars;
-                    });
+                    iQueryRef.current.updateCondition(newCondition, associationSelectorId);
                 },
                 {
                     delay: searchTimeout,
@@ -179,7 +164,7 @@ const AssociationSelectorModal = fnObserver(props => {
                     {
                         isOpen && (
                             <DataGrid
-                                id="fk-selector-grid"
+                                id={associationSelectorId}
                                 tableClassName="table-hover table-striped table-bordered table-sm"
                                 value={ iQuery }
                                 filterTimeout={ searchTimeout }
