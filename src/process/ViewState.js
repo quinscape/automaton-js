@@ -9,7 +9,7 @@ const secret = Symbol("ViewState Secret");
  */
 export default class ViewState
 {
-    constructor(name, transitionFn, renderFn, pageTitle)
+    constructor(name, transitionFn, renderFn, pageTitle, afterRestoreFn)
     {
         if (!name)
         {
@@ -26,10 +26,15 @@ export default class ViewState
             throw new Error("Need render function");
         }
 
+        if (afterRestoreFn != null && typeof afterRestoreFn !== "function") {
+            throw new Error("After restore needs to be a function or not defined");
+        }
+
         const storage = {
             name,
             Component: observer(renderFn),
             transitionFn,
+            afterRestoreFn,
             pageTitle
         };
 
@@ -51,6 +56,10 @@ export default class ViewState
 
     get pageTitle() {
         return this[secret].pageTitle;
+    }
+
+    get afterRestoreFn() {
+        return this[secret].afterRestoreFn;
     }
 
     getViewStateComponent()
