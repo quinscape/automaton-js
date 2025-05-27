@@ -168,7 +168,12 @@ export default function registerBigDecimalConverter(opts) {
                 return i18n("Invalid Big Decimal");
             }
 
-            if (!num.isFinite() || num.precision() > p.precision)
+            let ommittedDecimalPlaces = 0;
+            if (ctx.padToScale && p.scale != null) {
+                ommittedDecimalPlaces = p.scale - num.decimalPlaces();
+            }
+
+            if (!num.isFinite() || num.precision(true) + ommittedDecimalPlaces > p.precision)
             {
                 return i18n("Out of range");
             }
