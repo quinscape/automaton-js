@@ -1267,7 +1267,12 @@ const renderRestoredView = action(
 
         return render(
             renderCurrentView()
-        );
+        ).then(async r => {
+            if (typeof nextState.afterRestoreFn === "function") {
+                await nextState.afterRestoreFn(prevProcess, nextProcess);
+            }
+            return r;
+        });
     }
 );
 
