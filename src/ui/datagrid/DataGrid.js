@@ -1,5 +1,6 @@
 import React, {useEffect, useMemo, useState} from "react"
 import PropTypes from "prop-types"
+import get from "lodash.get";
 import { DndProvider } from "react-dnd"
 import cx from "classnames"
 import { observer as fnObserver } from "mobx-react-lite"
@@ -22,7 +23,7 @@ import OfflineQuery from "../../model/OfflineQuery";
 import UserColumnConfigDialogModal from "./userconfig/UserColumnConfigDialogModal";
 import DataGridButtonToolbar from "./DataGridButtonToolbar";
 import useEffectNoInitial from "../../util/useEffectNoInitial"
-import { resolveFieldDependencies, resolveTableDependencies } from "../../util/dependencyUtilities"
+import { resolveFieldDependencies, resolveTableDependencies, getCustomDependencyResolver } from "../../util/dependencyUtilities"
 import { createDomainObject } from "domainql-form/lib/util/clone"
 import { DndManager } from "../../util/DndUtils"
 
@@ -216,7 +217,7 @@ const DataGrid = fnObserver(props => {
                     return;
                 }
 
-                const {name, width, minWidth, filter, heading, suppressSort, sort, renderFilter, children : columnChildren } = columnElem.props;
+                const { name, width, minWidth, filter, heading, suppressSort, sort, renderFilter, children: columnChildren } = columnElem.props;
                 const transformedFilter = getCustomFilter(filter) ?? filter;
                 const getValueFn = getCustomGetValue(filter);
                 const getTemplateFn = getCustomGetTemplate(filter);
@@ -349,12 +350,17 @@ const DataGrid = fnObserver(props => {
             const newEntry = createDomainObject(type);
             newEntry.id = entry.id;
             for (const fieldName in newEntry) {
-                const fieldDependencies = resolveFieldDependencies(type, fieldName);
-                if (fieldDependencies != null) {
-                    const fieldDependency = fieldDependencies.filter(e => e.startsWith(`${dependency}.`))[0];
-                    if (fieldDependency != null) {
-                        const [, fieldDependencyName] = fieldDependency.split(".");
-                        newEntry[fieldName] = entry[fieldDependencyName];
+                const resolver = getCustomDependencyResolver(type, fieldName);
+                if (typeof resolver === "function") {
+                    newEntry[fieldName] = resolver(entry, workingSet, get(entry, fieldName));
+                } else {
+                    const fieldDependencies = resolveFieldDependencies(type, fieldName);
+                    if (fieldDependencies != null) {
+                        const fieldDependency = fieldDependencies.filter(e => e.startsWith(`${dependency}.`))[0];
+                        if (fieldDependency != null) {
+                            const [, fieldDependencyName] = fieldDependency.split(".");
+                            newEntry[fieldName] = entry[fieldDependencyName];
+                        }
                     }
                 }
             }
