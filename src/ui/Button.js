@@ -51,7 +51,7 @@ const Button = props => {
 
     const onClick = ev => {
         const entry = transition && env.process.getTransition(transition);
-        return ( !entry || !entry.discard ? formConfig.formContext.waitForAsyncValidation() : Promise.resolve()).then(
+        return (!entry || !entry.discard ? formContext.waitForAsyncValidation() : Promise.resolve()).then(
             () => {
                 const { action } = props;
                 //console.log("BUTTON-CLICK", { action, transition, context, env })
@@ -81,7 +81,7 @@ const Button = props => {
             .then(
                 () => {
 
-                    if (!isDisabled(formConfig))
+                    if (!isDisabled())
                     {
                         const { action } = props;
                         //console.log("BUTTON-CLICK", { action, transition, context, env })
@@ -131,7 +131,7 @@ const Button = props => {
             }
 
             // .. and we're not discarding and we have errors, then disable button
-            isDisabled = !entry.discard && (formConfig.hasErrors() || (formConfig.ctx && !formConfig.root));
+            isDisabled = !entry.discard && (formContext.hasErrors() || (formConfig.ctx && !formConfig.root));
         }
 
         return isDisabled;
