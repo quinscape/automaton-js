@@ -29,6 +29,7 @@ const Section = fnObserver(({
     pinnable,
     initiallyPinned,
     onPinnedStatusChange,
+    pinnedIgnoresHeader,
     children
 }) => {
 
@@ -85,9 +86,11 @@ const Section = fnObserver(({
     }, [
         isPinned
     ]);
-    
+
+    const pinnedIgnoresHeaderHeight = typeof pinnedIgnoresHeader === "function" ? pinnedIgnoresHeader() : pinnedIgnoresHeader;
+
     useEffect(() => {
-        if (!sectionRef.current) {
+        if (!sectionRef.current || !pinnable) {
             return;
         }
         if (isPinned) {
@@ -95,10 +98,10 @@ const Section = fnObserver(({
         } else {
             stickySizes.setPinnedHeight(0);
         }
-    }, [sectionRef.current, sectionHeight, isPinned]);
+    }, [sectionRef.current, sectionHeight, isPinned, pinnable]);
 
     return (
-        <div ref={sectionRef} className={cx("section-container", isPinned && "section-sticky")} style={isPinned ? { top: stickySizes.headerHeight } : {}}>
+        <div ref={sectionRef} className={cx("section-container", isPinned && "section-sticky")} style={isPinned ? { top: !pinnedIgnoresHeaderHeight ? stickySizes.headerHeight : 0 } : {}}>
             <div id={id} className={cx("section-jump-anchor", isPinned && "jump-to-top")} style={{ position: "absolute", pointerEvents: "none", top: -stickySizes.calculatedTopOffset }} />
             {
                 collapsible ? (
@@ -197,6 +200,14 @@ Section.propTypes = {
      * first parameter is a boolean stating if the new status is pinned or not
      */
     onPinnedStatusChange: PropTypes.func,
+    /**
+     * if the section is pinnable, defines if the menu header height should be ignored for top position
+     * 
+     * if this attribute is true, the top position will be forced to 0px in pinned state
+     * 
+     * has no effect if the section is not pinnable
+     */
+    pinnedIgnoresHeader: PropTypes.bool,
 }
 
 export default Section
