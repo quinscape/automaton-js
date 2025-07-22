@@ -637,6 +637,7 @@ const DataGrid = fnObserver(props => {
                         description={ i18n("Result Navigation") }
                         align={ alignPagination }
                         pageSizes={ paginationPageSizes }
+                        newRows={newWorkingSetObjects.length}
                     />
                 </div>
             </GridStateForm>

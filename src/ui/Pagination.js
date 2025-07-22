@@ -183,7 +183,7 @@ const RowCountDisplay = props =>
  */
 const Pagination = fnObserver(props => {
 
-    const { iQuery, pageSizes, description, buttonConfig, align } = props;
+    const { iQuery, newRows = 0, pageSizes, description, buttonConfig, align } = props;
 
     const justifyContentClass = getJustifyContentClass(align);
 
@@ -229,7 +229,7 @@ const Pagination = fnObserver(props => {
                         pageSizes={ pageSizes }
                     />
                     <RowCountDisplay
-                        rowCount={rowCount}
+                        rowCount={rowCount + newRows}
                     />
                 </div>
             </div>
