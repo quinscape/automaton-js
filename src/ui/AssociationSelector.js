@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useState, useEffect } from "react"
 import PropTypes from "prop-types"
 import cx from "classnames"
 import { ButtonToolbar, ListGroup, ListGroupItem } from "reactstrap"
@@ -351,6 +351,8 @@ const AssociationSelector = fnObserver(props => {
         paginationPageSizes,
         searchFilter,
         modalFilter,
+        fieldSensibilityReason,
+        onFieldSensibilityClick,
         onFieldConfigClick,
         disabled
     } = props;
@@ -475,6 +477,53 @@ const AssociationSelector = fnObserver(props => {
     const effectiveMode = modeFromProps || formConfig.options.mode;
     const isDisabled = effectiveMode === FieldMode.DISABLED || effectiveMode === FieldMode.READ_ONLY || (typeof disabled === "function" ? disabled() : disabled);
 
+
+
+    const [fieldSensibilityText, setFieldSensibilityText] = React.useState();
+    useEffect(() => {
+        if (fieldSensibilityReason == null || fieldSensibilityReason === "") {
+            setFieldSensibilityText("");
+        } else if (typeof fieldSensibilityReason === "function") {
+            setFieldSensibilityText(fieldSensibilityReason());
+        } else {
+            setFieldSensibilityText(fieldSensibilityReason);
+        }
+    }, [fieldSensibilityReason]);
+
+    const fieldSensibilitMarker = useMemo(() => {
+        if (typeof onFieldSensibilityClick === "function") {
+            return (
+                <Icon className="fa-eye" label={fieldSensibilityText} />
+            );
+        }
+    }, [fieldSensibilityText]);
+
+    const fieldSensibilityButton = useMemo(() => {
+        if (typeof onFieldSensibilityClick === "function") {
+            return (
+                <button
+                    type="button"
+                    className="btn btn-light btn-field-sensibility" // very small; absolute; top right
+                    onClick={() => {
+                        onFieldSensibilityClick({
+                            isFieldContext: false,
+                            name,
+                            formId: formConfig.ctx.formId,
+                            fieldId: elementId,
+                            path: toPath(value),
+                            rootType: formConfig.type,
+                            root: formConfig.root,
+                        });
+                    }}
+                >
+                    {
+                        <Icon className="fa-eye" />
+                    }
+                </button>
+            );
+        }
+    }, [onFieldSensibilityClick]);
+
     const fieldConfigButton = useMemo(() => {
         if (typeof onFieldConfigClick === "function") {
             return (
@@ -503,7 +552,7 @@ const AssociationSelector = fnObserver(props => {
 
     return (
         <React.Fragment>
-
+            {fieldSensibilitMarker}
             <FormGroup
                 formConfig={ formConfig }
                 fieldId={ elementId}
@@ -562,6 +611,7 @@ const AssociationSelector = fnObserver(props => {
                     </button>
                 </ButtonToolbar>
             </FormGroup>
+            {fieldSensibilityButton}
             {fieldConfigButton}
             <AssociationSelectorModal
                 { ... modalState }
