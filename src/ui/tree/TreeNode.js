@@ -15,8 +15,9 @@ const TreeNode = React.forwardRef((props, ref) => {
     const {
         selectionId,
         renderer,
-        renderCheckbox,
+        selectable,
         singleSelect = false,
+        selectPropagation = false,
         initiallyCollapsed = true,
         forceDirectory,
         onExpandDirectory,
@@ -36,7 +37,11 @@ const TreeNode = React.forwardRef((props, ref) => {
             ref={ ref }
             role="treeitem"
             tabIndex={ isSelected ? 0 : -1 }
-            className={ cx("tree-node d-flex flex-column align-items-stretch", isSelected && "selected") }
+            className={cx(
+                "tree-node d-flex flex-column align-items-stretch",
+                isSelected && "selected",
+                isDirectory && "tree-folder"
+            )}
             data-sel={ selectionId }
             onFocus={ev => {
                 if (!isSelected)
@@ -75,9 +80,9 @@ const TreeNode = React.forwardRef((props, ref) => {
                         </button>
                     )
                 }
-                <label className="d-flex align-content-center">
+                <label className="d-flex align-items-center">
                     {
-                        renderCheckbox && !isDirectory && (
+                        selectable && (!isDirectory || (!singleSelect && selectPropagation)) && (
                             <input
                                 type="checkbox"
                                 className="mr-2"
@@ -85,8 +90,14 @@ const TreeNode = React.forwardRef((props, ref) => {
                                 onChange={(event) => {
                                     if (event.target.checked) {
                                         ctx.checkItem(selectionId, singleSelect);
+                                        if (isDirectory) {
+                                            ctx.selectAllChildren(selectionId);
+                                        }
                                     } else {
                                         ctx.uncheckItem(selectionId, singleSelect);
+                                        if (isDirectory) {
+                                            ctx.unselectAllChildren(selectionId);
+                                        }
                                     }
                                 }}
                             />
@@ -102,7 +113,7 @@ const TreeNode = React.forwardRef((props, ref) => {
             </div>
             {
                 isDirectory && !collapsed && (
-                    <ul className="d-block ml-4">
+                    <ul role="group" className="d-block ml-4">
                         {
                             children.length > 0 ? children : (
                                 <li className="text-muted">

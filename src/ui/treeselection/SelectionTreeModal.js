@@ -18,6 +18,7 @@ const SelectionTreeModal = (props) => {
         onCollapseDirectory,
         valueRenderer,
         singleSelect,
+        selectPropagation,
         sorted,
         className
     } = props;
@@ -60,6 +61,7 @@ const SelectionTreeModal = (props) => {
                     onExpandDirectory={onExpandDirectory}
                     onCollapseDirectory={onCollapseDirectory}
                     singleSelect={singleSelect}
+                    selectPropagation={selectPropagation}
                     sorted={sorted}
                 />
                 <ButtonToolbar className="mt-3">

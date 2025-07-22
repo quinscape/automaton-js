@@ -14,6 +14,7 @@ const SelectionTree = (props) => {
         onCollapseDirectory,
         valueRenderer,
         singleSelect,
+        selectPropagation,
         sorted
     } = props;
 
@@ -31,7 +32,7 @@ const SelectionTree = (props) => {
             onSelectedElementsChange={onSelectedElementsChange}
         >
             {
-                renderTree(preparedTree, singleSelect, onExpandDirectory, onCollapseDirectory)
+                renderTree(preparedTree, singleSelect, selectPropagation, onExpandDirectory, onCollapseDirectory)
             }
         </Tree>
     )
@@ -81,6 +82,7 @@ function prepareTree(
 function renderTree(
     treeContent,
     singleSelect,
+    selectPropagation,
     onExpandDirectory,
     onCollapseDirectory
 ) {
@@ -94,8 +96,9 @@ function renderTree(
                     key={selectionId}
                     selectionId={selectionId}
                     renderer={value}
-                    renderCheckbox
+                    selectable
                     singleSelect={singleSelect}
+                    selectPropagation={selectPropagation}
                     forceDirectory
                     onExpandDirectory={onExpandDirectory}
                     onCollapseDirectory={onCollapseDirectory}
@@ -104,6 +107,7 @@ function renderTree(
                         renderTree(
                             children,
                             singleSelect,
+                            selectPropagation,
                             onExpandDirectory,
                             onCollapseDirectory
                         )
@@ -116,7 +120,7 @@ function renderTree(
                     key={selectionId}
                     selectionId={selectionId}
                     renderer={value}
-                    renderCheckbox
+                    selectable
                     singleSelect={singleSelect}
                 />
             )
@@ -201,6 +205,12 @@ SelectionTree.propTypes = {
      * if the tree is in single select mode
      */
     singleSelect: PropTypes.bool,
+
+    /**
+     * on select also select direct children
+     * if singleSelect is true, this property is ignored
+     */
+    selectPropagation: PropTypes.bool,
 
     /**
      * if the tree will be sorted

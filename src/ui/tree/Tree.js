@@ -258,6 +258,20 @@ const Tree = (props) => {
                     }
                 },
 
+            selectAllChildren: (selectId) => {
+                const folderNode = treeRef.current.querySelector(`li[role="treeitem"][data-sel="${selectId}"]`);
+                const selectableItems = folderNode.querySelectorAll("li[role='treeitem']:not(.tree-folder)");
+                const selectedIds = [...selectableItems].map((el) => el.dataset.sel);
+                const selectionBuffer = new Set(selectionList);
+                for (const selectedId of selectedIds) {
+                    selectionBuffer.add(selectedId);
+                }
+                const newSelectionList = [...selectionBuffer];
+
+                setSelectionList(newSelectionList);
+                onSelectedElementsChange(newSelectionList);
+            },
+
                 uncheckItem: (selectionId, singleSelect = false) => {
                     if (!singleSelect && selectionList.includes(selectionId)) {
                         const index = selectionList.indexOf(selectionId);
@@ -270,6 +284,20 @@ const Tree = (props) => {
                         onSelectedElementsChange(newSelectionList);
                     }
                 },
+
+            unselectAllChildren: (selectId) => {
+                const folderNode = treeRef.current.querySelector(`li[role="treeitem"][data-sel="${selectId}"]`);
+                const directChildren = folderNode.querySelectorAll("li[role='treeitem']:not(.tree-folder)");
+                const unselectedIds = [...directChildren].map((el) => el.dataset.sel);
+                const selectionBuffer = new Set(selectionList);
+                for (const unselectedId of unselectedIds) {
+                    selectionBuffer.delete(unselectedId);
+                }
+                const newSelectionList = [...selectionBuffer];
+
+                setSelectionList(newSelectionList);
+                onSelectedElementsChange(newSelectionList);
+            },
 
                 reselectHidden: (container, selectionId) => {
 
