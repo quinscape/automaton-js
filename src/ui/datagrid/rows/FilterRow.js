@@ -1,6 +1,7 @@
 import React, { useContext } from "react"
 import { observer as fnObserver } from "mobx-react-lite"
 import { Select, Field } from "domainql-form"
+import cx from "classnames"
 import i18n from "../../../i18n"
 import I18nTranslation from "../../I18nTranslation";
 import { FilterContext } from "../GridStateForm";
@@ -54,7 +55,7 @@ const FilterRow = fnObserver(props => {
     columns.forEach(
         (column, columnIdx) => {
 
-            const { name, enabled, filter, filterIndex,  renderFilter } = column;
+            const { name, enabled, fixed, filter, filterIndex, renderFilter } = column;
 
             const fieldId = id + "_" + name;
 
@@ -63,7 +64,7 @@ const FilterRow = fnObserver(props => {
                 if (!filter || (moveRowColumn != null && moveRowColumn === name))
                 {
                     filterColumnElements.push(
-                        <th key={ columnIdx }/>
+                        <th key={columnIdx} className={cx((fixed || moveRowColumn) && "sticky-cell")} />
                     );
                 }
                 else

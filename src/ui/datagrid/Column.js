@@ -20,6 +20,7 @@ const Column = fnObserver(props => {
         minWidth,
         maxWidth,
         nobreak,
+        fixed,
         className,
         children
     } = props;
@@ -60,7 +61,8 @@ const Column = fnObserver(props => {
                 className={cx(
                     "data-grid-cell",
                     effectiveClass,
-                    isInvalid && "is-invalid"
+                    isInvalid && "is-invalid",
+                    fixed && "sticky-cell"
                 )}
                 style={ { width, minWidth, maxWidth } }
                 data-name={name}

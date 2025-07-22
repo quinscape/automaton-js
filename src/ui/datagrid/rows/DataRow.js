@@ -78,7 +78,7 @@ const DataRow = ({
                                     <td
                                         ref={!!moveRow && dragRef}
                                         key={columnIdx}
-                                        className="grip"
+                                        className="grip sticky-cell"
                                     >
                                         <p
                                             className="form-control-plaintext nobreak"

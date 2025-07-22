@@ -217,7 +217,7 @@ const DataGrid = fnObserver(props => {
                     return;
                 }
 
-                const { name, width, minWidth, filter, heading, suppressSort, sort, renderFilter, children: columnChildren } = columnElem.props;
+                const { name, width, minWidth, fixed, filter, heading, suppressSort, sort, renderFilter, children: columnChildren } = columnElem.props;
                 const transformedFilter = getCustomFilter(filter) ?? filter;
                 const getValueFn = getCustomGetValue(filter);
                 const getTemplateFn = getCustomGetTemplate(filter);
@@ -270,6 +270,7 @@ const DataGrid = fnObserver(props => {
                     name,
                     width,
                     minWidth,
+                    fixed,
                     sortable,
                     filter: transformedFilter,
                     filterIndex: null,
