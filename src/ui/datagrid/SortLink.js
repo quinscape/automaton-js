@@ -2,7 +2,7 @@ import React from "react"
 import cx from "classnames"
 import { Icon } from "domainql-form"
 import { operation } from "../../FilterDSL";
-import findSort from "./findSort";
+import findSort, { findSortPosition } from "./findSort";
 import i18n from "../../i18n"
 
 
@@ -70,9 +70,11 @@ const SortLink = props => {
 
     let sortIcon = null
     let sortState = 0
+    let sortPosition = 0
     if (sortable && sortFields != null)
     {
         sortState = findSort(sortFields, sort)
+        sortPosition = findSortPosition(sortFields, sort) + 1
         sortIcon = SORT_ICONS[sortState]
     }
 
@@ -104,6 +106,7 @@ const SortLink = props => {
                         sortIcon
                     )
                 }
+                data-sort-position={sortPosition > 0 ? sortPosition : ""}
             />
         )
     );

@@ -81,3 +81,67 @@ export default function findSort(sortFields, sort)
     }
     return 0;
 }
+
+/**
+ * Finds the current sort string/map in the given array of sort fields and returns its position
+ *
+ * @param {Array<String|object>} sortFields     Array of sort field expression strings/maps
+ * @param {String|object} sort                sort expression
+ *
+ * @return {number} the position of the sort
+ */
+export function findSortPosition(sortFields, sort) {
+    for (let i = 0; i < sortFields.length; i++) {
+        const current = sortFields[i];
+
+        const sortIsString = typeof sort === "string";
+        const currentIsString = typeof current === "string";
+
+        const inverseSort = sortIsString ? "!" + sort : operation("desc", [sort]);
+
+        if (sortIsString) {
+            if (currentIsString) {
+                if (current === sort) {
+                    return i;
+                }
+                else if (current === inverseSort) {
+                    return i;
+                }
+            }
+            else {
+                if (current.type === Type.FIELD && current.name === sort) {
+                    return i;
+                }
+                else if (
+                    current.type === Type.OPERATION && current.name === "desc" &&
+                    current.operands[0].type === Type.FIELD && current.operands[0].name === sort
+                ) {
+                    return i;
+                }
+            }
+        }
+        else {
+            if (currentIsString) {
+                if (sort.type === Type.FIELD && sort.name === current) {
+                    return i;
+                }
+                else if (
+                    sort.type === Type.FIELD &&
+                    current[0] === "!" &&
+                    sort.name === current.substr(1)
+                ) {
+                    return i;
+                }
+            }
+            else {
+                if (compareConditions(current, sort)) {
+                    return i;
+                }
+                else if (compareConditions(current, inverseSort)) {
+                    return i;
+                }
+            }
+        }
+    }
+    return -1;
+}
