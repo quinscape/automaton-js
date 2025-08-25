@@ -57,7 +57,7 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
 
                                 if (ev.ctrlKey || ev.shiftKey)
                                 {
-                                    ctx.updateMenu(selectionId);
+                                    ctx.pushMenu(selectionId);
                                 }
                                 else
                                 {
@@ -68,7 +68,7 @@ const ObjectItem = fnObserver(({row, render, actions, index, renderKid}) => {
                         }
                         onContextMenu={
                             ev => {
-                                ctx.updateMenu(selectionId);
+                                ctx.pushMenu(selectionId);
                                 ev.preventDefault();
                             }
                         }

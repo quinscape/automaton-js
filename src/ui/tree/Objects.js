@@ -92,6 +92,20 @@ const Objects = fnObserver(({render, values, actions, children}) => {
     );
 });
 
+const actionListPropType = PropTypes.arrayOf(
+    PropTypes.shape({
+        /** Label for the action for function to render a decorated label */
+        label: PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.func
+        ]).isRequired,
+        /** Action function for the action */
+        action: PropTypes.func,
+        /** Submenu */
+        subActions: actionListPropType
+    })
+);
+
 Objects.propTypes = {
     /**
      * Render function called once to render the item body for every row
@@ -107,17 +121,7 @@ Objects.propTypes = {
      * Array of menu entries with label and action function. The first action is the default action that is also
      * executed on item click.
      */
-    actions: PropTypes.arrayOf(
-        PropTypes.shape({
-            /** Label for the action for function to render a decorated label */
-            label: PropTypes.oneOfType([
-                PropTypes.string,
-                PropTypes.func
-            ]).isRequired,
-            /** Action function for the action */
-            action: PropTypes.func.isRequired
-        })
-    ).isRequired
+    actions: actionListPropType.isRequired
 };
 
 Objects.displayName = "Tree.Objects";

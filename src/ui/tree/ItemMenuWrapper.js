@@ -14,7 +14,8 @@ const ItemMenuWrapper = ({
     actions
 }) => {
     const isSelected = selectionId === ctx.selected;
-    const isMenuOpen = selectionId === ctx.menu;
+    const isMenuOpen = ctx.menu.includes(selectionId);
+
     return (<>
         <button
             type="button"
@@ -22,7 +23,7 @@ const ItemMenuWrapper = ({
             tabIndex={isSelected ? 0 : -1}
             aria-haspopup={ true }
             aria-expanded={ isMenuOpen }
-            onClick={() => ctx.updateMenu(selectionId)}
+            onClick={() => ctx.pushMenu(selectionId)}
             title={i18n("Tree:Open Contextmenu")}
         >
             <Icon className="fa-angle-right p-1"/>
@@ -33,21 +34,24 @@ const ItemMenuWrapper = ({
                     placement="bottom-start"
                     referenceElement={ ctx.menuElem }
                     modifiers={ ctx.options.popperModifiers }
+                    strategy="fixed"
                 >
                     {({ref, style, placement, scheduleUpdate}) => (
                         <ItemMenu
-                            ref={ ref }
+                            ctx={ctx}
+                            selectionId={selectionId}
+                            ref={ref}
                             style={ style }
                             data-placement={ placement }
                             scheduleUpdate={ scheduleUpdate }
-                            close={ () => {
-                                ctx.updateMenu(null);
+                            close={() => {
+                                ctx.clearMenu();
                                 const link = findParentLink(ctx.menuElem);
                                 link && link.focus();
-                            } }
-
+                            }}
                             row={ row }
                             actions={ actions }
+                            emphasizeFirstItem
                         />
                     )}
                 </Popper>

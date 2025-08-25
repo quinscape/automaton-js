@@ -2,12 +2,24 @@ import React, { useContext, useEffect, useRef, useState } from "react"
 import cx from "classnames"
 import { MOVEMENT_KEYS, TreeContext } from "./Tree";
 import ItemMenuButton from "./ItemMenuButton";
+import ItemSubMenuWrapper from "./ItemSubMenuWrapper";
 
 
 /**
  * Tree context menu.
  */
-const ItemMenu = React.forwardRef(({style,placement,actions,scheduleUpdate,row, close}, ref) => {
+const ItemMenu = React.forwardRef(({
+    ctx,
+    selectionId,
+    style,
+    placement,
+    actions,
+    emphasizeFirstItem,
+    scheduleUpdate,
+    isSubMenu,
+    row,
+    close
+}, ref) => {
 
     const [index, setIndex ] = useState(0);
 
@@ -20,28 +32,27 @@ const ItemMenu = React.forwardRef(({style,placement,actions,scheduleUpdate,row, 
             // autoFocus={true} or focus without preventScroll makes the browser jump to the top for some reason
             innerRef.current.querySelector(".dropdown-item").focus({preventScroll: true});
 
-            const onClick = ev => {
+            if (!isSubMenu) {
+                const onClick = ev => {
 
-                const menuElem = innerRef.current;
-                //console.log("onClick", menuElem, ev.target);
+                    const menuElem = innerRef.current;
+                    //console.log("onClick", menuElem, ev.target);
 
-                try
-                {
-                    if (!menuElem.contains(ev.target))
-                    {
-                        close();
+                    try {
+                        if (!menuElem.contains(ev.target)) {
+                            close();
+                        }
                     }
-                }
-                catch(e)
-                {
-                    console.error(e);
-                }
-            };
+                    catch (e) {
+                        console.error(e);
+                    }
+                };
 
-            document.addEventListener("mousedown", onClick, true);
+                document.addEventListener("mousedown", onClick, true);
 
-            return () => {
-                document.removeEventListener("mousedown", onClick, true);
+                return () => {
+                    document.removeEventListener("mousedown", onClick, true);
+                }
             }
         },
         []
@@ -95,23 +106,48 @@ const ItemMenu = React.forwardRef(({style,placement,actions,scheduleUpdate,row, 
             role="menu"
         >
             {
-                actions.map(({label, action, disabled, withSeparator, visible},idx) => (
-                    <ItemMenuButton
-                        key={ idx }
-                        idx={ idx }
-                        label={ label }
-                        row={ row }
-                        disabled={ disabled }
-                        onClick={
-                            () => {
-                                close();
-                                action(row);
+                actions.map(({ label, action, subActions, disabled, withSeparator, visible }, idx) =>
+                    subActions && subActions.length ? (
+                        <ItemSubMenuWrapper
+                            ctx={ctx}
+                            key={idx}
+                            idx={idx}
+                            label={label}
+                            selectionId={selectionId + "_" + idx}
+                            row={row}
+                            disabled={disabled}
+                            onClick={
+                                () => {
+                                    if (action) {
+                                        close();
+                                        action(row);
+                                    }
+                                }
                             }
-                        }
-                        withSeparator={ withSeparator }
-                        visible={ visible }
-                    />
-                ))
+                            actions={subActions}
+                            withSeparator={withSeparator}
+                            visible={visible}
+                        />
+                    ) : (
+                        <ItemMenuButton
+                                key={idx}
+                                idx={idx}
+                                label={(emphasizeFirstItem && idx === 0) ? <b>{label}</b> : label}
+                                row={row}
+                                disabled={disabled}
+                                onClick={
+                                    () => {
+                                        if (action) {
+                                            close();
+                                            action(row);
+                                        }
+                                    }
+                            }
+                                withSeparator={withSeparator}
+                                visible={visible}
+                            />
+                    )
+                )
             }
         </div>
     );

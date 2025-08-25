@@ -107,7 +107,9 @@ export const MOVEMENT_KEYS = {
 };
 
 const SELECT = "SELECT";
-const MENU = "MENU";
+const PUSH_MENU = "PUSH_MENU";
+const POP_MENU = "POP_MENU";
+const CLEAR_MENU = "CLEAR_MENU";
 
 function reducer(state,action)
 {
@@ -125,18 +127,34 @@ function reducer(state,action)
             break;
         }
 
-        case MENU:
-        {
+        case PUSH_MENU: {
             const { selectionId } = action;
-
+            const [...menu] = state.menu;
+            menu.push(selectionId);
             newState = {
-                ... state,
-                menu: selectionId
+                ...state,
+                menu
             };
-            if (selectionId)
-            {
-                newState.selected = selectionId;
+            break;
+        }
+
+        case POP_MENU: {
+            const [...menu] = state.menu;
+            if (menu.length > 0) {
+                menu.pop();
             }
+            newState = {
+                ...state,
+                menu
+            };
+            break;
+        }
+
+        case CLEAR_MENU: {
+            newState = {
+                ...state,
+                menu: []
+            };
             break;
         }
     }
@@ -148,7 +166,7 @@ const DEFAULT_STATE = {
     /** Currently selected selection id string or null */
     selected: null,
     /** Selection-id for which the context-menu is rendered */
-    menu: null
+    menu: []
 };
 
 
@@ -230,13 +248,23 @@ const Tree = (props) => {
                     }
                 },
 
-                updateMenu: selectionId => {
-                    dispatch(
-                        {
-                            type: MENU,
-                            selectionId
-                        }
-                    );
+                pushMenu: (selectionId) => {
+                    dispatch({
+                        type: PUSH_MENU,
+                        selectionId
+                    });
+                },
+
+                popMenu: () => {
+                    dispatch({
+                        type: POP_MENU
+                    });
+                },
+
+                clearMenu: () => {
+                    dispatch({
+                        type: CLEAR_MENU
+                    });
                 },
 
                 checkItem: (selectionId, singleSelect = false) => {

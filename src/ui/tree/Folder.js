@@ -130,7 +130,7 @@ const Folder = ({row, render, query, variables, onLoad, actions, children}) => {
                         onClick={toggle}
                         onContextMenu={
                             ev => {
-                                ctx.updateMenu(selectionId);
+                                ctx.pushMenu(selectionId);
                                 ev.preventDefault();
                             }
                         }

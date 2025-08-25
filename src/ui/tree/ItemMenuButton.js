@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react"
 
-const ItemMenuButton = ({idx, row, label, disabled, onClick,withSeparator,visible}) => {
+const ItemMenuButton = ({
+    idx,
+    row,
+    label,
+    disabled,
+    onClick,
+    withSeparator,
+    visible
+}) => {
     const [isDisabled, setDisabled] = useState(false);
     const [isVisible, setVisible] = useState(true);
 
@@ -67,7 +75,7 @@ const ItemMenuButton = ({idx, row, label, disabled, onClick,withSeparator,visibl
                 hidden={ !isVisible }
             >
             {
-                typeof label === "function" ? label() : idx === 0 ? <b>{ label }</b> : label
+                    typeof label === "function" ? label() : label
             }
         </button>
     </div>

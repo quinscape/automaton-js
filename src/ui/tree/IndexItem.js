@@ -70,7 +70,7 @@ const IndexItem = ({ row, letter, open, setOpen, render, altText = defaultAltTex
                             }
                             onContextMenu={
                                 ev => {
-                                    ctx.updateMenu(headingSelectionId);
+                                    ctx.pushMenu(headingSelectionId);
                                     ev.preventDefault();
                                 }
                             }
