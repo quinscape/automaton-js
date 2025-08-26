@@ -1,7 +1,7 @@
 import React, {useContext, useMemo, useReducer, useState} from "react"
 import PropTypes from "prop-types"
 import { observer as fnObserver } from "mobx-react-lite"
-import get from "lodash.get";
+import get from "lodash/get";
 import InteractiveQuery, { getFirstValue } from "../../model/InteractiveQuery";
 import i18n from "../../i18n";
 import unicodeSubstring from "unicode-substring";

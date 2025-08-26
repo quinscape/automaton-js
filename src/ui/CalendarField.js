@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react"
 import cx from "classnames"
 import PropTypes from "prop-types"
-import get from "lodash.get"
+import get from "lodash/get"
 import { Field, FormGroup, unwrapType, FieldMode, Icon, Addon, GlobalConfig, renderStaticField } from "domainql-form"
 import config from "../config";
 import i18n from "../i18n";

@@ -1,7 +1,7 @@
 import config from "../config";
 import { LIST, SCALAR, INPUT_OBJECT, NON_NULL, OBJECT } from "domainql-form/lib/kind";
 import { INTERACTIVE_QUERY } from "../domain";
-import toPath from "lodash.topath";
+import toPath from "lodash/topath";
 
 export function findNamed(array, name)
 {

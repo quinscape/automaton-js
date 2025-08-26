@@ -26,7 +26,7 @@ import { getGenericType, INTERACTIVE_QUERY } from "../domain";
 import autoSubmitHack from "../util/autoSubmitHack";
 import FkSelectorModal from "./FkSelectorModal";
 import { useDebouncedCallback } from "use-debounce"
-import get from "lodash.get"
+import get from "lodash/get"
 import {
     getGraphQLMethodType,
     getIQueryPayloadType,

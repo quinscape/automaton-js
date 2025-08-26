@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import cx from "classnames"
 import { observer } from "mobx-react-lite"
-import get from "lodash.get"
+import get from "lodash/get"
 
 import { COMPUTED_VALUE_TYPE, field, toJSON, Type, value as dslValue } from "../../FilterDSL"
 import { AABB, isStructuralCondition, join } from "./condition-layout"

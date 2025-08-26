@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useState} from "react"
 import PropTypes from "prop-types"
-import get from "lodash.get";
+import get from "lodash/get";
 import { DndProvider } from "react-dnd"
 import cx from "classnames"
 import { observer as fnObserver } from "mobx-react-lite"

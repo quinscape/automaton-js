@@ -1,5 +1,5 @@
-import set from "lodash.set";
-import toPath from "lodash.topath";
+import set from "lodash/set";
+import toPath from "lodash/topath";
 import {action, makeObservable, observable} from "mobx";
 
 export default class QueryEditorState {

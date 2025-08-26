@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import { Manager } from "react-popper";
 import { action } from "mobx";
 import Objects from "./Objects";
-import get from "lodash.get";
+import get from "lodash/get";
 import IndexedObjects from "./IndexedObjects";
 import Folder from "./Folder";
 import MetaItem from "./MetaItem";

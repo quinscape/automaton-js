@@ -1,5 +1,5 @@
 import GraphQLQuery from "../GraphQLQuery"
-import toPath from "lodash.topath";
+import toPath from "lodash/topath";
 
 
 function findCommon(a, b)

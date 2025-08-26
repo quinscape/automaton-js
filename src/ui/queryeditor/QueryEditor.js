@@ -10,8 +10,8 @@ import ColumnSelect from "./ColumnSelect";
 import PropTypes from "prop-types";
 import { getFieldDataByPath, getTableNameByPath } from "../../util/inputSchemaUtilities";
 import { useLocalObservable } from "mobx-react-lite";
-import get from "lodash.get";
-import toPath from "lodash.topath";
+import get from "lodash/get";
+import toPath from "lodash/topath";
 import ConditionPointer from "../condition/ConditionPointer"
 
 const ORIGINS = {

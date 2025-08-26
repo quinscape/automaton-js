@@ -3,8 +3,8 @@ import { observer } from "mobx-react-lite";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 import { and, or, not, toJSON, Type, field, condition as dslCondition, value as dslValue } from "../../FilterDSL";
 import i18n from "../../i18n";
-import toPath from "lodash.topath"
-import get from "lodash.get"
+import toPath from "lodash/topath"
+import get from "lodash/get"
 import { toJS } from "mobx";
 
 

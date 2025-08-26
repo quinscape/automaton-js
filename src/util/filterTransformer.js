@@ -1,7 +1,7 @@
 import { CONDITION_METHODS, FIELD_CONDITIONS, FIELD_OPERATIONS, Type, COMPUTED_VALUE_TYPE } from "../FilterDSL";
 import { InputSchema } from "domainql-form";
-import get from "lodash.get"
-import toPath from "lodash.topath"
+import get from "lodash/get"
+import toPath from "lodash/topath"
 import { DateTime } from "luxon"
 
 const conditionImpl = {

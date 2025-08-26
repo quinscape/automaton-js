@@ -1,9 +1,9 @@
 /**
  * Helper class for FilterDSL node graph editing. Encapsulates a root condition and a path to a current position
  */
-import toPath from "lodash.topath"
-import get from "lodash.get"
-import set from "lodash.set"
+import toPath from "lodash/topath"
+import get from "lodash/get"
+import set from "lodash/set"
 import { Type } from "../../FilterDSL"
 import decompileFilter from "../../util/decompileFilter"
 

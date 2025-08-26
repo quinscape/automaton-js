@@ -6,7 +6,7 @@ import {ButtonToolbar, Container, Modal, ModalBody, ModalHeader, Row} from "reac
 import { Field, Form, Icon } from "domainql-form"
 import Calendar from "react-calendar"
 
-import set from "lodash.set"
+import set from "lodash/set"
 import autoSubmitHack from "../../../util/autoSubmitHack";
 import { DateTime } from "luxon";
 import DateTimeCalendar from "./components/DateTimeCalendar";

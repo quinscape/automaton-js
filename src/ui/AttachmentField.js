@@ -13,9 +13,9 @@ import {
 
 import config from "../config";
 import uri from "../uri";
-import get from "lodash.get"
-import set from "lodash.set"
-import toPath from "lodash.topath"
+import get from "lodash/get"
+import set from "lodash/set"
+import toPath from "lodash/topath"
 import { action } from "mobx";
 import Attachments from "../Attachments";
 import { v4 } from "uuid";

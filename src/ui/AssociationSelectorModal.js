@@ -3,7 +3,7 @@ import i18n from "../i18n";
 
 import { ButtonToolbar, Container, Modal, ModalBody, ModalHeader } from "reactstrap"
 import DataGrid from "./datagrid/DataGrid";
-import get from "lodash.get"
+import get from "lodash/get"
 import { useLocalObservable, observer as fnObserver } from "mobx-react-lite";
 import { action, comparer, observable, reaction } from "mobx";
 import { NO_FILTER, NO_SEARCH_FILTER, COLUMN_FILTER, createSearchFilter } from "./AssociationSelector";

@@ -5,9 +5,9 @@ import { ButtonToolbar, ListGroup, ListGroupItem } from "reactstrap"
 import { FieldMode, FormGroup, useFormConfig, Icon } from "domainql-form"
 import { action } from "mobx";
 import { observer as fnObserver, useLocalObservable } from "mobx-react-lite";
-import toPath from "lodash.topath"
-import get from "lodash.get"
-import set from "lodash.set"
+import toPath from "lodash/topath"
+import get from "lodash/get"
+import set from "lodash/set"
 import { v4 } from "uuid"
 
 import config from "../config";

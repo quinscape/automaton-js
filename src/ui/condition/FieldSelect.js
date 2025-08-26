@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite";
-import get from "lodash.get";
-import toPath from "lodash.topath";
+import get from "lodash/get";
+import toPath from "lodash/topath";
 import {Addon, Field, FieldMode, FormGroup, useFormConfig} from "domainql-form";
 import { join } from "./condition-layout";
 import i18n from "../../i18n"
